@@ -6,12 +6,15 @@
 
 QT       += core
 QT       += sql
+
 QT       -= gui
 
-TARGET = CuteEntityManager
-TEMPLATE = lib
+TARGET = EntityManager
+CONFIG   += console
+CONFIG   -= app_bundle
 
-DEFINES += CUTE_ENTITY_MANAGER_LIBRARY
+TEMPLATE = app
+
 
 HEADERS += \
 src/entity.h \
@@ -27,8 +30,3 @@ src/base/entity.cpp \
     src/entitymanager.cpp \
     src/database.cpp \
     src/relation.cpp
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}

@@ -1,7 +1,5 @@
 #include <QCoreApplication>
-#include "src/base/entity.h"
-#include "src/models/artikel.h"
-#include "src/base/entitymanager.h"
+#include "src/entitymanager.h"
 #include <typeinfo>
 #include <QDir>
 #include <QDebug>
