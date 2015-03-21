@@ -19,31 +19,21 @@
 #include <QtGlobal>
 #include <QMap>
 #include <QDebug>
+#include <QObject>
 #include "enums/persistencetype.h"
 #include "enums/databasetype.h"
 namespace CuteEntityManager {
 
-class Entity
-{
+class Entity : public QObject {
+    Q_OBJECT
 public:
-    qint64 getId();
-    void setId(qint64 id);
-    Entity* getEntity();
-    void addAttributeVal(const QString name, QVariant *var);
+    qint64 getId() = 0;
+    void setId(qint64 id) = 0;
     virtual ~Entity();
-    virtual QHash<QString, QString> getProperties(DatabaseType type) = 0;
-    virtual PersistenceType getPersistenceType() = 0;
-    virtual QHash<QString,Entity*>* getRelations() = 0;
-    virtual QHash<QString, QVariant>* getAttributeValues() = 0;
-    virtual void setAttributes(QHash<QString, QVariant>) = 0;
     virtual QString getTablename() = 0;
-    virtual QString idColumnSQL();
     //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
 protected:
     Entity();
-    qint64 id;
-    QHash<QString,QVariant> *attributeValues;
-    QHash<QString,Entity*> *relations;
 };
 }
 #endif // MODEL_H

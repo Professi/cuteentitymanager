@@ -16,17 +16,15 @@ DEFINES += CUTE_ENTITY_MANAGER_LIBRARY
 HEADERS += \
 src/entity.h \
     src/entitymanager.h \
-    src/enums/persistencetype.h \
     src/database.h \
     src/enums/databasetype.h \
-    src/enums/relationtype.h \
-    src/relation.h
+    src/schema.h
 
 SOURCES += \
 src/base/entity.cpp \
     src/entitymanager.cpp \
     src/database.cpp \
-    src/relation.cpp
+    src/schema.cpp
 
 unix {
     target.path = /usr/lib

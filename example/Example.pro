@@ -17,16 +17,7 @@ TEMPLATE = app
 
 
 HEADERS += \
-src/entity.h \
-    src/entitymanager.h \
-    src/enums/persistencetype.h \
-    src/database.h \
-    src/enums/databasetype.h \
-    src/enums/relationtype.h \
-    src/relation.h
+    models/artikel.h
 
 SOURCES += \
-src/base/entity.cpp \
-    src/entitymanager.cpp \
-    src/database.cpp \
-    src/relation.cpp
+    models/artikel.cpp
