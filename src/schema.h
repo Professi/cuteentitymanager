@@ -16,6 +16,7 @@ protected:
     virtual QString getCreateTableSql(TableSchema ts);
    virtual bool findColumns(TableSchema ts);
 
+
 };
 }
 #endif // SCHEMA_H
