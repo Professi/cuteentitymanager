@@ -18,15 +18,22 @@ src/entity.h \
     src/entitymanager.h \
     src/database.h \
     src/enums/databasetype.h \
-    src/schema.h
+    src/schema.h \
+    src/schema/sqliteschema.h \
+    src/tableschema.h \
+    src/columnschema.h
 
 SOURCES += \
-src/base/entity.cpp \
+src/entity.cpp \
     src/entitymanager.cpp \
     src/database.cpp \
-    src/schema.cpp
+    src/schema.cpp \
+    src/schema/sqliteschema.cpp \
+    src/tableschema.cpp \
+    src/columnschema.cpp
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
+CONFIG += c++11

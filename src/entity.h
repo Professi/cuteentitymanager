@@ -20,7 +20,6 @@
 #include <QMap>
 #include <QDebug>
 #include <QObject>
-#include "enums/persistencetype.h"
 #include "enums/databasetype.h"
 namespace CuteEntityManager {
 

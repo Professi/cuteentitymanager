@@ -55,11 +55,11 @@ void Database::init() {
 DatabaseType Database::getDatabaseType() {
     QString d = this->database.driverName();
     if(d == "qmysql") {
-        return OpenTeacherTool::MYSQL;
+        return CuteEntityManager::MYSQL;
     } else if(d == "qpgsql") {
-        return OpenTeacherTool::PGSQL;
+        return CuteEntityManager::PGSQL;
     } else {
-        return OpenTeacherTool::SQLITE;
+        return CuteEntityManager::SQLITE;
     }
 }
 
@@ -87,17 +87,13 @@ void Database::setTableList(QSqlQuery &q) {
 }
 
 
-QString Database::sqliteTableList() {
-    return "SELECT tbl_name FROM sqlite_master WHERE type='table';";
-}
+//QString Database::mysqlTableList() {
+//    return "SHOW TABLES;";
+//}
 
-QString Database::mysqlTableList() {
-    return "SHOW TABLES;";
-}
-
-QString Database::pgsqlTableList() {
-    return "SELECT table_name FROM information_schema.tables WHERE table_catalog = '"+this->database.databaseName()+"';";
-}
+//QString Database::pgsqlTableList() {
+//    return "SELECT table_name FROM information_schema.tables WHERE table_catalog = '"+this->database.databaseName()+"';";
+//}
 
 Database::~Database() {
     if(this->database.isOpen()) {

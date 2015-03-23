@@ -15,6 +15,7 @@ protected:
     virtual TableSchema findConstraints(TableSchema ts);
     virtual QString getCreateTableSql(TableSchema ts);
    virtual bool findColumns(TableSchema ts);
+    
 
 };
 }

@@ -15,14 +15,11 @@
  */
 
 #include "entitymanager.h"
-
+using namespace CuteEntityManager;
 /**
  * Relationen fehlen noch
  * Fehlermeldungen erstellen am besten eine Exception Klasse diesbzgl. erstellen
  */
-
-namespace CuteEntityManager {
-
 
 QStringList EntityManager::connectionNames = QStringList();
 
@@ -291,6 +288,5 @@ bool EntityManager::createTable(Entity *entity) {
         }
     }
     return rc;
-}
 
 }
