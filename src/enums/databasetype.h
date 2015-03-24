@@ -16,12 +16,39 @@
 
 #ifndef DATABASETYPE_H
 #define DATABASETYPE_H
-
+#include <QString>
+#include "../schema.h"
+#include "../schema/sqliteschema.h"
 namespace CuteEntityManager {
-   enum DatabaseType {
-       SQLITE=0,
-       PGSQL=1,
-       MYSQL=2
-   };
+enum DatabaseType {
+    SQLITE=0,
+    PGSQL=1,
+    MYSQL=2
+};
+
+static const int getDatabaseType(QString s) {
+    if(s == "qmysql") {
+        return CuteEntityManager::MYSQL;
+    } else if(s == "qpgsql") {
+        return CuteEntityManager::PGSQL;
+    } else if(s == "qsqlite"){
+        return CuteEntityManager::SQLITE;
+    }
+}
+
+static const Schema getSchema(int db) {
+    switch (db) {
+    case SQLITE:
+        return SqliteSchema();
+        break;
+    case PGSQL:
+    case MYSQL:
+    default:
+        return SqliteSchema();
+        break;
+    }
+}
+
+
 }
 #endif // DATABASETYPE_H

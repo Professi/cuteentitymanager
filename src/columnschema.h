@@ -1,6 +1,7 @@
 #ifndef COLUMNSCHEMA_H
 #define COLUMNSCHEMA_H
 #include <QString>
+#include <QList>
 
 namespace CuteEntityManager {
 

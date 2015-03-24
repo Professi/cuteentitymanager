@@ -52,25 +52,18 @@ void Database::init() {
 }
 
 
-DatabaseType Database::getDatabaseType() {
-    QString d = this->database.driverName();
-    if(d == "qmysql") {
-        return CuteEntityManager::MYSQL;
-    } else if(d == "qpgsql") {
-        return CuteEntityManager::PGSQL;
-    } else {
-        return CuteEntityManager::SQLITE;
-    }
+int Database::getDatabaseType() {
+    return CuteEntityManager::getDatabaseType(this->database.driverName());
 }
 
 void Database::getTableListFromDatabase() {
     if(this->database.open()) {
         QString q = "";
-        if(this->databasetype == OpenTeacherTool::SQLITE) {
+        if(this->databasetype == CuteEntityManager::SQLITE) {
             q = this->sqliteTableList();
-        } else if(this->databasetype == OpenTeacherTool::MYSQL){
+        } else if(this->databasetype == CuteEntityManager::MYSQL){
             q = this->mysqlTableList();
-        } else if(this->databasetype == OpenTeacherTool::PGSQL) {
+        } else if(this->databasetype == CuteEntityManager::PGSQL) {
             q = this->pgsqlSeqTable();
         }
         QSqlQuery query = QSqlQuery(this->database);
@@ -129,9 +122,9 @@ QString Database::sqliteSeqTable() {
 
 QChar Database::escapeChar() {
     QChar c = QChar();
-    if(this->databasetype == OpenTeacherTool::SQLITE) {
+    if(this->databasetype == CuteEntityManager::SQLITE) {
         c = '\'';
-    } else if(this->databasetype == OpenTeacherTool::MYSQL) {
+    } else if(this->databasetype == CuteEntityManager::MYSQL) {
         c = '`';
     }
     return c;
@@ -274,11 +267,11 @@ void Database::createSequenceTable() {
     if(this->database.open() && this->getLastId() == -1) {
         QString query = "";
         QStringList l = QStringList();
-        if(this->databasetype == OpenTeacherTool::MYSQL) {
+        if(this->databasetype == CuteEntityManager::MYSQL) {
             query = this->mysqlSeqTable();
-        } else if(this->databasetype == OpenTeacherTool::SQLITE) {
+        } else if(this->databasetype == CuteEntityManager::SQLITE) {
             query = this->sqliteSeqTable();
-        } else if(this->databasetype == OpenTeacherTool::PGSQL) {
+        } else if(this->databasetype == CuteEntityManager::PGSQL) {
             query = this->pgsqlSeqTable();
         }
         l.append(query);

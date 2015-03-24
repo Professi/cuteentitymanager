@@ -26,13 +26,14 @@ namespace CuteEntityManager {
 class Entity : public QObject {
     Q_OBJECT
 public:
-    qint64 getId() = 0;
-    void setId(qint64 id) = 0;
+    virtual qint64 getId();
+    virtual void setId(qint64 id);
     virtual ~Entity();
     virtual QString getTablename() = 0;
     //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
 protected:
     Entity();
+    qint64 id;
 };
 }
 #endif // MODEL_H
