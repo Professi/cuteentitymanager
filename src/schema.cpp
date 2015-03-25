@@ -9,3 +9,12 @@ Schema::~Schema() {
 
 }
 
+QString Schema::quoteSimpleTableName(QString name) {
+    //    return strpos($name, "`") !== false ? $name : "`" . $name . "`";
+}
+
+QString Schema::quoteSimpleColumnName(QString name)
+{
+//return strpos($name, '`') !== false || $name === '*' ? $name : '`' . $name . '`';
+}
+

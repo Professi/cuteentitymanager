@@ -52,7 +52,7 @@ void Database::init() {
 }
 
 
-int Database::getDatabaseType() {
+DatabaseType Database::getDatabaseType() {
     return CuteEntityManager::getDatabaseType(this->database.driverName());
 }
 

@@ -77,7 +77,7 @@ public:
     void refreshTableList();
     bool containsTable(QString tblname);
     bool updateSequenceCounter(QSqlQuery &q);
-    int getDatabaseType();
+    DatabaseType getDatabaseType();
     QChar escapeChar();
 };
 }

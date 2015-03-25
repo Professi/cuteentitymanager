@@ -19,6 +19,10 @@
 #include <QString>
 #include "../schema.h"
 #include "../schema/sqliteschema.h"
+#include "../schema/pgsqlschema.h"
+#include "../schema/mysqlschema.h"
+#include <memory>
+
 namespace CuteEntityManager {
 enum DatabaseType {
     SQLITE=0,
@@ -26,25 +30,29 @@ enum DatabaseType {
     MYSQL=2
 };
 
-static const int getDatabaseType(QString s) {
+static const DatabaseType getDatabaseType(QString s) {
     if(s == "qmysql") {
         return CuteEntityManager::MYSQL;
     } else if(s == "qpgsql") {
         return CuteEntityManager::PGSQL;
-    } else if(s == "qsqlite"){
+    } else {
         return CuteEntityManager::SQLITE;
     }
 }
 
-static const Schema getSchema(int db) {
+static const std::shared_ptr<Schema> getSchema(int db) {
     switch (db) {
     case SQLITE:
-        return SqliteSchema();
+        return std::shared_ptr<Schema>(new SqliteSchema());
         break;
     case PGSQL:
+        return std::shared_ptr<Schema>(new PgSqlSchema());
+        break;
     case MYSQL:
+        return std::shared_ptr<Schema>(new MysqlSchema());
+        break;
     default:
-        return SqliteSchema();
+        return std::shared_ptr<Schema>(new SqliteSchema());
         break;
     }
 }

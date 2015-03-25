@@ -28,7 +28,31 @@ public:
     const QString TYPE_BINARY = "binary";
     const QString TYPE_BOOLEAN = "boolean";
     const QString TYPE_MONEY = "money";
+
+    //    /**
+    //     * @var array list of ALL table names in the database
+    //     */
+    //    private $_tableNames = [];
+    //    /**
+    //     * @var array list of loaded table metadata (table name => TableSchema)
+    //     */
+    //    private $_tables = [];
+    //    /**
+    //     * @var QueryBuilder the query builder for this database
+    //     */
+    //    private $_builder;
+
+
     virtual QHash<QString, QString> *getTypeMap() = 0;
+    virtual QString quoteSimpleTableName(QString name);
+    virtual QString quoteSimpleColumnName(QString name);
+    virtual QList<TableSchema> getTableSchemas(QString schema = "", bool refresh = false);
+    virtual QList<QString> getTableNames(QString schema = "", $refresh = false);
+    //virtual QueryBuilder getQueryBuilder();
+    //virtual QueryBuilder createQueryBuilder();
+    virtual QList<QString> findUniqueIndexes(TableSchema schema);
+    virtual QString getLastInsertID(QString sequenceName = "");
+    virtual void refresh();
 
 protected:
     virtual QList<QString> findTableNames(QString schema = "");
@@ -37,6 +61,9 @@ protected:
     virtual QString getCreateTableSql(TableSchema ts);
     virtual bool findColumns(TableSchema ts);
     QSharedPointer<QHash<QString, QString>> typeMap;
+    virtual TableSchema loadTableSchema(QString name)  = 0;
+    virtual TableSchema getTableSchema(QString name, bool refresh = false);
+    virtual QList<QString> findTableNames(QString schema = "");
 
 };
 }
