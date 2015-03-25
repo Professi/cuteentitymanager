@@ -8,7 +8,7 @@
 namespace CuteEntityManager {
 
 class Schema {
-public:
+  public:
     Schema();
     virtual ~Schema();
     const QString TYPE_PK = "pk";
@@ -45,16 +45,22 @@ public:
 
     virtual QHash<QString, QString> *getTypeMap() = 0;
     virtual QString quoteSimpleTableName(QString name);
+    virtual QString quoteTableName(QString name);
+    virtual QString quoteColumnName(QString name);
     virtual QString quoteSimpleColumnName(QString name);
-    virtual QList<TableSchema> getTableSchemas(QString schema = "", bool refresh = false);
-    virtual QList<QString> getTableNames(QString schema = "", $refresh = false);
+    virtual QList<TableSchema> getTableSchemas(QString schema = "");
+    virtual QList<QString> getTableNames(QString schema = "");
     //virtual QueryBuilder getQueryBuilder();
     //virtual QueryBuilder createQueryBuilder();
     virtual QList<QString> findUniqueIndexes(TableSchema schema);
     virtual QString getLastInsertID(QString sequenceName = "");
     virtual void refresh();
+    virtual void quoteValue(QString str);
+    virtual QString getRawTable(QString name);
 
-protected:
+
+
+  protected:
     virtual QList<QString> findTableNames(QString schema = "");
     virtual QList<QString> findUniqueIndexes(QString tableName);
     virtual TableSchema findConstraints(TableSchema ts);

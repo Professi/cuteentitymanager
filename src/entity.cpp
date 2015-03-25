@@ -18,7 +18,7 @@
 
 namespace CuteEntityManager {
 
-Entity::Entity() : QObject(){
+Entity::Entity() : QObject() {
     this->id = -1;
 }
 

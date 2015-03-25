@@ -5,9 +5,8 @@
 
 namespace CuteEntityManager {
 
-class ColumnSchema
-{
-public:
+class ColumnSchema {
+  public:
     ColumnSchema();
     ~ColumnSchema();
     QString getName() const;
@@ -46,7 +45,7 @@ public:
     QString getComment() const;
     void setComment(const QString &value);
 
-private:
+  private:
     QString name;
     bool allowNull;
     QString dbType;

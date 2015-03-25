@@ -25,14 +25,15 @@ Database::Database(QSqlDatabase database) {
 }
 
 Database::Database(QString databaseType, QString connectionName, QString databasename) {
-    this->database = QSqlDatabase::addDatabase(databaseType,connectionName);
+    this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
     this->database.setDatabaseName(databasename);
     this->init();
 }
 
-Database::Database(QString databaseType, QString connectionName, QString hostname, QString databasename, QString username, QString password, qint64 port) {
-    this->database = QSqlDatabase::addDatabase(databaseType,connectionName);
+Database::Database(QString databaseType, QString connectionName, QString hostname, QString databasename,
+                   QString username, QString password, qint64 port) {
+    this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
     this->database.setHostName(hostname);
     this->database.setDatabaseName(databasename);
@@ -57,13 +58,13 @@ DatabaseType Database::getDatabaseType() {
 }
 
 void Database::getTableListFromDatabase() {
-    if(this->database.open()) {
+    if (this->database.open()) {
         QString q = "";
-        if(this->databasetype == CuteEntityManager::SQLITE) {
+        if (this->databasetype == CuteEntityManager::SQLITE) {
             q = this->sqliteTableList();
-        } else if(this->databasetype == CuteEntityManager::MYSQL){
+        } else if (this->databasetype == CuteEntityManager::MYSQL) {
             q = this->mysqlTableList();
-        } else if(this->databasetype == CuteEntityManager::PGSQL) {
+        } else if (this->databasetype == CuteEntityManager::PGSQL) {
             q = this->pgsqlSeqTable();
         }
         QSqlQuery query = QSqlQuery(this->database);
@@ -74,7 +75,7 @@ void Database::getTableListFromDatabase() {
 }
 
 void Database::setTableList(QSqlQuery &q) {
-    while(q.next()) {
+    while (q.next()) {
         this->tableList->append(q.value(0).toString());
     }
 }
@@ -89,7 +90,7 @@ void Database::setTableList(QSqlQuery &q) {
 //}
 
 Database::~Database() {
-    if(this->database.isOpen()) {
+    if (this->database.isOpen()) {
         this->database.close();
     }
     QSqlDatabase::removeDatabase(this->connectionName);
@@ -122,9 +123,9 @@ QString Database::sqliteSeqTable() {
 
 QChar Database::escapeChar() {
     QChar c = QChar();
-    if(this->databasetype == CuteEntityManager::SQLITE) {
+    if (this->databasetype == CuteEntityManager::SQLITE) {
         c = '\'';
-    } else if(this->databasetype == CuteEntityManager::MYSQL) {
+    } else if (this->databasetype == CuteEntityManager::MYSQL) {
         c = '`';
     }
     return c;
@@ -133,11 +134,11 @@ QChar Database::escapeChar() {
 
 bool Database::transaction(const QString &query) {
     bool rc = false;
-    if(supportTransactions) {
+    if (supportTransactions) {
         this->database.transaction();
         QSqlQuery sqlquery = QSqlQuery(this->database);
         sqlquery.exec(query);
-        if(!this->database.commit()) {
+        if (!this->database.commit()) {
             this->database.rollback();
         }
     } else {
@@ -158,13 +159,13 @@ QSqlQuery Database::getQuery(const QString &prepare) {
 
 bool Database::transaction(const QStringList &queries) {
     bool ok = false;
-    if(this->supportTransactions) {
+    if (this->supportTransactions) {
         this->database.transaction();
         QSqlQuery sqlquery = QSqlQuery(this->database);
         for (int var = 0; var < queries.size(); ++var) {
             sqlquery.exec(queries.at(var));
         }
-        if(!this->database.commit()) {
+        if (!this->database.commit()) {
             this->database.rollback();
         } else {
             ok = true;
@@ -178,7 +179,7 @@ bool Database::transaction(const QStringList &queries) {
 bool Database::transaction(QSqlQuery &query) {
     this->database.transaction();
     query.exec();
-    if(!this->database.commit()) {
+    if (!this->database.commit()) {
         this->database.rollback();
         return false;
     }
@@ -192,7 +193,7 @@ bool Database::transaction(QList<QSqlQuery> &queries) {
         q = queries.at(var);
         q.exec();
     }
-    if(!this->database.commit()) {
+    if (!this->database.commit()) {
         this->database.rollback();
         return false;
     }
@@ -203,19 +204,19 @@ bool Database::exec(QString query) {
     this->database.transaction();
     QSqlQuery q = QSqlQuery(this->database);
     q.exec(query);
-    if(!this->database.commit()) {
+    if (!this->database.commit()) {
         this->database.rollback();
         return false;
     }
     return true;
 }
 
-bool Database::exec(QStringList queries){
+bool Database::exec(QStringList queries) {
     QSqlQuery q = QSqlQuery(this->database);
     bool ok = true;
     for (int var = 0; var < queries.size() && ok; ++var) {
         ok = q.exec(queries.at(var));
-        if(!ok) {
+        if (!ok) {
             break;
         }
     }
@@ -232,7 +233,7 @@ bool Database::exec(QList<QSqlQuery> queries) {
     for (int var = 0; var < queries.size() && ok; ++var) {
         q = queries.at(var);
         ok = q.exec();
-        if(!ok) {
+        if (!ok) {
             break;
         }
     }
@@ -264,19 +265,19 @@ bool Database::containsTable(QString tblname) {
 }
 
 void Database::createSequenceTable() {
-    if(this->database.open() && this->getLastId() == -1) {
+    if (this->database.open() && this->getLastId() == -1) {
         QString query = "";
         QStringList l = QStringList();
-        if(this->databasetype == CuteEntityManager::MYSQL) {
+        if (this->databasetype == CuteEntityManager::MYSQL) {
             query = this->mysqlSeqTable();
-        } else if(this->databasetype == CuteEntityManager::SQLITE) {
+        } else if (this->databasetype == CuteEntityManager::SQLITE) {
             query = this->sqliteSeqTable();
-        } else if(this->databasetype == CuteEntityManager::PGSQL) {
+        } else if (this->databasetype == CuteEntityManager::PGSQL) {
             query = this->pgsqlSeqTable();
         }
         l.append(query);
         l.append(this->querySequenceCounter());
-        if(this->transaction(l)) {
+        if (this->transaction(l)) {
             this->setSeqTable(true);
         } else {
             this->setSeqTable(false);
@@ -288,7 +289,7 @@ void Database::createSequenceTable() {
 
 bool Database::updateSequenceCounter(QSqlQuery &q) {
     QList<QSqlQuery> l = QList<QSqlQuery>();
-    l.append(QSqlQuery("UPDATE sequence SET SEQ_COUNT=(SEQ_COUNT+1);",this->database));
+    l.append(QSqlQuery("UPDATE sequence SET SEQ_COUNT=(SEQ_COUNT+1);", this->database));
     l.append(q);
     return this->transaction(l);
 }
@@ -296,7 +297,7 @@ bool Database::updateSequenceCounter(QSqlQuery &q) {
 qint64 Database::getLastId() {
     qint64 id = -1;
     QSqlQuery q = this->select("SELECT SEQ_COUNT FROM sequence WHERE SEQ_NAME=\'id_count\';");
-    if(q.next()) {
+    if (q.next()) {
         id = q.value(0).toInt();
     }
     return id;

@@ -3,7 +3,7 @@
 #include "../schema.h"
 namespace CuteEntityManager {
 class PgSqlSchema : public Schema {
-public:
+  public:
     PgSqlSchema();
     ~PgSqlSchema();
     QHash<QString, QString> *getTypeMap();

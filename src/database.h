@@ -28,9 +28,8 @@
 #include "enums/databasetype.h"
 namespace CuteEntityManager {
 
-class Database
-{
-private:
+class Database {
+  private:
     QSqlDatabase database;
     QString connectionName;
     bool seqTable;
@@ -42,7 +41,7 @@ private:
     QString querySequenceCounter();
     QStringList *tableList;
 
-protected:
+  protected:
     inline QString pgsqlSeqTable();
     inline QString mysqlSeqTable();
     inline QString sqliteSeqTable();
@@ -50,12 +49,13 @@ protected:
     inline QString mysqlTableList();
     inline QString pgsqlTableList();
 
-public:
+  public:
     Database(QSqlDatabase database);
     ~Database();
     Database(QString databaseType, QString databasename);
     Database(QString databaseType, QString connectionName, QString databasename);
-    Database(QString databaseType, QString connectionName= "", QString hostname="",QString databasename = "" , QString username ="", QString password="", qint64 port=0);
+    Database(QString databaseType, QString connectionName = "", QString hostname = "", QString databasename = "" ,
+             QString username = "", QString password = "", qint64 port = 0);
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();

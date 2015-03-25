@@ -4,7 +4,7 @@
 #include "../schema.h"
 namespace CuteEntityManager {
 class SqliteSchema : public Schema {
-public:
+  public:
     SqliteSchema();
     ~SqliteSchema();
     QHash<QString, QString> *getTypeMap();

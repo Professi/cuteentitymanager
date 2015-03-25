@@ -25,15 +25,15 @@
 
 namespace CuteEntityManager {
 enum DatabaseType {
-    SQLITE=0,
-    PGSQL=1,
-    MYSQL=2
+    SQLITE = 0,
+    PGSQL = 1,
+    MYSQL = 2
 };
 
 static const DatabaseType getDatabaseType(QString s) {
-    if(s == "qmysql") {
+    if (s == "qmysql") {
         return CuteEntityManager::MYSQL;
-    } else if(s == "qpgsql") {
+    } else if (s == "qpgsql") {
         return CuteEntityManager::PGSQL;
     } else {
         return CuteEntityManager::SQLITE;

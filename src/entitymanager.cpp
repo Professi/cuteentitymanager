@@ -27,15 +27,17 @@ EntityManager::EntityManager(QSqlDatabase database) {
     this->db = new Database(database);
 }
 
-EntityManager::EntityManager(const QString &databaseType,QString databasename , QString hostname,QString username, QString password, QString port) {
-    this->db = new Database(databaseType,this->createConnection(),hostname,databasename,username,password,port.toInt());
+EntityManager::EntityManager(const QString &databaseType, QString databasename , QString hostname, QString username,
+                             QString password, QString port) {
+    this->db = new Database(databaseType, this->createConnection(), hostname, databasename, username, password,
+                            port.toInt());
 }
 
 inline bool EntityManager::checkTable(Entity *entity) {
     bool rc = true;
-    if(!this->db->containsTable(entity->getTablename())) {
+    if (!this->db->containsTable(entity->getTablename())) {
         qDebug() << "Tabelle" <<  entity->getTablename() << "existiert noch nicht.";
-        if(this->createTable(entity)) {
+        if (this->createTable(entity)) {
             this->db->refreshTableList();
             rc = this->db->containsTable(entity->getTablename());
         }
@@ -48,13 +50,13 @@ QString EntityManager::createConnection() {
     QString conName = "";
     bool ok = false;
     qint16 i = 0;
-    while(!ok) {
-        if(l.contains("con"+QString::number(i))) {
+    while (!ok) {
+        if (l.contains("con" + QString::number(i))) {
             ++i;
         } else {
-            l.append("con"+QString::number(i));
+            l.append("con" + QString::number(i));
             ok = true;
-            conName = "con"+QString::number(i);
+            conName = "con" + QString::number(i);
             EntityManager::setConnectionNames(l);
         }
     }
@@ -80,9 +82,9 @@ void EntityManager::setConnectionNames(QStringList list) {
 
 void EntityManager::bindValues(const QHash<QString, QVariant> *h, QSqlQuery &q, bool ignoreID) {
     QHash<QString, QVariant>::const_iterator i = h->constBegin();
-    while(i != h->constEnd()) {
-        if(!ignoreID || (ignoreID && !(i.key() == "id"))) {
-            q.bindValue(":"+i.key(),i.value());
+    while (i != h->constEnd()) {
+        if (!ignoreID || (ignoreID && !(i.key() == "id"))) {
+            q.bindValue(":" + i.key(), i.value());
         }
         ++i;
     }

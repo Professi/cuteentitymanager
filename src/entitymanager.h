@@ -28,42 +28,44 @@
 
 namespace CuteEntityManager {
 
-class EntityManager
-{
-private:
+class EntityManager {
+  private:
     static QStringList connectionNames;
     static void setConnectionNames(QStringList list);
     Database *db;
     QString createConnection();
     QString createTableQuery(Entity *entity);
-    QString attributes(QHash<QString, QVariant> *m, QString conjunction=",", bool ignoreID = false);
+    QString attributes(QHash<QString, QVariant> *m, QString conjunction = ",", bool ignoreID = false);
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
     bool checkTable(Entity *entity);
-    QString buildCreateQuery(QHash<QString,QVariant>::const_iterator i, QHash<QString,QVariant>::const_iterator end,QString &p1, QString &p2);
+    QString buildCreateQuery(QHash<QString, QVariant>::const_iterator i, QHash<QString, QVariant>::const_iterator end,
+                             QString &p1, QString &p2);
     void bindValues(const QHash<QString, QVariant> *h, QSqlQuery &q, bool ignoreID = false);
 
-protected:
-    QString where(Entity *entity,QString conjunction=",",bool ignoreID = false);
-    QString where(QHash<QString, QVariant> *m,QString conjunction=",", bool ignoreID = false);
+  protected:
+    QString where(Entity *entity, QString conjunction = ",", bool ignoreID = false);
+    QString where(QHash<QString, QVariant> *m, QString conjunction = ",", bool ignoreID = false);
 
-public:
+  public:
     EntityManager(QSqlDatabase database);
-    EntityManager(const QString &databaseType, QString databasename = "" , QString hostname="", QString username ="", QString password="", QString port="");
+    EntityManager(const QString &databaseType, QString databasename = "" , QString hostname = "", QString username = "",
+                  QString password = "", QString port = "");
     ~EntityManager();
     static QStringList getConnectionNames();
     static void removeConnectionName(const QString &name);
     bool create(Entity *entity);
     bool save(Entity *entity);
     qint64 findId(Entity *entity);
-    QList<QHash<QString,QVariant> > findAll(QString tblname);
-    QHash<QString,QVariant> find(qint64 id, QString tblname);
-    QList<QHash<QString, QVariant> > findByAttributes(Entity *entity,bool ignoreID = false);
-    QList<QHash<QString, QVariant> > findByAttributes(QHash<QString, QVariant> *m, const QString &tblname, bool ignoreID = false);
+    QList<QHash<QString, QVariant> > findAll(QString tblname);
+    QHash<QString, QVariant> find(qint64 id, QString tblname);
+    QList<QHash<QString, QVariant> > findByAttributes(Entity *entity, bool ignoreID = false);
+    QList<QHash<QString, QVariant> > findByAttributes(QHash<QString, QVariant> *m, const QString &tblname,
+            bool ignoreID = false);
     bool merge(Entity *entity);
     bool remove(Entity *&entity);
     bool removeAll(QString tblname);
     bool createTable(Entity *entity);
-    qint8 count(Entity* entity, bool ignoreID= true);
+    qint8 count(Entity *entity, bool ignoreID = true);
 };
 }
 #endif // ENTITYMANAGER_H

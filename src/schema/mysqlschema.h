@@ -3,7 +3,7 @@
 #include "../schema.h"
 namespace CuteEntityManager {
 class MysqlSchema : public Schema {
-public:
+  public:
     MysqlSchema();
     ~MysqlSchema();
     QHash<QString, QString> *getTypeMap();
