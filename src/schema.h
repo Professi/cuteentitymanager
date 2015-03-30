@@ -49,27 +49,26 @@ class Schema {
     virtual QString quoteColumnName(QString name);
     virtual QString quoteSimpleColumnName(QString name);
     virtual QList<TableSchema> getTableSchemas(QString schema = "");
-    virtual QList<QString> getTableNames(QString schema = "");
+    virtual QStringList getTableNames(QString schema = "");
     //virtual QueryBuilder getQueryBuilder();
     //virtual QueryBuilder createQueryBuilder();
-    virtual QList<QString> findUniqueIndexes(TableSchema schema);
+    virtual QStringList findUniqueIndexes(TableSchema schema);
     virtual QString getLastInsertID(QString sequenceName = "");
     virtual void refresh();
-    virtual void quoteValue(QString str);
     virtual QString getRawTable(QString name);
 
 
 
   protected:
-    virtual QList<QString> findTableNames(QString schema = "");
-    virtual QList<QString> findUniqueIndexes(QString tableName);
+    virtual QStringList findTableNames(QString schema = "");
+    virtual QStringList findUniqueIndexes(QString tableName);
     virtual TableSchema findConstraints(TableSchema ts);
     virtual QString getCreateTableSql(TableSchema ts);
     virtual bool findColumns(TableSchema ts);
     QSharedPointer<QHash<QString, QString>> typeMap;
     virtual TableSchema loadTableSchema(QString name)  = 0;
     virtual TableSchema getTableSchema(QString name, bool refresh = false);
-    virtual QList<QString> findTableNames(QString schema = "");
+    virtual QStringList findTableNames(QString schema = "");
 
 };
 }

@@ -10,7 +10,7 @@ Schema::~Schema() {
 }
 
 QString Schema::quoteSimpleTableName(QString name) {
-    //    return strpos($name, "`") !== false ? $name : "`" . $name . "`";
+    return name.indexOf("`") ? name : "`" + name + "`";
 }
 
 QString Schema::quoteTableName(QString name) {
@@ -22,18 +22,18 @@ QString Schema::quoteColumnName(QString name) {
 }
 
 QString Schema::quoteSimpleColumnName(QString name) {
-    //return strpos($name, '`') !== false || $name === '*' ? $name : '`' . $name . '`';
+    return name.indexOf("`") || name == "*" ? name : "`" + name + "`";
 }
 
 QList<TableSchema> Schema::getTableSchemas(QString schema) {
 
 }
 
-QList<QString> Schema::getTableNames(QString schema) {
-
+QStringList Schema::getTableNames(QString schema) {
+    //7QStringList QSqlDriver::tables(QSql::TableType tableType) const
 }
 
-QList<QString> Schema::findUniqueIndexes(TableSchema schema) {
+QStringList Schema::findUniqueIndexes(TableSchema schema) {
 
 }
 
@@ -45,19 +45,15 @@ void Schema::refresh() {
 
 }
 
-void Schema::quoteValue(QString str) {
-
-}
-
 QString Schema::getRawTable(QString name) {
 
 }
 
-QList<QString> Schema::findTableNames(QString schema) {
+QStringList Schema::findTableNames(QString schema) {
 
 }
 
-QList<QString> Schema::findUniqueIndexes(QString tableName) {
+QStringList Schema::findUniqueIndexes(QString tableName) {
 
 }
 

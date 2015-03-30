@@ -29,7 +29,7 @@ class Entity : public QObject {
     virtual qint64 getId();
     virtual void setId(qint64 id);
     virtual ~Entity();
-    virtual QString getTablename() = 0;
+    virtual QString getTablename();
     //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
   protected:
     Entity();

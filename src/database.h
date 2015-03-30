@@ -42,12 +42,12 @@ class Database {
     QStringList *tableList;
 
   protected:
-    inline QString pgsqlSeqTable();
-    inline QString mysqlSeqTable();
-    inline QString sqliteSeqTable();
-    inline QString sqliteTableList();
-    inline QString mysqlTableList();
-    inline QString pgsqlTableList();
+//    inline QString pgsqlSeqTable();
+//    inline QString mysqlSeqTable();
+//    inline QString sqliteSeqTable();
+//    inline QString sqliteTableList();
+//    inline QString mysqlTableList();
+//    inline QString pgsqlTableList();
 
   public:
     Database(QSqlDatabase database);

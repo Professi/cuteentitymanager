@@ -33,22 +33,7 @@ void Entity::setId(qint64 id) {
 Entity::~Entity() {
 }
 
-//QHash<QString, QString> OpenTeacherTool::Entity::getProperties(Datebasetype t) {
-//    QMap<QString, QString> map = QMap<QString, QString>();
-//    map.insert("id",this->idColumnSQL());
-//    return map;
-//}
-
-//OpenTeacherTool::PersistenceType OpenTeacherTool::Entity::getPersistenceType() {
-//    OpenTeacherTool::PersistenceType type = SQLITE;
-//    return type;
-//}
-
-//QMap<QString, OpenTeacherTool::Entity> OpenTeacherTool::Entity::getRelations() {
-//    QMap<QString, Entity> map;
-//    return map;
-//}
-
-
-
+QString Entity::getTablename() {
+    return QString(this->metaObject()->className());
+}
 }

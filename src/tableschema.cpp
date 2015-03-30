@@ -16,6 +16,7 @@ const ColumnSchema TableSchema::getColumn(QString name) const {
 const QList<QString> TableSchema::getColumnNames() {
 
 }
+
 QString TableSchema::getSchemaName() const {
     return schemaName;
 }
@@ -65,11 +66,3 @@ QList<ColumnSchema> TableSchema::getColumns() const {
 void TableSchema::setColumns(const QList<ColumnSchema> &value) {
     columns = value;
 }
-
-
-
-
-
-
-
-

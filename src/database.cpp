@@ -109,17 +109,17 @@ bool Database::isSeqTable() {
     return this->seqTable;
 }
 
-QString Database::pgsqlSeqTable() {
-    return "CREATE TABLE IF NOT EXISTS sequence (SEQ_NAME varchar(255) NOT NULL UNIQUE , SEQ_COUNT bigint NOT NULL);";
-}
+//QString Database::pgsqlSeqTable() {
+//    return "CREATE TABLE IF NOT EXISTS sequence (SEQ_NAME varchar(255) NOT NULL UNIQUE , SEQ_COUNT bigint NOT NULL);";
+//}
 
-QString Database::mysqlSeqTable() {
-    return "CREATE TABLE IF NOT EXISTS `sequence` (`SEQ_NAME` varchar(255) NOT NULL UNIQUE , `SEQ_COUNT` bigint(20) unsigned NOT NULL) CHARSET = utf8";
-}
+//QString Database::mysqlSeqTable() {
+//    return "CREATE TABLE IF NOT EXISTS `sequence` (`SEQ_NAME` varchar(255) NOT NULL UNIQUE , `SEQ_COUNT` bigint(20) unsigned NOT NULL) CHARSET = utf8";
+//}
 
-QString Database::sqliteSeqTable() {
-    return "CREATE TABLE  IF NOT EXISTS \"sequence\" (\"SEQ_NAME\" TEXT PRIMARY KEY  NOT NULL , \"SEQ_COUNT\" INTEGER NOT NULL );";
-}
+//QString Database::sqliteSeqTable() {
+//    return "CREATE TABLE  IF NOT EXISTS \"sequence\" (\"SEQ_NAME\" TEXT PRIMARY KEY  NOT NULL , \"SEQ_COUNT\" INTEGER NOT NULL );";
+//}
 
 QChar Database::escapeChar() {
     QChar c = QChar();
