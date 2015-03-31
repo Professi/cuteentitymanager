@@ -16,7 +16,7 @@
 
 #include "entity.h"
 
-namespace CuteEntityManager {
+using namespace CuteEntityManager;
 
 Entity::Entity() : QObject() {
     this->id = -1;
@@ -35,5 +35,4 @@ Entity::~Entity() {
 
 QString Entity::getTablename() {
     return QString(this->metaObject()->className());
-}
 }

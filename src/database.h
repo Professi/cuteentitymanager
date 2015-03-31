@@ -35,11 +35,8 @@ class Database {
     bool seqTable;
     DatabaseType databasetype;
     bool supportTransactions;
-    void setSeqTable(bool seqTable);
     void init();
-    void createSequenceTable();
-    QString querySequenceCounter();
-    QStringList *tableList;
+    QStringList tableList;
 
   protected:
 //    inline QString pgsqlSeqTable();
@@ -76,7 +73,6 @@ class Database {
     void setTableList(QSqlQuery &q);
     void refreshTableList();
     bool containsTable(QString tblname);
-    bool updateSequenceCounter(QSqlQuery &q);
     DatabaseType getDatabaseType();
     QChar escapeChar();
 };

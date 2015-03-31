@@ -1,7 +1,8 @@
 #include "mysqlschema.h"
+#include <QSqlQuery>
 using namespace CuteEntityManager;
 
-MysqlSchema::MysqlSchema() : Schema() {
+MysqlSchema::MysqlSchema(std::shared_ptr<Database> database) : Schema(database) {
 
 }
 
@@ -9,8 +10,8 @@ MysqlSchema::~MysqlSchema() {
 
 }
 
-QHash<QString, QString>* MysqlSchema::getTypeMap() {
-    if(this->typeMap.data()->empty()) {
+QHash<QString, QString> *MysqlSchema::getTypeMap() {
+    if (this->typeMap.data()->empty()) {
 //        this->typeMap->data()->insert(TYPE_SMALLINT, 'tinyint');
 //        this->typeMap->data()->insert(TYPE_SMALLINT, 'bit');
 //        this->typeMap->data()->insert(TYPE_BOOLEAN, 'boolean');

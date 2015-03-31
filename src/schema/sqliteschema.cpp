@@ -1,7 +1,7 @@
 #include "sqliteschema.h"
 using namespace CuteEntityManager;
 
-SqliteSchema::SqliteSchema() : Schema() {
+SqliteSchema::SqliteSchema(std::shared_ptr<Database> database) : Schema(database) {
 
 }
 

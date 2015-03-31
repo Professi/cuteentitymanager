@@ -1,7 +1,7 @@
 #include "pgsqlschema.h"
 using namespace CuteEntityManager;
 
-PgSqlSchema::PgSqlSchema() : Schema() {
+PgSqlSchema::PgSqlSchema(std::shared_ptr<Database> database) : Schema(database) {
 
 }
 
@@ -9,8 +9,8 @@ PgSqlSchema::~PgSqlSchema() {
 
 }
 
-QHash<QString, QString>* PgSqlSchema::getTypeMap() {
-    if(this->typeMap.data()->empty()) {
+QHash<QString, QString> *PgSqlSchema::getTypeMap() {
+    if (this->typeMap.data()->empty()) {
 //        this->typeMap->data()->insert(TYPE_SMALLINT, 'tinyint');
 //        this->typeMap->data()->insert(TYPE_SMALLINT, 'bit');
 //        this->typeMap->data()->insert(TYPE_BOOLEAN, 'boolean');
