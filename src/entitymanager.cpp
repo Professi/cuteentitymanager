@@ -34,15 +34,15 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename ,
 }
 
 inline bool EntityManager::checkTable(Entity *entity) {
-    bool rc = true;
-    if (!this->db->containsTable(entity->getTablename())) {
-        qDebug() << "Tabelle" <<  entity->getTablename() << "existiert noch nicht.";
-        if (this->createTable(entity)) {
-            this->db->refreshTableList();
-            rc = this->db->containsTable(entity->getTablename());
-        }
-    }
-    return rc;
+//    bool rc = true;
+//    if (!this->db->containsTable(entity->getTablename())) {
+//        qDebug() << "Tabelle" <<  entity->getTablename() << "existiert noch nicht.";
+//        if (this->createTable(entity)) {
+//            this->db->refreshTableList();
+//            rc = this->db->containsTable(entity->getTablename());
+//        }
+//    }
+//    return rc;
 }
 
 QString EntityManager::createConnection() {

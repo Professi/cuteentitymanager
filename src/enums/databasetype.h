@@ -17,13 +17,12 @@
 #ifndef DATABASETYPE_H
 #define DATABASETYPE_H
 #include <QString>
-#include "../schema.h"
+#include <QSharedPointer>
 #include "../schema/sqliteschema.h"
-#include "../schema/pgsqlschema.h"
-#include "../schema/mysqlschema.h"
-#include <memory>
 
 namespace CuteEntityManager {
+class Schema;
+class Database;
 enum DatabaseType {
     SQLITE = 0,
     PGSQL = 1,
@@ -40,19 +39,19 @@ static const DatabaseType getDatabaseType(QString s) {
     }
 }
 
-static const std::shared_ptr<Schema> getSchema(int db) {
+static const QSharedPointer<Schema> getSchema(int db, QSharedPointer<Database> database) {
     switch (db) {
     case SQLITE:
-        return std::shared_ptr<Schema>(new SqliteSchema());
+        return QSharedPointer<Schema>(new SqliteSchema(database));;
         break;
-    case PGSQL:
-        return std::shared_ptr<Schema>(new PgSqlSchema());
-        break;
-    case MYSQL:
-        return std::shared_ptr<Schema>(new MysqlSchema());
-        break;
+//    case PGSQL:
+//        return QSharedPointer<Schema>(new PgSqlSchema());
+//        break;
+//    case MYSQL:
+//        return QSharedPointer<Schema>(new MysqlSchema());
+//        break;
     default:
-        return std::shared_ptr<Schema>(new SqliteSchema());
+        return QSharedPointer<Schema>(new SqliteSchema(database));
         break;
     }
 }

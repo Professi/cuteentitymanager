@@ -9,12 +9,23 @@ TableSchema::~TableSchema() {
 
 }
 
-const ColumnSchema TableSchema::getColumn(QString name) const {
-
+const QSharedPointer<QSqlField> TableSchema::getColumn(QString name) const {
+    auto columns = this->getColumns();
+    foreach (auto schema, columns) {
+        if (schema.data()->name() == name) {
+            return schema;
+        }
+    }
+    return QSharedPointer<QSqlField>();
 }
 
-const QList<QString> TableSchema::getColumnNames() {
-
+const QStringList TableSchema::getColumnNames() {
+    QStringList l;
+    auto columns = this->getColumns();
+    foreach (auto schema, columns) {
+        l.append(schema.data()->name());
+    }
+    return l;
 }
 
 QString TableSchema::getSchemaName() const {
@@ -38,11 +49,11 @@ QString TableSchema::getFullName() const {
 void TableSchema::setFullName(const QString &value) {
     fullName = value;
 }
-QList<QString> TableSchema::getPrimaryKeys() const {
+QStringList TableSchema::getPrimaryKeys() const {
     return primaryKeys;
 }
 
-void TableSchema::setPrimaryKeys(const QList<QString> &value) {
+void TableSchema::setPrimaryKeys(const QStringList &value) {
     primaryKeys = value;
 }
 QString TableSchema::getSequenceName() const {
@@ -52,17 +63,18 @@ QString TableSchema::getSequenceName() const {
 void TableSchema::setSequenceName(const QString &value) {
     sequenceName = value;
 }
-QHash<QString, QString> TableSchema::getForeignKeys() const {
-    return foreignKeys;
-}
 
-void TableSchema::setForeignKeys(const QHash<QString, QString> &value) {
-    foreignKeys = value;
-}
-QList<ColumnSchema> TableSchema::getColumns() const {
+QHash<QString, QSharedPointer<QSqlField> > TableSchema::getColumns() const {
     return columns;
 }
 
-void TableSchema::setColumns(const QList<ColumnSchema> &value) {
+void TableSchema::setColumns(const QHash<QString, QSharedPointer<QSqlField> > &value) {
     columns = value;
+}
+QHash<QString, QSharedPointer<QSqlRelation> > TableSchema::getRelations() const {
+    return relations;
+}
+
+void TableSchema::setRelations(const QHash<QString, QSharedPointer<QSqlRelation> > &value) {
+    relations = value;
 }

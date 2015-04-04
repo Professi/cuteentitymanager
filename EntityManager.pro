@@ -21,9 +21,9 @@ src/entity.h \
     src/schema.h \
     src/schema/sqliteschema.h \
     src/tableschema.h \
-    src/columnschema.h \
     src/schema/pgsqlschema.h \
-    src/schema/mysqlschema.h
+    src/schema/mysqlschema.h \
+    src/querybuilder.h
 
 SOURCES += \
 src/entity.cpp \
@@ -32,9 +32,9 @@ src/entity.cpp \
     src/schema.cpp \
     src/schema/sqliteschema.cpp \
     src/tableschema.cpp \
-    src/columnschema.cpp \
     src/schema/pgsqlschema.cpp \
-    src/schema/mysqlschema.cpp
+    src/schema/mysqlschema.cpp \
+    src/querybuilder.cpp
 
 unix {
     target.path = /usr/lib

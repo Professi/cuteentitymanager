@@ -1,15 +1,13 @@
-#ifndef PGSQLSCHEMA_H
-#define PGSQLSCHEMA_H
-#include <memory>
-#include "../database.h"
-#include "../schema.h"
-namespace CuteEntityManager {
-class PgSqlSchema : public Schema {
-  public:
-    PgSqlSchema(std::shared_ptr<Database>database);
-    ~PgSqlSchema();
-    QHash<QString, QString> *getTypeMap();
-};
-}
+//#ifndef PGSQLSCHEMA_H
+//#define PGSQLSCHEMA_H
+//#include "../schema.h"
+//namespace CuteEntityManager {
+//class PgSqlSchema : public Schema {
+//  public:
+//    PgSqlSchema(std::shared_ptr<Database>database);
+//    ~PgSqlSchema();
+//    QHash<QString, QString> *getTypeMap();
+//};
+//}
 
-#endif // PGSQLSCHEMA_H
+//#endif // PGSQLSCHEMA_H

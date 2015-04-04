@@ -2,17 +2,19 @@
 #define TABLESCHEMA_H
 #include <QString>
 #include <QList>
+#include <QStringList>
 #include <QHash>
-#include "columnschema.h"
-
+#include <QSharedPointer>
+#include <QSqlField>
+#include <QSqlRelation>
 namespace CuteEntityManager {
 
 class TableSchema {
   public:
     TableSchema();
     ~TableSchema();
-    virtual ColumnSchema const getColumn(QString name) const;
-    virtual QList<QString> const getColumnNames();
+    virtual QSharedPointer<QSqlField> const getColumn(QString name) const;
+    virtual const QStringList getColumnNames();
 
     QString getSchemaName() const;
     void setSchemaName(const QString &value);
@@ -23,28 +25,26 @@ class TableSchema {
     QString getFullName() const;
     void setFullName(const QString &value);
 
-    QList<QString> getPrimaryKeys() const;
-    void setPrimaryKeys(const QList<QString> &value);
+    QStringList getPrimaryKeys() const;
+    void setPrimaryKeys(const QStringList &value);
 
     QString getSequenceName() const;
     void setSequenceName(const QString &value);
 
-    QHash<QString, QString> getForeignKeys() const;
-    void setForeignKeys(const QHash<QString, QString> &value);
+    QHash<QString, QSharedPointer<QSqlField> > getColumns() const;
+    void setColumns(const QHash<QString, QSharedPointer<QSqlField> > &value);
 
-    QList<ColumnSchema> getColumns() const;
-    void setColumns(const QList<ColumnSchema> &value);
+    QHash<QString, QSharedPointer<QSqlRelation> > getRelations() const;
+    void setRelations(const QHash<QString, QSharedPointer<QSqlRelation> > &value);
 
-  private:
+private:
     QString schemaName;
     QString name;
     QString fullName;
-    QList<QString> primaryKeys;
+    QStringList primaryKeys;
     QString sequenceName;
-    QHash<QString, QString> foreignKeys;
-    QList<ColumnSchema> columns;
-
-
+    QHash<QString, QSharedPointer<QSqlRelation>>  relations;
+    QHash<QString, QSharedPointer<QSqlField>> columns;
 };
 
 }

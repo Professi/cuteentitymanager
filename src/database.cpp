@@ -45,69 +45,19 @@ Database::Database(QString databaseType, QString connectionName, QString hostnam
 
 void Database::init() {
     this->database.open();
-    this->databasetype = this->getDatabaseType();
     this->supportTransactions = this->database.driver()->hasFeature(QSqlDriver::Transactions);
-    this->tableList = QStringList();
-    this->getTableListFromDatabase();
 }
-
-
-DatabaseType Database::getDatabaseType() {
-    return CuteEntityManager::getDatabaseType(this->database.driverName());
-}
-
-void Database::getTableListFromDatabase() {
-    if (this->database.open()) {
-        QString q = "";
-        QSqlQuery query = QSqlQuery(this->database);
-        query.prepare(q);
-        this->select(query);
-        this->setTableList(query);
-    }
-}
-
-//QString Database::mysqlTableList() {
-//    return "SHOW TABLES;";
-//}
-
-//QString Database::pgsqlTableList() {
-//    return "SELECT table_name FROM information_schema.tables WHERE table_catalog = '"+this->database.databaseName()+"';";
-//}
 
 Database::~Database() {
     if (this->database.isOpen()) {
         this->database.close();
     }
     QSqlDatabase::removeDatabase(this->connectionName);
-    delete this->tableList;
 }
 
 QString Database::getConnectionName() {
     return this->connectionName;
 }
-
-//QString Database::pgsqlSeqTable() {
-//    return "CREATE TABLE IF NOT EXISTS sequence (SEQ_NAME varchar(255) NOT NULL UNIQUE , SEQ_COUNT bigint NOT NULL);";
-//}
-
-//QString Database::mysqlSeqTable() {
-//    return "CREATE TABLE IF NOT EXISTS `sequence` (`SEQ_NAME` varchar(255) NOT NULL UNIQUE , `SEQ_COUNT` bigint(20) unsigned NOT NULL) CHARSET = utf8";
-//}
-
-//QString Database::sqliteSeqTable() {
-//    return "CREATE TABLE  IF NOT EXISTS \"sequence\" (\"SEQ_NAME\" TEXT PRIMARY KEY  NOT NULL , \"SEQ_COUNT\" INTEGER NOT NULL );";
-//}
-
-QChar Database::escapeChar() {
-    QChar c = QChar();
-    if (this->databasetype == CuteEntityManager::SQLITE) {
-        c = '\'';
-    } else if (this->databasetype == CuteEntityManager::MYSQL) {
-        c = '`';
-    }
-    return c;
-}
-
 
 bool Database::transaction(const QString &query) {
     bool rc = false;
@@ -226,35 +176,6 @@ QSqlQuery Database::select(const QString &query) {
     QSqlQuery q = QSqlQuery(this->database);
     q.exec(query);
     return q;
-}
-
-QString Database::querySequenceCounter() {
-    return "INSERT INTO sequence (SEQ_NAME, SEQ_COUNT) VALUES(\'id_count\',\'0\');";
-}
-
-void Database::refreshTableList() {
-    this->tableList->clear();
-    this->getTableListFromDatabase();
-}
-
-bool Database::containsTable(QString tblname) {
-    return this->tableList->contains(tblname);
-}
-
-bool Database::updateSequenceCounter(QSqlQuery &q) {
-    QList<QSqlQuery> l = QList<QSqlQuery>();
-    l.append(QSqlQuery("UPDATE sequence SET SEQ_COUNT=(SEQ_COUNT+1);", this->database));
-    l.append(q);
-    return this->transaction(l);
-}
-
-qint64 Database::getLastId() {
-    qint64 id = -1;
-    QSqlQuery q = this->select("SELECT SEQ_COUNT FROM sequence WHERE SEQ_NAME=\'id_count\';");
-    if (q.next()) {
-        id = q.value(0).toInt();
-    }
-    return id;
 }
 
 QSqlDatabase Database::getDatabase() {

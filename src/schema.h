@@ -4,15 +4,12 @@
 #include <QStringList>
 #include <QHash>
 #include <QSharedPointer>
-#include <QSqlDatabase>
-#include <memory>
-#include "database.h"
-
+#include <QSqlField>
 namespace CuteEntityManager {
-
+class Database;
 class Schema {
   public:
-    Schema(std::shared_ptr<Database> database);
+    Schema(QSharedPointer<Database> database);
     virtual ~Schema();
     const QString TYPE_PK = "pk";
     const QString TYPE_BIGPK = "bigpk";
@@ -28,6 +25,7 @@ class Schema {
     const QString TYPE_TIMESTAMP = "timestamp";
     const QString TYPE_TIME = "time";
     const QString TYPE_DATE = "date";
+    const QString TYPE_CHAR = "char";
     const QString TYPE_BINARY = "binary";
     const QString TYPE_BOOLEAN = "boolean";
     const QString TYPE_MONEY = "money";
@@ -59,20 +57,24 @@ class Schema {
     virtual QVariant getLastInsertID();
     virtual void refresh();
     virtual QString getRawTable(QString name);
+    virtual bool containsTable(QString tblname);
+    virtual QString quoteValue(QString str);
 
     QHash<QString, QSharedPointer<TableSchema> > getTables() const;
     void setTables(const QHash<QString, QSharedPointer<TableSchema> > &value);
 
-  protected:
+    QSharedPointer<Database> getDatabase() const;
+    void setDatabase(const QSharedPointer<Database> &value);
+
+protected:
     virtual QStringList findTableNames(QString schema = "") = 0;
-    virtual QStringList findUniqueIndexes(QString tableName) = 0;
-    virtual QSharedPointer<TableSchema> findConstraints(TableSchema ts) = 0;
-    virtual QString getCreateTableSql(TableSchema ts) = 0;
-    virtual bool findColumns(TableSchema ts) = 0;
-    QSharedPointer<QHash<QString, QString>> typeMap;
-    virtual QSharedPointer<TableSchema> *loadTableSchema(QString name)  = 0;
+    virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table) = 0;
+    virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;
+    virtual bool findColumns(const QSharedPointer<TableSchema> &ts) = 0;
+    virtual QSharedPointer<TableSchema> loadTableSchema(QString name)  = 0;
     virtual TableSchema *getTableSchema(QString name, bool refresh = false);
-    std::shared_ptr<Database> database;
+    QSharedPointer<Database> database;
+    QSharedPointer<QHash<QString, QString>> typeMap;
     QHash<QString, QSharedPointer<TableSchema>> tables;
 
 

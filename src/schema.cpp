@@ -2,9 +2,10 @@
 #include <QRegularExpression>
 #include <QSqlRecord>
 #include <QSqlQuery>
+#include "database.h"
 using namespace CuteEntityManager;
 
-Schema::Schema(std::shared_ptr<Database> database) {
+Schema::Schema(QSharedPointer<Database> database) {
     this->database = database;
     this->typeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
 }
@@ -64,11 +65,11 @@ QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(QString sch
 }
 
 QStringList Schema::getTableNames(QString schema) {
-    return this->database.get()->getDatabase().tables();
+    return this->database.data()->getDatabase().tables();
 }
 
 QVariant Schema::getLastInsertID() {
-    QSqlQuery q(this->database.get()->getDatabase());
+    QSqlQuery q(this->database.data()->getDatabase());
     return q.lastInsertId();
 }
 
@@ -79,10 +80,17 @@ void Schema::refresh() {
 QString Schema::getRawTable(QString name) {
     if (name.indexOf("{{")) {
         QRegularExpression re("/\\{\\{(.*?)\\}\\}/");
-        QRegularExpression re2("\1");
-        return name.replace(re, re2);
+        return name.replace(re, "\\1");
     }
     return name;
+}
+
+bool Schema::containsTable(QString tblname) {
+    return this->tables.contains(tblname);
+}
+
+QString Schema::quoteValue(QString str) {
+
 }
 
 TableSchema *Schema::getTableSchema(QString name, bool refresh) {
@@ -90,16 +98,24 @@ TableSchema *Schema::getTableSchema(QString name, bool refresh) {
         this->refresh();
     }
     if (this->tables.contains(name)) {
-        return this->tables.value(name);
+        return this->tables.value(name).data();
     }
     QString realName = this->getRawTable(name);
-    QSharedPointer<TableSchema> ts = this->loadTableSchema(realName);
+    auto ts = this->loadTableSchema(realName);
     if (ts.data()) {
         this->tables.insert(name, ts);
     }
     return ts.data();
-
 }
+
+QSharedPointer<Database> Schema::getDatabase() const {
+    return database;
+}
+
+void Schema::setDatabase(const QSharedPointer<Database> &value) {
+    database = value;
+}
+
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() const {
     return this->tables;
 }

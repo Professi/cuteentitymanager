@@ -33,10 +33,8 @@ class Database {
     QSqlDatabase database;
     QString connectionName;
     bool seqTable;
-    DatabaseType databasetype;
     bool supportTransactions;
     void init();
-    QStringList tableList;
 
   protected:
 //    inline QString pgsqlSeqTable();
@@ -67,14 +65,12 @@ class Database {
     bool exec(QList<QSqlQuery> queries);
     bool select(QSqlQuery &query);
     QSqlQuery select(const QString &query);
-    bool isSeqTable();
-    qint64 getLastId();
-    void getTableListFromDatabase();
-    void setTableList(QSqlQuery &q);
-    void refreshTableList();
-    bool containsTable(QString tblname);
-    DatabaseType getDatabaseType();
-    QChar escapeChar();
+//    bool isSeqTable();
+//    qint64 getLastId();
+//    void getTableListFromDatabase();
+//    void setTableList(QSqlQuery &q);
+//    void refreshTableList();
+//    QChar escapeChar();
 };
 }
 #endif // DATABASE_H
