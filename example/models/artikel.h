@@ -20,29 +20,28 @@
 
 #ifndef ARTIKEL_H
 #define ARTIKEL_H
-#include "src/base/entity.h"
+#include "entity.h"
 #include <QHash>
 #include <QVariant>
 
-namespace OpenTeacherTool {
-class Artikel : public Entity
-{
+class Artikel : public CuteEntityManager::Entity {
+    Q_OBJECT
 private:
     double preis;
     QString name;
 
 public:
     ~Artikel();
-    QHash<QString, QString> getProperties(DatabaseType type);
-    PersistenceType getPersistenceType();
-    QHash<QString,Entity*>* getRelations();
-    QHash<QString, QVariant>* getAttributeValues();
-    void setAttributes(QHash<QString, QVariant> h);
-    QString getTablename();
-    void setPreis(double preis);
-    void setName(QString name);
-    Artikel();
+//    QHash<QString, QString> getProperties(DatabaseType type);
+//    PersistenceType getPersistenceType();
+//    QHash<QString,Entity*>* getRelations();
+//    QHash<QString, QVariant>* getAttributeValues();
+//    void setAttributes(QHash<QString, QVariant> h);
+    explicit Artikel(QObject *parent = 0);
     Artikel(double preis, QString name);
+    Q_INVOKABLE double getPreis() const;
+    Q_INVOKABLE void setPreis(double value);
+    Q_INVOKABLE QString getName() const;
+    Q_INVOKABLE void setName(const QString &value);
 };
-}
 #endif // ARTIKEL_H

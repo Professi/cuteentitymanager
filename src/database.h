@@ -36,14 +36,6 @@ class Database {
     bool supportTransactions;
     void init();
 
-  protected:
-//    inline QString pgsqlSeqTable();
-//    inline QString mysqlSeqTable();
-//    inline QString sqliteSeqTable();
-//    inline QString sqliteTableList();
-//    inline QString mysqlTableList();
-//    inline QString pgsqlTableList();
-
   public:
     Database(QSqlDatabase database);
     ~Database();
@@ -65,12 +57,7 @@ class Database {
     bool exec(QList<QSqlQuery> queries);
     bool select(QSqlQuery &query);
     QSqlQuery select(const QString &query);
-//    bool isSeqTable();
-//    qint64 getLastId();
-//    void getTableListFromDatabase();
-//    void setTableList(QSqlQuery &q);
-//    void refreshTableList();
-//    QChar escapeChar();
+
 };
 }
 #endif // DATABASE_H

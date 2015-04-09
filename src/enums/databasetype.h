@@ -21,7 +21,6 @@
 #include "../schema/sqliteschema.h"
 
 namespace CuteEntityManager {
-class Schema;
 class Database;
 enum DatabaseType {
     SQLITE = 0,
@@ -29,17 +28,17 @@ enum DatabaseType {
     MYSQL = 2
 };
 
-static const DatabaseType getDatabaseType(QString s) {
+static  DatabaseType getDatabaseType(QString s) {
     if (s == "qmysql") {
-        return CuteEntityManager::MYSQL;
+        return DatabaseType::MYSQL;
     } else if (s == "qpgsql") {
-        return CuteEntityManager::PGSQL;
+        return DatabaseType::PGSQL;
     } else {
-        return CuteEntityManager::SQLITE;
+        return DatabaseType::SQLITE;
     }
 }
 
-static const QSharedPointer<Schema> getSchema(int db, QSharedPointer<Database> database) {
+static QSharedPointer<Schema> getSchema(int db, QSharedPointer<Database> database) {
     switch (db) {
     case SQLITE:
         return QSharedPointer<Schema>(new SqliteSchema(database));;

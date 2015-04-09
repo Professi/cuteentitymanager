@@ -18,7 +18,7 @@
 
 using namespace CuteEntityManager;
 
-Entity::Entity() : QObject() {
+Entity::Entity(QObject *parent) : QObject(parent) {
     this->id = -1;
 }
 
@@ -28,6 +28,10 @@ qint64 Entity::getId() {
 
 void Entity::setId(qint64 id) {
     this->id = id;
+}
+
+QString Entity::toString() {
+    return this->getTablename()+ ":" + QString::number(this->id);
 }
 
 Entity::~Entity() {

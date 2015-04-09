@@ -53,7 +53,6 @@ class Schema {
     virtual QStringList getTableNames(QString schema = "");
     //virtual QueryBuilder getQueryBuilder();
     //virtual QueryBuilder createQueryBuilder();
-    virtual QStringList findUniqueIndexes(TableSchema schema);
     virtual QVariant getLastInsertID();
     virtual void refresh();
     virtual QString getRawTable(QString name);

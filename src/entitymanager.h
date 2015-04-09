@@ -22,6 +22,7 @@
 #include <QString>
 #include <QStringList>
 #include <QDebug>
+#include "schema.h"
 #include <QtSql/QSqlError>
 #include "entity.h"
 #include "database.h"
@@ -31,8 +32,9 @@ namespace CuteEntityManager {
 class EntityManager {
   private:
     static QStringList connectionNames;
+    QSharedPointer<Schema> schema;
     static void setConnectionNames(QStringList list);
-    Database *db;
+    QSharedPointer<Database> db;
     QString createConnection();
     QString createTableQuery(Entity *entity);
     QString attributes(QHash<QString, QVariant> *m, QString conjunction = ",", bool ignoreID = false);
@@ -66,6 +68,10 @@ class EntityManager {
     bool removeAll(QString tblname);
     bool createTable(Entity *entity);
     qint8 count(Entity *entity, bool ignoreID = true);
+    QSharedPointer<Database> getDb() const;
+    void setDb(const QSharedPointer<Database> &value);
+    QSharedPointer<Schema> getSchema() const;
+    void setSchema(const QSharedPointer<Schema> &value);
 };
 }
 #endif // ENTITYMANAGER_H

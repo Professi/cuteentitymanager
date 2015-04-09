@@ -25,14 +25,20 @@ namespace CuteEntityManager {
 
 class Entity : public QObject {
     Q_OBJECT
+    Q_PROPERTY(qint64 firstName READ getId WRITE setId NOTIFY idChanged)
+
+signals:
+  void idChanged();
+
   public:
+    Entity (QObject *parent = 0);
     virtual qint64 getId();
     virtual void setId(qint64 id);
+    virtual QString toString();
     virtual ~Entity();
     virtual QString getTablename();
     //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
   protected:
-    Entity();
     qint64 id;
 };
 }

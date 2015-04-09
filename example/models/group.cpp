@@ -1,0 +1,66 @@
+#include "group.h"
+
+#include "models/person.h"
+#include "models/group.h"
+//#include <QQmlListProperty>
+#include <QDebug>
+
+Group::Group() : Entity() {
+    connect(this, SIGNAL(personsChanged()), this, SLOT(personChangedSlot()));
+    qDebug() << "Konstruktor!";
+    persons = QList<Person *>();
+    persons.append(new Person("Vera", "Geseke", Person::FEMALE, "Vera Geseke.jpg", "", "", QDate::currentDate()));
+    persons.append(new Person("Harry", "Hirsch", Person::MALE));
+    persons.append(new Person("Sibylle", "Mentzel", Person::FEMALE, "Sibylle Mentzel.jpg", "", "", QDate::currentDate()));
+}
+
+QList<Person *> Group::getPersons() const {
+    return persons;
+}
+
+void Group::setPersons(const QList<Person *> &value) {
+    qDebug() << "set!!!";
+    persons = value;
+}
+
+
+void Group::personChangedSlot() {
+    qDebug() << "changed!";
+}
+
+//void Group::appendPerson(QQmlListProperty<Person> *list, Person *p) {
+//    Group *group = qobject_cast<Group*>(list->object);
+//    if(group && p) {
+//        group->addPerson(p);
+//        emit group->personsChanged();
+//    }
+//}
+
+//int Group::personsCount(QQmlListProperty<Person>*list)
+//{
+//    Group *group = qobject_cast<Group*>(list->object);
+//    if (group)
+//        return group->m_persons.count();
+//    return 0;
+//}
+
+//Person* Group::personAt(QQmlListProperty<Person> *list, int i)
+//{
+//    Group *group = qobject_cast<Group*>(list->object);
+//    if (group)
+//        return group->m_persons.at(i);
+//    return 0;
+
+//}
+
+//void Group::personsClear(QQmlListProperty<Person> *list)
+//{
+//    Group *group = qobject_cast<Group*>(list->object);
+//    if (group) {
+//        group->m_persons.clear();
+//        emit group->personsChanged();
+//    }
+//}
+
+
+
