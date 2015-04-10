@@ -16,6 +16,8 @@
 
 #include "entitymanager.h"
 #include "enums/databasetype.h"
+#include <QMetaObject>
+#include <QMetaProperty>
 using namespace CuteEntityManager;
 /**
  * Relationen fehlen noch
@@ -72,6 +74,45 @@ void EntityManager::setSchema(const QSharedPointer<Schema> &value) {
     schema = value;
 }
 
+QHash<QString, QVariant> EntityManager::getEntityAttributes(const QSharedPointer<Entity> &entity) {
+    Entity *e = entity.data();
+    auto map = QHash<QString, QVariant>();
+    auto metaObject = e->metaObject();
+    auto transientAttrs = e->getTransientAttributes();
+    for (int var = 0; var < metaObject->propertyCount(); ++var) {
+        auto p = metaObject->property(var);
+        QString name = QString(p.name());
+        if (p.isValid() && !transientAttrs.contains(name)) {
+            QVariant v = p.read(e);
+            //Relation
+            if (v.canConvert<Entity *>()) {
+                this->insertRelationId(qvariant_cast<Entity *>(v),map,name);
+            } else if (v.canConvert<QSharedPointer<Entity>>()) {
+                this->insertRelationId(qvariant_cast<QSharedPointer<Entity>>(v).data(),map,name);
+            } else if (QString(p.typeName()).contains("QList")) {
+                /**
+                  @TODO
+                  //List and/or ManyToManyRelation
+                  */
+                auto n = static_cast<QList<CuteEntityManager::Entity *>*>(v.data());
+                for (int var = 0; var < n->size(); ++var) {
+                    CuteEntityManager::Entity *entity = n->at(var);
+                    qDebug() << entity->toString();
+                }
+            } else {
+                map.insert(name, v);
+            }
+        }
+    }
+    return map;
+}
+
+void EntityManager::insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName) {
+    if (e && e->getId() > -1) {
+        map.insert(relName + "_id", e->getId());
+    }
+}
+
 
 QString EntityManager::createConnection() {
     QStringList l = EntityManager::getConnectionNames();
@@ -95,6 +136,10 @@ void EntityManager::removeConnectionName(const QString &name) {
     EntityManager::connectionNames.removeOne(name);
 }
 
+bool EntityManager::create(QSharedPointer<Entity> &entity) {
+
+}
+
 EntityManager::~EntityManager() {
     EntityManager::removeConnectionName(this->db->getConnectionName());
 }
@@ -103,9 +148,9 @@ QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
 
-void EntityManager::bindValues(const QHash<QString, QVariant> *h, QSqlQuery &q, bool ignoreID) {
-    QHash<QString, QVariant>::const_iterator i = h->constBegin();
-    while (i != h->constEnd()) {
+void EntityManager::bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q, bool ignoreID) {
+    QHash<QString, QVariant>::const_iterator i = h.constBegin();
+    while (i != h.constEnd()) {
         if (!ignoreID || (ignoreID && !(i.key() == "id"))) {
             q.bindValue(":" + i.key(), i.value());
         }
@@ -144,7 +189,7 @@ QString EntityManager::buildCreateQuery(QHash<QString, QVariant>::const_iterator
     return p1 + p2;
 }
 
-//bool EntityManager::create(Entity *entity) {
+//bool EntityManager::create(QSharedPointer<Entity> &entity) {
 //    bool rc = false;
 //    if (this->checkTable(entity) && this->count(entity) == 0) {
 //        QSqlQuery q = this->db->getQuery();
@@ -156,10 +201,6 @@ QString EntityManager::buildCreateQuery(QHash<QString, QVariant>::const_iterator
 //                                             p1, p2));
 //        }
 //        this->bindValues(entity->getAttributeValues(), q);
-//        if (this->db->updateSequenceCounter(q)) {
-//            entity->setId(this->findId(entity));
-//            rc = true;
-//        }
 //    }
 //    return rc;
 //}
@@ -179,11 +220,16 @@ QHash<QString, QVariant> EntityManager::find(qint64 id, QString tblname) {
     return map;
 }
 
-QList<QHash <QString, QVariant> > EntityManager::findByAttributes(QHash<QString, QVariant> *m, const QString &tblname,
+QList<QHash <QString, QVariant> > EntityManager::findByAttributes(const QHash<QString, QVariant> &m,
+        const QString &tblname,
         bool ignoreID) {
     QSqlQuery q = this->db->getQuery("SELECT * FROM " + tblname + this->where(m, "AND", ignoreID));
     this->bindValues(m, q, true);
     return this->convertQueryResult(q);
+}
+
+bool EntityManager::merge(QSharedPointer<Entity> &entity) {
+
 }
 
 QList<QHash<QString, QVariant> > EntityManager::convertQueryResult(QSqlQuery &q) {
@@ -235,11 +281,11 @@ QList<QHash <QString, QVariant> > EntityManager::findAll(QString tblname) {
 //    return r;
 //}
 
-QString EntityManager::attributes(QHash<QString, QVariant> *m, QString conjunction, bool ignoreID) {
+QString EntityManager::attributes(const QHash<QString, QVariant> &m, const QString &conjunction, bool ignoreID) {
     QString rc = "";
-    if (!m->isEmpty()) {
-        QHash<QString, QVariant>::const_iterator i = m->constBegin();
-        while (i != m->constEnd()) {
+    if (!m.isEmpty()) {
+        QHash<QString, QVariant>::const_iterator i = m.constBegin();
+        while (i != m.constEnd()) {
             if (!ignoreID || (ignoreID && !(i.key() == "id"))) {
                 if (!(rc == "")) {
                     rc += " " + conjunction + " ";
@@ -253,8 +299,8 @@ QString EntityManager::attributes(QHash<QString, QVariant> *m, QString conjuncti
 }
 
 
-QString EntityManager::where(QHash<QString, QVariant> *m, QString conjunction, bool ignoreID) {
-    if (m->size() == 0 || (ignoreID && m->contains("id") && m->size() == 1)) {
+QString EntityManager::where(const QHash<QString, QVariant> &m, const QString &conjunction, bool ignoreID) {
+    if (m.size() == 0 || (ignoreID && m.contains("id") && m.size() == 1)) {
         return "";
     }
     return " WHERE " + this->attributes(m, conjunction, ignoreID);
@@ -268,8 +314,8 @@ QString EntityManager::where(QHash<QString, QVariant> *m, QString conjunction, b
 //    return this->findByAttributes(entity->getAttributeValues(), entity->getTablename(), ignoreID);
 //}
 
-bool EntityManager::save(Entity *entity) {
-    if (entity->getId() > -1) {
+bool EntityManager::save(QSharedPointer<Entity> &entity) {
+    if (entity.data()->getId() > -1) {
         return this->merge(entity);
     } else {
         return this->create(entity);
@@ -277,19 +323,18 @@ bool EntityManager::save(Entity *entity) {
 }
 
 
-bool EntityManager::remove(Entity *&entity) {
+bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     bool rc = false;
-    QSqlQuery q = this->db->getQuery("DELETE FROM " + entity->getTablename() + " WHERE id= :id;");
-    q.bindValue(":id", entity->getId());
+    QSqlQuery q = this->db->getQuery("DELETE FROM " + entity.data()->getTablename() + " WHERE id= :id;");
+    q.bindValue(":id", entity.data()->getId());
     if (this->db->transaction(q)) {
-        delete entity;
-        entity = 0;
+        entity.clear();
         rc = true;
     }
     return rc;
 }
 
-//QString EntityManager::createTableQuery(Entity *entity) {
+//QString EntityManager::createTableQuery(QSharedPointer<Entity> entity) {
 //    QChar c = this->db->escapeChar();
 //    QHash<QString, QString> m = entity->getProperties(this->db->getDatabaseType());
 //    bool first = true;
@@ -322,3 +367,7 @@ bool EntityManager::remove(Entity *&entity) {
 //    return rc;
 
 //}
+
+void EntityManager::setConnectionNames(QStringList list) {
+    EntityManager::connectionNames = list;
+}

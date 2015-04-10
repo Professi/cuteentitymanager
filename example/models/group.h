@@ -30,6 +30,8 @@ class Group: public CuteEntityManager::Entity {
 //    Q_PROPERTY(QList<Person*> persons READ get_persons WRITE set_persons RESET reset_persons)
 //    BR_PROPERTY(QList<Person*>, persons, QList<Person*>())
 Q_PROPERTY(QList<Person*> persons READ getPersons WRITE setPersons NOTIFY personsChanged)
+    Q_PROPERTY(Person* teacher READ getTeacher WRITE setTeacher)
+    Q_PROPERTY(QSharedPointer<Person> teacherP READ getTeacherP WRITE setTeacherP)
 
   signals:
     void personsChanged();
@@ -81,8 +83,16 @@ Q_PROPERTY(QList<Person*> persons READ getPersons WRITE setPersons NOTIFY person
     QList<Person *> getPersons() const;
     void setPersons(const QList<Person *> &value);
 
+    QSharedPointer<Person> getTeacherP() const;
+    void setTeacherP(const QSharedPointer<Person> &value);
+
+    Person *getTeacher() const;
+    void setTeacher(Person *value);
+
 protected:
     // members
+    Person* teacher;
+    QSharedPointer<Person> teacherP;
     QList<Person*> persons;
     QList <Person *> m_classPrefects;
     QList <Person *> m_parentSpeakers;

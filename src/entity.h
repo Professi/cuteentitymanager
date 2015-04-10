@@ -14,8 +14,8 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef ENTITY_H
+#define ENTITY_H
 #include <QtGlobal>
 #include <QMap>
 #include <QDebug>
@@ -28,13 +28,11 @@ class Entity : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 firstName READ getId WRITE setId NOTIFY idChanged)
 
-signals:
-  void idChanged();
+  signals:
+    void idChanged();
 
   public:
     Entity (QObject *parent = 0);
-    virtual qint64 getId();
-    virtual void setId(qint64 id);
     virtual QString toString();
     virtual ~Entity();
     virtual QString getTablename();
@@ -45,8 +43,13 @@ signals:
      */
     virtual QStringList getTransientAttributes();
     //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
-  protected:
+    virtual qint64 getId() const;
+    virtual void setId(const qint64 &value);
+
+protected:
     qint64 id;
 };
 }
-#endif // MODEL_H
+//Q_DECLARE_METATYPE(CuteEntityManager::Entity)
+//Q_DECLARE_METATYPE(CuteEntityManager::Entity*)
+#endif // ENTITY_H

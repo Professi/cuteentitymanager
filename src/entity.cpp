@@ -22,14 +22,6 @@ Entity::Entity(QObject *parent) : QObject(parent) {
     this->id = -1;
 }
 
-qint64 Entity::getId() {
-    return this->id;
-}
-
-void Entity::setId(qint64 id) {
-    this->id = id;
-}
-
 QString Entity::toString() {
     return this->getTablename() + ":" + QString::number(this->id);
 }
@@ -44,3 +36,13 @@ QString Entity::getTablename() {
 QStringList Entity::getTransientAttributes() {
     return QStringList();
 }
+qint64 Entity::getId() const
+{
+    return id;
+}
+
+void Entity::setId(const qint64 &value)
+{
+    id = value;
+}
+

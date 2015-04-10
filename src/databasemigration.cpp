@@ -8,22 +8,20 @@ DatabaseMigration::DatabaseMigration() : Entity() {
 DatabaseMigration::~DatabaseMigration() {
 
 }
-QString DatabaseMigration::getVersion() const
-{
+
+QString DatabaseMigration::getVersion() const {
     return version;
 }
 
-void DatabaseMigration::setVersion(const QString &value)
-{
+void DatabaseMigration::setVersion(const QString &value) {
     version = value;
 }
-QDateTime DatabaseMigration::getApplyTime() const
-{
+
+QDateTime DatabaseMigration::getApplyTime() const {
     return applyTime;
 }
 
-void DatabaseMigration::setApplyTime(const QDateTime &value)
-{
+void DatabaseMigration::setApplyTime(const QDateTime &value) {
     applyTime = value;
 }
 

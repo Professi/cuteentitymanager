@@ -22,6 +22,26 @@ void Group::setPersons(const QList<Person *> &value) {
     qDebug() << "set!!!";
     persons = value;
 }
+QSharedPointer<Person> Group::getTeacherP() const
+{
+    return teacherP;
+}
+
+void Group::setTeacherP(const QSharedPointer<Person> &value)
+{
+    teacherP = value;
+}
+Person *Group::getTeacher() const
+{
+    return teacher;
+}
+
+void Group::setTeacher(Person *value)
+{
+    teacher = value;
+}
+
+
 
 
 void Group::personChangedSlot() {

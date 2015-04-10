@@ -46,17 +46,26 @@ int main(int argc, char *argv[]) {
 //        qDebug() << b->metaObject()->property(var).read(b);
 //    }
     Group *g = new Group();
+    g->setTeacher(new Person("Test","Test12345"));
+    g->setTeacherP(QSharedPointer<Person>(new Person("Max","Mustermann")));
     for (int var = 0; var < g->metaObject()->propertyCount(); ++var) {
         qDebug() << "Name:" << g->metaObject()->property(var).name();
+        qDebug() << "Type:" << g->metaObject()->property(var).typeName();
         auto p = g->metaObject()->property(var).read(g);
-        if (QString(p.typeName()).contains("QList")) {
-            auto n = static_cast<QList<CuteEntityManager::Entity *>*>(p.data());
-            qDebug() << "Size:" << n->size();
-            for (int var = 0; var < n->size(); ++var) {
-                CuteEntityManager::Entity *entity = n->at(var);
-                qDebug() << entity->toString();
-            }
-        }
+        qDebug() << "Value:" << p;
+        qDebug() << p.canConvert<CuteEntityManager::Entity*>();
+        qDebug() << qvariant_cast<CuteEntityManager::Entity*>(p);
+        //p.type().canConvert(1);
+
+
+//        if (QString(p.typeName()).contains("QList")) {
+//            auto n = static_cast<QList<CuteEntityManager::Entity *>*>(p.data());
+//            qDebug() << "Size:" << n->size();
+//            for (int var = 0; var < n->size(); ++var) {
+//                CuteEntityManager::Entity *entity = n->at(var);
+//                qDebug() << entity->toString();
+//            }
+//        }
     }
     return 0;
 }

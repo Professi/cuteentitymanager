@@ -21,6 +21,7 @@
 #include <QtSql/QSqlField>
 #include <QString>
 #include <QStringList>
+#include <QSharedPointer>
 #include <QDebug>
 #include "schema.h"
 #include <QtSql/QSqlError>
@@ -36,18 +37,19 @@ class EntityManager {
     static void setConnectionNames(QStringList list);
     QSharedPointer<Database> db;
     QString createConnection();
-    QString createTableQuery(Entity *entity);
-    QString attributes(QHash<QString, QVariant> *m, QString conjunction = ",", bool ignoreID = false);
+    QString createTableQuery(const QSharedPointer<Entity> &entity);
+    QString attributes(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false);
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
-    bool checkTable(Entity *entity);
+    bool checkTable(const QSharedPointer<Entity> &entity);
     QString buildCreateQuery(QHash<QString, QVariant>::const_iterator i, QHash<QString, QVariant>::const_iterator end,
                              QString &p1, QString &p2);
-    void bindValues(const QHash<QString, QVariant> *h, QSqlQuery &q, bool ignoreID = false);
+    void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q, bool ignoreID = false);
 
   protected:
     void init();
-    QString where(Entity *entity, QString conjunction = ",", bool ignoreID = false);
-    QString where(QHash<QString, QVariant> *m, QString conjunction = ",", bool ignoreID = false);
+    QString where(const QSharedPointer<Entity> &entity, QString conjunction = ",", bool ignoreID = false);
+    QString where(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false);
+    void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName);
 
   public:
     EntityManager(QSqlDatabase database);
@@ -56,23 +58,25 @@ class EntityManager {
     ~EntityManager();
     static QStringList getConnectionNames();
     static void removeConnectionName(const QString &name);
-    bool create(Entity *entity);
-    bool save(Entity *entity);
-    qint64 findId(Entity *entity);
+    bool create(QSharedPointer<Entity> &entity);
+    bool save(QSharedPointer<Entity> &entity);
+    qint64 findId(QSharedPointer<Entity> &entity);
     QList<QHash<QString, QVariant> > findAll(QString tblname);
     QHash<QString, QVariant> find(qint64 id, QString tblname);
-    QList<QHash<QString, QVariant> > findByAttributes(Entity *entity, bool ignoreID = false);
-    QList<QHash<QString, QVariant> > findByAttributes(QHash<QString, QVariant> *m, const QString &tblname,
+    QList<QHash<QString, QVariant> > findByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
+    QList<QHash<QString, QVariant> > findByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
             bool ignoreID = false);
-    bool merge(Entity *entity);
-    bool remove(Entity *&entity);
+    bool merge(QSharedPointer<Entity> &entity);
+    bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
-    bool createTable(Entity *entity);
+    bool createTable(QSharedPointer<Entity> &entity);
     qint8 count(Entity *entity, bool ignoreID = true);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
     void setSchema(const QSharedPointer<Schema> &value);
+    QHash<QString, QVariant> getEntityAttributes(const QSharedPointer<Entity> &entity);
+
 };
 }
 #endif // ENTITYMANAGER_H
