@@ -45,6 +45,7 @@ class EntityManager {
     void bindValues(const QHash<QString, QVariant> *h, QSqlQuery &q, bool ignoreID = false);
 
   protected:
+    void init();
     QString where(Entity *entity, QString conjunction = ",", bool ignoreID = false);
     QString where(QHash<QString, QVariant> *m, QString conjunction = ",", bool ignoreID = false);
 

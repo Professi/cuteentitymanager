@@ -23,7 +23,8 @@ src/entity.h \
     src/tableschema.h \
     src/schema/pgsqlschema.h \
     src/schema/mysqlschema.h \
-    src/querybuilder.h
+    src/querybuilder.h \
+    src/databasemigration.h
 
 SOURCES += \
 src/entity.cpp \
@@ -34,10 +35,11 @@ src/entity.cpp \
     src/tableschema.cpp \
     src/schema/pgsqlschema.cpp \
     src/schema/mysqlschema.cpp \
-    src/querybuilder.cpp
+    src/querybuilder.cpp \
+    src/databasemigration.cpp
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
 }
-CONFIG += c++11
+CONFIG += c++14

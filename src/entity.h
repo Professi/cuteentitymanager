@@ -21,6 +21,7 @@
 #include <QDebug>
 #include <QObject>
 #include "enums/databasetype.h"
+#include <QStringList>
 namespace CuteEntityManager {
 
 class Entity : public QObject {
@@ -37,6 +38,12 @@ signals:
     virtual QString toString();
     virtual ~Entity();
     virtual QString getTablename();
+    /**
+     * You should return the names of properties which should not persisted e.g. Properties which are only exposed to qml
+     * @brief getTransientAttributes
+     * @return
+     */
+    virtual QStringList getTransientAttributes();
     //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
   protected:
     qint64 id;

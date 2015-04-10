@@ -31,7 +31,7 @@ void Entity::setId(qint64 id) {
 }
 
 QString Entity::toString() {
-    return this->getTablename()+ ":" + QString::number(this->id);
+    return this->getTablename() + ":" + QString::number(this->id);
 }
 
 Entity::~Entity() {
@@ -39,4 +39,8 @@ Entity::~Entity() {
 
 QString Entity::getTablename() {
     return QString(this->metaObject()->className());
+}
+
+QStringList Entity::getTransientAttributes() {
+    return QStringList();
 }
