@@ -49,7 +49,6 @@ class EntityManager {
     void init();
     QString where(const QSharedPointer<Entity> &entity, QString conjunction = ",", bool ignoreID = false);
     QString where(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false);
-    void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName);
 
   public:
     EntityManager(QSqlDatabase database);
@@ -75,7 +74,6 @@ class EntityManager {
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
     void setSchema(const QSharedPointer<Schema> &value);
-    QHash<QString, QVariant> getEntityAttributes(const QSharedPointer<Entity> &entity);
 
 };
 }

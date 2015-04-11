@@ -2,10 +2,11 @@
 #include "../database.h"
 #include <QSqlRecord>
 #include <QSqlResult>
+#include "sqlitequerybuilder.h"
 using namespace CuteEntityManager;
 
 SqliteSchema::SqliteSchema(QSharedPointer<Database> database) : Schema(database) {
-
+    this->queryBuilder = QSharedPointer<QueryBuilder>(new SqliteQueryBuilder(QSharedPointer<Schema>(this), database));
 }
 
 SqliteSchema::~SqliteSchema() {
@@ -13,29 +14,6 @@ SqliteSchema::~SqliteSchema() {
 }
 
 QHash<QString, QString> *SqliteSchema::getTypeMap() {
-    /**
-   this->typeMap.data()->insert("bool", "SMALLINT");
-   this->typeMap.data()->insert("short", "SMALLINT");
-   this->typeMap.data()->insert("int", "INTEGER");
-   this->typeMap.data()->insert("long", "INTEGER");
-   this->typeMap.data()->insert("long long", "INTEGER");
-   this->typeMap.data()->insert("float", "FLOAT");
-   this->typeMap.data()->insert("double", "FLOAT");
-   this->typeMap.data()->insert("long double", "FLOAT");
-   this->typeMap.data()->insert("unsigned short", "SMALLINT");
-   this->typeMap.data()->insert("unsigned int", "INTEGER");
-   this->typeMap.data()->insert("unsigned long", "INTEGER");
-   this->typeMap.data()->insert("unsigned long long", "INTEGER");
-   this->typeMap.data()->insert("std::string", "TEXT");
-   this->typeMap.data()->insert("std::wstring", "TEXT");
-   this->typeMap.data()->insert("QString", "TEXT");
-   this->typeMap.data()->insert("QVariant", "TEXT");
-   this->typeMap.data()->insert("QUuid", "TEXT");
-   this->typeMap.data()->insert("QDate", "DATE");
-   this->typeMap.data()->insert("QTime", "TIME");
-   this->typeMap.data()->insert("QDateTime", "TIMESTAMP");
-   this->typeMap.data()->insert("QByteArray", "BLOB");
-      */
     if (this->typeMap.data()->empty()) {
         this->typeMap.data()->insert(TYPE_SMALLINT, "tinyint");
         this->typeMap.data()->insert(TYPE_BOOLEAN, "boolean");
@@ -80,7 +58,7 @@ QHash<QString, QStringList> SqliteSchema::findUniqueIndexes(const QSharedPointer
         QSqlQuery q2 = this->database.data()->getQuery();
         q2.setForwardOnly(true);
         if (q.value("unique").toBool()) {
-            q2.exec("PRAGMA index_info(" + this->quoteValue(indexName) + ")");
+            q2.exec("PRAGMA index_info(" + this->quoteSimpleTableName(indexName) + ")");
             QStringList indexInfo = QStringList();
             while (q2.next()) {
                 indexInfo.append(q2.value("name").toString());

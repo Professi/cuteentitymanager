@@ -16,8 +16,6 @@
 
 #include "entitymanager.h"
 #include "enums/databasetype.h"
-#include <QMetaObject>
-#include <QMetaProperty>
 using namespace CuteEntityManager;
 /**
  * Relationen fehlen noch
@@ -30,6 +28,7 @@ void EntityManager::init() {
     auto schema = CuteEntityManager::getSchema(CuteEntityManager::getDatabaseType(
                       this->db.data()->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);
+    this->schema.data()->setTables(this->schema.data()->getTableSchemas());
 }
 
 EntityManager::EntityManager(QSqlDatabase database) {
@@ -46,17 +45,16 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename ,
     this->init();
 }
 
-//inline bool EntityManager::checkTable(Entity *entity) {
-//    bool rc = true;
-//    if (!this->db->containsTable(entity->getTablename())) {
-//        qDebug() << "Tabelle" <<  entity->getTablename() << "existiert noch nicht.";
-//        if (this->createTable(entity)) {
-//            this->db->refreshTableList();
-//            rc = this->db->containsTable(entity->getTablename());
-//        }
-//    }
-//    return rc;
-//}
+bool EntityManager::checkTable(const QSharedPointer<Entity> &entity) {
+    bool rc = true;
+    if (!this->schema.data()->containsTable(entity.data()->getTablename())) {
+        if (this->schema.data()->getQueryBuilder().data()->createTable(entity)) {
+            this->schema.data()->getTableSchema(entity.data()->getTablename(), true);
+            rc = this->schema.data()->getTables().contains(entity.data()->getTablename());
+        }
+    }
+    return rc;
+}
 
 QSharedPointer<Database> EntityManager::getDb() const {
     return db;
@@ -73,46 +71,6 @@ QSharedPointer<Schema> EntityManager::getSchema() const {
 void EntityManager::setSchema(const QSharedPointer<Schema> &value) {
     schema = value;
 }
-
-QHash<QString, QVariant> EntityManager::getEntityAttributes(const QSharedPointer<Entity> &entity) {
-    Entity *e = entity.data();
-    auto map = QHash<QString, QVariant>();
-    auto metaObject = e->metaObject();
-    auto transientAttrs = e->getTransientAttributes();
-    for (int var = 0; var < metaObject->propertyCount(); ++var) {
-        auto p = metaObject->property(var);
-        QString name = QString(p.name());
-        if (p.isValid() && !transientAttrs.contains(name)) {
-            QVariant v = p.read(e);
-            //Relation
-            if (v.canConvert<Entity *>()) {
-                this->insertRelationId(qvariant_cast<Entity *>(v),map,name);
-            } else if (v.canConvert<QSharedPointer<Entity>>()) {
-                this->insertRelationId(qvariant_cast<QSharedPointer<Entity>>(v).data(),map,name);
-            } else if (QString(p.typeName()).contains("QList")) {
-                /**
-                  @TODO
-                  //List and/or ManyToManyRelation
-                  */
-                auto n = static_cast<QList<CuteEntityManager::Entity *>*>(v.data());
-                for (int var = 0; var < n->size(); ++var) {
-                    CuteEntityManager::Entity *entity = n->at(var);
-                    qDebug() << entity->toString();
-                }
-            } else {
-                map.insert(name, v);
-            }
-        }
-    }
-    return map;
-}
-
-void EntityManager::insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName) {
-    if (e && e->getId() > -1) {
-        map.insert(relName + "_id", e->getId());
-    }
-}
-
 
 QString EntityManager::createConnection() {
     QStringList l = EntityManager::getConnectionNames();
@@ -333,40 +291,6 @@ bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     }
     return rc;
 }
-
-//QString EntityManager::createTableQuery(QSharedPointer<Entity> entity) {
-//    QChar c = this->db->escapeChar();
-//    QHash<QString, QString> m = entity->getProperties(this->db->getDatabaseType());
-//    bool first = true;
-//    QString s = "CREATE TABLE IF NOT EXISTS ";
-//    s.append(c).append(entity->getTablename()).append(c).append("(");
-//    QHash<QString, QString>::const_iterator i = m.constBegin();
-//    while (i != m.constEnd()) {
-//        if (first) {
-//            first = false;
-//        } else {
-//            s.append(',');
-//        }
-//        s.append(c).append(i.key()).append(c).append(" " + i.value());
-//        ++i;
-//    }
-//    s.append(");");
-//    return s;
-//}
-
-//bool EntityManager::createTable(Entity *entity) {
-//    bool rc = false;
-//    this->db->containsTable(entity->getTablename()) ? rc = true : rc = false;
-//    if (!rc) {
-//        QSqlQuery q = this->db->getQuery(this->createTableQuery(entity));
-//        if (this->db->transaction(q)) {
-//            this->db->refreshTableList();
-//            rc = true;
-//        }
-//    }
-//    return rc;
-
-//}
 
 void EntityManager::setConnectionNames(QStringList list) {
     EntityManager::connectionNames = list;

@@ -5,6 +5,7 @@
 #include <QHash>
 #include <QSharedPointer>
 #include <QSqlField>
+#include "querybuilder.h"
 namespace CuteEntityManager {
 class Database;
 class Schema {
@@ -45,19 +46,19 @@ class Schema {
 
 
     virtual QHash<QString, QString> *getTypeMap() = 0;
+    QHash<QString, QString> getAbstractDatabaseTypes();
     virtual QString quoteSimpleTableName(QString name);
     virtual QString quoteTableName(QString name);
     virtual QString quoteColumnName(QString name);
     virtual QString quoteSimpleColumnName(QString name);
     virtual QHash<QString, QSharedPointer<TableSchema>> getTableSchemas(QString schema = "", bool refresh = false);
+    virtual QSharedPointer<TableSchema> getTableSchema(QString name, bool refresh = false);
     virtual QStringList getTableNames(QString schema = "");
-    //virtual QueryBuilder getQueryBuilder();
-    //virtual QueryBuilder createQueryBuilder();
     virtual QVariant getLastInsertID();
     virtual void refresh();
     virtual QString getRawTable(QString name);
     virtual bool containsTable(QString tblname);
-    virtual QString quoteValue(QString str);
+    virtual void initQueryBuilder();
 
     QHash<QString, QSharedPointer<TableSchema> > getTables() const;
     void setTables(const QHash<QString, QSharedPointer<TableSchema> > &value);
@@ -65,16 +66,18 @@ class Schema {
     QSharedPointer<Database> getDatabase() const;
     void setDatabase(const QSharedPointer<Database> &value);
 
+    QSharedPointer<QueryBuilder> getQueryBuilder() const;
+
 protected:
     virtual QStringList findTableNames(QString schema = "") = 0;
     virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table) = 0;
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;
     virtual bool findColumns(const QSharedPointer<TableSchema> &ts) = 0;
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name)  = 0;
-    virtual TableSchema *getTableSchema(QString name, bool refresh = false);
     QSharedPointer<Database> database;
     QSharedPointer<QHash<QString, QString>> typeMap;
     QHash<QString, QSharedPointer<TableSchema>> tables;
+    QSharedPointer<QueryBuilder> queryBuilder;
 
 
 };

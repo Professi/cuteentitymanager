@@ -8,10 +8,42 @@ using namespace CuteEntityManager;
 Schema::Schema(QSharedPointer<Database> database) {
     this->database = database;
     this->typeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
+    this->queryBuilder = QSharedPointer<QueryBuilder>();
 }
 
 Schema::~Schema() {
 
+}
+
+QHash<QString, QString> Schema::getAbstractDatabaseTypes() {
+    auto typeMap = QHash<QString, QString>();
+    typeMap.insert("bool", TYPE_SMALLINT);
+    typeMap.insert("short", TYPE_SMALLINT);
+    typeMap.insert("int", TYPE_INTEGER);
+    typeMap.insert("long", TYPE_INTEGER);
+    typeMap.insert("long long", TYPE_INTEGER);
+    typeMap.insert("float", TYPE_FLOAT);
+    typeMap.insert("double", TYPE_FLOAT);
+    typeMap.insert("long double", TYPE_FLOAT);
+    typeMap.insert("qint", TYPE_INTEGER);
+    typeMap.insert("quint", TYPE_INTEGER);
+    typeMap.insert("quuid", TYPE_INTEGER);
+    typeMap.insert("qfloat", TYPE_FLOAT);
+    typeMap.insert("unsigned short", TYPE_SMALLINT);
+    typeMap.insert("unsigned int", TYPE_INTEGER);
+    typeMap.insert("unsigned long", TYPE_INTEGER);
+    typeMap.insert("unsigned long long", TYPE_INTEGER);
+    typeMap.insert("char",TYPE_CHAR);
+    typeMap.insert("std::string", TYPE_TEXT);
+    typeMap.insert("QString", TYPE_TEXT);
+    typeMap.insert("QVariant", TYPE_TEXT);
+    typeMap.insert("QUuid", TYPE_TEXT);
+    typeMap.insert("QDate", TYPE_DATE);
+    typeMap.insert("QTime", TYPE_TIME);
+    typeMap.insert("QDateTime", TYPE_DATETIME);
+    typeMap.insert("QByteArray", TYPE_BINARY);
+    typeMap.insert("QBitArray", TYPE_BINARY);
+    return typeMap;
 }
 
 QString Schema::quoteSimpleTableName(QString name) {
@@ -56,10 +88,7 @@ QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(QString sch
         if (schema != "") {
             name = schema + "." + names.at(i);
         }
-        TableSchema *t = this->getTableSchema(name, refresh);
-        if (t) {
-            this->tables.insert(name, QSharedPointer<TableSchema>(t));
-        }
+        this->getTableSchema(name, refresh);
     }
     return this->tables;
 }
@@ -89,23 +118,19 @@ bool Schema::containsTable(QString tblname) {
     return this->tables.contains(tblname);
 }
 
-QString Schema::quoteValue(QString str) {
-
-}
-
-TableSchema *Schema::getTableSchema(QString name, bool refresh) {
+QSharedPointer<TableSchema> Schema::getTableSchema(QString name, bool refresh) {
     if (refresh) {
         this->refresh();
     }
     if (this->tables.contains(name)) {
-        return this->tables.value(name).data();
+        return this->tables.value(name);
     }
     QString realName = this->getRawTable(name);
     auto ts = this->loadTableSchema(realName);
     if (ts.data()) {
         this->tables.insert(name, ts);
     }
-    return ts.data();
+    return ts;
 }
 
 QSharedPointer<Database> Schema::getDatabase() const {
@@ -114,6 +139,9 @@ QSharedPointer<Database> Schema::getDatabase() const {
 
 void Schema::setDatabase(const QSharedPointer<Database> &value) {
     database = value;
+}
+QSharedPointer<QueryBuilder> Schema::getQueryBuilder() const {
+    return queryBuilder;
 }
 
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() const {
