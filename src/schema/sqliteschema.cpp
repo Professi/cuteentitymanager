@@ -13,7 +13,7 @@ SqliteSchema::~SqliteSchema() {
 
 }
 
-QHash<QString, QString> *SqliteSchema::getTypeMap() {
+QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
     if (this->typeMap.data()->empty()) {
         this->typeMap.data()->insert(TYPE_SMALLINT, "tinyint");
         this->typeMap.data()->insert(TYPE_BOOLEAN, "boolean");
@@ -33,7 +33,7 @@ QHash<QString, QString> *SqliteSchema::getTypeMap() {
         this->typeMap.data()->insert(TYPE_TIME, "time");
         this->typeMap.data()->insert(TYPE_TIMESTAMP, "timestamp");
     }
-    return this->typeMap.data();
+    return this->typeMap;
 }
 
 QStringList SqliteSchema::findTableNames(QString schema) {

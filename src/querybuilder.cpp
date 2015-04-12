@@ -20,6 +20,10 @@ QueryBuilder::QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Databas
     this->database = database;
 }
 
+QueryBuilder::~QueryBuilder() {
+
+}
+
 bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity) const {
     return this->createTable(entity.data()->getTablename(), this->generateTableDefinition(entity));
 }
@@ -55,6 +59,59 @@ QString QueryBuilder::createTableQuery(const QString &tableName, const QHash<QSt
     return s;
 }
 
+bool QueryBuilder::renameTable(QString tableName, QString newName) const {
+
+}
+
+bool QueryBuilder::dropTable(QString tableName) const {
+
+}
+
+bool QueryBuilder::truncateTable(QString tableName) const {
+
+}
+
+bool QueryBuilder::addColumn(QString tableName, QString columnName, QString columnType) const {
+
+}
+
+QString QueryBuilder::dropColumn(QString tableName, QString columName) const {
+
+}
+
+QString QueryBuilder::renameColumn(QString tableName, QString oldName, QString newName) const {
+
+}
+
+QString QueryBuilder::alterColumn(QString tableName, QString columnName, QString newType) const {
+
+}
+
+QString QueryBuilder::addPrimaryKey(QString name, QString tableName, QStringList columns) const {
+
+}
+
+QString QueryBuilder::dropPrimaryKey(QString name, QString tableName) const {
+
+}
+
+QString QueryBuilder::addForeignKey(QString name, QString tableName, QStringList columns, QString refTableName,
+                                    QStringList refColumns, QString deleteConstraint, QString updateConstraint) {
+
+}
+
+QString QueryBuilder::dropForeignKey(QString name, QString tableName) const {
+
+}
+
+QString QueryBuilder::createIndex(QString name, QString tableName, QStringList columns, bool unique) const {
+
+}
+
+QString QueryBuilder::dropIndex(QString name, QString tableName) const {
+
+}
+
 QSharedPointer<Database> QueryBuilder::getDatabase() const {
     return database;
 }
@@ -69,13 +126,26 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     for (int var = 0; var < o->propertyCount(); ++var) {
         auto m = o->property(var);
         if (m.isReadable() && !entity.data()->getTransientAttributes().contains(m.name())) {
-            m.typeName();
             /**
               @TODO
               */
         }
     }
     return map;
+}
+
+QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) {
+    QHash<QString, QString> *m = this->schema.data()->getAbstractTypeMap().data();
+    if (m->contains(typeName)) {
+        return m->value(typeName);
+    }
+    QHash<QString, QString>::iterator i;
+    for (i = m->begin(); i != m->end(); ++i) {
+        if (i.key().contains(typeName)) {
+            return i.value();
+        }
+    }
+    return this->schema.data()->TYPE_TEXT;
 }
 
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<Entity> &entity) {

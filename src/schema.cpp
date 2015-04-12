@@ -7,44 +7,45 @@ using namespace CuteEntityManager;
 
 Schema::Schema(QSharedPointer<Database> database) {
     this->database = database;
-    this->typeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
+    this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
     this->queryBuilder = QSharedPointer<QueryBuilder>();
+    this->initAbstractDatabaseTypes();
 }
 
 Schema::~Schema() {
 
 }
 
-QHash<QString, QString> Schema::getAbstractDatabaseTypes() {
-    auto typeMap = QHash<QString, QString>();
-    typeMap.insert("bool", TYPE_SMALLINT);
-    typeMap.insert("short", TYPE_SMALLINT);
-    typeMap.insert("int", TYPE_INTEGER);
-    typeMap.insert("long", TYPE_INTEGER);
-    typeMap.insert("long long", TYPE_INTEGER);
-    typeMap.insert("float", TYPE_FLOAT);
-    typeMap.insert("double", TYPE_FLOAT);
-    typeMap.insert("long double", TYPE_FLOAT);
-    typeMap.insert("qint", TYPE_INTEGER);
-    typeMap.insert("quint", TYPE_INTEGER);
-    typeMap.insert("quuid", TYPE_INTEGER);
-    typeMap.insert("qfloat", TYPE_FLOAT);
-    typeMap.insert("unsigned short", TYPE_SMALLINT);
-    typeMap.insert("unsigned int", TYPE_INTEGER);
-    typeMap.insert("unsigned long", TYPE_INTEGER);
-    typeMap.insert("unsigned long long", TYPE_INTEGER);
-    typeMap.insert("char",TYPE_CHAR);
-    typeMap.insert("std::string", TYPE_TEXT);
-    typeMap.insert("std::wstring", TYPE_TEXT);
-    typeMap.insert("QString", TYPE_TEXT);
-    typeMap.insert("QVariant", TYPE_TEXT);
-    typeMap.insert("QUuid", TYPE_TEXT);
-    typeMap.insert("QDate", TYPE_DATE);
-    typeMap.insert("QTime", TYPE_TIME);
-    typeMap.insert("QDateTime", TYPE_DATETIME);
-    typeMap.insert("QByteArray", TYPE_BINARY);
-    typeMap.insert("QBitArray", TYPE_BINARY);
-    return typeMap;
+void Schema::initAbstractDatabaseTypes() {
+    this->abstractTypeMap.create();
+    this->abstractTypeMap.data()->insert("bool", TYPE_SMALLINT);
+    this->abstractTypeMap.data()->insert("short", TYPE_SMALLINT);
+    this->abstractTypeMap.data()->insert("int", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("long", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("long long", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("qlonglong", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("float", TYPE_FLOAT);
+    this->abstractTypeMap.data()->insert("double", TYPE_FLOAT);
+    this->abstractTypeMap.data()->insert("long double", TYPE_FLOAT);
+    this->abstractTypeMap.data()->insert("qint", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("quint", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("quuid", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("qfloat", TYPE_FLOAT);
+    this->abstractTypeMap.data()->insert("unsigned short", TYPE_SMALLINT);
+    this->abstractTypeMap.data()->insert("unsigned int", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("unsigned long", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("unsigned long long", TYPE_INTEGER);
+    this->abstractTypeMap.data()->insert("char", TYPE_CHAR);
+    this->abstractTypeMap.data()->insert("std::string", TYPE_TEXT);
+    this->abstractTypeMap.data()->insert("std::wstring", TYPE_TEXT);
+    this->abstractTypeMap.data()->insert("QString", TYPE_TEXT);
+    this->abstractTypeMap.data()->insert("QVariant", TYPE_TEXT);
+    this->abstractTypeMap.data()->insert("QUuid", TYPE_TEXT);
+    this->abstractTypeMap.data()->insert("QDate", TYPE_DATE);
+    this->abstractTypeMap.data()->insert("QTime", TYPE_TIME);
+    this->abstractTypeMap.data()->insert("QDateTime", TYPE_DATETIME);
+    this->abstractTypeMap.data()->insert("QByteArray", TYPE_BINARY);
+    this->abstractTypeMap.data()->insert("QBitArray", TYPE_BINARY);
 }
 
 QString Schema::quoteSimpleTableName(QString name) {
@@ -144,6 +145,15 @@ void Schema::setDatabase(const QSharedPointer<Database> &value) {
 QSharedPointer<QueryBuilder> Schema::getQueryBuilder() const {
     return queryBuilder;
 }
+
+QSharedPointer<QHash<QString, QString> > Schema::getAbstractTypeMap() const {
+    return abstractTypeMap;
+}
+
+void Schema::setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> > &value) {
+    abstractTypeMap = value;
+}
+
 
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() const {
     return this->tables;

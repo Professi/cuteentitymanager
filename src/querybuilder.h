@@ -19,7 +19,7 @@ class QueryBuilder {
     virtual bool truncateTable(QString tableName) const;
     virtual bool addColumn(QString tableName, QString columnName, QString columnType) const;
     virtual QString dropColumn(QString tableName, QString columName)const;
-    virtual QString renameColumn(QString tableName, QString oldName, QString newName);
+    virtual QString renameColumn(QString tableName, QString oldName, QString newName) const;
     virtual QString alterColumn(QString tableName, QString columnName, QString newType)const;
     virtual QString addPrimaryKey(QString name, QString tableName, QStringList columns)const;
     virtual QString dropPrimaryKey(QString name, QString tableName) const;
@@ -37,6 +37,7 @@ class QueryBuilder {
 
     QHash<QString, QString> generateTableDefinition(const QSharedPointer<Entity> &entity) const;
 
+    QString transformTypeToAbstractDbType(QString typeName);
 
   protected:
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName);

@@ -7,8 +7,8 @@ class SqliteSchema : public Schema {
   public:
     SqliteSchema(QSharedPointer<Database> database);
     ~SqliteSchema();
-    QHash<QString, QString> *getTypeMap();
-protected:
+    QSharedPointer<QHash<QString, QString> > getTypeMap();
+  protected:
 
     virtual QStringList findTableNames(QString schema = "");
     virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table);

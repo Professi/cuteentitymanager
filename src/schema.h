@@ -32,22 +32,7 @@ class Schema {
     const QString TYPE_BOOLEAN = "boolean";
     const QString TYPE_MONEY = "money";
 
-    //    /**
-    //     * @var array list of ALL table names in the database
-    //     */
-    //    private $_tableNames = [];
-    //    /**
-    //     * @var array list of loaded table metadata (table name => TableSchema)
-    //     */
-    //    private $_tables = [];
-    //    /**
-    //     * @var QueryBuilder the query builder for this database
-    //     */
-    //    private $_builder;
-
-
-    virtual QHash<QString, QString> *getTypeMap() = 0;
-    QHash<QString, QString> getAbstractDatabaseTypes();
+    virtual QSharedPointer<QHash<QString, QString> >getTypeMap() = 0;
     virtual QString quoteSimpleTableName(QString name);
     virtual QString quoteTableName(QString name);
     virtual QString quoteColumnName(QString name);
@@ -59,7 +44,6 @@ class Schema {
     virtual void refresh();
     virtual QString getRawTable(QString name);
     virtual bool containsTable(QString tblname);
-    virtual void initQueryBuilder();
 
     QHash<QString, QSharedPointer<TableSchema> > getTables() const;
     void setTables(const QHash<QString, QSharedPointer<TableSchema> > &value);
@@ -69,14 +53,19 @@ class Schema {
 
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
 
+    QSharedPointer<QHash<QString, QString> > getAbstractTypeMap() const;
+    void setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> > &value);
+
 protected:
     virtual QStringList findTableNames(QString schema = "") = 0;
     virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table) = 0;
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;
     virtual bool findColumns(const QSharedPointer<TableSchema> &ts) = 0;
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name)  = 0;
+    void initAbstractDatabaseTypes();
     QSharedPointer<Database> database;
     QSharedPointer<QHash<QString, QString>> typeMap;
+    QSharedPointer<QHash<QString, QString>> abstractTypeMap;
     QHash<QString, QSharedPointer<TableSchema>> tables;
     QSharedPointer<QueryBuilder> queryBuilder;
 

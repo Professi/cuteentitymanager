@@ -37,7 +37,7 @@ class Entity : public QObject {
     virtual QString toString();
     virtual ~Entity();
     virtual QString getTablename();
-    virtual QList<Relation> getRelations();
+    virtual QHash<QString, Relation> getRelations();
     /**
      * You should return the names of properties which should not persisted e.g. Properties which are only exposed to qml
      * @brief getTransientAttributes
