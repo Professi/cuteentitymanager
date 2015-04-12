@@ -31,6 +31,9 @@
 namespace CuteEntityManager {
 
 class EntityManager {
+  signals:
+    void actionFinished(qint64 id);
+
   private:
     static QStringList connectionNames;
     QSharedPointer<Schema> schema;

@@ -35,6 +35,7 @@ QHash<QString, QString> Schema::getAbstractDatabaseTypes() {
     typeMap.insert("unsigned long long", TYPE_INTEGER);
     typeMap.insert("char",TYPE_CHAR);
     typeMap.insert("std::string", TYPE_TEXT);
+    typeMap.insert("std::wstring", TYPE_TEXT);
     typeMap.insert("QString", TYPE_TEXT);
     typeMap.insert("QVariant", TYPE_TEXT);
     typeMap.insert("QUuid", TYPE_TEXT);

@@ -12,6 +12,7 @@ class Schema {
   public:
     Schema(QSharedPointer<Database> database);
     virtual ~Schema();
+    //http://doc.qt.io/qt-5/sql-types.html
     const QString TYPE_PK = "pk";
     const QString TYPE_BIGPK = "bigpk";
     const QString TYPE_STRING = "string";

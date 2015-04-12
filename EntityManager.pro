@@ -25,7 +25,8 @@ src/entity.h \
     src/schema/mysqlschema.h \
     src/databasemigration.h \
     src/querybuilder.h \
-    src/schema/sqlitequerybuilder.h
+    src/schema/sqlitequerybuilder.h \
+    src/relation.h
 
 SOURCES += \
 src/entity.cpp \
@@ -38,7 +39,8 @@ src/entity.cpp \
     src/schema/mysqlschema.cpp \
     src/databasemigration.cpp \
     src/querybuilder.cpp \
-    src/schema/sqlitequerybuilder.cpp
+    src/schema/sqlitequerybuilder.cpp \
+    src/relation.cpp
 
 unix {
     target.path = /usr/lib

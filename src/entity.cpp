@@ -33,16 +33,27 @@ QString Entity::getTablename() {
     return QString(this->metaObject()->className());
 }
 
+QList<Relation> Entity::getRelations() {
+    return QList<Relation>();
+}
+
 QStringList Entity::getTransientAttributes() {
     return QStringList();
 }
-qint64 Entity::getId() const
+
+QStringList Entity::getBLOBColumns() {
+    return QStringList();
+}
+
+QString Entity::getPrimaryKey() {
+    return "id";
+}
+qint32 Entity::getId() const
 {
     return id;
 }
 
-void Entity::setId(const qint64 &value)
+void Entity::setId(const qint32 &value)
 {
     id = value;
 }
-

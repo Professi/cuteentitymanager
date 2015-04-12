@@ -21,12 +21,13 @@
 #include <QDebug>
 #include <QObject>
 #include "enums/databasetype.h"
+#include "relation.h"
 #include <QStringList>
 namespace CuteEntityManager {
 
 class Entity : public QObject {
     Q_OBJECT
-    Q_PROPERTY(qint64 firstName READ getId WRITE setId NOTIFY idChanged)
+    Q_PROPERTY(qint64 id READ getId WRITE setId NOTIFY idChanged)
 
   signals:
     void idChanged();
@@ -36,20 +37,22 @@ class Entity : public QObject {
     virtual QString toString();
     virtual ~Entity();
     virtual QString getTablename();
+    virtual QList<Relation> getRelations();
     /**
      * You should return the names of properties which should not persisted e.g. Properties which are only exposed to qml
      * @brief getTransientAttributes
      * @return
      */
     virtual QStringList getTransientAttributes();
-    //  virtual QMap<QString, QString> getManyToManyRelations() = 0;   //Key = Table, Value = joined Table Column
-    virtual qint64 getId() const;
-    virtual void setId(const qint64 &value);
+    virtual QStringList getBLOBColumns();
+    //return value must be the exact name defined in Q_PROPERTY
+    virtual QString getPrimaryKey();
 
-protected:
-    qint64 id;
+    qint32 getId() const;
+    void setId(const qint32 &value);
+
+  protected:
+    qint32 id;
 };
 }
-//Q_DECLARE_METATYPE(CuteEntityManager::Entity)
-//Q_DECLARE_METATYPE(CuteEntityManager::Entity*)
 #endif // ENTITY_H
