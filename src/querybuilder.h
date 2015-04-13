@@ -37,7 +37,8 @@ class QueryBuilder {
 
     QHash<QString, QString> generateTableDefinition(const QSharedPointer<Entity> &entity) const;
 
-    QString transformTypeToAbstractDbType(QString typeName);
+    QString transformTypeToAbstractDbType(QString typeName) const;
+    QString transformAbstractTypeToRealDbType(QString typeName) const;
 
   protected:
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName);

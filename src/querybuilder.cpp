@@ -124,17 +124,30 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     auto map = QHash<QString, QString>();
     auto o = entity.data()->metaObject();
     for (int var = 0; var < o->propertyCount(); ++var) {
+        o->property(var);
         auto m = o->property(var);
         if (m.isReadable() && !entity.data()->getTransientAttributes().contains(m.name())) {
-            /**
-              @TODO
-              */
+            if (m.isEnumType()) {
+                map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_INTEGER));
+            } else if (entity.data()->getRelations().contains(m.name())) {
+                map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_INTEGER);
+            } else if (entity.data()->getBLOBColumns().contains(m.name())) {
+                map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_BINARY));
+            } else {
+                map.insert(m.name(), this->transformAbstractTypeToRealDbType(this->transformTypeToAbstractDbType(m.typeName())));
+            }
         }
+    }
+    QString pkType = map.value(entity.data()->getPrimaryKey());
+    if (pkType == this->schema.data()->TYPE_BIGINT) {
+        map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
+    } else {
+        map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_PK);
     }
     return map;
 }
 
-QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) {
+QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) const {
     QHash<QString, QString> *m = this->schema.data()->getAbstractTypeMap().data();
     if (m->contains(typeName)) {
         return m->value(typeName);
@@ -146,6 +159,10 @@ QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) {
         }
     }
     return this->schema.data()->TYPE_TEXT;
+}
+
+QString QueryBuilder::transformAbstractTypeToRealDbType(QString typeName) const {
+    return this->schema.data()->getTypeMap().data()->value(typeName);
 }
 
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<Entity> &entity) {
