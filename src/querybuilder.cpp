@@ -59,57 +59,82 @@ QString QueryBuilder::createTableQuery(const QString &tableName, const QHash<QSt
     return s;
 }
 
-bool QueryBuilder::renameTable(QString tableName, QString newName) const {
-
+QString QueryBuilder::renameTable(QString tableName, QString newName) const {
+    return "RENAME TABLE " + this->schema.data()->quoteTableName(tableName) + " TO " + this->schema.data()->quoteTableName(
+               newName);
 }
 
-bool QueryBuilder::dropTable(QString tableName) const {
-
+QString QueryBuilder::dropTable(QString tableName) const {
+    return "DROP TABLE " + this->schema.data()->quoteTableName(tableName);
 }
 
-bool QueryBuilder::truncateTable(QString tableName) const {
-
+QString QueryBuilder::truncateTable(QString tableName) const {
+    return "TRUNCATE TABLE " + this->schema.data()->quoteTableName(tableName);
 }
 
-bool QueryBuilder::addColumn(QString tableName, QString columnName, QString columnType) const {
-
+QString QueryBuilder::addColumn(QString tableName, QString columnName, QString columnType) const {
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " ADD " + this->schema.data()->quoteColumnName(
+               columnName) + " " + this->getColumnType(columnType);
 }
 
 QString QueryBuilder::dropColumn(QString tableName, QString columName) const {
-
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " DROP COLUMN " +
+           this->schema.data()->quoteColumnName(columName);
 }
 
 QString QueryBuilder::renameColumn(QString tableName, QString oldName, QString newName) const {
-
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " RENAME COLUMN " +
+           this->schema.data()->quoteColumnName(oldName) + " TO " + this->schema.data()->quoteColumnName(newName);
 }
 
 QString QueryBuilder::alterColumn(QString tableName, QString columnName, QString newType) const {
-
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " CHANGE " +
+           this->schema.data()->quoteColumnName(columnName) + " " +
+           this->schema.data()->quoteColumnName(columnName) + this->getColumnType(newType);
 }
 
 QString QueryBuilder::addPrimaryKey(QString name, QString tableName, QStringList columns) const {
-
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " ADD CONSTRAINT " +
+           this->schema.data()->quoteColumnName(name) + "PRIMARY KEY (" + this->buildColumns(columns) + " )";
 }
 
 QString QueryBuilder::dropPrimaryKey(QString name, QString tableName) const {
-
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " DROP CONSTRAINT " +
+           this->schema.data()->quoteColumnName(name);
 }
 
 QString QueryBuilder::addForeignKey(QString name, QString tableName, QStringList columns, QString refTableName,
-                                    QStringList refColumns, QString deleteConstraint, QString updateConstraint) {
-
+                                    QStringList refColumns, QString deleteConstraint, QString updateConstraint) const {
+    QString r = "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + "ADD CONSTRAINT " +
+                this->schema.data()->quoteColumnName(name)
+                + " FOREIGN KEY (" +  this->buildColumns(columns) + ")" + " REFERENCES " + this->schema.data()->quoteTableName(
+                    refTableName) +
+                " (" + this->buildColumns(refColumns) + ")";
+    if (!deleteConstraint.isEmpty()) {
+        r.append(" ON DELETE " + deleteConstraint);
+    }
+    if (!updateConstraint.isEmpty()) {
+        r.append(" ON UPDATE " + updateConstraint);
+    }
+    return r;
 }
 
 QString QueryBuilder::dropForeignKey(QString name, QString tableName) const {
-
+    return "ALTER TABLE " + this->schema.data()->quoteTableName(tableName) + " DROP CONSTRAINT " +
+           this->schema.data()->quoteColumnName(name);
 }
 
 QString QueryBuilder::createIndex(QString name, QString tableName, QStringList columns, bool unique) const {
-
+    QString s = (unique ? "CREATE UNIQUE INDEX " : "CREATE INDEX ") + this->schema.data()->quoteTableName(
+                    name) + " ON " + this->schema.data()->quoteTableName(tableName) + " (";
+    s.append(this->buildColumns(columns));
+    s.append(");");
+    return s;
 }
 
 QString QueryBuilder::dropIndex(QString name, QString tableName) const {
-
+    return "DROP INDEX " + this->schema.data()->quoteTableName(name) + " ON " + this->schema.data()->quoteTableName(
+               tableName);
 }
 
 QSharedPointer<Database> QueryBuilder::getDatabase() const {
@@ -123,14 +148,19 @@ void QueryBuilder::setDatabase(const QSharedPointer<Database> &value) {
 QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPointer<Entity> &entity) const {
     auto map = QHash<QString, QString>();
     auto o = entity.data()->metaObject();
+    QHash<QString, Relation> relations = entity.data()->getRelations();
     for (int var = 0; var < o->propertyCount(); ++var) {
         o->property(var);
         auto m = o->property(var);
         if (m.isReadable() && !entity.data()->getTransientAttributes().contains(m.name())) {
             if (m.isEnumType()) {
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_INTEGER));
-            } else if (entity.data()->getRelations().contains(m.name())) {
-                map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_INTEGER);
+            } else if (relations.contains(m.name())) {
+                Relation r = relations.value(m.name());
+                if (r.getType() == RelationType::BELONGS_TO) {
+                    //@TODO detect if id is BIGINT or only Integer
+                    map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_INTEGER);
+                }
             } else if (entity.data()->getBLOBColumns().contains(m.name())) {
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_BINARY));
             } else {
@@ -163,6 +193,13 @@ QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) const {
 
 QString QueryBuilder::transformAbstractTypeToRealDbType(QString typeName) const {
     return this->schema.data()->getTypeMap().data()->value(typeName);
+}
+
+QString QueryBuilder::getColumnType(QString type) const {
+    /**
+      * @TODO
+      */
+    return this->transformAbstractTypeToRealDbType(type);
 }
 
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<Entity> &entity) {
@@ -202,6 +239,20 @@ void QueryBuilder::insertRelationId(const Entity *e, QHash<QString, QVariant> &m
     if (e && e->getId() > -1) {
         map.insert(relName + "_id", e->getId());
     }
+}
+
+QString QueryBuilder::buildColumns(const QStringList &columns) const {
+    QString r = "";
+    bool first = true;
+    for (int var = 0; var < columns.size(); ++var) {
+        if (!first) {
+            r.append(",");
+        } else {
+            first = false;
+        }
+        r.append(columns.at(var));
+    }
+    return r;
 }
 
 QSharedPointer<Schema> QueryBuilder::getSchema() const {

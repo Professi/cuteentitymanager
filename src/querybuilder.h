@@ -14,17 +14,17 @@ class QueryBuilder {
     virtual bool createTable(const QSharedPointer<Entity> &entity) const;
     virtual bool createTable(const QString &tableName, const QHash<QString, QString> &tableDefinition) const;
     virtual QString createTableQuery(const QString &tableName, const QHash<QString, QString> &tableDefinition) const;
-    virtual bool renameTable(QString tableName, QString newName) const;
-    virtual bool dropTable(QString tableName) const;
-    virtual bool truncateTable(QString tableName) const;
-    virtual bool addColumn(QString tableName, QString columnName, QString columnType) const;
+    virtual QString renameTable(QString tableName, QString newName) const;
+    virtual QString dropTable(QString tableName) const;
+    virtual QString truncateTable(QString tableName) const;
+    virtual QString addColumn(QString tableName, QString columnName, QString columnType) const;
     virtual QString dropColumn(QString tableName, QString columName)const;
     virtual QString renameColumn(QString tableName, QString oldName, QString newName) const;
     virtual QString alterColumn(QString tableName, QString columnName, QString newType)const;
     virtual QString addPrimaryKey(QString name, QString tableName, QStringList columns)const;
     virtual QString dropPrimaryKey(QString name, QString tableName) const;
     virtual QString addForeignKey(QString name, QString tableName, QStringList columns, QString refTableName,
-                                  QStringList refColumns, QString deleteConstraint, QString updateConstraint);
+                                  QStringList refColumns, QString deleteConstraint, QString updateConstraint) const;
     virtual QString dropForeignKey(QString name, QString tableName) const;
     virtual QString createIndex(QString name, QString tableName, QStringList columns, bool unique)const;
     virtual QString dropIndex(QString name, QString tableName)const;
@@ -39,10 +39,12 @@ class QueryBuilder {
 
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
+    QString getColumnType(QString type) const;
+
 
   protected:
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName);
-
+    QString buildColumns(const QStringList &columns) const;
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;

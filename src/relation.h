@@ -3,10 +3,10 @@
 #include <QString>
 namespace CuteEntityManager {
 enum RelationType {
-    ONE_TO_ONE,
-    ONE_TO_MANY,
-    MANY_TO_MANY,
-    MANY_TO_ONE
+    BELONGS_TO,
+    HAS_MANY,
+    HAS_ONE,
+    MANY_MANY,
 };
 
 class Relation {
