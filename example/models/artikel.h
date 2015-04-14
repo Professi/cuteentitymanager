@@ -26,11 +26,13 @@
 
 class Artikel : public CuteEntityManager::Entity {
     Q_OBJECT
-private:
+    Q_PROPERTY(double preis READ getPreis WRITE setPreis)
+    Q_PROPERTY(QString name READ getName WRITE setName)
+  private:
     double preis;
     QString name;
 
-public:
+  public:
     ~Artikel();
 //    QHash<QString, QString> getProperties(DatabaseType type);
 //    PersistenceType getPersistenceType();
@@ -39,9 +41,9 @@ public:
 //    void setAttributes(QHash<QString, QVariant> h);
     explicit Artikel(QObject *parent = 0);
     Artikel(double preis, QString name);
-    Q_INVOKABLE double getPreis() const;
-    Q_INVOKABLE void setPreis(double value);
-    Q_INVOKABLE QString getName() const;
-    Q_INVOKABLE void setName(const QString &value);
+    double getPreis() const;
+    void setPreis(double value);
+    QString getName() const;
+    void setName(const QString &value);
 };
 #endif // ARTIKEL_H

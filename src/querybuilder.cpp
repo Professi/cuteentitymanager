@@ -3,6 +3,8 @@
 #include <QMetaObject>
 #include <QMetaProperty>
 #include "entity.h"
+#include <QRegularExpression>
+
 using namespace CuteEntityManager;
 
 //bool QueryBuilder::createTable(QString tablename, QHash<QString, QString> tableDefinition) {
@@ -158,7 +160,6 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
             } else if (relations.contains(m.name())) {
                 Relation r = relations.value(m.name());
                 if (r.getType() == RelationType::BELONGS_TO) {
-                    //@TODO detect if id is BIGINT or only Integer
                     map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_INTEGER);
                 }
             } else if (entity.data()->getBLOBColumns().contains(m.name())) {
@@ -195,11 +196,38 @@ QString QueryBuilder::transformAbstractTypeToRealDbType(QString typeName) const 
     return this->schema.data()->getTypeMap().data()->value(typeName);
 }
 
-QString QueryBuilder::getColumnType(QString type) const {
+QString QueryBuilder::getColumnType(const QString &type) const {
     /**
-      * @TODO
+      * @WARNING
       */
-    return this->transformAbstractTypeToRealDbType(type);
+    QHash<QString, QString> *tMap = this->schema.data()->getTypeMap().data();
+    if (tMap->contains(type)) {
+        return this->transformAbstractTypeToRealDbType(type);
+    }
+    //cant believe that this could work in Qt
+    //https://github.com/yiisoft/yii2/blob/master/framework/db/QueryBuilder.php
+    QRegularExpression reg = QRegularExpression(QRegularExpression::escape("/^(\w+)\((.+?)\)(.*)$/"));
+    reg.optimize();
+    QRegularExpressionMatchIterator i = reg.globalMatch(type, 0, QRegularExpression::PartialPreferFirstMatch);
+    short s = 0;
+    bool ok = false;
+    QString before = "";
+    while (i.hasNext() && s < 2) {
+        before = i.next().captured();
+        if (tMap->contains(before)) {
+            ok = true;
+        }
+        if (ok) {
+            return before.replace(QRegularExpression::escape("/\(.+\)/"), "(" + i.next().captured() + ")");
+        }
+        s++;
+    }
+    reg = QRegularExpression(QRegularExpression::escape("/^(\w+)\s+/"));
+    QRegularExpressionMatchIterator i = reg.globalMatch(type, 0, QRegularExpression::PartialPreferFirstMatch);
+    if (i.hasNext()) {
+        return before.replace(QRegularExpression::escape("/^w+/"), i.next().captured());
+    }
+    return type;
 }
 
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<Entity> &entity) {
@@ -217,6 +245,8 @@ QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<
                 this->insertRelationId(qvariant_cast<Entity *>(v), map, name);
             } else if (v.canConvert<QSharedPointer<Entity>>()) {
                 this->insertRelationId(qvariant_cast<QSharedPointer<Entity>>(v).data(), map, name);
+            } else if (v.canConvert<QPointer<Entity>>()) {
+                this->insertRelationId(qvariant_cast<QPointer<Entity>>(v).data(), map, name);
             } else if (QString(p.typeName()).contains("QList")) {
                 /**
                   @TODO

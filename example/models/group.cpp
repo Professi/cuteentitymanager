@@ -2,6 +2,7 @@
 
 #include "models/person.h"
 #include "models/group.h"
+#include "relation.h"
 //#include <QQmlListProperty>
 #include <QDebug>
 
@@ -40,12 +41,30 @@ void Group::setTeacher(Person *value)
 {
     teacher = value;
 }
+QSharedPointer<Artikel> Group::getArtikel() const
+{
+    return artikel;
+}
+
+void Group::setArtikel(const QSharedPointer<Artikel> &value)
+{
+    artikel = value;
+}
+
 
 
 
 
 void Group::personChangedSlot() {
     qDebug() << "changed!";
+}
+
+QHash<QString, CuteEntityManager::Relation> Group::getRelations()
+{
+    QHash<QString, CuteEntityManager::Relation> h = QHash<QString, CuteEntityManager::Relation>();
+    CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel",CuteEntityManager::BELONGS_TO);
+    h.insert("artikel", r);
+    return h;
 }
 
 //void Group::appendPerson(QQmlListProperty<Person> *list, Person *p) {

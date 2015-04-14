@@ -50,11 +50,12 @@ int main(int argc, char *argv[]) {
     g->setTeacherP(QSharedPointer<Person>(new Person("Max","Mustermann")));
     for (int var = 0; var < g->metaObject()->propertyCount(); ++var) {
         qDebug() << "Name:" << g->metaObject()->property(var).name();
-        qDebug() << "Type:" << g->metaObject()->property(var).typeName();
+        qDebug() << "Name:" << g->metaObject()->property(var).name();
+//        qDebug() << "Type:" << g->metaObject()->property(var).typeName();
         auto p = g->metaObject()->property(var).read(g);
-        qDebug() << "Value:" << p;
-        qDebug() << p.canConvert<CuteEntityManager::Entity*>();
-        qDebug() << qvariant_cast<CuteEntityManager::Entity*>(p);
+//        qDebug() << "Value:" << p;
+//        qDebug() << p.canConvert<CuteEntityManager::Entity*>();
+//        qDebug() << qvariant_cast<CuteEntityManager::Entity*>(p);
         //p.type().canConvert(1);
 
 

@@ -1,26 +1,20 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-#define BR_PROPERTY(TYPE,NAME,DEFAULT)                  \
-TYPE NAME;                                              \
-TYPE get_##NAME() const { return NAME; }                \
-void set_##NAME(TYPE the_##NAME) { NAME = the_##NAME; } \
-void reset_##NAME() { NAME = DEFAULT; }
-
-
 #include "models/person.h"
 //#include <QQmlListProperty>
 #include <QDebug>
 #include <QList>
 #include <QVariantList>
 //#include <QQuickView>
+#include "artikel.h"
 
 
 
 class SeatingPlan;
 class Teacher;
 class Person;
-
+class Relation;
 
 class Group: public CuteEntityManager::Entity {
     Q_OBJECT
@@ -32,6 +26,7 @@ class Group: public CuteEntityManager::Entity {
 Q_PROPERTY(QList<Person*> persons READ getPersons WRITE setPersons NOTIFY personsChanged)
     Q_PROPERTY(Person* teacher READ getTeacher WRITE setTeacher)
     Q_PROPERTY(QSharedPointer<Person> teacherP READ getTeacherP WRITE setTeacherP)
+    Q_PROPERTY(QSharedPointer<Artikel> artikel READ getArtikel WRITE setArtikel)
 
   signals:
     void personsChanged();
@@ -40,6 +35,7 @@ Q_PROPERTY(QList<Person*> persons READ getPersons WRITE setPersons NOTIFY person
     void personChangedSlot();
 
   public:
+    virtual QHash<QString, CuteEntityManager::Relation> getRelations();
     // constructor
     Group();
 
@@ -89,11 +85,15 @@ Q_PROPERTY(QList<Person*> persons READ getPersons WRITE setPersons NOTIFY person
     Person *getTeacher() const;
     void setTeacher(Person *value);
 
+    QSharedPointer<Artikel> getArtikel() const;
+    void setArtikel(const QSharedPointer<Artikel> &value);
+
 protected:
     // members
     Person* teacher;
     QSharedPointer<Person> teacherP;
     QList<Person*> persons;
+    QSharedPointer<Artikel> artikel;
     QList <Person *> m_classPrefects;
     QList <Person *> m_parentSpeakers;
 

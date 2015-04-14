@@ -3,6 +3,7 @@
 #include <QString>
 #include <QHash>
 #include <QSharedPointer>
+#include <QPointer>
 namespace CuteEntityManager {
 class Schema;
 class Entity;
@@ -39,7 +40,7 @@ class QueryBuilder {
 
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
-    QString getColumnType(QString type) const;
+    QString getColumnType(const QString &type) const;
 
 
   protected:

@@ -37,6 +37,11 @@ class Entity : public QObject {
     virtual QString toString();
     virtual ~Entity();
     virtual QString getTablename();
+    /**
+     * Relation with BELONGS_TO should use qint32 as primary key
+     * @brief getRelations
+     * @return
+     */
     virtual QHash<QString, Relation> getRelations();
     /**
      * You should return the names of properties which should not persisted e.g. Properties which are only exposed to qml
