@@ -8,6 +8,7 @@
 #include <QVariantList>
 //#include <QQuickView>
 #include "artikel.h"
+#include <QSharedPointer>
 
 
 

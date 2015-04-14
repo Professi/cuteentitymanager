@@ -71,7 +71,7 @@ class EntityManager {
     bool merge(QSharedPointer<Entity> &entity);
     bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
-    bool createTable(QSharedPointer<Entity> &entity);
+    bool createTable(const QSharedPointer<Entity> &entity);
     qint8 count(Entity *entity, bool ignoreID = true);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);

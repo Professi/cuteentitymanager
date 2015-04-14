@@ -9,14 +9,18 @@
 #include <QMetaProperty>
 #include "models/group.h"
 #include "entity.h"
+#include "entitymanager.h"
 #include <QGenericReturnArgument>
 /**
   * create,remove und merge funktionieren
  */
 
 int main(int argc, char *argv[]) {
-//    OpenTeacherTool::EntityManager *e = new OpenTeacherTool::EntityManager("QSQLITE",QDir::currentPath() + "/db.sqlite");
-
+    CuteEntityManager::EntityManager *e = new CuteEntityManager::EntityManager("QSQLITE",QDir::currentPath() + "/db.sqlite");
+    QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0,"Müsli"));
+    auto ep = a.dynamicCast<CuteEntityManager::Entity>();
+    qDebug() << e;
+    qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
 //    OpenTeacherTool::Artikel *b= new OpenTeacherTool::Artikel(30,"Peter123");
 //    OpenTeacherTool::Entity *entity = b->getEntity();
 //    qDebug() << "findByAttributes:" << e->findByAttributes(entity,true);

@@ -7,16 +7,6 @@
 
 using namespace CuteEntityManager;
 
-//bool QueryBuilder::createTable(QString tablename, QHash<QString, QString> tableDefinition) {
-////    QHash<QString, QString> Artikel::getProperties(DatabaseType type) {
-////        QHash<QString, QString> h = QHash<QString, QString>();
-////        h.insert("id",this->idColumnSQL());
-////        h.insert("preis","DOUBLE");
-////        h.insert("name","TEXT");
-////        return h;
-////    }
-//}
-
 QueryBuilder::QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database) {
     this->schema = schema;
     this->database = database;
@@ -52,9 +42,9 @@ QString QueryBuilder::createTableQuery(const QString &tableName, const QHash<QSt
         if (first) {
             first = false;
         } else {
-            s.append(',');
+            s.append(", ");
         }
-        s.append(this->schema.data()->quoteColumnName(i.key())).append(" " + i.value());
+        s.append(this->schema.data()->quoteColumnName(i.key())).append(" " + this->getColumnType(i.value()));
         ++i;
     }
     s.append("\n);");
@@ -154,7 +144,8 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     for (int var = 0; var < o->propertyCount(); ++var) {
         o->property(var);
         auto m = o->property(var);
-        if (m.isReadable() && !entity.data()->getTransientAttributes().contains(m.name())) {
+        if (m.name() != QString("objectName") && m.isReadable()
+                && !entity.data()->getTransientAttributes().contains(m.name())) {
             if (m.isEnumType()) {
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_INTEGER));
             } else if (relations.contains(m.name())) {
@@ -206,7 +197,7 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     }
     //cant believe that this could work in Qt
     //https://github.com/yiisoft/yii2/blob/master/framework/db/QueryBuilder.php
-    QRegularExpression reg = QRegularExpression(QRegularExpression::escape("/^(\w+)\((.+?)\)(.*)$/"));
+    QRegularExpression reg = QRegularExpression(QRegularExpression::escape("/^(\\w+)\((.+?)\\)(.*)$/"));
     reg.optimize();
     QRegularExpressionMatchIterator i = reg.globalMatch(type, 0, QRegularExpression::PartialPreferFirstMatch);
     short s = 0;
@@ -218,12 +209,12 @@ QString QueryBuilder::getColumnType(const QString &type) const {
             ok = true;
         }
         if (ok) {
-            return before.replace(QRegularExpression::escape("/\(.+\)/"), "(" + i.next().captured() + ")");
+            return before.replace(QRegularExpression::escape("/\\(.+\\)/"), "(" + i.next().captured() + ")");
         }
         s++;
     }
-    reg = QRegularExpression(QRegularExpression::escape("/^(\w+)\s+/"));
-    QRegularExpressionMatchIterator i = reg.globalMatch(type, 0, QRegularExpression::PartialPreferFirstMatch);
+    reg = QRegularExpression(QRegularExpression::escape("/^(\\w+)\\s+/"));
+    i = reg.globalMatch(type, 0, QRegularExpression::PartialPreferFirstMatch);
     if (i.hasNext()) {
         return before.replace(QRegularExpression::escape("/^w+/"), i.next().captured());
     }
@@ -238,7 +229,7 @@ QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<
     for (int var = 0; var < metaObject->propertyCount(); ++var) {
         auto p = metaObject->property(var);
         QString name = QString(p.name());
-        if (p.isValid() && !transientAttrs.contains(name)) {
+        if (p.isValid() && !transientAttrs.contains(name) && name != QString("objectName")) {
             QVariant v = p.read(e);
             //Relation
             if (v.canConvert<Entity *>()) {

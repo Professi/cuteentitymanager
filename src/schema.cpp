@@ -9,6 +9,7 @@ Schema::Schema(QSharedPointer<Database> database) {
     this->database = database;
     this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
     this->queryBuilder = QSharedPointer<QueryBuilder>();
+    this->typeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
     this->initAbstractDatabaseTypes();
 }
 
@@ -110,8 +111,8 @@ void Schema::refresh() {
 
 QString Schema::getRawTable(QString name) {
     if (name.indexOf("{{")) {
-        QRegularExpression re(QRegularExpression::escape("/\{\{(.*?)\}\}/"));
-        return name.replace(re, QRegularExpression::escape("\1"));
+        QRegularExpression re(QRegularExpression::escape("/\\{\{(.*?)\\}\\}/"));
+        return name.replace(re, QRegularExpression::escape("\\1"));
     }
     return name;
 }

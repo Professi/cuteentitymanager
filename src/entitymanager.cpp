@@ -292,6 +292,10 @@ bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     return rc;
 }
 
+bool EntityManager::createTable(const QSharedPointer<Entity> &entity) {
+    return this->schema.data()->getQueryBuilder().data()->createTable(entity);
+}
+
 void EntityManager::setConnectionNames(QStringList list) {
     EntityManager::connectionNames = list;
 }

@@ -20,11 +20,14 @@
 #include <QMap>
 #include <QDebug>
 #include <QObject>
-#include "enums/databasetype.h"
 #include "relation.h"
 #include <QStringList>
 namespace CuteEntityManager {
 
+/**
+ * You should name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager
+ * @brief The Entity class
+ */
 class Entity : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 id READ getId WRITE setId NOTIFY idChanged)
