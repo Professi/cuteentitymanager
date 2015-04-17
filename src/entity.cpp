@@ -37,6 +37,10 @@ QHash<QString, Relation> Entity::getRelations() {
     return QHash<QString, Relation>();
 }
 
+QHash<QString, QSharedPointer<Entity> > Entity::getRelationObjects() {
+    return QHash<QString, QSharedPointer<Entity>>();
+}
+
 QStringList Entity::getTransientAttributes() {
     return QStringList();
 }
@@ -48,10 +52,22 @@ QStringList Entity::getBLOBColumns() {
 QString Entity::getPrimaryKey() {
     return "id";
 }
-qint32 Entity::getId() const {
+
+QHash<QString, QMetaProperty> Entity::getMetaProperties() {
+    QHash<QString, QMetaProperty> h = QHash<QString, QMetaProperty>();
+    for (int var = 0; var < this->metaObject()->propertyCount(); ++var) {
+        QMetaProperty m = this->metaObject()->property(var);
+        if (m.name() != QString("objectName")) {
+            h.insert(m.name(), m);
+        }
+    }
+    return h;
+}
+
+qint64 Entity::getId() const {
     return id;
 }
 
-void Entity::setId(const qint32 &value) {
+void Entity::setId(const qint64 &value) {
     id = value;
 }

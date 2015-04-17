@@ -20,6 +20,7 @@
 #include <QMap>
 #include <QDebug>
 #include <QObject>
+#include <QMetaProperty>
 #include "relation.h"
 #include <QStringList>
 namespace CuteEntityManager {
@@ -47,6 +48,14 @@ class Entity : public QObject {
      */
     virtual QHash<QString, Relation> getRelations();
     /**
+     * The hashmap keys must be equal to the ones which are defined in the hashmap of getRelations()
+     * The EntityManager will only introspect Entity Objects, non-Entity inherited relations will be processed in a other way
+     * You must use this method, if you have a n-n Relation with Entity Objects.
+     * @brief getRelationObjects
+     * @return
+     */
+    virtual QHash<QString, QSharedPointer<Entity> > getRelationObjects();
+    /**
      * You should return the names of properties which should not persisted e.g. Properties which are only exposed to qml
      * @brief getTransientAttributes
      * @return
@@ -55,12 +64,13 @@ class Entity : public QObject {
     virtual QStringList getBLOBColumns();
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey();
+    QHash<QString, QMetaProperty> getMetaProperties();
 
-    qint32 getId() const;
-    void setId(const qint32 &value);
+    qint64 getId() const;
+    void setId(const qint64 &value);
 
-  protected:
-    qint32 id;
+protected:
+    qint64 id;
 };
 }
 #endif // ENTITY_H

@@ -141,6 +141,7 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     auto map = QHash<QString, QString>();
     auto o = entity.data()->metaObject();
     QHash<QString, Relation> relations = entity.data()->getRelations();
+    QHash<QString, QSharedPointer<Entity>> relationObjects = entity.data()->getRelationObjects();
     for (int var = 0; var < o->propertyCount(); ++var) {
         o->property(var);
         auto m = o->property(var);
@@ -151,7 +152,7 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
             } else if (relations.contains(m.name())) {
                 Relation r = relations.value(m.name());
                 if (r.getType() == RelationType::BELONGS_TO) {
-                    map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_INTEGER);
+                    map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_BIGINT);
                 }
             } else if (entity.data()->getBLOBColumns().contains(m.name())) {
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_BINARY));
@@ -169,13 +170,27 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     return map;
 }
 
+QList<QHash<QString, QString>> QueryBuilder::generateRelationTables(const QSharedPointer<Entity> &entity) {
+    QHash<QString, Relation> m = entity.data()->getRelations();
+    for(auto i = m.begin(); i != m.end(); ++i) {
+        Relation r = i.value();
+        if(r.getType() == HAS_MANY) {
+            QHash<QString, QString> h = QHash<QString, QString>();
+            h.insert("id",this->schema.data()->TYPE_BIGPK);
+            //h.insert(entity.data()->metaObject()->className()+ "_id", this->schema.data()->)
+
+        }
+    }
+
+}
+
+
 QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) const {
     QHash<QString, QString> *m = this->schema.data()->getAbstractTypeMap().data();
     if (m->contains(typeName)) {
         return m->value(typeName);
     }
-    QHash<QString, QString>::iterator i;
-    for (i = m->begin(); i != m->end(); ++i) {
+    for (auto i = m->begin(); i != m->end(); ++i) {
         if (i.key().contains(typeName)) {
             return i.value();
         }
