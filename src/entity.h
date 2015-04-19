@@ -23,6 +23,7 @@
 #include <QMetaProperty>
 #include "relation.h"
 #include <QStringList>
+#include <QSharedPointer>
 namespace CuteEntityManager {
 
 /**
@@ -69,7 +70,7 @@ class Entity : public QObject {
     qint64 getId() const;
     void setId(const qint64 &value);
 
-protected:
+  protected:
     qint64 id;
 };
 }

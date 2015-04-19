@@ -35,7 +35,7 @@ class QueryBuilder {
 
     QSharedPointer<Database> getDatabase() const;
     void setDatabase(const QSharedPointer<Database> &value);
-
+    QList<QHash<QString, QString>> generateRelationTables(const QSharedPointer<Entity> &entity) const;
     QHash<QString, QString> generateTableDefinition(const QSharedPointer<Entity> &entity) const;
 
     QString transformTypeToAbstractDbType(QString typeName) const;

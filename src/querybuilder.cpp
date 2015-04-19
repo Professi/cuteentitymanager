@@ -170,18 +170,23 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     return map;
 }
 
-QList<QHash<QString, QString>> QueryBuilder::generateRelationTables(const QSharedPointer<Entity> &entity) {
+QList<QHash<QString, QString>> QueryBuilder::generateRelationTables(const QSharedPointer<Entity> &entity) const {
+    QList<QHash<QString, QString>> relations = QList<QHash<QString, QString>>();
     QHash<QString, Relation> m = entity.data()->getRelations();
+    QHash<QString, QSharedPointer<Entity>> os = entity.data()->getRelationObjects();
     for(auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();
         if(r.getType() == HAS_MANY) {
             QHash<QString, QString> h = QHash<QString, QString>();
             h.insert("id",this->schema.data()->TYPE_BIGPK);
-            //h.insert(entity.data()->metaObject()->className()+ "_id", this->schema.data()->)
-
+            h.insert(QString(entity.data()->metaObject()->className())+ QString("_id"), this->schema.data()->TYPE_BIGINT);
+            if(os.contains(i.key())) {
+            h.insert(QString(os.value(i.key()).data()->metaObject()->className())+ QString("_id"),this->schema.data()->TYPE_BIGINT);
+            relations.append(h);
+            }
         }
     }
-
+    return relations;
 }
 
 
