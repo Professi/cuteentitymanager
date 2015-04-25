@@ -27,7 +27,7 @@
 namespace CuteEntityManager {
 
 /**
- * You should name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager
+ * You mustn't name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager
  * @brief The Entity class
  */
 class Entity : public QObject {
@@ -51,7 +51,7 @@ class Entity : public QObject {
     /**
      * The hashmap keys must be equal to the ones which are defined in the hashmap of getRelations()
      * The EntityManager will only introspect Entity Objects, non-Entity inherited relations will be processed in a other way
-     * You must use this method, if you have a n-n Relation with Entity Objects.
+     * You must use this method, if you have a n-m Relation with Entity Objects.
      * @brief getRelationObjects
      * @return
      */

@@ -56,7 +56,7 @@ class Schema {
     QSharedPointer<QHash<QString, QString> > getAbstractTypeMap() const;
     void setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> > &value);
 
-protected:
+  protected:
     virtual QStringList findTableNames(QString schema = "") = 0;
     virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table) = 0;
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;

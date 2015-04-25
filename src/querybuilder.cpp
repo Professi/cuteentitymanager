@@ -151,7 +151,7 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_INTEGER));
             } else if (relations.contains(m.name())) {
                 Relation r = relations.value(m.name());
-                if (r.getType() == RelationType::BELONGS_TO) {
+                if (r.getType() == RelationType::MANY_TO_ONE) {
                     map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_BIGINT);
                 }
             } else if (entity.data()->getBLOBColumns().contains(m.name())) {
@@ -170,19 +170,31 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     return map;
 }
 
-QList<QHash<QString, QString>> QueryBuilder::generateRelationTables(const QSharedPointer<Entity> &entity) const {
-    QList<QHash<QString, QString>> relations = QList<QHash<QString, QString>>();
+QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity> &firstEntity,
+        const QSharedPointer<Entity> &secondEntity) const {
+    return QString(firstEntity.data()->metaObject()->className()).toLower() + "_" + QString(
+               secondEntity.data()->metaObject()->className()).toLower();
+}
+
+QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(const QSharedPointer<Entity> &entity)
+const {
+    auto relations = QHash<QString, QHash<QString, QString>>();
     QHash<QString, Relation> m = entity.data()->getRelations();
     QHash<QString, QSharedPointer<Entity>> os = entity.data()->getRelationObjects();
-    for(auto i = m.begin(); i != m.end(); ++i) {
+    for (auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();
-        if(r.getType() == HAS_MANY) {
+        if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
             QHash<QString, QString> h = QHash<QString, QString>();
-            h.insert("id",this->schema.data()->TYPE_BIGPK);
-            h.insert(QString(entity.data()->metaObject()->className())+ QString("_id"), this->schema.data()->TYPE_BIGINT);
-            if(os.contains(i.key())) {
-            h.insert(QString(os.value(i.key()).data()->metaObject()->className())+ QString("_id"),this->schema.data()->TYPE_BIGINT);
-            relations.append(h);
+            h.insert("id", this->schema.data()->TYPE_BIGPK);
+            h.insert(QString(entity.data()->metaObject()->className()) + QString("_id"), this->schema.data()->TYPE_BIGINT);
+            if (os.contains(i.key())) {
+                h.insert(QString(os.value(i.key()).data()->metaObject()->className()) + QString("_id"),
+                         this->schema.data()->TYPE_BIGINT);
+                if (r.getTableName().isEmpty()) {
+                    relations.insert(this->generateManyToManyTableName(entity, os.value(i.key())), h);
+                } else {
+                    relations.insert(r.getTableName(), h);
+                }
             }
         }
     }
@@ -241,40 +253,45 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     return type;
 }
 
-QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QSharedPointer<Entity> &entity) {
+QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QHash<QString, QMetaProperty> &props,
+        const QSharedPointer<Entity> &entity) {
     Entity *e = entity.data();
     auto map = QHash<QString, QVariant>();
-    auto metaObject = e->metaObject();
     auto transientAttrs = e->getTransientAttributes();
-    for (int var = 0; var < metaObject->propertyCount(); ++var) {
-        auto p = metaObject->property(var);
-        QString name = QString(p.name());
-        if (p.isValid() && !transientAttrs.contains(name) && name != QString("objectName")) {
-            QVariant v = p.read(e);
-            //Relation
+    auto relations = e->getRelations();
+    auto i = props.constBegin();
+    while (i != props.constEnd()) {
+        if (!transientAttrs.contains(i.key()) && !relations.contains(i.key())) {
+            map.insert(i.key(), i.value().read(e));
+        }
+        ++i;
+    }
+    return map;
+}
+
+QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(const QHash<QString, QMetaProperty> &props,
+        const QSharedPointer<Entity> &entity) {
+    Entity *e = entity.data();
+    auto map = QHash<QString, QVariant>();
+    auto relations = e->getRelations();
+    auto i = relations.constBegin();
+    while (i != relations.constEnd()) {
+        Relation r = i.value();
+        if (r.getType() == MANY_TO_ONE && props.contains(i.key())) {
+            auto v = props.value(i.key()).read(e);
             if (v.canConvert<Entity *>()) {
-                this->insertRelationId(qvariant_cast<Entity *>(v), map, name);
+                this->insertRelationId(qvariant_cast<Entity *>(v), map, i.key());
             } else if (v.canConvert<QSharedPointer<Entity>>()) {
-                this->insertRelationId(qvariant_cast<QSharedPointer<Entity>>(v).data(), map, name);
+                this->insertRelationId(qvariant_cast<QSharedPointer<Entity>>(v).data(), map, i.key());
             } else if (v.canConvert<QPointer<Entity>>()) {
-                this->insertRelationId(qvariant_cast<QPointer<Entity>>(v).data(), map, name);
-            } else if (QString(p.typeName()).contains("QList")) {
-                /**
-                  @TODO
-                  //List and/or ManyToManyRelation
-                  */
-                auto n = static_cast<QList<CuteEntityManager::Entity *>*>(v.data());
-                for (int var = 0; var < n->size(); ++var) {
-                    CuteEntityManager::Entity *entity = n->at(var);
-                    qDebug() << entity->toString();
-                }
-            } else {
-                map.insert(name, v);
+                this->insertRelationId(qvariant_cast<QPointer<Entity>>(v).data(), map, i.key());
             }
+            ++i;
         }
     }
     return map;
 }
+
 
 void QueryBuilder::insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName) {
     if (e && e->getId() > -1) {
@@ -296,6 +313,8 @@ QString QueryBuilder::buildColumns(const QStringList &columns) const {
     return r;
 }
 
+
+
 QSharedPointer<Schema> QueryBuilder::getSchema() const {
     return schema;
 }
@@ -303,4 +322,3 @@ QSharedPointer<Schema> QueryBuilder::getSchema() const {
 void QueryBuilder::setSchema(const QSharedPointer<Schema> &value) {
     schema = value;
 }
-
