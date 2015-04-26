@@ -4,6 +4,7 @@
 #include <QHash>
 #include <QSharedPointer>
 #include <QPointer>
+#include <QSqlQuery>
 namespace CuteEntityManager {
 class Schema;
 class Entity;
@@ -30,7 +31,7 @@ class QueryBuilder {
     virtual QString createIndex(QString name, QString tableName, QStringList columns, bool unique)const;
     virtual QString dropIndex(QString name, QString tableName)const;
     QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty> &props,
-            const QSharedPointer<Entity> &entity);
+            const QSharedPointer<Entity> &entity) const;
 
     QSharedPointer<Schema> getSchema() const;
     void setSchema(const QSharedPointer<Schema> &value);
@@ -45,13 +46,32 @@ class QueryBuilder {
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
     QString getColumnType(const QString &type) const;
-
+    QSqlQuery find(const qint64 &id, const QString &tableName) const;
+    QSqlQuery findByAttributes(const QHash<QString, QVariant> &m, const QString &tableName, const bool &ignoreID) const;
+    QSqlQuery findByAttributes(const QSharedPointer<Entity> &e,bool ignoreID = true);
+    QSqlQuery findAll(const QString &tableName) const;
+    QSqlQuery remove(const QSharedPointer<Entity> &entity) const;
+    QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
+    QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
+    QSqlQuery count(const QString &tableName) const;
+    QSqlQuery merge(const QSharedPointer<Entity> &entity) const;
+    QSqlQuery create(const QSharedPointer<Entity> &entity) const;
 
   protected:
-    void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName);
+    void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName) const;
     QString buildColumns(const QStringList &columns) const;
     QHash<QString, QVariant> getManyToOneAttributes(const QHash<QString, QMetaProperty> &props,
-            const QSharedPointer<Entity> &entity);
+            const QSharedPointer<Entity> &entity) const;
+    QHash<QString, QMetaProperty> getMetaProperties(const QSharedPointer<Entity> &entity) const;
+    QHash<QString, QVariant> getPropertyValues(const QHash<QString, QMetaProperty> &metaProps,
+            const QSharedPointer<Entity> &entity) const;
+    QString buildCreateQuery(QHash<QString, QVariant>::const_iterator i, QHash<QString, QVariant>::const_iterator end,
+                             QString &p1, QString &p2) const;
+    void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q, bool ignoreID = false) const;
+    QString where(const QSharedPointer<Entity> &entity, QString conjunction = ",", bool ignoreID = false) const;
+    QString where(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false) const;
+    QString attributes(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false) const;
+    QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity) const;
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;
