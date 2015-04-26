@@ -68,7 +68,7 @@ class EntityManager {
     bool create(QSharedPointer<Entity> &entity);
     bool save(QSharedPointer<Entity> &entity);
     qint64 findId(QSharedPointer<Entity> &entity);
-    bool merge(QSharedPointer<Entity> &entity, bool withManyToOne = true);
+    bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
     bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
     bool createTable(const QSharedPointer<Entity> &entity);
