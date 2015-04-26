@@ -38,10 +38,6 @@ QHash<QString, Relation> Entity::getRelations() {
     return QHash<QString, Relation>();
 }
 
-QHash<QString, QSharedPointer<Entity> > Entity::getRelationObjects() {
-    return QHash<QString, QSharedPointer<Entity>>();
-}
-
 QStringList Entity::getTransientAttributes() {
     return QStringList();
 }

@@ -211,21 +211,22 @@ QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(con
 const {
     auto relations = QHash<QString, QHash<QString, QString>>();
     QHash<QString, Relation> m = entity.data()->getRelations();
-    QHash<QString, QSharedPointer<Entity>> os = entity.data()->getRelationObjects();
+    auto props = this->getMetaProperties(entity);
     for (auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();
         if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
             QHash<QString, QString> h = QHash<QString, QString>();
             h.insert("id", this->schema.data()->TYPE_BIGPK);
             h.insert(QString(entity.data()->metaObject()->className()) + QString("_id"), this->schema.data()->TYPE_BIGINT);
-            if (os.contains(i.key())) {
-                h.insert(QString(os.value(i.key()).data()->metaObject()->className()) + QString("_id"),
-                         this->schema.data()->TYPE_BIGINT);
-                if (r.getTableName().isEmpty()) {
-                    relations.insert(this->generateManyToManyTableName(entity, os.value(i.key())), h);
-                } else {
-                    relations.insert(r.getTableName(), h);
-                }
+            auto m = props.value(r.getPropertyName());
+            Entity *e = this->createInstance(m.type());
+            QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
+            h.insert(QString(ptr.data()->metaObject()->className()) + QString("_id"),
+                     this->schema.data()->TYPE_BIGINT);
+            if (r.getTableName().isEmpty()) {
+                relations.insert(this->generateManyToManyTableName(entity, ptr), h);
+            } else {
+                relations.insert(r.getTableName(), h);
             }
         }
     }
@@ -390,6 +391,18 @@ QHash<QString, QVariant> QueryBuilder::saveAttributes(const QSharedPointer<Entit
     return values;
 }
 
+Entity *QueryBuilder::createInstance(const char *className) const {
+    return this->createInstance(QMetaType::type(className));
+}
+
+Entity *QueryBuilder::createInstance(int id) const {
+    Entity *e = 0;
+    if (id != -1) {
+        e = static_cast<Entity *>(QMetaType::create(id));
+    }
+    return e;
+}
+
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QHash<QString, QMetaProperty> &props,
         const QSharedPointer<Entity> &entity) const {
     Entity *e = entity.data();
@@ -479,14 +492,13 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m, const QStrin
                 if (!(rc == "")) {
                     rc += " " + conjunction + " ";
                 }
-                rc += this->schema.data()->quoteColumnName(i.key()) + "= :" + i.key();
+                rc += this->schema.data()->quoteColumnName(i.key()) + "=:" + i.key();
             }
             ++i;
         }
     }
     return rc;
 }
-
 
 QSharedPointer<Schema> QueryBuilder::getSchema() const {
     return schema;

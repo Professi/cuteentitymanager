@@ -43,24 +43,10 @@ class Entity : public QObject {
     virtual ~Entity();
     virtual QString getTablename();
     /**
-     * Relation with BELONGS_TO should use qint32 as primary key
      * @brief getRelations
      * @return
      */
     virtual QHash<QString, Relation> getRelations();
-    /**
-     * The hashmap keys must be equal to the ones which are defined in the hashmap of getRelations()
-     * The EntityManager will only introspect Entity Objects, non-Entity inherited relations will be processed in a other way
-     * You must use this method, if you have a n-m Relation with Entity Objects.
-     * @brief getRelationObjects
-     * @return
-     */
-    virtual QHash<QString, QSharedPointer<Entity> > getRelationObjects();
-    /**
-     * You should return the names of properties which should not persisted e.g. Properties which are only exposed to qml
-     * @brief getTransientAttributes
-     * @return
-     */
     virtual QStringList getTransientAttributes();
     virtual QStringList getBLOBColumns();
     //return value must be the exact name defined in Q_PROPERTY

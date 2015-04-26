@@ -72,6 +72,8 @@ class QueryBuilder {
     QString where(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false) const;
     QString attributes(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false) const;
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity) const;
+    Entity* createInstance(const char *className) const;
+    Entity* createInstance(int id) const;
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;
