@@ -50,6 +50,21 @@ QString Entity::getPrimaryKey() {
     return "id";
 }
 
+QHash<QString, QMetaProperty> Entity::getMetaProperties() const {
+    QHash<QString, QMetaProperty> h = QHash<QString, QMetaProperty>();
+    for (int var = 0; var < this->metaObject()->propertyCount(); ++var) {
+        QMetaProperty m = this->metaObject()->property(var);
+        if (m.name() != QString("objectName") && m.isValid()) {
+            h.insert(m.name(), m);
+        }
+    }
+    return h;
+}
+
+const char *Entity::getClassname() const {
+    return this->metaObject()->className();
+}
+
 qint64 Entity::getId() const {
     return id;
 }

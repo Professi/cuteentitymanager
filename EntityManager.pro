@@ -26,7 +26,8 @@ src/entity.h \
     src/databasemigration.h \
     src/querybuilder.h \
     src/schema/sqlitequerybuilder.h \
-    src/relation.h
+    src/relation.h \
+    src/entityinstancefactory.h
 
 SOURCES += \
 src/entity.cpp \
@@ -40,7 +41,8 @@ src/entity.cpp \
     src/databasemigration.cpp \
     src/querybuilder.cpp \
     src/schema/sqlitequerybuilder.cpp \
-    src/relation.cpp
+    src/relation.cpp \
+    src/entityinstancefactory.cpp
 
 unix {
     target.path = /usr/lib

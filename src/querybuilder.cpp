@@ -37,7 +37,7 @@ QString QueryBuilder::createTableQuery(const QString &tableName, const QHash<QSt
     bool first = true;
     QString s = "CREATE TABLE ";
     s.append(this->schema.data()->quoteTableName(tableName).append(" (\n"));
-    QHash<QString, QString>::const_iterator i = tableDefinition.constBegin();
+    auto i = tableDefinition.constBegin();
     while (i != tableDefinition.constEnd()) {
         if (first) {
             first = false;
@@ -137,18 +137,6 @@ void QueryBuilder::setDatabase(const QSharedPointer<Database> &value) {
     database = value;
 }
 
-
-QHash<QString, QMetaProperty> QueryBuilder::getMetaProperties(const QSharedPointer<Entity> &entity) const {
-    QHash<QString, QMetaProperty> h = QHash<QString, QMetaProperty>();
-    for (int var = 0; var < entity.data()->metaObject()->propertyCount(); ++var) {
-        QMetaProperty m = entity.data()->metaObject()->property(var);
-        if (m.name() != QString("objectName") && m.isValid()) {
-            h.insert(m.name(), m);
-        }
-    }
-    return h;
-}
-
 QString QueryBuilder::buildCreateQuery(QHash<QString, QVariant>::const_iterator i,
                                        QHash<QString, QVariant>::const_iterator end,
                                        QString &p1, QString &p2) const {
@@ -211,7 +199,7 @@ QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(con
 const {
     auto relations = QHash<QString, QHash<QString, QString>>();
     QHash<QString, Relation> m = entity.data()->getRelations();
-    auto props = this->getMetaProperties(entity);
+    auto props = entity.data()->getMetaProperties();
     for (auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();
         if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
@@ -314,7 +302,7 @@ QSqlQuery QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m, cons
 }
 
 QSqlQuery QueryBuilder::findByAttributes(const QSharedPointer<Entity> &e, bool ignoreID) {
-    QHash<QString, QVariant> values = this->getEntityAttributes(this->getMetaProperties(e), e);
+    QHash<QString, QVariant> values = this->getEntityAttributes(e.data()->getMetaProperties(), e);
     return this->findByAttributes(values, e.data()->getTablename(), ignoreID);
 }
 
@@ -331,7 +319,7 @@ QSqlQuery QueryBuilder::remove(const QSharedPointer<Entity> &entity) const {
 }
 
 QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
-    QHash<QString, QVariant> values = this->getEntityAttributes(this->getMetaProperties(entity), entity);
+    QHash<QString, QVariant> values = this->getEntityAttributes(entity.data()->getMetaProperties(), entity);
     QSqlQuery q = this->database.data()->getQuery("SELECT " + this->schema.data()->quoteColumnName("id") + " FROM " +
                   this->schema.data()->quoteTableName(
                       entity.data()->getTablename()) + this->where(values,
@@ -341,7 +329,7 @@ QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
 }
 
 QSqlQuery QueryBuilder::count(const QSharedPointer<Entity> &entity, bool ignoreID) const {
-    QHash<QString, QVariant> values = this->getEntityAttributes(this->getMetaProperties(entity), entity);
+    QHash<QString, QVariant> values = this->getEntityAttributes(entity.data()->getMetaProperties(), entity);
     QSqlQuery q = this->database.data()->getQuery("SELECT COUNT(*) FROM " + this->schema.data()->quoteTableName(
                       entity.data()->getTablename()) + this->where(
                       values, "AND", ignoreID));
@@ -380,7 +368,7 @@ QSqlQuery QueryBuilder::create(const QSharedPointer<Entity> &entity) const {
 }
 
 QHash<QString, QVariant> QueryBuilder::saveAttributes(const QSharedPointer<Entity> &entity) const {
-    auto props = this->getMetaProperties(entity);
+    auto props = entity.data()->getMetaProperties();
     auto values = this->getEntityAttributes(props, entity);
     auto relValues = this->getManyToOneAttributes(props, entity);
     auto iterator = relValues.constBegin();
@@ -389,18 +377,6 @@ QHash<QString, QVariant> QueryBuilder::saveAttributes(const QSharedPointer<Entit
         ++iterator;
     }
     return values;
-}
-
-Entity *QueryBuilder::createInstance(const char *className) const {
-    return this->createInstance(QMetaType::type(className));
-}
-
-Entity *QueryBuilder::createInstance(int id) const {
-    Entity *e = 0;
-    if (id != -1) {
-        e = static_cast<Entity *>(QMetaType::create(id));
-    }
-    return e;
 }
 
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(const QHash<QString, QMetaProperty> &props,
@@ -473,7 +449,7 @@ void QueryBuilder::bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q, b
 }
 
 QString QueryBuilder::where(const QSharedPointer<Entity> &entity, QString conjunction, bool ignoreID) const {
-    return this->where(this->getEntityAttributes(this->getMetaProperties(entity), entity), conjunction, ignoreID);
+    return this->where(this->getEntityAttributes(entity.data()->getMetaProperties(), entity), conjunction, ignoreID);
 }
 
 QString QueryBuilder::where(const QHash<QString, QVariant> &m, const QString &conjunction, bool ignoreID) const {

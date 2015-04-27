@@ -49,6 +49,9 @@ class EntityManager {
     QList<QHash<QString, QVariant> > findAll(QString tblname);
     QHash<QString, QVariant> find(QSharedPointer<Entity> entity);
     QHash<QString, QVariant> find(qint64 id, QString tblname);
+    QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map, const char *classname);
+    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,const char *classname);
+
     QList<QHash<QString, QVariant> > findByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
     QList<QHash<QString, QVariant> > findByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
             bool ignoreID = false);

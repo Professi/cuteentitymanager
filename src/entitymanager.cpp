@@ -16,11 +16,8 @@
 
 #include "entitymanager.h"
 #include "enums/databasetype.h"
+#include "entityinstancefactory.h"
 using namespace CuteEntityManager;
-/**
- * Relationen fehlen noch
- * Fehlermeldungen erstellen am besten eine Exception Klasse diesbzgl. erstellen
- */
 
 QStringList EntityManager::connectionNames = QStringList();
 
@@ -94,17 +91,34 @@ void EntityManager::removeConnectionName(const QString &name) {
     EntityManager::connectionNames.removeOne(name);
 }
 
-QList<QSharedPointer<Entity> > EntityManager::findAllEntities(QSharedPointer<Entity> entity) {
-
+QList<QSharedPointer<Entity>> EntityManager::findAllEntities(QSharedPointer<Entity> entity) {
+    auto maps = this->findAll(entity.data()->getTablename());
+    return this->convert(maps, entity.data()->getClassname());
 }
 
-QSharedPointer<Entity> EntityManager::findEntity(QSharedPointer<Entity> entity) {
 
+QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant> &map, const char *classname) {
+    return QSharedPointer<Entity>(EntityInstanceFactory::createInstance(classname, map));
+}
+
+QList<QSharedPointer<Entity> > EntityManager::convert(QList<QHash<QString, QVariant> > maps, const char *classname) {
+    auto list = QList<QSharedPointer<Entity> >();
+    for (int var = 0; var < maps.size(); ++var) {
+        list.append(this->convert(maps.at(var), classname));
+    }
+    return list;
+}
+
+
+QSharedPointer<Entity> EntityManager::findEntity(QSharedPointer<Entity> entity) {
+    auto map  = this->find(entity);
+    return this->convert(map, entity.data()->getClassname());
 }
 
 QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(const QSharedPointer<Entity> &entity,
         bool ignoreID) {
-
+    auto maps = this->findByAttributes(entity, ignoreID);
+    return this->convert(maps, entity.data()->getClassname());
 }
 
 /**
@@ -148,6 +162,7 @@ QHash<QString, QVariant> EntityManager::find(qint64 id, QString tblname) {
     }
     return map;
 }
+
 
 QList<QHash<QString, QVariant> > EntityManager::findByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->findByAttributes(entity, ignoreID);

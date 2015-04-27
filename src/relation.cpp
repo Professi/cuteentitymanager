@@ -19,7 +19,12 @@ Relation::Relation(QString propertyName, RelationType type, QString mappedBy, QS
     this->mappedBy = mappedBy;
     this->optional = true;
     this->tableName = tableName;
-    this->cascadeType = cascadeType;
+    if (this->type == MANY_TO_ONE) {
+        this->cascadeType = ALL;
+    } else {
+        this->cascadeType = cascadeType;
+    }
+
 
 }
 

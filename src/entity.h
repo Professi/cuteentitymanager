@@ -51,6 +51,8 @@ class Entity : public QObject {
     virtual QStringList getBLOBColumns();
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey();
+    QHash<QString, QMetaProperty> getMetaProperties() const;
+    const char* getClassname() const;
 
     qint64 getId() const;
     void setId(const qint64 &value);
