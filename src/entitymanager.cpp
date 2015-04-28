@@ -17,6 +17,7 @@
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "entityinstancefactory.h"
+#include "databasemigration.h"
 using namespace CuteEntityManager;
 
 QStringList EntityManager::connectionNames = QStringList();
@@ -32,6 +33,13 @@ EntityManager::EntityManager(QSqlDatabase database) {
     auto db = new Database(database);
     this->db = QSharedPointer<Database>(db);
     this->init();
+}
+
+bool EntityManager::startup(QString version, QStringList toInitialize) {
+    DatabaseMigration dbm = DatabaseMigration();
+    QHash<QString, QVariant> map = QHash<QString, QVariant>();
+    map.insert("version", version);
+    this->findAllByAttributes(map, dbm.getTablename());
 }
 
 EntityManager::EntityManager(const QString &databaseType, QString databasename , QString hostname, QString username,
@@ -117,7 +125,7 @@ QSharedPointer<Entity> EntityManager::findEntity(QSharedPointer<Entity> entity) 
 
 QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(const QSharedPointer<Entity> &entity,
         bool ignoreID) {
-    auto maps = this->findByAttributes(entity, ignoreID);
+    auto maps = this->findAllByAttributes(entity, ignoreID);
     return this->convert(maps, entity.data()->getClassname());
 }
 
@@ -164,12 +172,13 @@ QHash<QString, QVariant> EntityManager::find(qint64 id, QString tblname) {
 }
 
 
-QList<QHash<QString, QVariant> > EntityManager::findByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID) {
+QList<QHash<QString, QVariant> > EntityManager::findAllByAttributes(const QSharedPointer<Entity> &entity,
+        bool ignoreID) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->findByAttributes(entity, ignoreID);
     return this->convertQueryResult(q);
 }
 
-QList<QHash <QString, QVariant> > EntityManager::findByAttributes(const QHash<QString, QVariant> &m,
+QList<QHash <QString, QVariant> > EntityManager::findAllByAttributes(const QHash<QString, QVariant> &m,
         const QString &tblname,
         bool ignoreID) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->findByAttributes(m,

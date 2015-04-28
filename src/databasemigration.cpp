@@ -5,6 +5,11 @@ DatabaseMigration::DatabaseMigration() : Entity() {
 
 }
 
+DatabaseMigration::DatabaseMigration(QString version, QDateTime applyTime) {
+    this->version = version;
+    this->applyTime = applyTime;
+}
+
 DatabaseMigration::~DatabaseMigration() {
 
 }

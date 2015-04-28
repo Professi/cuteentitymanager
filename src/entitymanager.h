@@ -50,10 +50,10 @@ class EntityManager {
     QHash<QString, QVariant> find(QSharedPointer<Entity> entity);
     QHash<QString, QVariant> find(qint64 id, QString tblname);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map, const char *classname);
-    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,const char *classname);
+    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps, const char *classname);
 
-    QList<QHash<QString, QVariant> > findByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
-    QList<QHash<QString, QVariant> > findByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
+    QList<QHash<QString, QVariant> > findAllByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
+    QList<QHash<QString, QVariant> > findAllByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
             bool ignoreID = false);
 
   public:
@@ -62,6 +62,13 @@ class EntityManager {
                   QString password = "", QString port = "");
     ~EntityManager();
     static QStringList getConnectionNames();
+    /**
+     * @brief startup
+     * @param version must be unique
+     * @param toInitialize list of entity classnames which database tables should be created
+     * @return
+     */
+    bool startup(QString version, QStringList toInitialize);
     static void removeConnectionName(const QString &name);
     QList<QSharedPointer<Entity>> findAllEntities(QSharedPointer<Entity> entity);
     QSharedPointer<Entity> findEntity(QSharedPointer<Entity> entity);

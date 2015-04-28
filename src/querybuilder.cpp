@@ -367,6 +367,10 @@ QSqlQuery QueryBuilder::create(const QSharedPointer<Entity> &entity) const {
     return q;
 }
 
+QString QueryBuilder::limit(const qint8 limit, const qint64 offset) const {
+    return " LIMIT " + QString(limit) + (offset > 0 ? QString("," + offset) : "");
+}
+
 QHash<QString, QVariant> QueryBuilder::saveAttributes(const QSharedPointer<Entity> &entity) const {
     auto props = entity.data()->getMetaProperties();
     auto values = this->getEntityAttributes(props, entity);

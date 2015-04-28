@@ -11,6 +11,7 @@ class DatabaseMigration : public Entity {
 
   public:
     DatabaseMigration();
+    DatabaseMigration(QString version, QDateTime applyTime);
     ~DatabaseMigration();
     QString getVersion() const;
     void setVersion(const QString &value);
