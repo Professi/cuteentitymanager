@@ -19,37 +19,6 @@
 */
 #include "artikel.h"
 
-//QHash<QString, QString> Artikel::getProperties(DatabaseType type) {
-//    QHash<QString, QString> h = QHash<QString, QString>();
-//    h.insert("id",this->idColumnSQL());
-//    h.insert("preis","DOUBLE");
-//    h.insert("name","TEXT");
-//    return h;
-//}
-
-//PersistenceType Artikel::getPersistenceType() {
-//    return OpenTeacherTool::LOCAL;
-//}
-
-//QHash<QString, Entity*> *Artikel::getRelations() {
-//    return this->relations;
-//}
-
-//QHash<QString, QVariant> *Artikel::getAttributeValues() {
-//    this->attributeValues->insert("id",this->id);
-//    this->attributeValues->insert("name",this->name);
-//    this->attributeValues->insert("preis",this->preis);
-//    return this->attributeValues;
-//}
-
-//void Artikel::setAttributes(QHash<QString, QVariant> h) {
-//    this->id = h.value("id").toInt();
-//    this->name = h.value("name").toString();
-//    this->preis = h.value("preis").toDouble();
-//}
-
-
-
 double Artikel::getPreis() const {
     return preis;
 }

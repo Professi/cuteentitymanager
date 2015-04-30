@@ -34,11 +34,6 @@ class Artikel : public CuteEntityManager::Entity {
 
   public:
     ~Artikel();
-//    QHash<QString, QString> getProperties(DatabaseType type);
-//    PersistenceType getPersistenceType();
-//    QHash<QString,Entity*>* getRelations();
-//    QHash<QString, QVariant>* getAttributeValues();
-//    void setAttributes(QHash<QString, QVariant> h);
     explicit Artikel(QObject *parent = 0);
     Artikel(double preis, QString name);
     double getPreis() const;

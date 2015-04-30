@@ -23,46 +23,35 @@ void Group::setPersons(const QList<Person *> &value) {
     qDebug() << "set!!!";
     persons = value;
 }
-QSharedPointer<Person> Group::getTeacherP() const
-{
+QSharedPointer<Person> Group::getTeacherP() const {
     return teacherP;
 }
 
-void Group::setTeacherP(const QSharedPointer<Person> &value)
-{
+void Group::setTeacherP(const QSharedPointer<Person> &value) {
     teacherP = value;
 }
-Person *Group::getTeacher() const
-{
+Person *Group::getTeacher() const {
     return teacher;
 }
 
-void Group::setTeacher(Person *value)
-{
+void Group::setTeacher(Person *value) {
     teacher = value;
 }
-QSharedPointer<Artikel> Group::getArtikel() const
-{
+QSharedPointer<Artikel> Group::getArtikel() const {
     return artikel;
 }
 
-void Group::setArtikel(const QSharedPointer<Artikel> &value)
-{
+void Group::setArtikel(const QSharedPointer<Artikel> &value) {
     artikel = value;
 }
-
-
-
-
 
 void Group::personChangedSlot() {
     qDebug() << "changed!";
 }
 
-QHash<QString, CuteEntityManager::Relation> Group::getRelations()
-{
+QHash<QString, CuteEntityManager::Relation> Group::getRelations() {
     QHash<QString, CuteEntityManager::Relation> h = QHash<QString, CuteEntityManager::Relation>();
-    CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel",CuteEntityManager::MANY_TO_ONE);
+    CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel", CuteEntityManager::MANY_TO_ONE);
     h.insert("artikel", r);
     return h;
 }
