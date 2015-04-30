@@ -36,10 +36,20 @@ EntityManager::EntityManager(QSqlDatabase database) {
 }
 
 bool EntityManager::startup(QString version, QStringList toInitialize) {
-    DatabaseMigration dbm = DatabaseMigration();
+    DatabaseMigration *dbm = new DatabaseMigration();
+    QSharedPointer<Entity> ptrDbm = QSharedPointer<Entity>(dbm);
     QHash<QString, QVariant> map = QHash<QString, QVariant>();
     map.insert("version", version);
-    this->findAllByAttributes(map, dbm.getTablename());
+    if (this->findAllByAttributes(map, dbm->getTablename()).isEmpty()) {
+        for (int var = 0; var < toInitialize.size(); ++var) {
+            QString c = toInitialize.at(var);
+            this->createTable(QSharedPointer<Entity>(EntityInstanceFactory::createInstance(c)));
+        }
+        dbm->setVersion(version);
+        dbm->setApplyTime(QDateTime::currentDateTime());
+        this->create(ptrDbm);
+    }
+    delete dbm;
 }
 
 EntityManager::EntityManager(const QString &databaseType, QString databasename , QString hostname, QString username,

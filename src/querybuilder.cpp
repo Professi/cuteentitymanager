@@ -4,6 +4,7 @@
 #include <QMetaProperty>
 #include "entity.h"
 #include <QRegularExpression>
+#include "entityinstancefactory.h"
 
 using namespace CuteEntityManager;
 
@@ -207,7 +208,7 @@ const {
             h.insert("id", this->schema.data()->TYPE_BIGPK);
             h.insert(QString(entity.data()->metaObject()->className()) + QString("_id"), this->schema.data()->TYPE_BIGINT);
             auto m = props.value(r.getPropertyName());
-            Entity *e = this->createInstance(m.type());
+            Entity *e = EntityInstanceFactory::createInstance(m.type());
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
             h.insert(QString(ptr.data()->metaObject()->className()) + QString("_id"),
                      this->schema.data()->TYPE_BIGINT);

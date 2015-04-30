@@ -71,6 +71,7 @@ bool Database::transaction(const QString &query) {
     } else {
         rc = this->exec(query);
     }
+    qDebug() << "Executed Query:" << query;
     return rc;
 }
 
@@ -106,6 +107,7 @@ bool Database::transaction(const QStringList &queries) {
 bool Database::transaction(QSqlQuery &query) {
     this->database.transaction();
     query.exec();
+    this->debugQuery(query);
     if (!this->database.commit()) {
         this->database.rollback();
         return false;
@@ -119,6 +121,7 @@ bool Database::transaction(QList<QSqlQuery> &queries) {
     for (int var = 0; var < queries.size(); ++var) {
         q = queries.at(var);
         q.exec();
+        this->debugQuery(q);
     }
     if (!this->database.commit()) {
         this->database.rollback();
@@ -127,10 +130,11 @@ bool Database::transaction(QList<QSqlQuery> &queries) {
     return true;
 }
 
-bool Database::exec(QString query) {
+bool Database::exec(const QString &query) {
     this->database.transaction();
     QSqlQuery q = QSqlQuery(this->database);
     q.exec(query);
+    this->debugQuery(q);
     if (!this->database.commit()) {
         this->database.rollback();
         return false;
@@ -143,6 +147,7 @@ bool Database::exec(QStringList queries) {
     bool ok = true;
     for (int var = 0; var < queries.size() && ok; ++var) {
         ok = q.exec(queries.at(var));
+        this->debugQuery(q);
         if (!ok) {
             break;
         }
@@ -150,8 +155,10 @@ bool Database::exec(QStringList queries) {
     return ok;
 }
 
-bool Database::exec(QSqlQuery query) {
-    return query.exec();
+bool Database::exec(QSqlQuery &query) {
+    bool ok = query.exec();
+    this->debugQuery(query);
+    return ok;
 }
 
 bool Database::exec(QList<QSqlQuery> queries) {
@@ -160,6 +167,7 @@ bool Database::exec(QList<QSqlQuery> queries) {
     for (int var = 0; var < queries.size() && ok; ++var) {
         q = queries.at(var);
         ok = q.exec();
+        this->debugQuery(q);
         if (!ok) {
             break;
         }
@@ -167,14 +175,21 @@ bool Database::exec(QList<QSqlQuery> queries) {
     return ok;
 }
 
+void Database::debugQuery(const QSqlQuery &query) const {
+    qDebug() << query.executedQuery();
+}
+
 bool Database::select(QSqlQuery &query) {
     query.setForwardOnly(true);
-    return query.exec();
+    bool ok  = query.exec();
+    this->debugQuery(query);
+    return ok;
 }
 
 QSqlQuery Database::select(const QString &query) {
     QSqlQuery q = QSqlQuery(this->database);
     q.exec(query);
+    this->debugQuery(q);
     return q;
 }
 

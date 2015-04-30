@@ -10,6 +10,10 @@ Entity *EntityInstanceFactory::createInstance(const char *className) {
     return EntityInstanceFactory::createInstance(QMetaType::type(className));
 }
 
+Entity *EntityInstanceFactory::createInstance(const QString &className) {
+    return EntityInstanceFactory::createInstance(className.toUtf8().constData());
+}
+
 Entity *EntityInstanceFactory::createInstance(int id) {
     Entity *e = 0;
     if (id != -1) {

@@ -51,10 +51,11 @@ class Database {
     bool transaction(const QStringList &queries);
     bool transaction(QSqlQuery &query);
     bool transaction(QList<QSqlQuery> &queries);
-    bool exec(QString query);
+    bool exec(const QString &query);
     bool exec(QStringList queries);
-    bool exec(QSqlQuery query);
+    bool exec(QSqlQuery &query);
     bool exec(QList<QSqlQuery> queries);
+    void debugQuery(const QSqlQuery &query) const;
     bool select(QSqlQuery &query);
     QSqlQuery select(const QString &query);
 

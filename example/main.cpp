@@ -21,6 +21,7 @@ int main(int argc, char *argv[]) {
     auto ep = a.dynamicCast<CuteEntityManager::Entity>();
     qDebug() << e;
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
+    e->create(ep);
 //    OpenTeacherTool::Artikel *b= new OpenTeacherTool::Artikel(30,"Peter123");
 //    OpenTeacherTool::Entity *entity = b->getEntity();
 //    qDebug() << "findByAttributes:" << e->findByAttributes(entity,true);

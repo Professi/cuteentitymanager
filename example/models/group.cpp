@@ -62,7 +62,7 @@ void Group::personChangedSlot() {
 QHash<QString, CuteEntityManager::Relation> Group::getRelations()
 {
     QHash<QString, CuteEntityManager::Relation> h = QHash<QString, CuteEntityManager::Relation>();
-    CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel",CuteEntityManager::BELONGS_TO);
+    CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel",CuteEntityManager::MANY_TO_ONE);
     h.insert("artikel", r);
     return h;
 }
