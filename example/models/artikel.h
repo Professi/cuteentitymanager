@@ -20,7 +20,7 @@
 
 #ifndef ARTIKEL_H
 #define ARTIKEL_H
-#include "entity.h"
+#include "../../src/entity.h"
 #include <QHash>
 #include <QVariant>
 

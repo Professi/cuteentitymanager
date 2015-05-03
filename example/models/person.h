@@ -5,7 +5,7 @@
 #include <QString>
 #include <QList>
 #include <QObject>
-#include "entity.h"
+#include "../../src/entity.h"
 #include <QAbstractListModel>
 #include <QDebug>
 

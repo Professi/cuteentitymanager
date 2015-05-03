@@ -31,6 +31,13 @@ QString CuteEntityManager::SqliteQueryBuilder::renameColumn(QString tableName, Q
 QString CuteEntityManager::SqliteQueryBuilder::addForeignKey(QString name, QString tableName, QStringList columns,
         QString refTableName, QStringList refColumns, QString deleteConstraint, QString updateConstraint) const {
     //not supported
+    Q_UNUSED(refTableName)
+    Q_UNUSED(refColumns)
+    Q_UNUSED(name)
+    Q_UNUSED(tableName)
+    Q_UNUSED(deleteConstraint)
+    Q_UNUSED(columns)
+    Q_UNUSED(updateConstraint)
     return "";
 }
 

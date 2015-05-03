@@ -8,14 +8,15 @@
 #include <QMetaMethod>
 #include <QMetaProperty>
 #include "models/group.h"
-#include "entity.h"
-#include "entitymanager.h"
+#include "../src/entity.h"
+#include "../src/entitymanager.h"
 #include <QGenericReturnArgument>
 /**
   * create,remove und merge funktionieren
  */
 
 int main(int argc, char *argv[]) {
+    Q_UNUSED(argc) Q_UNUSED(argv)
     CuteEntityManager::EntityManager *e = new CuteEntityManager::EntityManager("QSQLITE",
             QDir::currentPath() + "/db.sqlite");
     QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0, "Müsli"));

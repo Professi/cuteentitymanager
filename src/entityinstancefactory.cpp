@@ -14,10 +14,10 @@ Entity *EntityInstanceFactory::createInstance(const QString &className) {
     return EntityInstanceFactory::createInstance(className.toUtf8().constData());
 }
 
-Entity *EntityInstanceFactory::createInstance(int id) {
+Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
     Entity *e = 0;
-    if (id != -1) {
-        e = static_cast<Entity *>(QMetaType::create(id));
+    if (metaTypeId != -1) {
+        e = static_cast<Entity *>(QMetaType::create(metaTypeId));
     }
     return e;
 }

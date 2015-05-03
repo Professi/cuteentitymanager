@@ -2,7 +2,7 @@
 
 #include "models/person.h"
 #include "models/group.h"
-#include "relation.h"
+#include "../src/relation.h"
 //#include <QQmlListProperty>
 #include <QDebug>
 

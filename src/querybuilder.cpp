@@ -163,7 +163,6 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
     auto o = entity.data()->metaObject();
     QHash<QString, Relation> relations = entity.data()->getRelations();
     for (int var = 0; var < o->propertyCount(); ++var) {
-        o->property(var);
         auto m = o->property(var);
         if (m.name() != QString("objectName") && m.isReadable()
                 && !entity.data()->getTransientAttributes().contains(m.name())) {
