@@ -25,8 +25,10 @@
 #include <QDebug>
 #include "schema.h"
 #include <QtSql/QSqlError>
+#include <QMetaType>
 #include "entity.h"
 #include "database.h"
+#include "entityinstancefactory.h"
 
 namespace CuteEntityManager {
 
@@ -73,7 +75,12 @@ class EntityManager {
     QList<QSharedPointer<Entity>> findAllEntities(QSharedPointer<Entity> entity);
     QSharedPointer<Entity> findEntity(QSharedPointer<Entity> entity);
     QList<QSharedPointer<Entity>> findEntityByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
-
+    template<class T> QSharedPointer<Entity> findById(const qint64 &id) {
+        Entity *e = EntityInstanceFactory::createInstance<T>();
+        QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
+        e->setId(id);
+        return this->findEntity(ptr);
+    }
 
     bool create(QSharedPointer<Entity> &entity);
     bool save(QSharedPointer<Entity> &entity);

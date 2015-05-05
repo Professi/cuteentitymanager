@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
     e->create(ep);
 
-    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
+    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
                                QDate::currentDate()));
     auto pptr = p.dynamicCast<CuteEntityManager::Entity>();
     e->createTable(pptr);

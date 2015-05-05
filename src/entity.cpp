@@ -70,5 +70,8 @@ qint64 Entity::getId() const {
 }
 
 void Entity::setId(const qint64 &value) {
-    id = value;
+    if(value != this->id) {
+        id = value;
+        emit idChanged();
+    }
 }

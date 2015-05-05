@@ -16,7 +16,6 @@
 
 #include "entitymanager.h"
 #include "enums/databasetype.h"
-#include "entityinstancefactory.h"
 #include "databasemigration.h"
 using namespace CuteEntityManager;
 
