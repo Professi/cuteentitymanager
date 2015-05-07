@@ -38,17 +38,25 @@ bool EntityManager::startup(QString version, QStringList toInitialize) {
     DatabaseMigration *dbm = new DatabaseMigration();
     QSharedPointer<Entity> ptrDbm = QSharedPointer<Entity>(dbm);
     QHash<QString, QVariant> map = QHash<QString, QVariant>();
+    bool ok = true;
     map.insert("version", version);
     if (this->findAllByAttributes(map, dbm->getTablename()).isEmpty()) {
         for (int var = 0; var < toInitialize.size(); ++var) {
-            QString c = toInitialize.at(var);
-            this->createTable(QSharedPointer<Entity>(EntityInstanceFactory::createInstance(c)));
+            if (ok) {
+                QString c = toInitialize.at(var);
+                ok = this->createTable(QSharedPointer<Entity>(EntityInstanceFactory::createInstance(c)));
+            } else {
+                break;
+            }
         }
-        dbm->setVersion(version);
-        dbm->setApplyTime(QDateTime::currentDateTime());
-        this->create(ptrDbm);
+        if (ok) {
+            dbm->setVersion(version);
+            dbm->setApplyTime(QDateTime::currentDateTime());
+            this->create(ptrDbm);
+        }
     }
     delete dbm;
+    return ok;
 }
 
 EntityManager::EntityManager(const QString &databaseType, QString databasename , QString hostname, QString username,
@@ -136,6 +144,10 @@ QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(const QShar
         bool ignoreID) {
     auto maps = this->findAllByAttributes(entity, ignoreID);
     return this->convert(maps, entity.data()->getClassname());
+}
+
+bool EntityManager::create(QList<QSharedPointer<Entity> > entities) {
+
 }
 
 /**

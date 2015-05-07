@@ -27,7 +27,9 @@ src/entity.h \
     src/querybuilder.h \
     src/schema/sqlitequerybuilder.h \
     src/relation.h \
-    src/entityinstancefactory.h
+    src/entityinstancefactory.h \
+    src/condition.h \
+    src/cache.h
 
 SOURCES += \
 src/entity.cpp \
@@ -42,7 +44,9 @@ src/entity.cpp \
     src/querybuilder.cpp \
     src/schema/sqlitequerybuilder.cpp \
     src/relation.cpp \
-    src/entityinstancefactory.cpp
+    src/entityinstancefactory.cpp \
+    src/condition.cpp \
+    src/cache.cpp
 
 unix {
     target.path = /usr/lib
