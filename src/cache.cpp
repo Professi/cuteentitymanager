@@ -19,14 +19,14 @@ bool Cache::contains(const QString &key) {
     return false;
 }
 
-void Cache::insert(QSharedPointer<Entity> entity) {
+void Cache::insert(const QSharedPointer<Entity> &entity) {
     if (entity.data() && entity.data()->getId() > -1) {
         this->cache.insert(this->generateKey(entity.data()->getId(), QString(entity.data()->getClassname())),
                            entity.toWeakRef());
     }
 }
 
-void Cache::remove(QSharedPointer<Entity> entity) {
+void Cache::remove(const QSharedPointer<Entity> &entity) {
     if (entity.data() && entity.data()->getId() > -1) {
         this->remove(entity.data()->getId(), QString(entity.data()->getClassname()));
     }
@@ -39,7 +39,11 @@ void Cache::remove(const qint64 &id, const QString &classname) {
 QSharedPointer<Entity> Cache::get(qint64 id, const QString &classname) {
     QString key = this->generateKey(id, classname);
     if (this->contains(key)) {
-        return this->cache.value(key).toStrongRef();
+        QSharedPointer<Entity> ptr = this->cache.value(key).toStrongRef();
+        if (!ptr.data()) {
+            this->remove(id, classname);
+        }
+        return ptr;
     }
     return QSharedPointer<Entity>();
 }

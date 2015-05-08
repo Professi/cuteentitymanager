@@ -60,6 +60,8 @@ class Database {
     QSqlQuery select(const QString &query);
     void startTransaction();
     bool commitTransaction();
+    static DatabaseType getDatabaseType(QString s);
+    static QSharedPointer<Schema> getSchema(int db, QSharedPointer<Database> database);
 
 };
 }

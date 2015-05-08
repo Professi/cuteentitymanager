@@ -125,6 +125,33 @@ bool Database::commitTransaction() {
     return true;
 }
 
+DatabaseType Database::getDatabaseType(QString s) {
+    if (s == "qmysql") {
+        return DatabaseType::MYSQL;
+    } else if (s == "qpgsql") {
+        return DatabaseType::PGSQL;
+    } else {
+        return DatabaseType::SQLITE;
+    }
+}
+
+QSharedPointer<Schema> Database::getSchema(int db, QSharedPointer<Database> database) {
+    switch (db) {
+    case SQLITE:
+        return QSharedPointer<Schema>(new SqliteSchema(database));;
+        break;
+//    case PGSQL:
+//        return QSharedPointer<Schema>(new PgSqlSchema());
+//        break;
+//    case MYSQL:
+//        return QSharedPointer<Schema>(new MysqlSchema());
+//        break;
+    default:
+        return QSharedPointer<Schema>(new SqliteSchema(database));
+        break;
+    }
+}
+
 bool Database::exec(const QString &query) {
     QSqlQuery q = QSqlQuery(this->database);
     bool ok = q.exec(query);

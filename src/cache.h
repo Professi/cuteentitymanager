@@ -23,8 +23,8 @@ class Cache {
         }
         return ok;
     }
-    void insert(QSharedPointer<Entity> entity);
-    void remove(QSharedPointer<Entity> entity);
+    void insert(const QSharedPointer<Entity> &entity);
+    void remove(const QSharedPointer<Entity> &entity);
     void remove(const qint64 &id, const QString &classname);
     template<class T> void remove(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();

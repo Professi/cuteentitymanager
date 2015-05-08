@@ -29,6 +29,7 @@
 #include "entity.h"
 #include "database.h"
 #include "entityinstancefactory.h"
+#include "cache.h"
 
 namespace CuteEntityManager {
 
@@ -41,6 +42,7 @@ class EntityManager {
     QSharedPointer<Schema> schema;
     static void setConnectionNames(QStringList list);
     QSharedPointer<Database> db;
+    Cache cache;
     QString createConnection();
     QString createTableQuery(const QSharedPointer<Entity> &entity);
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);

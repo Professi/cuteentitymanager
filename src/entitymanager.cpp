@@ -22,7 +22,7 @@ using namespace CuteEntityManager;
 QStringList EntityManager::connectionNames = QStringList();
 
 void EntityManager::init() {
-    auto schema = CuteEntityManager::getSchema(CuteEntityManager::getDatabaseType(
+    auto schema = Database::getSchema(Database::getDatabaseType(
                       this->db.data()->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);
     this->schema.data()->setTables(this->schema.data()->getTableSchemas());
@@ -146,8 +146,22 @@ QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(const QShar
     return this->convert(maps, entity.data()->getClassname());
 }
 
+/**
+ * @todo should be an insert statement with much values
+ * not really usefull atm
+ * @brief EntityManager::create
+ * @param entities
+ * @return
+ */
 bool EntityManager::create(QList<QSharedPointer<Entity> > entities) {
-
+    bool ok = true;
+    foreach (QSharedPointer<Entity> ent, entities) {
+        ok = this->create(ent);
+        if (!ok) {
+            break;
+        }
+    }
+    return ok;
 }
 
 /**
@@ -163,6 +177,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity) {
         rc = this->db->transaction(q);
         if (rc) {
             entity.data()->setId(this->schema.data()->getLastInsertID().toLongLong(&rc));
+            this->cache.insert(entity);
         }
     }
     return rc;
