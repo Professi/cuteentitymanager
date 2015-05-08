@@ -62,12 +62,10 @@ QString Database::getConnectionName() {
 bool Database::transaction(const QString &query) {
     bool rc = false;
     if (supportTransactions) {
-        this->database.transaction();
+        this->startTransaction();
         QSqlQuery sqlquery = QSqlQuery(this->database);
         sqlquery.exec(query);
-        if (!this->database.commit()) {
-            this->database.rollback();
-        }
+        this->commitTransaction();
     } else {
         rc = this->exec(query);
     }
@@ -93,11 +91,7 @@ bool Database::transaction(const QStringList &queries) {
         for (int var = 0; var < queries.size(); ++var) {
             sqlquery.exec(queries.at(var));
         }
-        if (!this->database.commit()) {
-            this->database.rollback();
-        } else {
-            ok = true;
-        }
+        ok = this->commitTransaction();
     } else {
         ok = this->exec(queries);
     }
@@ -105,25 +99,26 @@ bool Database::transaction(const QStringList &queries) {
 }
 
 bool Database::transaction(QSqlQuery &query) {
-    this->database.transaction();
+    this->startTransaction();
     query.exec();
     this->debugQuery(query);
-    if (!this->database.commit()) {
-        this->database.rollback();
-        return false;
-    }
-    return true;
+    return this->commitTransaction();
 }
 
 bool Database::transaction(QList<QSqlQuery> &queries) {
-    this->database.transaction();
+    this->startTransaction();
     QSqlQuery q;
     for (int var = 0; var < queries.size(); ++var) {
         q = queries.at(var);
         q.exec();
         this->debugQuery(q);
     }
-    if (!this->database.commit()) {
+    return this->commitTransaction();
+}
+
+
+bool Database::commitTransaction() {
+    if (this->supportTransactions && !this->database.commit()) {
         this->database.rollback();
         return false;
     }
@@ -131,15 +126,10 @@ bool Database::transaction(QList<QSqlQuery> &queries) {
 }
 
 bool Database::exec(const QString &query) {
-    this->database.transaction();
     QSqlQuery q = QSqlQuery(this->database);
-    q.exec(query);
+    bool ok = q.exec(query);
     this->debugQuery(q);
-    if (!this->database.commit()) {
-        this->database.rollback();
-        return false;
-    }
-    return true;
+    return ok;
 }
 
 bool Database::exec(QStringList queries) {
@@ -191,6 +181,10 @@ QSqlQuery Database::select(const QString &query) {
     q.exec(query);
     this->debugQuery(q);
     return q;
+}
+
+void Database::startTransaction() {
+    this->database.transaction();
 }
 
 QSqlDatabase Database::getDatabase() {

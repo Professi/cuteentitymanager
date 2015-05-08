@@ -57,6 +57,7 @@ class QueryBuilder {
     QSqlQuery merge(const QSharedPointer<Entity> &entity) const;
     QSqlQuery create(const QSharedPointer<Entity> &entity) const;
     virtual QString limit(const qint8 limit, const qint64 offset) const;
+    QSqlQuery getQuery() const;
 
   protected:
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map, QString relName) const;

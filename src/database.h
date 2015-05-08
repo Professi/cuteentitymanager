@@ -58,6 +58,8 @@ class Database {
     void debugQuery(const QSqlQuery &query) const;
     bool select(QSqlQuery &query);
     QSqlQuery select(const QString &query);
+    void startTransaction();
+    bool commitTransaction();
 
 };
 }
