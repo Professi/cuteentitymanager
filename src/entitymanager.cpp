@@ -199,6 +199,9 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity, const Relat
         } else {
             tblName = builder.data()->generateManyToManyTableName(secEntityPtr, entity);
         }
+        /**
+         * maybe it would be better, to fetch first the ids, look up cache and then request missing entities
+         */
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToMany(tblName,
                       builder.data()->generateManyToManyColumnName(entity), entity.data()->getId(),
                       builder.data()->generateManyToManyColumnName(secEntityPtr),

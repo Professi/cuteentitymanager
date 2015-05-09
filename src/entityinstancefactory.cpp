@@ -69,8 +69,8 @@ const QString EntityInstanceFactory::extractEntityType(const QString &s) {
     QString r = "";
     const QString sptr = "QSharedPointer";
     if (s.contains(sptr)) {
-        const int index = s.indexOf(sptr) + sptr.count() +1;
-        r = s.mid(index,s.indexOf(">",index)-index);
+        const int index = s.indexOf(sptr) + sptr.count() + 1;
+        r = s.mid(index, s.indexOf(">", index) - index);
     } else {
         r = s;
     }

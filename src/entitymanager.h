@@ -64,7 +64,8 @@ class EntityManager {
     QList<QHash<QString, QVariant> > findAllByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
             bool ignoreID = false);
     QSharedPointer<Entity> findById(const qint64 &id, Entity *&e);
-    void setListProperty(const QSharedPointer<Entity> &entity,QList<QSharedPointer<Entity>> &list,const QMetaProperty &property) const;
+    void setListProperty(const QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity>> &list,
+                         const QMetaProperty &property) const;
 
   public:
     EntityManager(QSqlDatabase database);
