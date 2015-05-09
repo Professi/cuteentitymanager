@@ -64,3 +64,13 @@ Entity *EntityInstanceFactory::setAttributes(Entity *e, const QHash<QString, QVa
     auto metaprops = e->getMetaProperties();
     return EntityInstanceFactory::setAttributes(e, attributes, metaprops);
 }
+
+const QString EntityInstanceFactory::extractEntityType(const QString &s) {
+    QString r = "";
+    const QString sptr = "QSharedPointer";
+    if (s.contains(sptr)) {
+        const int index = s.indexOf(sptr) + sptr.count() +1;
+        r = s.mid(index,s.indexOf(">",index)-index);
+    }
+    return r;
+}

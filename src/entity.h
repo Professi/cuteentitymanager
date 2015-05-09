@@ -53,7 +53,7 @@ class Entity : public QObject {
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey();
     const QHash<QString, QMetaProperty> getMetaProperties() const;
-    const QHash<QString, QMetaProperty> getRelationProperties() const;
+    const QHash<Relation, QMetaProperty> getRelationProperties() const;
     const char *getClassname() const;
 
     qint64 getId() const;

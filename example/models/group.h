@@ -36,7 +36,7 @@ Q_PROPERTY(QList<Person*> persons READ getPersons WRITE setPersons NOTIFY person
     void personChangedSlot();
 
   public:
-    virtual QHash<QString, CuteEntityManager::Relation> getRelations();
+    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const;
     // constructor
     Group();
 

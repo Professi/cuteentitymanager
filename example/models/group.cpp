@@ -49,7 +49,7 @@ void Group::personChangedSlot() {
     qDebug() << "changed!";
 }
 
-QHash<QString, CuteEntityManager::Relation> Group::getRelations() {
+const QHash<QString, CuteEntityManager::Relation> Group::getRelations() const {
     QHash<QString, CuteEntityManager::Relation> h = QHash<QString, CuteEntityManager::Relation>();
     CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel", CuteEntityManager::MANY_TO_ONE);
     h.insert("artikel", r);

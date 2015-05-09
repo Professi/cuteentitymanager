@@ -16,6 +16,7 @@
 #ifndef RELATION_H
 #define RELATION_H
 #include <QString>
+#include <QHash>
 namespace CuteEntityManager {
 enum RelationType {
     ONE_TO_ONE, //e.g. specialization, heritage
@@ -72,6 +73,15 @@ class Relation {
     bool optional;
 
 };
+
+inline bool operator==(const Relation &e1, const Relation &e2) {
+    return e1.getPropertyName() == e2.getPropertyName();
+}
+
+inline uint qHash(const Relation &key, uint seed) {
+    return qHash(key.getPropertyName(), seed);
+}
+
 }
 
 #endif // RELATION_H

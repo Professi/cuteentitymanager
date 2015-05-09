@@ -116,6 +116,24 @@ void EntityManager::removeConnectionName(const QString &name) {
     EntityManager::connectionNames.removeOne(name);
 }
 
+QSharedPointer<Entity> EntityManager::findById(const qint64 &id, Entity *&e) {
+    QSharedPointer<Entity> r;
+    if (e) {
+        if ((r = this->cache.get(id, QString(e->getClassname()))) && !r.data()) {
+            auto map  = this->findByPk(id, e->getTablename());
+            r = this->convert(map, e->getClassname());
+        }
+        delete e;
+    }
+    return r;
+}
+
+QSharedPointer<Entity> EntityManager::findById(const qint64 &id, const QString &classname) {
+    Entity *e = EntityInstanceFactory::createInstance(classname);
+    return this->findById(id, e);
+
+}
+
 QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant> &map, const char *classname) {
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(classname, map));
     this->cache.insert(ptr);
@@ -135,8 +153,11 @@ QList<QSharedPointer<Entity> > EntityManager::convert(QList<QHash<QString, QVari
 void EntityManager::manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id, const QMetaProperty &property) {
     qint64 convertedId = -1;
     bool ok = false;
-    if((convertedId == id.toLongLong(&ok)) && ok && convertedId > -1) {
-        //property.t
+    if ((convertedId == id.toLongLong(&ok)) && ok && convertedId > -1) {
+        QSharedPointer<Entity> ptr = this->findById(convertedId, EntityInstanceFactory::extractEntityType(property.typeName()));
+        if (ptr.data() && ptr.data()->getId() > -1) {
+            property.write(entity.data(), QVariant(ptr));
+        }
     }
 }
 
@@ -204,7 +225,7 @@ QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
 
-QHash<QString, QVariant> EntityManager::findById(qint64 id, QString tblname) {
+QHash<QString, QVariant> EntityManager::findByPk(qint64 id, QString tblname) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(id, tblname);
     this->db->select(q);
     QSqlRecord rec = q.record();
@@ -277,12 +298,11 @@ QList<QHash <QString, QVariant> > EntityManager::findAll(QString tblname) {
 }
 
 void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity, const QHash<QString, QVariant> &map) {
-    auto relations = entity.data()->getRelations();
     auto props = entity.data()->getRelationProperties();
-    auto iterator = relations.constBegin();
-    while (iterator != relations.constEnd()) {
-        const Relation r = iterator.value();
-        const QMetaProperty property = props.value(r.getPropertyName());
+    auto iterator = props.constBegin();
+    while (iterator != props.constEnd()) {
+        const Relation r = iterator.key();
+        const QMetaProperty property = iterator.value();
         switch (r.getType()) {
         case MANY_TO_ONE:
             if (map.contains(r.getPropertyName()) + "_id") {

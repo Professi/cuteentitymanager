@@ -61,13 +61,13 @@ const QHash<QString, QMetaProperty> Entity::getMetaProperties() const {
     return h;
 }
 
-const QHash<QString, QMetaProperty> Entity::getRelationProperties() const {
-    auto h = QHash<QString, QMetaProperty>();
+const QHash<Relation, QMetaProperty> Entity::getRelationProperties() const {
+    auto h = QHash<Relation, QMetaProperty>();
     auto relations = this->getRelations();
     for (int var = 0; var < this->metaObject()->propertyCount(); ++var) {
         QMetaProperty m = this->metaObject()->property(var);
         if (m.isValid() && relations.contains(QString(m.name()))) {
-            h.insert(m.name(), m);
+            h.insert(relations.value(m.name()), m);
         }
     }
     return h;
