@@ -23,7 +23,7 @@ QStringList EntityManager::connectionNames = QStringList();
 
 void EntityManager::init() {
     auto schema = Database::getSchema(Database::getDatabaseType(
-                      this->db.data()->getDatabase().driverName()), this->db);
+                                          this->db.data()->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);
     this->schema.data()->setTables(this->schema.data()->getTableSchemas());
 }
@@ -116,28 +116,20 @@ void EntityManager::removeConnectionName(const QString &name) {
     EntityManager::connectionNames.removeOne(name);
 }
 
-QList<QSharedPointer<Entity>> EntityManager::findAllEntities(QSharedPointer<Entity> entity) {
-    auto maps = this->findAll(entity.data()->getTablename());
-    return this->convert(maps, entity.data()->getClassname());
-}
-
-
 QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant> &map, const char *classname) {
-    return QSharedPointer<Entity>(EntityInstanceFactory::createInstance(classname, map));
+    auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(classname, map));
+    this->cache.insert(ptr);
+    return ptr;
 }
 
 QList<QSharedPointer<Entity> > EntityManager::convert(QList<QHash<QString, QVariant> > maps, const char *classname) {
     auto list = QList<QSharedPointer<Entity> >();
     for (int var = 0; var < maps.size(); ++var) {
-        list.append(this->convert(maps.at(var), classname));
+        auto ptr = this->convert(maps.at(var), classname);
+        list.append(ptr);
+        this->cache.insert(ptr);
     }
     return list;
-}
-
-
-QSharedPointer<Entity> EntityManager::findEntity(QSharedPointer<Entity> entity) {
-    auto map  = this->find(entity);
-    return this->convert(map, entity.data()->getClassname());
 }
 
 QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(const QSharedPointer<Entity> &entity,
@@ -191,7 +183,7 @@ QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
 
-QHash<QString, QVariant> EntityManager::find(qint64 id, QString tblname) {
+QHash<QString, QVariant> EntityManager::findById(qint64 id, QString tblname) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(id, tblname);
     this->db->select(q);
     QSqlRecord rec = q.record();
@@ -263,10 +255,6 @@ QList<QHash <QString, QVariant> > EntityManager::findAll(QString tblname) {
     return this->convertQueryResult(q);
 }
 
-QHash<QString, QVariant> EntityManager::find(QSharedPointer<Entity> entity) {
-    return this->find(entity.data()->getId(), entity.data()->getTablename());
-}
-
 bool EntityManager::save(QSharedPointer<Entity> &entity) {
     if (entity.data()->getId() > -1) {
         return this->merge(entity);
@@ -290,6 +278,7 @@ bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     bool rc = false;
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->remove(entity);
     if (this->db->transaction(q)) {
+        this->cache.remove(entity);
         entity.clear();
         rc = true;
     }

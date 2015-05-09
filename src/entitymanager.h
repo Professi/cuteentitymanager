@@ -51,8 +51,7 @@ class EntityManager {
   protected:
     void init();
     QList<QHash<QString, QVariant> > findAll(QString tblname);
-    QHash<QString, QVariant> find(QSharedPointer<Entity> entity);
-    QHash<QString, QVariant> find(qint64 id, QString tblname);
+    QHash<QString, QVariant> findById(qint64 id, QString tblname);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map, const char *classname);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps, const char *classname);
 
@@ -74,15 +73,72 @@ class EntityManager {
      */
     bool startup(QString version, QStringList toInitialize);
     static void removeConnectionName(const QString &name);
-    QList<QSharedPointer<Entity>> findAllEntities(QSharedPointer<Entity> entity);
-    QSharedPointer<Entity> findEntity(QSharedPointer<Entity> entity);
     QList<QSharedPointer<Entity>> findEntityByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
+    bool create(QList<QSharedPointer<Entity>> entities);
+    bool create(QSharedPointer<Entity> &entity);
+    bool save(QSharedPointer<Entity> &entity);
+    qint64 findId(QSharedPointer<Entity> &entity);
+    bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
+    bool remove(QSharedPointer<Entity> &entity);
+    bool removeAll(QString tblname);
+    bool createTable(const QSharedPointer<Entity> &entity);
+    qint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true);
+    qint8 count(const QString &tableName);
+    QSharedPointer<Database> getDb() const;
+    void setDb(const QSharedPointer<Database> &value);
+    QSharedPointer<Schema> getSchema() const;
+    void setSchema(const QSharedPointer<Schema> &value);
+
+    /**
+     *@TODO use conditions
+     */
+    template<class T> qint8 count(QHash<QString, QString> condition = QHash<QString, QString>()) {
+        Entity *e = EntityInstanceFactory::createInstance<T>();
+        qint8 rc = 0;
+        if (e) {
+            rc = this->count(e->getTablename());
+            delete e;
+        }
+        return rc;
+    }
+
+    template<class T> QList<QSharedPointer<Entity>> findAll() {
+        Entity *e = EntityInstanceFactory::createInstance<T>();
+        if (e) {
+            auto maps = this->findAll(e->getTablename());
+            const char *className = e->getClassname();
+            delete e;
+            return this->convert(maps, className);
+        }
+        return QList<QSharedPointer<Entity>>();
+    }
+
+    template<class T>  QSharedPointer<Entity> findById(qint64 id) {
+        Entity *e = EntityInstanceFactory::createInstance<T>();
+        QSharedPointer<Entity> r;
+        if (e) {
+            if ((r = this->cache.get(id, QString(e->getClassname()))) && !r.data()) {
+                auto map  = this->findById(id, e->getTablename());
+                r = this->convert(map, e->getClassname());
+            }
+            delete e;
+        }
+        return r;
+    }
+
     template<class T> QSharedPointer<Entity> findById(const qint64 &id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
-        QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
-        e->setId(id);
-        return this->findEntity(ptr);
+        QSharedPointer<Entity> r;
+        if (e) {
+            if ((r = this->cache.get(id, QString(e->getClassname()))) && !r.data()) {
+                auto map = this->findById(id, e->getTablename());
+                r = this->convert(map, e->getClassname());
+            }
+            delete e;
+        }
+        return r;
     }
+
     template<class T> QSharedPointer<Entity> findEntityByAttributes(const QHash<QString, QString> &attributes) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0);
         if (list.isEmpty()) {
@@ -110,11 +166,6 @@ class EntityManager {
         return QList<QSharedPointer<Entity>>();
     }
 
-    bool create(QList<QSharedPointer<Entity>> entities);
-    bool create(QSharedPointer<Entity> &entity);
-    bool save(QSharedPointer<Entity> &entity);
-    qint64 findId(QSharedPointer<Entity> &entity);
-    bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
     template<class T> bool remove(const QList<qint64> &ids) {
         bool ok = true;
         foreach (qint64 var, ids) {
@@ -128,21 +179,13 @@ class EntityManager {
 
     template<class T> bool remove(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
-        QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
-        e->setId(id);
-        return this->remove(ptr);
+        if (e) {
+            QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
+            e->setId(id);
+            return this->remove(ptr);
+        }
+        return false;
     }
-
-    bool remove(QSharedPointer<Entity> &entity);
-    bool removeAll(QString tblname);
-    bool createTable(const QSharedPointer<Entity> &entity);
-    qint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true);
-    qint8 count(const QString &tableName);
-    //template<class T> count(QHash<QString, QString> condition = QHash<QString, QString>());
-    QSharedPointer<Database> getDb() const;
-    void setDb(const QSharedPointer<Database> &value);
-    QSharedPointer<Schema> getSchema() const;
-    void setSchema(const QSharedPointer<Schema> &value);
 
 };
 }
