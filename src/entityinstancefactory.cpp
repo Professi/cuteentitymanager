@@ -71,6 +71,8 @@ const QString EntityInstanceFactory::extractEntityType(const QString &s) {
     if (s.contains(sptr)) {
         const int index = s.indexOf(sptr) + sptr.count() +1;
         r = s.mid(index,s.indexOf(">",index)-index);
+    } else {
+        r = s;
     }
     return r;
 }

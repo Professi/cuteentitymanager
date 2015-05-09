@@ -63,4 +63,5 @@ class Entity : public QObject {
     qint64 id;
 };
 }
+Q_DECLARE_METATYPE(QList<QSharedPointer<CuteEntityManager::Entity>>)
 #endif // ENTITY_H

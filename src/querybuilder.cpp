@@ -220,11 +220,11 @@ const {
         if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
             QHash<QString, QString> h = QHash<QString, QString>();
             h.insert("id", this->schema.data()->TYPE_BIGPK);
-            h.insert(QString(entity.data()->metaObject()->className()) + QString("_id"), this->schema.data()->TYPE_BIGINT);
+            h.insert(this->generateManyToManyColumnName(entity), this->schema.data()->TYPE_BIGINT);
             auto m = props.value(r.getPropertyName());
             Entity *e = EntityInstanceFactory::createInstance(m.type());
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
-            h.insert(QString(ptr.data()->metaObject()->className()) + QString("_id"),
+            h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema.data()->TYPE_BIGINT);
             if (r.getTableName().isEmpty()) {
                 relations.insert(this->generateManyToManyTableName(entity, ptr), h);
@@ -381,8 +381,38 @@ QSqlQuery QueryBuilder::create(const QSharedPointer<Entity> &entity) const {
     return q;
 }
 
+QSqlQuery QueryBuilder::oneToMany(const QString &tableName, const QString &attribute, const qint64 &id) {
+    QHash<QString, QVariant> values = QHash<QString, QVariant>();
+    values.insert(attribute, id);
+    return this->findByAttributes(values, tableName, false);
+}
+
+QSqlQuery QueryBuilder::manyToMany(const QString &tableName, const QString &attribute, const qint64 &id,
+                                   const QString &foreignKey, const QString &foreignTable) {
+    QSqlQuery q = this->database.data()->getQuery();
+    QString sql = "SELECT " + this->schema.data()->quoteTableName(foreignTable) + ".* FROM " +
+                  this->schema.data()->quoteTableName(tableName) + this->leftJoin(foreignTable, tableName,
+                          foreignKey) + " WHERE " + this->schema.data()->quoteColumnName(attribute) + "=:id;";
+    q.prepare(sql);
+    q.bindValue(":id", id);
+    //SELECT user.* FROM `parent_child` LEFT JOIN user ON user.id=parent_child.user_id WHERE child_id = 1
+    return q;
+}
+
+
+QString QueryBuilder::leftJoin(const QString &joinableTable, const QString &tableName, const QString &foreignKey) {
+    return "LEFT JOIN " + this->schema.data()->quoteTableName(joinableTable) + " ON " +
+           this->schema.data()->quoteColumnName(joinableTable + ".id") + "=" + this->schema.data()->quoteColumnName(
+               tableName + "." + foreignKey);
+}
+
+
 QString QueryBuilder::limit(const qint8 limit, const qint64 offset) const {
     return " LIMIT " + QString(limit) + (offset > 0 ? QString("," + offset) : "");
+}
+
+QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity> &entity) const {
+    return QString(entity.data()->metaObject()->className()) + QString("_id");
 }
 
 QSqlQuery QueryBuilder::getQuery() const {

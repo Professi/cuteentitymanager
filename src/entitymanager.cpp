@@ -154,7 +154,13 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity, const QVaria
     qint64 convertedId = -1;
     bool ok = false;
     if ((convertedId == id.toLongLong(&ok)) && ok && convertedId > -1) {
-        QSharedPointer<Entity> ptr = this->findById(convertedId, EntityInstanceFactory::extractEntityType(property.typeName()));
+        QString className = EntityInstanceFactory::extractEntityType(property.typeName());
+        QSharedPointer<Entity> ptr = QSharedPointer<Entity>();
+        if (this->cache.contains(convertedId, className) && (ptr = this->cache.get(convertedId, className)) && ptr.data()) {
+
+        } else {
+            ptr = this->findById(convertedId, className);
+        }
         if (ptr.data() && ptr.data()->getId() > -1) {
             property.write(entity.data(), QVariant(ptr));
         }
@@ -162,11 +168,45 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity, const QVaria
 }
 
 void EntityManager::oneToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property) {
-
+    if (entity.data() && entity.data()->getId() > -1) {
+        Entity *e = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
+        QSqlQuery q = this->schema.data()->getQueryBuilder().data()->oneToMany(e->getTablename(),
+                      r.getMappedBy() + "_id", entity.data()->getId());
+        auto listMap = this->convertQueryResult(q);
+        auto entities = this->convert(listMap, e->getClassname());
+        delete e;
+        this->setListProperty(entity, entities, property);
+    }
 }
 
-void EntityManager::manyToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property) {
+void EntityManager::setListProperty(const QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity> > &list,
+                                    const QMetaProperty &property) const {
+    QVariant var;
+    var.setValue<QList<QSharedPointer<Entity>>>(list);
+    property.write(entity.data(), var);
+}
 
+
+void EntityManager::manyToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property) {
+    Entity *secEntity = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(QString(
+                            property.typeName())));
+    auto builder = this->schema.data()->getQueryBuilder();
+    if (secEntity) {
+        QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>(secEntity);
+        QString tblName = "";
+        if (r.getMappedBy().isEmpty()) {
+            tblName = builder.data()->generateManyToManyTableName(entity, secEntityPtr);
+        } else {
+            tblName = builder.data()->generateManyToManyTableName(secEntityPtr, entity);
+        }
+        QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToMany(tblName,
+                      builder.data()->generateManyToManyColumnName(entity), entity.data()->getId(),
+                      builder.data()->generateManyToManyColumnName(secEntityPtr),
+                      secEntityPtr.data()->getTablename());
+        auto listMap = this->convertQueryResult(q);
+        auto entities = this->convert(listMap, entity.data()->getClassname());
+        this->setListProperty(entity, entities, property);
+    }
 }
 
 void EntityManager::oneToOne(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property,
@@ -227,18 +267,23 @@ QStringList EntityManager::getConnectionNames() {
 
 QHash<QString, QVariant> EntityManager::findByPk(qint64 id, QString tblname) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(id, tblname);
-    this->db->select(q);
-    QSqlRecord rec = q.record();
-    QHash<QString, QVariant> map = QHash<QString, QVariant>();
-    if (q.next()) {
-        for (int var = 0; var < rec.count(); ++var) {
-            QVariant variant = rec.value(var);
-            if (variant.isValid()) {
-                map.insert(rec.fieldName(var), variant);
-            }
-        }
+    auto listMap  = this->convertQueryResult(q);
+    if (!listMap.isEmpty()) {
+        return listMap.at(0);
     }
-    return map;
+//    this->db->select(q);
+//    QSqlRecord rec = q.record();
+//    QHash<QString, QVariant> map = QHash<QString, QVariant>();
+//    if (q.next()) {
+//        for (int var = 0; var < rec.count(); ++var) {
+//            QVariant variant = rec.value(var);
+//            if (variant.isValid()) {
+//                map.insert(rec.fieldName(var), variant);
+//            }
+//        }
+//    }
+//    return map;
+    return QHash<QString, QVariant>();
 }
 
 

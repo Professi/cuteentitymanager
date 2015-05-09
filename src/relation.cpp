@@ -39,8 +39,6 @@ Relation::Relation(QString propertyName, RelationType type, QString mappedBy, QS
     } else {
         this->cascadeType = cascadeType;
     }
-
-
 }
 
 Relation::~Relation() {
