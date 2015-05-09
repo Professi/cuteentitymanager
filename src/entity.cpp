@@ -34,15 +34,15 @@ QString Entity::getTablename() {
     return QString(this->metaObject()->className());
 }
 
-QHash<QString, Relation> Entity::getRelations() {
+const QHash<QString, Relation> Entity::getRelations() const {
     return QHash<QString, Relation>();
 }
 
-QStringList Entity::getTransientAttributes() {
+const QStringList Entity::getTransientAttributes() const {
     return QStringList();
 }
 
-QStringList Entity::getBLOBColumns() {
+const QStringList Entity::getBLOBColumns() const {
     return QStringList();
 }
 
@@ -50,11 +50,23 @@ QString Entity::getPrimaryKey() {
     return "id";
 }
 
-QHash<QString, QMetaProperty> Entity::getMetaProperties() const {
-    QHash<QString, QMetaProperty> h = QHash<QString, QMetaProperty>();
+const QHash<QString, QMetaProperty> Entity::getMetaProperties() const {
+    auto h = QHash<QString, QMetaProperty>();
     for (int var = 0; var < this->metaObject()->propertyCount(); ++var) {
         QMetaProperty m = this->metaObject()->property(var);
-        if (m.name() != QString("objectName") && m.isValid()) {
+        if (m.isValid() && m.name() != QString("objectName")) {
+            h.insert(m.name(), m);
+        }
+    }
+    return h;
+}
+
+const QHash<QString, QMetaProperty> Entity::getRelationProperties() const {
+    auto h = QHash<QString, QMetaProperty>();
+    auto relations = this->getRelations();
+    for (int var = 0; var < this->metaObject()->propertyCount(); ++var) {
+        QMetaProperty m = this->metaObject()->property(var);
+        if (m.isValid() && relations.contains(QString(m.name()))) {
             h.insert(m.name(), m);
         }
     }
@@ -70,7 +82,7 @@ qint64 Entity::getId() const {
 }
 
 void Entity::setId(const qint64 &value) {
-    if(value != this->id) {
+    if (value != this->id) {
         id = value;
         emit idChanged();
     }

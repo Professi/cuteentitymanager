@@ -51,10 +51,15 @@ class EntityManager {
   protected:
     void init();
     QList<QHash<QString, QVariant> > findAll(QString tblname);
+    void resolveRelations(const QSharedPointer<Entity> &entity, const QHash<QString, QVariant> &map);
     QHash<QString, QVariant> findById(qint64 id, QString tblname);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map, const char *classname);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps, const char *classname);
-
+    void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id, const QMetaProperty &property);
+    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property);
+    void manyToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property);
+    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property,
+                  const QVariant &id = "");
     QList<QHash<QString, QVariant> > findAllByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
     QList<QHash<QString, QVariant> > findAllByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
             bool ignoreID = false);

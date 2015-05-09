@@ -364,7 +364,6 @@ QSqlQuery QueryBuilder::merge(const QSharedPointer<Entity> &entity) const {
                       entity->getTablename()) + " SET " + this->attributes(
                       values) + " WHERE " + this->schema.data()->quoteColumnName("id") + "=:id;");
     this->bindValues(values, q);
-    //q.bindValue(":idM", entity->getId());
     return q;
 }
 

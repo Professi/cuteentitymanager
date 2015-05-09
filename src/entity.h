@@ -46,14 +46,15 @@ class Entity : public QObject {
      * @brief getRelations
      * @return
      */
-    virtual QHash<QString, Relation> getRelations();
-    virtual QStringList getTransientAttributes();
-    virtual QStringList getBLOBColumns();
+    virtual const QHash<QString, Relation> getRelations() const;
+    virtual const QStringList getTransientAttributes() const;
+    virtual const QStringList getBLOBColumns() const;
 
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey();
-    QHash<QString, QMetaProperty> getMetaProperties() const;
-    const char* getClassname() const;
+    const QHash<QString, QMetaProperty> getMetaProperties() const;
+    const QHash<QString, QMetaProperty> getRelationProperties() const;
+    const char *getClassname() const;
 
     qint64 getId() const;
     void setId(const qint64 &value);
