@@ -73,6 +73,8 @@ class QueryBuilder {
     const;
     QString generateManyToManyTableName(const QSharedPointer<Entity> &firstEntity,
                                         const QSharedPointer<Entity> &secondEntity) const;
+    QString manyToManyTableName(const QSharedPointer<Entity> &firstEntity,
+                                const QSharedPointer<Entity> &secondEntity, const Relation &r) const;
 
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
@@ -99,6 +101,11 @@ class QueryBuilder {
                          const qint64 &id,
                          const QString &foreignKey,
                          const QString &foreignTable);
+    QSqlQuery manyToManyDelete(const QString &tableName, const QString &attribute,
+                               const qint64 &id);
+    QSqlQuery manyToManyInsert(const QString &tableName, const QString &col1,
+                               const QString &col2) const;
+
     virtual QString limit(const qint64 &limit, const qint64 &offset) const;
     QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity)
     const;

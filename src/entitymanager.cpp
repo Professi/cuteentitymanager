@@ -200,7 +200,7 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
                           e->getTablename(),
                           r.getMappedBy() + "_id", entity.data()->getId());
         auto listMap = this->convertQueryResult(q);
-        auto entities = this->convert(listMap, e->getClassname());
+        auto entities = this->convert(listMap, e->getClassname(), refresh);
         delete e;
         this->setListProperty(entity, entities, property);
     }
@@ -221,7 +221,7 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
                           e->getTablename(),
                           r.getMappedBy() + "_id", entity.data()->getId(), 1);
         auto listMap = this->convertQueryResult(q);
-        auto entities = this->convert(listMap, e->getClassname());
+        auto entities = this->convert(listMap, e->getClassname(), refresh);
         if (!entities.isEmpty()) {
             QSharedPointer<Entity> ptr = entities.at(0);
             this->setProperty(entity, ptr, property);
@@ -230,12 +230,11 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
     }
 }
 
-const bool EntityManager::canPersistRelation(const Relation &relation,
-        const RelationType &r, const QVariant &var) const {
+bool EntityManager::canPersistRelation(const Relation &relation,
+                                       const RelationType &r, const QVariant &var) const {
     return relation.getType() == r
            && var.canConvert<QList<QSharedPointer<Entity>>>();
 }
-
 
 void EntityManager::setListProperty(const QSharedPointer<Entity> &entity,
                                     QList<QSharedPointer<Entity> > &list,
@@ -263,9 +262,7 @@ void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
          */
         auto var = iterator.value().read(entity.data());
         if (this->canPersistRelation(r, MANY_TO_MANY, var)) {
-            /**
-              @TODO
-              */
+            this->persistManyToMany(entity, r, var);
         } else if (this->canPersistRelation(r, ONE_TO_MANY, var)) {
             QList<QSharedPointer<Entity>> list =
                                            qvariant_cast<QList<QSharedPointer<Entity>>>(var);
@@ -282,6 +279,57 @@ void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
     }
 }
 
+
+void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
+                                      const Relation &r, const QVariant &property) {
+    QList<QSharedPointer<Entity>> list =
+                                   qvariant_cast<QList<QSharedPointer<Entity>>>(property);
+    if (!list.isEmpty()) {
+        auto ptr = list.at(0);
+        QString tblName = builder.data()->generateManyToManyTableName(entity, ptr);
+        if (this->schema.data()->getTables().contains(tblName)) {
+            QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToManyDelete(
+                              tblName, builder.data()->generateManyToManyColumnName(entity),
+                              entity.data()->getId());
+            if (this->db.data()->transaction(q)) {
+                q.clear();
+                QList<QSharedPointer<Entity>> persisted = QList<QSharedPointer<Entity>>();
+                q = this->schema.data()->getQueryBuilder().data()->manyToManyInsert(tblName,
+                        builder.data()->generateManyToManyColumnName(entity),
+                        builder.data()->generateManyToManyColumnName(ptr));
+                q.bindValue(0, entity.data()->getId());
+                for (int var = 0; var < list.size(); ++var) {
+                    ptr = list.at(var);
+                    if (ptr.data() && ((ptr.data()->getId() > -1 && r.getCascadeType() == MERGE)
+                                       || r.getCascadeType() == ALL || r.getCascadeType() == PERSIST)) {
+                        if (this->save(list.at(var))) {
+                            persisted.append(ptr);
+                        }
+                    }
+                }
+                //maybe use transaction
+                //this->db.data()->startTransaction();
+                for (int var = 0; var < persisted.size(); ++var) {
+                    ptr = list.at(var);
+                    q.bindValue(1, ptr.data()->getId());
+                    q.exec();
+                    /**
+                      * @TODO append to attribute list
+                      * */
+                }
+                //this->db.data()->commitTransaction();
+                /**
+                  * cascade types remove/refresh will be ignored atm
+                  * */
+            }
+        } else {
+            qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";
+        }
+    }
+}
+
+
+
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                                const Relation &r,
                                const QMetaProperty &property, const bool refresh) {
@@ -292,22 +340,18 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
     auto builder = this->schema.data()->getQueryBuilder();
     if (secEntity) {
         QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>(secEntity);
-        QString tblName = "";
-        if (r.getMappedBy().isEmpty()) {
-            tblName = builder.data()->generateManyToManyTableName(entity, secEntityPtr);
-        } else {
-            tblName = builder.data()->generateManyToManyTableName(secEntityPtr, entity);
-        }
+        QString tblName = builder.data()->generateManyToManyTableName(entity,
+                          secEntityPtr);
         /**
          * maybe it would be better, to fetch first the ids, look up cache and then request missing entities
          */
         if (this->schema.data()->getTables().contains(tblName)) {
-            QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToMany(tblName,
+            QSqlQuery q = builder.data()->manyToMany(tblName,
                           builder.data()->generateManyToManyColumnName(entity), entity.data()->getId(),
                           builder.data()->generateManyToManyColumnName(secEntityPtr),
                           secEntityPtr.data()->getTablename());
             auto listMap = this->convertQueryResult(q);
-            auto entities = this->convert(listMap, entity.data()->getClassname());
+            auto entities = this->convert(listMap, entity.data()->getClassname(), refresh);
             this->setListProperty(entity, entities, property);
         } else {
             qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";

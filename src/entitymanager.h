@@ -67,8 +67,10 @@ class EntityManager {
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");
-    const bool canPersistRelation(const Relation &relation, const RelationType &r,
-                                  const QVariant &var) const;
+    bool canPersistRelation(const Relation &relation, const RelationType &r,
+                            const QVariant &var) const;
+    void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
+                           const QVariant &property);
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -125,8 +127,6 @@ class EntityManager {
     void setSchema(const QSharedPointer<Schema> &value);
     /**
       *@TODO create indexes
-      * /
-    /**
      *@TODO use conditions
      */
     template<class T> qint8 count(QHash<QString, QString> condition =

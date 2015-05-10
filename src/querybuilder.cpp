@@ -254,6 +254,18 @@ QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
                secondEntity.data()->metaObject()->className()).toLower();
 }
 
+QString QueryBuilder::manyToManyTableName(const QSharedPointer<Entity>
+        &firstEntity, const QSharedPointer<Entity> &secondEntity,
+        const Relation &r) const {
+    QString table = "";
+    if (r.getMappedBy().isEmpty()) {
+        table = this->generateManyToManyTableName(firstEntity, secondEntity);
+    } else {
+        table = this->generateManyToManyTableName(secondEntity, firstEntity);
+    }
+    return table;
+}
+
 QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(
         const QSharedPointer<Entity> &entity)
 const {
@@ -467,7 +479,8 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
                                    const qint64 &id,
                                    const QString &foreignKey, const QString &foreignTable) {
     QSqlQuery q = this->database.data()->getQuery();
-    QString sql = "SELECT " + this->schema.data()->quoteTableName(
+    QString sql = "SELECT " +
+                  this->schema.data()->quoteTableName(
                       foreignTable) + ".* FROM " +
                   this->schema.data()->quoteTableName(tableName) + " " + this->leftJoin(
                       foreignTable, tableName,
@@ -478,6 +491,26 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
     return q;
 }
 
+QSqlQuery QueryBuilder::manyToManyDelete(const QString &tableName,
+        const QString &attribute, const qint64 &id) {
+    QSqlQuery q = this->database.data()->getQuery();
+    QString sql = "DELETE FROM " + this->schema.data()->quoteTableName(
+                      tableName) + " WHERE " + this->schema.data()->quoteColumnName(
+                      attribute) + "=:id";
+    q.prepare(sql);
+    q.bindValue(":id", id);
+    return q;
+}
+
+QSqlQuery QueryBuilder::manyToManyInsert(const QString &tableName,
+        const QString &col1, const QString &col2) const {
+    QSqlQuery q = this->database.data()->getQuery();
+    QString sql = "INSERT INTO " + this->schema.data()->quoteTableName(
+                      tableName) + "(" + col1 + "," + col2 + ")"
+                  + "VALUES(?, ?);";
+    q.prepare(sql);
+    return q;
+}
 
 QString QueryBuilder::leftJoin(const QString &foreignTable,
                                const QString &tableName,
