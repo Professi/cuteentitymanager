@@ -27,7 +27,8 @@ Relation::Relation(QString propertyName, RelationType type, bool optional) {
     this->cascadeType = ALL;
 }
 
-Relation::Relation(QString propertyName, RelationType type, QString mappedBy, QString tableName,
+Relation::Relation(QString propertyName, RelationType type, QString mappedBy,
+                   QString tableName,
                    CascadeType cascadeType) {
     this->propertyName = propertyName;
     this->type = type;

@@ -41,7 +41,8 @@ class Database {
     ~Database();
     Database(QString databaseType, QString databasename);
     Database(QString databaseType, QString connectionName, QString databasename);
-    Database(QString databaseType, QString connectionName = "", QString hostname = "", QString databasename = "" ,
+    Database(QString databaseType, QString connectionName = "", QString hostname = "",
+             QString databasename = "" ,
              QString username = "", QString password = "", qint64 port = 0);
     QSqlDatabase getDatabase();
     QString getConnectionName();

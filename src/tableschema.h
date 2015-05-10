@@ -52,7 +52,7 @@ class TableSchema {
     QHash<QString, QSharedPointer<QSqlRelation> > getRelations() const;
     void setRelations(const QHash<QString, QSharedPointer<QSqlRelation> > &value);
 
-private:
+  private:
     QString schemaName;
     QString name;
     QString fullName;

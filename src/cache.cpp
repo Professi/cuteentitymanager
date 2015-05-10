@@ -36,7 +36,8 @@ bool Cache::contains(const QString &key) {
 
 void Cache::insert(const QSharedPointer<Entity> &entity) {
     if (entity.data() && entity.data()->getId() > -1) {
-        this->cache.insert(this->generateKey(entity.data()->getId(), QString(entity.data()->getClassname())),
+        this->cache.insert(this->generateKey(entity.data()->getId(),
+                                             QString(entity.data()->getClassname())),
                            entity.toWeakRef());
     }
 }

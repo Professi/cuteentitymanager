@@ -24,14 +24,17 @@ Database::Database(QSqlDatabase database) {
 
 }
 
-Database::Database(QString databaseType, QString connectionName, QString databasename) {
+Database::Database(QString databaseType, QString connectionName,
+                   QString databasename) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
     this->database.setDatabaseName(databasename);
     this->init();
 }
 
-Database::Database(QString databaseType, QString connectionName, QString hostname, QString databasename,
+Database::Database(QString databaseType, QString connectionName,
+                   QString hostname,
+                   QString databasename,
                    QString username, QString password, qint64 port) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
@@ -45,7 +48,8 @@ Database::Database(QString databaseType, QString connectionName, QString hostnam
 
 void Database::init() {
     this->database.open();
-    this->supportTransactions = this->database.driver()->hasFeature(QSqlDriver::Transactions);
+    this->supportTransactions = this->database.driver()->hasFeature(
+                                    QSqlDriver::Transactions);
 }
 
 Database::~Database() {
@@ -135,7 +139,8 @@ DatabaseType Database::getDatabaseType(QString s) {
     }
 }
 
-QSharedPointer<Schema> Database::getSchema(int db, QSharedPointer<Database> database) {
+QSharedPointer<Schema> Database::getSchema(int db,
+        QSharedPointer<Database> database) {
     switch (db) {
     case SQLITE:
         return QSharedPointer<Schema>(new SqliteSchema(database));;

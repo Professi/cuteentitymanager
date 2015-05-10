@@ -51,26 +51,42 @@ class EntityManager {
   protected:
     void init();
     QList<QHash<QString, QVariant> > findAll(QString tblname);
-    void resolveRelations(const QSharedPointer<Entity> &entity, const QHash<QString, QVariant> &map);
+    void resolveRelations(const QSharedPointer<Entity> &entity,
+                          const QHash<QString, QVariant> &map);
     QHash<QString, QVariant> findByPk(qint64 id, QString tblname);
-    QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map, const char *classname);
-    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps, const char *classname);
-    void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id, const QMetaProperty &property);
-    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property);
-    void manyToMany(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property);
-    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property,
+    QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
+                                   const char *classname);
+    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
+                                          const char *classname);
+    void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
+                   const QMetaProperty &property);
+    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
+                   const QMetaProperty &property);
+    void manyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
+                    const QMetaProperty &property);
+    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
+                  const QMetaProperty &property,
                   const QVariant &id = "");
-    QList<QHash<QString, QVariant> > findAllByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
-    QList<QHash<QString, QVariant> > findAllByAttributes(const QHash<QString, QVariant> &m, const QString &tblname,
+    QList<QHash<QString, QVariant> > findAllByAttributes(const
+            QSharedPointer<Entity> &entity,
+            bool ignoreID = false);
+    QList<QHash<QString, QVariant> > findAllByAttributes(const
+            QHash<QString, QVariant> &m,
+            const QString &tblname,
             bool ignoreID = false);
     QSharedPointer<Entity> findById(const qint64 &id, Entity *&e);
-    void setListProperty(const QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity>> &list,
+    void setListProperty(const QSharedPointer<Entity> &entity,
+                         QList<QSharedPointer<Entity>> &list,
                          const QMetaProperty &property) const;
-    void setProperty(const QSharedPointer<Entity> &entiy, QSharedPointer<Entity> value, const QMetaProperty &property) const;
+    void setProperty(const QSharedPointer<Entity> &entiy,
+                     QSharedPointer<Entity> value,
+                     const QMetaProperty &property) const;
 
   public:
     EntityManager(QSqlDatabase database);
-    EntityManager(const QString &databaseType, QString databasename = "" , QString hostname = "", QString username = "",
+    EntityManager(const QString &databaseType, QString databasename = "" ,
+                  QString hostname = "",
+                  QString username = "",
                   QString password = "", QString port = "");
     ~EntityManager();
     static QStringList getConnectionNames();
@@ -81,9 +97,12 @@ class EntityManager {
      * @return
      */
     bool startup(QString version, QStringList toInitialize);
+    bool executeQuery(const QString &query);
     static void removeConnectionName(const QString &name);
     QSharedPointer<Entity> findById(const qint64 &id, const QString &classname);
-    QList<QSharedPointer<Entity>> findEntityByAttributes(const QSharedPointer<Entity> &entity, bool ignoreID = false);
+    QList<QSharedPointer<Entity>> findEntityByAttributes(const
+                               QSharedPointer<Entity> &entity,
+                               bool ignoreID = false);
     bool create(QList<QSharedPointer<Entity>> entities);
     bool create(QSharedPointer<Entity> &entity);
     bool save(QSharedPointer<Entity> &entity);
@@ -102,7 +121,8 @@ class EntityManager {
     /**
      *@TODO use conditions
      */
-    template<class T> qint8 count(QHash<QString, QString> condition = QHash<QString, QString>()) {
+    template<class T> qint8 count(QHash<QString, QString> condition =
+                                      QHash<QString, QString>()) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         qint8 rc = 0;
         if (e) {
@@ -128,7 +148,9 @@ class EntityManager {
         return this->findById(id, e);
     }
 
-    template<class T> QSharedPointer<Entity> findEntityByAttributes(const QHash<QString, QString> &attributes) {
+    template<class T> QSharedPointer<Entity> findEntityByAttributes(
+        const QHash<QString, QString>
+        &attributes) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0);
         if (list.isEmpty()) {
             return QSharedPointer<Entity>();
@@ -136,13 +158,15 @@ class EntityManager {
         return list.at(0);
     }
 
-    template<class T> QList<QSharedPointer<Entity>> findAllEntitiesByAttributes(const QHash<QString, QString> &attributes =
+    template<class T> QList<QSharedPointer<Entity>> findAllEntitiesByAttributes(
+                const QHash<QString, QString> &attributes =
     QHash<QString, QString>(), quint32 limit = 0, quint32 offset = 0) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes);
         return list;
     }
 
-    template<class T> QList<QSharedPointer<Entity>> findEntitiesBySql(const QString &sql) {
+    template<class T> QList<QSharedPointer<Entity>> findEntitiesBySql(
+    const QString &sql) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
             QSqlQuery q = this->schema.data()->getQueryBuilder().data()->getQuery();

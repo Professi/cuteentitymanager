@@ -22,14 +22,15 @@ using namespace CuteEntityManager;
 
 Schema::Schema(QSharedPointer<Database> database) {
     this->database = database;
-    this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
+    this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>
+                            (new QHash<QString, QString>());
     this->queryBuilder = QSharedPointer<QueryBuilder>();
-    this->typeMap = QSharedPointer<QHash<QString, QString>>(new QHash<QString, QString>());
+    this->typeMap = QSharedPointer<QHash<QString, QString>>(new
+                    QHash<QString, QString>());
     this->initAbstractDatabaseTypes();
 }
 
 Schema::~Schema() {
-
 }
 
 void Schema::initAbstractDatabaseTypes() {
@@ -99,7 +100,8 @@ QString Schema::quoteSimpleColumnName(QString name) {
     return name.indexOf("`") || name == "*" ? name : "`" + name + "`";
 }
 
-QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(QString schema, bool refresh) {
+QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(
+    QString schema, bool refresh) {
     QStringList names = this->getTableNames();
     for (int i = 0; i < names.size(); ++i) {
         QString name;
@@ -166,7 +168,8 @@ QSharedPointer<QHash<QString, QString> > Schema::getAbstractTypeMap() const {
     return abstractTypeMap;
 }
 
-void Schema::setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> > &value) {
+void Schema::setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> >
+                                &value) {
     abstractTypeMap = value;
 }
 
@@ -175,7 +178,8 @@ QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() const {
     return this->tables;
 }
 
-void Schema::setTables(const QHash<QString, QSharedPointer<TableSchema> > &value) {
+void Schema::setTables(const QHash<QString, QSharedPointer<TableSchema> >
+                       &value) {
     tables = value;
 }
 

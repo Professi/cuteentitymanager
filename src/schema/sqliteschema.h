@@ -26,7 +26,8 @@ class SqliteSchema : public Schema {
   protected:
 
     virtual QStringList findTableNames(QString schema = "");
-    virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table);
+    virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema>
+            &table);
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts);
     virtual bool findColumns(const QSharedPointer<TableSchema> &ts);
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name);

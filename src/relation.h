@@ -43,7 +43,8 @@ class Relation {
      * @param type
      * @param mappedBy Q_PROPERTY in foreign Entity
      */
-    Relation(QString propertyName, RelationType type, QString mappedBy, QString tableName = "",
+    Relation(QString propertyName, RelationType type, QString mappedBy,
+             QString tableName = "",
              CascadeType cascadeType = ALL);
     ~Relation();
     RelationType getType() const;

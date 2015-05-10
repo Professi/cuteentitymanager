@@ -83,13 +83,16 @@ QHash<QString, QSharedPointer<QSqlField> > TableSchema::getColumns() const {
     return columns;
 }
 
-void TableSchema::setColumns(const QHash<QString, QSharedPointer<QSqlField> > &value) {
+void TableSchema::setColumns(const QHash<QString, QSharedPointer<QSqlField> >
+                             &value) {
     columns = value;
 }
-QHash<QString, QSharedPointer<QSqlRelation> > TableSchema::getRelations() const {
+QHash<QString, QSharedPointer<QSqlRelation> > TableSchema::getRelations()
+const {
     return relations;
 }
 
-void TableSchema::setRelations(const QHash<QString, QSharedPointer<QSqlRelation> > &value) {
+void TableSchema::setRelations(
+    const QHash<QString, QSharedPointer<QSqlRelation> > &value) {
     relations = value;
 }

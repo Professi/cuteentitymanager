@@ -52,8 +52,11 @@ class Schema {
     virtual QString quoteTableName(QString name);
     virtual QString quoteColumnName(QString name);
     virtual QString quoteSimpleColumnName(QString name);
-    virtual QHash<QString, QSharedPointer<TableSchema>> getTableSchemas(QString schema = "", bool refresh = false);
-    virtual QSharedPointer<TableSchema> getTableSchema(QString name, bool refresh = false);
+    virtual QHash<QString, QSharedPointer<TableSchema>> getTableSchemas(
+                QString schema = "",
+                bool refresh = false);
+    virtual QSharedPointer<TableSchema> getTableSchema(QString name,
+            bool refresh = false);
     virtual QStringList getTableNames(QString schema = "");
     virtual QVariant getLastInsertID();
     virtual void refresh();
@@ -73,7 +76,9 @@ class Schema {
 
   protected:
     virtual QStringList findTableNames(QString schema = "") = 0;
-    virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema> &table) = 0;
+    virtual QHash<QString, QStringList> findUniqueIndexes(const
+            QSharedPointer<TableSchema>
+            &table) = 0;
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;
     virtual bool findColumns(const QSharedPointer<TableSchema> &ts) = 0;
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name)  = 0;

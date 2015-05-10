@@ -20,8 +20,11 @@
 #include "sqlitequerybuilder.h"
 using namespace CuteEntityManager;
 
-SqliteSchema::SqliteSchema(QSharedPointer<Database> database) : Schema(database) {
-    this->queryBuilder = QSharedPointer<QueryBuilder>(new SqliteQueryBuilder(QSharedPointer<Schema>(this), database));
+SqliteSchema::SqliteSchema(QSharedPointer<Database> database) : Schema(
+        database) {
+    this->queryBuilder = QSharedPointer<QueryBuilder>(new SqliteQueryBuilder(
+                             QSharedPointer<Schema>
+                             (this), database));
 }
 
 SqliteSchema::~SqliteSchema() {
@@ -30,8 +33,10 @@ SqliteSchema::~SqliteSchema() {
 
 QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
     if (this->typeMap.data()->empty()) {
-        this->typeMap.data()->insert(TYPE_PK, "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
-        this->typeMap.data()->insert(TYPE_BIGPK, "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
+        this->typeMap.data()->insert(TYPE_PK,
+                                     "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
+        this->typeMap.data()->insert(TYPE_BIGPK,
+                                     "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap.data()->insert(TYPE_BOOLEAN, "boolean");
         this->typeMap.data()->insert(TYPE_SMALLINT, "smallint");
         this->typeMap.data()->insert(TYPE_INTEGER, "integer");
@@ -55,7 +60,8 @@ QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
 
 QStringList SqliteSchema::findTableNames(QString schema) {
     auto l = QStringList();
-    QString sql = "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name<>'sqlite_sequence' ORDER BY tbl_name";
+    QString sql =
+        "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name<>'sqlite_sequence' ORDER BY tbl_name";
     auto q = this->database.data()->getQuery();
     q.prepare(sql);
     this->database.data()->select(q);
@@ -65,11 +71,14 @@ QStringList SqliteSchema::findTableNames(QString schema) {
     return l;
 }
 
-QHash<QString, QStringList> SqliteSchema::findUniqueIndexes(const QSharedPointer<TableSchema> &table) {
+QHash<QString, QStringList> SqliteSchema::findUniqueIndexes(
+    const QSharedPointer<TableSchema>
+    &table) {
     QHash<QString, QStringList> uniqueIndexes = QHash<QString, QStringList>();
     QSqlQuery q = this->database.data()->getQuery();
     q.setForwardOnly(true);
-    q.exec("PRAGMA index_list(" + this->quoteSimpleTableName(table->getName()) + ')');
+    q.exec("PRAGMA index_list(" + this->quoteSimpleTableName(
+               table->getName()) + ')');
     while (q.next()) {
         QString indexName = q.value("name").toString();
         QSqlQuery q2 = this->database.data()->getQuery();
@@ -89,13 +98,16 @@ QHash<QString, QStringList> SqliteSchema::findUniqueIndexes(const QSharedPointer
 void SqliteSchema::findConstraints(const QSharedPointer<TableSchema> &ts) {
     QSqlQuery q = this->database.data()->getQuery();
     q.setForwardOnly(true);
-    q.exec("PRAGMA foreign_key_list(" + this->quoteSimpleTableName(ts.data()->getName()) + ')');
+    q.exec("PRAGMA foreign_key_list(" + this->quoteSimpleTableName(
+               ts.data()->getName()) + ')');
     auto foreignKeys = ts.data()->getRelations();
     while (q.next()) {
         bool ok;
         int id = q.value("id").toInt(&ok);
         if (ok) {
-            auto rel = new QSqlRelation(q.value("table").toString(), q.value("from").toString(), q.value("to").toString());
+            auto rel = new QSqlRelation(q.value("table").toString(),
+                                        q.value("from").toString(),
+                                        q.value("to").toString());
             auto ptr = QSharedPointer<QSqlRelation>(rel);
             foreignKeys.insert(QString::number(id), ptr);
         }
@@ -106,8 +118,10 @@ void SqliteSchema::findConstraints(const QSharedPointer<TableSchema> &ts) {
 bool SqliteSchema::findColumns(const QSharedPointer<TableSchema> &ts) {
     QSqlQuery q = this->database.data()->getQuery();
     q.setForwardOnly(true);
-    q.exec("SELECT * FROM " + this->quoteSimpleTableName(ts.data()->getName()) + " LIMIT 0");
-    QHash<QString, QSharedPointer<QSqlField>> columns = QHash<QString, QSharedPointer<QSqlField>>();
+    q.exec("SELECT * FROM " + this->quoteSimpleTableName(ts.data()->getName()) +
+           " LIMIT 0");
+    QHash<QString, QSharedPointer<QSqlField>> columns =
+            QHash<QString, QSharedPointer<QSqlField>>();
     auto rec = q.record();
     int count = rec.count();
     if (count == 0) {

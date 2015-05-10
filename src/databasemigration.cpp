@@ -20,7 +20,8 @@ DatabaseMigration::DatabaseMigration() : Entity() {
 
 }
 
-DatabaseMigration::DatabaseMigration(QString version, QDateTime applyTime) : Entity() {
+DatabaseMigration::DatabaseMigration(QString version,
+                                     QDateTime applyTime) : Entity() {
     this->version = version;
     this->applyTime = applyTime;
 }
