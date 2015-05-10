@@ -550,7 +550,8 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
     auto i = relations.constBegin();
     while (i != relations.constEnd()) {
         Relation r = i.value();
-        if (r.getType() == MANY_TO_ONE && props.contains(i.key())) {
+        if (r.getType() == MANY_TO_ONE && props.contains(i.key())
+                || (r.getType() == ONE_TO_ONE && r.getMappedBy().isEmpty())) {
             auto v = props.value(i.key()).read(e);
             if (v.canConvert<Entity *>()) {
                 this->insertRelationId(qvariant_cast<Entity *>(v), map, i.key());

@@ -52,21 +52,22 @@ class EntityManager {
     void init();
     QList<QHash<QString, QVariant> > findAll(QString tblname);
     void resolveRelations(const QSharedPointer<Entity> &entity,
-                          const QHash<QString, QVariant> &map);
+                          const QHash<QString, QVariant> &map, const bool refresh = false);
     QHash<QString, QVariant> findByPk(qint64 id, QString tblname);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
-                                   const char *classname);
+                                   const char *classname, const bool refresh = false);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
-                                          const char *classname);
+                                          const char *classname, const bool refresh = false);
     void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
-                   const QMetaProperty &property);
+                   const QMetaProperty &property, const bool refresh = false);
     void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                   const QMetaProperty &property);
+                   const QMetaProperty &property,const bool refresh = false);
     void manyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                    const QMetaProperty &property);
+                    const QMetaProperty &property,const bool refresh = false);
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
-                  const QMetaProperty &property,
+                  const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");
+    const bool canPersistRelation(const Relation &relation, const RelationType &r, const QVariant &var) const;
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -74,13 +75,14 @@ class EntityManager {
             QHash<QString, QVariant> &m,
             const QString &tblname,
             bool ignoreID = false);
-    QSharedPointer<Entity> findById(const qint64 &id, Entity *&e);
+    QSharedPointer<Entity> findById(const qint64 &id, Entity *&e, const bool refresh=false);
     void setListProperty(const QSharedPointer<Entity> &entity,
                          QList<QSharedPointer<Entity>> &list,
                          const QMetaProperty &property) const;
     void setProperty(const QSharedPointer<Entity> &entiy,
                      QSharedPointer<Entity> value,
                      const QMetaProperty &property) const;
+    void saveRelations(const QSharedPointer<Entity> &entity);
 
   public:
     EntityManager(QSqlDatabase database);
@@ -116,6 +118,7 @@ class EntityManager {
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
+    void refresh(QSharedPointer<Entity> &entity);
     void setSchema(const QSharedPointer<Schema> &value);
 
     /**
