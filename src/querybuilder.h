@@ -20,6 +20,7 @@
 #include <QSharedPointer>
 #include <QPointer>
 #include <QSqlQuery>
+#include "relation.h"
 namespace CuteEntityManager {
 class Schema;
 class Entity;

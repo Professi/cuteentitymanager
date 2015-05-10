@@ -286,23 +286,24 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                    qvariant_cast<QList<QSharedPointer<Entity>>>(property);
     if (!list.isEmpty()) {
         auto ptr = list.at(0);
+        auto builder = this->schema.data()->getQueryBuilder();
         QString tblName = builder.data()->generateManyToManyTableName(entity, ptr);
         if (this->schema.data()->getTables().contains(tblName)) {
-            QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToManyDelete(
+            QSqlQuery q = builder.data()->manyToManyDelete(
                               tblName, builder.data()->generateManyToManyColumnName(entity),
                               entity.data()->getId());
             if (this->db.data()->transaction(q)) {
                 q.clear();
                 QList<QSharedPointer<Entity>> persisted = QList<QSharedPointer<Entity>>();
-                q = this->schema.data()->getQueryBuilder().data()->manyToManyInsert(tblName,
-                        builder.data()->generateManyToManyColumnName(entity),
-                        builder.data()->generateManyToManyColumnName(ptr));
+                q = builder.data()->manyToManyInsert(tblName,
+                                                     builder.data()->generateManyToManyColumnName(entity),
+                                                     builder.data()->generateManyToManyColumnName(ptr));
                 q.bindValue(0, entity.data()->getId());
                 for (int var = 0; var < list.size(); ++var) {
                     ptr = list.at(var);
                     if (ptr.data() && ((ptr.data()->getId() > -1 && r.getCascadeType() == MERGE)
                                        || r.getCascadeType() == ALL || r.getCascadeType() == PERSIST)) {
-                        if (this->save(list.at(var))) {
+                        if (this->save(ptr)) {
                             persisted.append(ptr);
                         }
                     }
