@@ -61,13 +61,14 @@ class EntityManager {
     void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
                    const QMetaProperty &property, const bool refresh = false);
     void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                   const QMetaProperty &property,const bool refresh = false);
+                   const QMetaProperty &property, const bool refresh = false);
     void manyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                    const QMetaProperty &property,const bool refresh = false);
+                    const QMetaProperty &property, const bool refresh = false);
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");
-    const bool canPersistRelation(const Relation &relation, const RelationType &r, const QVariant &var) const;
+    const bool canPersistRelation(const Relation &relation, const RelationType &r,
+                                  const QVariant &var) const;
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -75,7 +76,8 @@ class EntityManager {
             QHash<QString, QVariant> &m,
             const QString &tblname,
             bool ignoreID = false);
-    QSharedPointer<Entity> findById(const qint64 &id, Entity *&e, const bool refresh=false);
+    QSharedPointer<Entity> findById(const qint64 &id, Entity *&e,
+                                    const bool refresh = false);
     void setListProperty(const QSharedPointer<Entity> &entity,
                          QList<QSharedPointer<Entity>> &list,
                          const QMetaProperty &property) const;
@@ -105,9 +107,10 @@ class EntityManager {
     QList<QSharedPointer<Entity>> findEntityByAttributes(const
                                QSharedPointer<Entity> &entity,
                                bool ignoreID = false);
-    bool create(QList<QSharedPointer<Entity>> entities);
-    bool create(QSharedPointer<Entity> &entity);
-    bool save(QSharedPointer<Entity> &entity);
+    bool create(QList<QSharedPointer<Entity>> entities,
+                const bool persistRelations = true);
+    bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true);
+    bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true);
     qint64 findId(QSharedPointer<Entity> &entity);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
     bool remove(QSharedPointer<Entity> &entity);
@@ -120,7 +123,9 @@ class EntityManager {
     QSharedPointer<Schema> getSchema() const;
     void refresh(QSharedPointer<Entity> &entity);
     void setSchema(const QSharedPointer<Schema> &value);
-
+    /**
+      *@TODO create indexes
+      * /
     /**
      *@TODO use conditions
      */

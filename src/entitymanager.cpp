@@ -324,16 +324,17 @@ QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(
 }
 
 /**
- * @todo should be an insert statement with much values
+ * @todo should be an insert statement with many values
  * not really usefull atm
  * @brief EntityManager::create
  * @param entities
  * @return
  */
-bool EntityManager::create(QList<QSharedPointer<Entity> > entities) {
+bool EntityManager::create(QList<QSharedPointer<Entity> > entities,
+                           const bool persistRelations) {
     bool ok = true;
     foreach (QSharedPointer<Entity> ent, entities) {
-        ok = this->create(ent);
+        ok = this->create(ent, persistRelations);
         if (!ok) {
             break;
         }
@@ -341,19 +342,17 @@ bool EntityManager::create(QList<QSharedPointer<Entity> > entities) {
     return ok;
 }
 
-/**
- * @TODO insert Relations
- * @brief EntityManager::create
- * @param entity
- * @return
- */
-bool EntityManager::create(QSharedPointer<Entity> &entity) {
+bool EntityManager::create(QSharedPointer<Entity> &entity,
+                           const bool persistRelations) {
     bool rc = false;
     if (this->checkTable(entity) && this->count(entity) == 0) {
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->create(entity);
         rc = this->db->transaction(q);
         if (rc) {
             entity.data()->setId(this->schema.data()->getLastInsertID().toLongLong(&rc));
+            if (persistRelations) {
+                this->saveRelations(entity);
+            }
             this->cache.insert(entity);
         }
     }
@@ -397,17 +396,14 @@ QList<QHash <QString, QVariant> > EntityManager::findAllByAttributes(
     return this->convertQueryResult(q);
 }
 
-/**
- * @TODO insert Relations
- * @brief EntityManager::merge
- * @param entity
- * @param withRelations
- * @return
- */
 bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
     if (this->count(entity) == 0 && entity->getId() != -1) {
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->merge(entity);
-        return this->db->transaction(q);
+        bool ok = this->db->transaction(q);
+        if (ok && withRelations) {
+            this->saveRelations(entity);
+        }
+        return ok;
     } else {
         return false;
     }
@@ -465,11 +461,12 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
     }
 }
 
-bool EntityManager::save(QSharedPointer<Entity> &entity) {
+bool EntityManager::save(QSharedPointer<Entity> &entity,
+                         const bool persistRelations) {
     if (entity.data()->getId() > -1) {
-        return this->merge(entity);
+        return this->merge(entity, persistRelations);
     } else {
-        return this->create(entity);
+        return this->create(entity, persistRelations);
     }
 }
 
@@ -482,7 +479,6 @@ qint64 EntityManager::findId(QSharedPointer<Entity> &entity) {
     }
     return r;
 }
-
 
 bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     bool rc = false;
