@@ -63,8 +63,8 @@ class QueryBuilder {
     QString getColumnType(const QString &type) const;
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery findByAttributes(const QHash<QString, QVariant> &m, const QString &tableName,
-                               const bool &ignoreID = true) const;
-    QSqlQuery findByAttributes(const QSharedPointer<Entity> &e, bool ignoreID = true);
+                               const bool &ignoreID = true, const qint64 limit = 0, const qint64 offset = 0) const;
+    QSqlQuery findByAttributes(const QSharedPointer<Entity> &e, bool ignoreID = true,const qint64 limit = 0, const qint64 offset = 0);
     QSqlQuery findAll(const QString &tableName) const;
     QSqlQuery remove(const QSharedPointer<Entity> &entity) const;
     QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
@@ -72,10 +72,10 @@ class QueryBuilder {
     QSqlQuery count(const QString &tableName) const;
     QSqlQuery merge(const QSharedPointer<Entity> &entity) const;
     QSqlQuery create(const QSharedPointer<Entity> &entity) const;
-    QSqlQuery oneToMany(const QString &tableName, const QString &attribute, const qint64 &id);
+    QSqlQuery oneToMany(const QString &tableName, const QString &attribute, const qint64 &id, const qint64 &limit = 0);
     QSqlQuery manyToMany(const QString &tableName, const QString &attribute, const qint64 &id, const QString &foreignKey,
                          const QString &foreignTable);
-    virtual QString limit(const qint8 limit, const qint64 offset) const;
+    virtual QString limit(const qint64 &limit, const qint64 &offset) const;
     QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity) const;
     QSqlQuery getQuery() const;
 
@@ -94,7 +94,7 @@ class QueryBuilder {
     QString where(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false) const;
     QString attributes(const QHash<QString, QVariant> &m, const QString &conjunction = ",", bool ignoreID = false) const;
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity) const;
-    QString leftJoin(const QString &joinableTable, const QString &tableName, const QString &foreignKey);
+    QString leftJoin(const QString &foreignTable, const QString &tableName, const QString &foreignKey);
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;

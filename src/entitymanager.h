@@ -66,6 +66,7 @@ class EntityManager {
     QSharedPointer<Entity> findById(const qint64 &id, Entity *&e);
     void setListProperty(const QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity>> &list,
                          const QMetaProperty &property) const;
+    void setProperty(const QSharedPointer<Entity> &entiy, QSharedPointer<Entity> value, const QMetaProperty &property) const;
 
   public:
     EntityManager(QSqlDatabase database);

@@ -156,14 +156,10 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity, const QVaria
     if ((convertedId == id.toLongLong(&ok)) && ok && convertedId > -1) {
         QString className = EntityInstanceFactory::extractEntityType(property.typeName());
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>();
-        if (this->cache.contains(convertedId, className) && (ptr = this->cache.get(convertedId, className)) && ptr.data()) {
-
-        } else {
+        if (!(this->cache.contains(convertedId, className) && (ptr = this->cache.get(convertedId, className)) && ptr.data())) {
             ptr = this->findById(convertedId, className);
         }
-        if (ptr.data() && ptr.data()->getId() > -1) {
-            property.write(entity.data(), QVariant(ptr));
-        }
+        this->setProperty(entity, ptr, property);
     }
 }
 
@@ -179,11 +175,40 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity, const Relati
     }
 }
 
+
+void EntityManager::oneToOne(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property,
+                             const QVariant &id) {
+    qint64 convertedId = -1;
+    bool ok = false;
+    if (r.getMappedBy().isEmpty()) {
+        this->manyToOne(entity, id, property);
+    } else {
+        Entity *e = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
+        QSqlQuery q = this->schema.data()->getQueryBuilder().data()->oneToMany(e->getTablename(),
+                      r.getMappedBy() + "_id", entity.data()->getId(), 1);
+        auto listMap = this->convertQueryResult(q);
+        auto entities = this->convert(listMap, e->getClassname());
+        if (!entities.isEmpty()) {
+            QSharedPointer<Entity> ptr = entities.at(0);
+            this->setProperty(entity, ptr, property);
+        }
+        delete e;
+    }
+}
+
+
 void EntityManager::setListProperty(const QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity> > &list,
                                     const QMetaProperty &property) const {
     QVariant var;
     var.setValue<QList<QSharedPointer<Entity>>>(list);
     property.write(entity.data(), var);
+}
+
+void EntityManager::setProperty(const QSharedPointer<Entity> &entiy, QSharedPointer<Entity> value,
+                                const QMetaProperty &property) const {
+    if (value.data() && value.data()->getId() > -1) {
+        property.write(entiy.data(), QVariant(value));
+    }
 }
 
 
@@ -202,19 +227,18 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity, const Relat
         /**
          * maybe it would be better, to fetch first the ids, look up cache and then request missing entities
          */
-        QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToMany(tblName,
-                      builder.data()->generateManyToManyColumnName(entity), entity.data()->getId(),
-                      builder.data()->generateManyToManyColumnName(secEntityPtr),
-                      secEntityPtr.data()->getTablename());
-        auto listMap = this->convertQueryResult(q);
-        auto entities = this->convert(listMap, entity.data()->getClassname());
-        this->setListProperty(entity, entities, property);
+        if (this->schema.data()->getTables().contains(tblName)) {
+            QSqlQuery q = this->schema.data()->getQueryBuilder().data()->manyToMany(tblName,
+                          builder.data()->generateManyToManyColumnName(entity), entity.data()->getId(),
+                          builder.data()->generateManyToManyColumnName(secEntityPtr),
+                          secEntityPtr.data()->getTablename());
+            auto listMap = this->convertQueryResult(q);
+            auto entities = this->convert(listMap, entity.data()->getClassname());
+            this->setListProperty(entity, entities, property);
+        } else {
+            qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";
+        }
     }
-}
-
-void EntityManager::oneToOne(const QSharedPointer<Entity> &entity, const Relation &r, const QMetaProperty &property,
-                             const QVariant &id) {
-
 }
 
 QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(const QSharedPointer<Entity> &entity,
@@ -274,18 +298,6 @@ QHash<QString, QVariant> EntityManager::findByPk(qint64 id, QString tblname) {
     if (!listMap.isEmpty()) {
         return listMap.at(0);
     }
-//    this->db->select(q);
-//    QSqlRecord rec = q.record();
-//    QHash<QString, QVariant> map = QHash<QString, QVariant>();
-//    if (q.next()) {
-//        for (int var = 0; var < rec.count(); ++var) {
-//            QVariant variant = rec.value(var);
-//            if (variant.isValid()) {
-//                map.insert(rec.fieldName(var), variant);
-//            }
-//        }
-//    }
-//    return map;
     return QHash<QString, QVariant>();
 }
 

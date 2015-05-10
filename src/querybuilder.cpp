@@ -185,7 +185,8 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(const QSharedPoint
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(this->schema.data()->TYPE_INTEGER));
             } else if (relations.contains(m.name())) {
                 Relation r = relations.value(m.name());
-                if (r.getType() == RelationType::MANY_TO_ONE) {
+                if (r.getType() == RelationType::MANY_TO_ONE || (r.getType() == RelationType::ONE_TO_ONE
+                        && r.getMappedBy().isEmpty())) {
                     map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_BIGINT);
                 }
             } else if (entity.data()->getBLOBColumns().contains(m.name())) {
@@ -309,16 +310,17 @@ QSqlQuery QueryBuilder::find(const qint64 &id, const QString &tableName) const {
  * @return
  */
 QSqlQuery QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m, const QString &tableName,
-        const bool &ignoreID) const {
+        const bool &ignoreID, const qint64 limit, const qint64 offset) const {
     QSqlQuery q = this->database.data()->getQuery("SELECT * FROM " + this->schema.data()->quoteTableName(
-                      tableName) + this->where(m, "AND", ignoreID));
+                      tableName) + this->where(m, "AND", ignoreID) + this->limit(limit, offset));
     this->bindValues(m, q, ignoreID);
     return q;
 }
 
-QSqlQuery QueryBuilder::findByAttributes(const QSharedPointer<Entity> &e, bool ignoreID) {
+QSqlQuery QueryBuilder::findByAttributes(const QSharedPointer<Entity> &e, bool ignoreID, const qint64 limit,
+        const qint64 offset) {
     QHash<QString, QVariant> values = this->getEntityAttributes(e.data()->getMetaProperties(), e);
-    return this->findByAttributes(values, e.data()->getTablename(), ignoreID);
+    return this->findByAttributes(values, e.data()->getTablename(), ignoreID, limit, offset);
 }
 
 QSqlQuery QueryBuilder::findAll(const QString &tableName) const {
@@ -381,34 +383,40 @@ QSqlQuery QueryBuilder::create(const QSharedPointer<Entity> &entity) const {
     return q;
 }
 
-QSqlQuery QueryBuilder::oneToMany(const QString &tableName, const QString &attribute, const qint64 &id) {
+QSqlQuery QueryBuilder::oneToMany(const QString &tableName, const QString &attribute, const qint64 &id,
+                                  const qint64 &limit) {
     QHash<QString, QVariant> values = QHash<QString, QVariant>();
     values.insert(attribute, id);
-    return this->findByAttributes(values, tableName, false);
+    return this->findByAttributes(values, tableName, false, limit);
 }
 
 QSqlQuery QueryBuilder::manyToMany(const QString &tableName, const QString &attribute, const qint64 &id,
                                    const QString &foreignKey, const QString &foreignTable) {
     QSqlQuery q = this->database.data()->getQuery();
     QString sql = "SELECT " + this->schema.data()->quoteTableName(foreignTable) + ".* FROM " +
-                  this->schema.data()->quoteTableName(tableName) + this->leftJoin(foreignTable, tableName,
+                  this->schema.data()->quoteTableName(tableName) + " " + this->leftJoin(foreignTable, tableName,
                           foreignKey) + " WHERE " + this->schema.data()->quoteColumnName(attribute) + "=:id;";
     q.prepare(sql);
     q.bindValue(":id", id);
-    //SELECT user.* FROM `parent_child` LEFT JOIN user ON user.id=parent_child.user_id WHERE child_id = 1
     return q;
 }
 
 
-QString QueryBuilder::leftJoin(const QString &joinableTable, const QString &tableName, const QString &foreignKey) {
-    return "LEFT JOIN " + this->schema.data()->quoteTableName(joinableTable) + " ON " +
-           this->schema.data()->quoteColumnName(joinableTable + ".id") + "=" + this->schema.data()->quoteColumnName(
+QString QueryBuilder::leftJoin(const QString &foreignTable, const QString &tableName, const QString &foreignKey) {
+    return "LEFT JOIN " + this->schema.data()->quoteTableName(foreignTable) + " ON " +
+           this->schema.data()->quoteColumnName(foreignTable + ".id") + "=" + this->schema.data()->quoteColumnName(
                tableName + "." + foreignKey);
 }
 
-
-QString QueryBuilder::limit(const qint8 limit, const qint64 offset) const {
-    return " LIMIT " + QString(limit) + (offset > 0 ? QString("," + offset) : "");
+QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
+    QString s = "";
+    if (limit > 0) {
+        s.append(" LIMIT ").append(QString::number(limit));
+    }
+    if (offset > 0) {
+        s.append(" OFFSET ").append(QString::number(offset));
+    }
+    return s;
 }
 
 QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity> &entity) const {
