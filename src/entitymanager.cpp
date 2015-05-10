@@ -149,6 +149,7 @@ QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant>
         const char *classname) {
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
                                           classname, map));
+    this->resolveRelations(ptr, map);
     this->cache.insert(ptr);
     return ptr;
 }
@@ -204,8 +205,6 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
                              const Relation &r,
                              const QMetaProperty &property,
                              const QVariant &id) {
-    qint64 convertedId = -1;
-    bool ok = false;
     if (r.getMappedBy().isEmpty()) {
         this->manyToOne(entity, id, property);
     } else {
