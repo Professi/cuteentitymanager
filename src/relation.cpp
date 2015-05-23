@@ -23,20 +23,17 @@ Relation::Relation(QString propertyName, RelationType type, bool optional) {
     this->propertyName = propertyName;
     this->type = type;
     this->optional = optional;
-    this->tableName = "";
-    this->cascadeType = ALL;
+    this->cascadeType = {ALL};
 }
 
 Relation::Relation(QString propertyName, RelationType type, QString mappedBy,
-                   QString tableName,
-                   CascadeType cascadeType) {
+                   QList<CascadeType> cascadeType) {
     this->propertyName = propertyName;
     this->type = type;
     this->mappedBy = mappedBy;
     this->optional = true;
-    this->tableName = tableName;
     if (this->type == MANY_TO_ONE) {
-        this->cascadeType = ALL;
+        this->cascadeType = {ALL};
     } else {
         this->cascadeType = cascadeType;
     }
@@ -74,18 +71,12 @@ QString Relation::getMappedBy() const {
 void Relation::setMappedBy(const QString &value) {
     mappedBy = value;
 }
-QString Relation::getTableName() const {
-    return tableName;
-}
 
-void Relation::setTableName(const QString &value) {
-    tableName = value;
-}
-CascadeType Relation::getCascadeType() const {
+QList<CascadeType> Relation::getCascadeType() const {
     return cascadeType;
 }
 
-void Relation::setCascadeType(const CascadeType &value) {
+void Relation::setCascadeType(const QList<CascadeType> &value) {
     cascadeType = value;
 }
 

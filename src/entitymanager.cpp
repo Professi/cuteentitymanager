@@ -244,6 +244,19 @@ void EntityManager::setListProperty(const QSharedPointer<Entity> &entity,
     property.write(entity.data(), var);
 }
 
+void EntityManager::addEntityToListProperty(const QSharedPointer<Entity>
+        &entity, QSharedPointer<Entity> add, const QMetaProperty &property) {
+    QVariant var = property.read(entity.data());
+    if (!var.isNull() && var.canConvert<QList<QSharedPointer<Entity>>>()) {
+        QList<QSharedPointer<Entity>> list = var.value<QList<QSharedPointer<Entity>>>();
+        if (!list.contains(add)) {
+            list.append(add);
+            var.setValue<QList<QSharedPointer<Entity>>>(list);
+            property.write(entity.data(), var);
+        }
+    }
+}
+
 void EntityManager::setProperty(const QSharedPointer<Entity> &entiy,
                                 QSharedPointer<Entity> value,
                                 const QMetaProperty &property) const {
@@ -252,14 +265,15 @@ void EntityManager::setProperty(const QSharedPointer<Entity> &entiy,
     }
 }
 
-void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
+void EntityManager::saveRelations(const QSharedPointer<Entity> &entity,
+                                  bool merge) {
+    /**
+     * @todo USE CASCADE TYPES!!!!!!!!!!!!!1
+     */
     auto relations = entity.data()->getRelationProperties();
     auto iterator = relations.constBegin();
     while (iterator != relations.constEnd()) {
         const Relation r = iterator.key();
-        /**
-         * @TODO cascade types
-         */
         auto var = iterator.value().read(entity.data());
         if (this->canPersistRelation(r, MANY_TO_MANY, var)) {
             this->persistManyToMany(entity, r, var);
@@ -275,10 +289,62 @@ void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
             auto entity =  qvariant_cast<QSharedPointer<Entity>>(var);
             this->save(entity);
         }
-        ++iterator;
     }
+    ++iterator;
 }
 
+void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
+        &list, QSqlQuery &q, const QSharedPointer<Entity> &entity, const Relation &r,
+        const QString &tblName) {
+    q.clear();
+    QSharedPointer<Entity> ptr;
+    QList<QSharedPointer<Entity>> persisted = this->persistRelationEntities(list,
+                               r);
+    auto builder = this->schema.data()->getQueryBuilder();
+    q = builder.data()->manyToManyInsert(tblName,
+                                         builder.data()->generateManyToManyColumnName(entity),
+                                         builder.data()->generateManyToManyColumnName(ptr));
+    q.bindValue(0, entity.data()->getId());
+    //maybe use transaction
+    //this->db.data()->startTransaction();
+    QMetaProperty prop;
+    bool first = true;
+    for (int var = 0; var < persisted.size(); ++var) {
+        ptr = list.at(var);
+        if (first && !r.getMappedBy().isEmpty()) {
+            auto props = ptr.data()->getMetaProperties();
+            if (props.contains(r.getMappedBy())) {
+                prop = props.value(r.getMappedBy());
+            }
+        }
+        q.bindValue(1, ptr.data()->getId());
+        q.exec();
+        if (prop.isValid()) {
+            this->addEntityToListProperty(entity, ptr, prop);
+        }
+    }
+    //this->db.data()->commitTransaction();
+}
+
+QList<QSharedPointer<Entity>> EntityManager::persistRelationEntities(
+const QList<QSharedPointer<Entity> > &list, const Relation &r) {
+    QList<QSharedPointer<Entity>> persisted = QList<QSharedPointer<Entity>>();
+    QSharedPointer<Entity> ptr;
+    for (int var = 0; var < list.size(); ++var) {
+        ptr = list.at(var);
+        /**
+          @todo cascade type
+          **/
+        if (ptr.data() && ((ptr.data()->getId() > -1
+                            && r.getCascadeType().contains(MERGE))
+                           || r.getCascadeType().contains(ALL) || r.getCascadeType().contains(PERSIST))) {
+            if (this->save(ptr)) {
+                persisted.append(ptr);
+            }
+        }
+    }
+    return persisted;
+}
 
 void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                       const Relation &r, const QVariant &property) {
@@ -293,35 +359,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                               tblName, builder.data()->generateManyToManyColumnName(entity),
                               entity.data()->getId());
             if (this->db.data()->transaction(q)) {
-                q.clear();
-                QList<QSharedPointer<Entity>> persisted = QList<QSharedPointer<Entity>>();
-                q = builder.data()->manyToManyInsert(tblName,
-                                                     builder.data()->generateManyToManyColumnName(entity),
-                                                     builder.data()->generateManyToManyColumnName(ptr));
-                q.bindValue(0, entity.data()->getId());
-                for (int var = 0; var < list.size(); ++var) {
-                    ptr = list.at(var);
-                    if (ptr.data() && ((ptr.data()->getId() > -1 && r.getCascadeType() == MERGE)
-                                       || r.getCascadeType() == ALL || r.getCascadeType() == PERSIST)) {
-                        if (this->save(ptr)) {
-                            persisted.append(ptr);
-                        }
-                    }
-                }
-                //maybe use transaction
-                //this->db.data()->startTransaction();
-                for (int var = 0; var < persisted.size(); ++var) {
-                    ptr = list.at(var);
-                    q.bindValue(1, ptr.data()->getId());
-                    q.exec();
-                    /**
-                      * @TODO append to attribute list
-                      * */
-                }
-                //this->db.data()->commitTransaction();
-                /**
-                  * cascade types remove/refresh will be ignored atm
-                  * */
+                this->persistMappedByRelation(list, q, entity, r, tblName);
             }
         } else {
             qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";
@@ -341,6 +379,9 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
     auto builder = this->schema.data()->getQueryBuilder();
     if (secEntity) {
         QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>(secEntity);
+        /**
+         * @todo not good, can be buggy if the tablename starts with secEntityPtr
+         */
         QString tblName = builder.data()->generateManyToManyTableName(entity,
                           secEntityPtr);
         /**
@@ -396,7 +437,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
         if (rc) {
             entity.data()->setId(this->schema.data()->getLastInsertID().toLongLong(&rc));
             if (persistRelations) {
-                this->saveRelations(entity);
+                this->saveRelations(entity, false);
             }
             this->cache.insert(entity);
         }
@@ -446,7 +487,7 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->merge(entity);
         bool ok = this->db->transaction(q);
         if (ok && withRelations) {
-            this->saveRelations(entity);
+            this->saveRelations(entity, true);
         }
         return ok;
     } else {

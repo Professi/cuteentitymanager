@@ -284,11 +284,11 @@ const {
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
             h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema.data()->TYPE_BIGINT);
-            if (r.getTableName().isEmpty()) {
+            /**
+              @todo not good
+              @see EntityManager manyToMany()
+              **/
                 relations.insert(this->generateManyToManyTableName(entity, ptr), h);
-            } else {
-                relations.insert(r.getTableName(), h);
-            }
         }
     }
     return relations;

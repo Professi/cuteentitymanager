@@ -44,8 +44,7 @@ class Relation {
      * @param mappedBy Q_PROPERTY in foreign Entity
      */
     Relation(QString propertyName, RelationType type, QString mappedBy,
-             QString tableName = "",
-             CascadeType cascadeType = ALL);
+             QList<CascadeType> cascadeType = {ALL});
     ~Relation();
     RelationType getType() const;
     void setType(const RelationType &value);
@@ -59,18 +58,14 @@ class Relation {
     QString getMappedBy() const;
     void setMappedBy(const QString &value);
 
-    QString getTableName() const;
-    void setTableName(const QString &value);
-
-    CascadeType getCascadeType() const;
-    void setCascadeType(const CascadeType &value);
+    QList<CascadeType> getCascadeType() const;
+    void setCascadeType(const QList<CascadeType> &value);
 
   protected:
     QString propertyName;
     QString mappedBy;
-    QString tableName;
     RelationType type;
-    CascadeType cascadeType;
+    QList<CascadeType> cascadeType;
     bool optional;
 
 };

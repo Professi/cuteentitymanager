@@ -80,13 +80,21 @@ class EntityManager {
             bool ignoreID = false);
     QSharedPointer<Entity> findById(const qint64 &id, Entity *&e,
                                     const bool refresh = false);
+    void addEntityToListProperty(const QSharedPointer<Entity> &entity,
+                                 QSharedPointer<Entity> add, const QMetaProperty &property);
     void setListProperty(const QSharedPointer<Entity> &entity,
                          QList<QSharedPointer<Entity>> &list,
                          const QMetaProperty &property) const;
     void setProperty(const QSharedPointer<Entity> &entiy,
                      QSharedPointer<Entity> value,
                      const QMetaProperty &property) const;
-    void saveRelations(const QSharedPointer<Entity> &entity);
+    void saveRelations(const QSharedPointer<Entity> &entity, bool merge = true);
+    QList<QSharedPointer<Entity>> persistRelationEntities(const
+                               QList<QSharedPointer<Entity>> &list, const Relation &r);
+    void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
+                                 QSqlQuery &q, const QSharedPointer<Entity> &entity, const Relation &r,
+                                 const QString &tblName);
+
 
   public:
     EntityManager(QSqlDatabase database);
