@@ -23,7 +23,9 @@ Relation::Relation(QString propertyName, RelationType type, bool optional) {
     this->propertyName = propertyName;
     this->type = type;
     this->optional = optional;
-    this->cascadeType = {ALL};
+    this->cascadeType = {MERGE,
+                             PERSIST,
+                             REFRESH};
 }
 
 Relation::Relation(QString propertyName, RelationType type, QString mappedBy,
@@ -32,7 +34,7 @@ Relation::Relation(QString propertyName, RelationType type, QString mappedBy,
     this->type = type;
     this->mappedBy = mappedBy;
     this->optional = true;
-    if (this->type == MANY_TO_ONE) {
+    if (this->type == ONE_TO_ONE) {
         this->cascadeType = {ALL};
     } else {
         this->cascadeType = cascadeType;

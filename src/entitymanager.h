@@ -88,12 +88,14 @@ class EntityManager {
     void setProperty(const QSharedPointer<Entity> &entiy,
                      QSharedPointer<Entity> value,
                      const QMetaProperty &property) const;
-    void saveRelations(const QSharedPointer<Entity> &entity, bool merge = true);
-    QList<QSharedPointer<Entity>> persistRelationEntities(const
+    void saveRelations(const QSharedPointer<Entity> &entity);
+    QList<QSharedPointer<Entity>> saveRelationEntities(const
                                QList<QSharedPointer<Entity>> &list, const Relation &r);
     void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
                                  QSqlQuery &q, const QSharedPointer<Entity> &entity, const Relation &r,
                                  const QString &tblName);
+    bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
+    void removeRelations(const QSharedPointer<Entity> &entity);
 
 
   public:

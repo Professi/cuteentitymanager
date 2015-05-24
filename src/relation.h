@@ -44,7 +44,7 @@ class Relation {
      * @param mappedBy Q_PROPERTY in foreign Entity
      */
     Relation(QString propertyName, RelationType type, QString mappedBy,
-             QList<CascadeType> cascadeType = {ALL});
+             QList<CascadeType> cascadeType = {MERGE, PERSIST, REFRESH});
     ~Relation();
     RelationType getType() const;
     void setType(const RelationType &value);

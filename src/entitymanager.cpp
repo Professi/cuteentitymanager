@@ -265,24 +265,28 @@ void EntityManager::setProperty(const QSharedPointer<Entity> &entiy,
     }
 }
 
-void EntityManager::saveRelations(const QSharedPointer<Entity> &entity,
-                                  bool merge) {
-    /**
-     * @todo USE CASCADE TYPES!!!!!!!!!!!!!1
-     */
+void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
     auto relations = entity.data()->getRelationProperties();
     auto iterator = relations.constBegin();
     while (iterator != relations.constEnd()) {
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
-        if (this->canPersistRelation(r, MANY_TO_MANY, var)) {
+        if (r.getType() == MANY_TO_ONE && !var.isNull()
+                && var.canConvert<QSharedPointer<Entity>>()) {
+            auto e = qvariant_cast<QSharedPointer<Entity>>(var);
+            if (this->shouldBeSaved(e, r)) {
+                this->save(e);
+            }
+        } else if (this->canPersistRelation(r, MANY_TO_MANY, var)) {
             this->persistManyToMany(entity, r, var);
         } else if (this->canPersistRelation(r, ONE_TO_MANY, var)) {
             QList<QSharedPointer<Entity>> list =
                                            qvariant_cast<QList<QSharedPointer<Entity>>>(var);
             for (int var = 0; var < list.size(); ++var) {
                 auto entity = list.at(var);
-                this->save(entity);
+                if (this->shouldBeSaved(entity, r)) {
+                    this->save(entity);
+                }
             }
         } else if (r.getType() == ONE_TO_ONE && !r.getMappedBy().isEmpty()
                    && var.canConvert<QSharedPointer<Entity>>()) {
@@ -298,18 +302,18 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
         const QString &tblName) {
     q.clear();
     QSharedPointer<Entity> ptr;
-    QList<QSharedPointer<Entity>> persisted = this->persistRelationEntities(list,
-                               r);
+    QList<QSharedPointer<Entity>> saved = r.getCascadeType().contains(ALL)
+                                          || r.getCascadeType().contains(MERGE)
+                                          || r.getCascadeType().contains(PERSIST) ? this->saveRelationEntities(list,
+                                                  r) : list;
     auto builder = this->schema.data()->getQueryBuilder();
     q = builder.data()->manyToManyInsert(tblName,
                                          builder.data()->generateManyToManyColumnName(entity),
                                          builder.data()->generateManyToManyColumnName(ptr));
     q.bindValue(0, entity.data()->getId());
-    //maybe use transaction
-    //this->db.data()->startTransaction();
     QMetaProperty prop;
     bool first = true;
-    for (int var = 0; var < persisted.size(); ++var) {
+    for (int var = 0; var < saved.size(); ++var) {
         ptr = list.at(var);
         if (first && !r.getMappedBy().isEmpty()) {
             auto props = ptr.data()->getMetaProperties();
@@ -317,33 +321,57 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                 prop = props.value(r.getMappedBy());
             }
         }
-        q.bindValue(1, ptr.data()->getId());
-        q.exec();
-        if (prop.isValid()) {
-            this->addEntityToListProperty(entity, ptr, prop);
-        }
-    }
-    //this->db.data()->commitTransaction();
-}
-
-QList<QSharedPointer<Entity>> EntityManager::persistRelationEntities(
-const QList<QSharedPointer<Entity> > &list, const Relation &r) {
-    QList<QSharedPointer<Entity>> persisted = QList<QSharedPointer<Entity>>();
-    QSharedPointer<Entity> ptr;
-    for (int var = 0; var < list.size(); ++var) {
-        ptr = list.at(var);
-        /**
-          @todo cascade type
-          **/
-        if (ptr.data() && ((ptr.data()->getId() > -1
-                            && r.getCascadeType().contains(MERGE))
-                           || r.getCascadeType().contains(ALL) || r.getCascadeType().contains(PERSIST))) {
-            if (this->save(ptr)) {
-                persisted.append(ptr);
+        if (ptr.data()->getId() > -1) {
+            q.bindValue(1, ptr.data()->getId());
+            q.exec();
+            if (prop.isValid()) {
+                this->addEntityToListProperty(entity, ptr, prop);
             }
         }
     }
-    return persisted;
+}
+
+bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
+                                  const Relation &r) {
+    return entity.data() && (r.getCascadeType().contains(ALL)
+                             || (entity.data()->getId() > -1 && r.getCascadeType().contains(MERGE))
+                             || (entity.data()->getId() <= -1 && r.getCascadeType().contains(PERSIST)));
+}
+
+void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
+    auto props = entity.data()->getRelationProperties();
+    auto iterator = props.constBegin();
+    while (iterator != props.constEnd()) {
+        const Relation r = iterator.key();
+        const QMetaProperty property = iterator.value();
+        /**
+          @todo
+          **/
+        switch (r.getType()) {
+        case MANY_TO_ONE:
+            break;
+        case MANY_TO_MANY:
+            break;
+        case ONE_TO_MANY:
+            break;
+        case ONE_TO_ONE:
+            break;
+        }
+        ++iterator;
+    }
+}
+
+QList<QSharedPointer<Entity>> EntityManager::saveRelationEntities(
+const QList<QSharedPointer<Entity> > &list, const Relation &r) {
+    QList<QSharedPointer<Entity>> saved = QList<QSharedPointer<Entity>>();
+    QSharedPointer<Entity> ptr;
+    for (int var = 0; var < list.size(); ++var) {
+        ptr = list.at(var);
+        if (this->shouldBeSaved(ptr, r) && this->save(ptr)) {
+            saved.append(ptr);
+        }
+    }
+    return saved;
 }
 
 void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
@@ -437,7 +465,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
         if (rc) {
             entity.data()->setId(this->schema.data()->getLastInsertID().toLongLong(&rc));
             if (persistRelations) {
-                this->saveRelations(entity, false);
+                this->saveRelations(entity);
             }
             this->cache.insert(entity);
         }
@@ -473,10 +501,7 @@ QList<QHash<QString, QVariant> > EntityManager::findAllByAttributes(
 }
 
 QList<QHash <QString, QVariant> > EntityManager::findAllByAttributes(
-    const QHash<QString, QVariant>
-    &m,
-    const QString &tblname,
-    bool ignoreID) {
+    const QHash<QString, QVariant> &m, const QString &tblname, bool ignoreID) {
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->findByAttributes(m,
                   tblname, ignoreID);
     return this->convertQueryResult(q);
@@ -487,7 +512,7 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->merge(entity);
         bool ok = this->db->transaction(q);
         if (ok && withRelations) {
-            this->saveRelations(entity, true);
+            this->saveRelations(entity);
         }
         return ok;
     } else {
@@ -568,8 +593,10 @@ qint64 EntityManager::findId(QSharedPointer<Entity> &entity) {
 
 bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     bool rc = false;
+    this->db->startTransaction();
+    this->removeRelations(entity);
     QSqlQuery q = this->schema.data()->getQueryBuilder().data()->remove(entity);
-    if (this->db->transaction(q)) {
+    if (q.exec() && this->db->commitTransaction()) {
         this->cache.remove(entity);
         entity.clear();
         rc = true;
