@@ -96,7 +96,11 @@ class EntityManager {
                                  const QString &tblName);
     bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
     void removeRelations(const QSharedPointer<Entity> &entity);
-
+    void removeEntityList(QVariant &var);
+    void removeManyToManyEntityList(const QSharedPointer<Entity> &e, const Relation &r, QVariant &var);
+    void removeEntity(QVariant &var);
+    void setNullOneToManyRelation(QVariant &var, const Relation &r);
+    void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
 
   public:
     EntityManager(QSqlDatabase database);

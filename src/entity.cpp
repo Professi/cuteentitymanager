@@ -31,7 +31,7 @@ Entity::~Entity() {
 }
 
 QString Entity::getTablename() {
-    return QString(this->metaObject()->className());
+    return QString(this->metaObject()->className()).toLower();
 }
 
 const QHash<QString, Relation> Entity::getRelations() const {

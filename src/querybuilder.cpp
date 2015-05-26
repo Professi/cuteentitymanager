@@ -249,21 +249,15 @@ const {
 QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
         &firstEntity,
         const QSharedPointer<Entity> &secondEntity) const {
-    return QString(firstEntity.data()->metaObject()->className()).toLower() + "_" +
-           QString(
-               secondEntity.data()->metaObject()->className()).toLower();
-}
-
-QString QueryBuilder::manyToManyTableName(const QSharedPointer<Entity>
-        &firstEntity, const QSharedPointer<Entity> &secondEntity,
-        const Relation &r) const {
-    QString table = "";
-    if (r.getMappedBy().isEmpty()) {
-        table = this->generateManyToManyTableName(firstEntity, secondEntity);
+    QString first = QString(firstEntity.data()->getClassname());
+    QString second = QString(secondEntity.data()->getClassname());
+    if (QString::compare(first, second, Qt::CaseSensitive) <= 0) {
+        return firstEntity.data()->getTablename() + "_" +
+               secondEntity.data()->getTablename();
     } else {
-        table = this->generateManyToManyTableName(secondEntity, firstEntity);
+        return secondEntity.data()->getTablename() + "_" +
+               firstEntity.data()->getTablename();
     }
-    return table;
 }
 
 QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(
@@ -284,11 +278,7 @@ const {
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
             h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema.data()->TYPE_BIGINT);
-            /**
-              @todo not good
-              @see EntityManager manyToMany()
-              **/
-                relations.insert(this->generateManyToManyTableName(entity, ptr), h);
+            relations.insert(this->generateManyToManyTableName(entity, ptr), h);
         }
     }
     return relations;

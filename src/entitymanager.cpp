@@ -343,21 +343,110 @@ void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
     auto iterator = props.constBegin();
     while (iterator != props.constEnd()) {
         const Relation r = iterator.key();
-        const QMetaProperty property = iterator.value();
-        /**
-          @todo
-          **/
-        switch (r.getType()) {
-        case MANY_TO_ONE:
-            break;
-        case MANY_TO_MANY:
-            break;
-        case ONE_TO_MANY:
-            break;
-        case ONE_TO_ONE:
-            break;
+        auto property = iterator.value();
+        auto var = property.read(entity.data());
+        if (r.getType() == MANY_TO_MANY) {
+            this->removeManyToManyEntityList(entity, r, var);
+        } else if (r.getType() == ONE_TO_MANY) {
+            if (r.getCascadeType().contains(REMOVE) || r.getCascadeType().contains(ALL)) {
+                this->removeEntityList(var);
+            } else {
+                this->setNullOneToManyRelation(var, r);
+            }
+        }  else if (r.getType() == MANY_TO_ONE || r.getType() == MANY_TO_ONE) {
+            this->setNullEntityPropertyRelation(var, r);
         }
         ++iterator;
+    }
+}
+
+
+void EntityManager::setNullOneToManyRelation(QVariant &var, const Relation &r) {
+    if (!r.getMappedBy().isEmpty()) {
+        if (!var.isNull() && var.canConvert<QList<QSharedPointer<Entity>>>()) {
+            auto list = qvariant_cast<QList<QSharedPointer<Entity>>>(var);
+            if (!list.isEmpty()) {
+                auto metas = list.at(0).data()->getMetaProperties();
+                if (metas.contains(r.getMappedBy())) {
+                    for (int var = 0; var < list.size(); ++var) {
+                        auto entity = list.at(var);
+                        this->setProperty(entity, QSharedPointer<Entity>(),
+                                          metas.value(r.getMappedBy()));
+                        this->save(entity);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void EntityManager::setNullEntityPropertyRelation(QVariant &var,
+        const Relation &r) {
+    if (r.getCascadeType().contains(REMOVE) || r.getCascadeType().contains(ALL)) {
+        this->removeEntity(var);
+    } else if (!r.getMappedBy().isEmpty()) {
+        if (!var.isNull() && var.canConvert<QSharedPointer<Entity>>()) {
+            auto e = qvariant_cast<QSharedPointer<Entity>>(var);
+            auto metas = e.data()->getMetaProperties();
+            if (metas.contains(r.getMappedBy())) {
+                this->setProperty(e, QSharedPointer<Entity>(), metas.value(r.getMappedBy()));
+                this->save(e);
+            }
+        }
+    }
+}
+
+void EntityManager::removeEntity(QVariant &var) {
+    if (!var.isNull() && var.canConvert<QSharedPointer<Entity>>()) {
+        auto e = qvariant_cast<QSharedPointer<Entity>>(var);
+        this->remove(e);
+    }
+}
+
+void EntityManager::removeEntityList(QVariant &var) {
+    if (var.canConvert<QList<QSharedPointer<Entity>>>()) {
+        QList<QSharedPointer<Entity>> list =
+                                       qvariant_cast<QList<QSharedPointer<Entity>>>(var);
+        for (int var = 0; var < list.size(); ++var) {
+            auto entity = list.at(var);
+            this->remove(entity);
+        }
+    }
+}
+
+void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
+        const Relation &r,
+        QVariant &var) {
+    if (var.canConvert<QList<QSharedPointer<Entity>>>()) {
+        QList<QSharedPointer<Entity>> list =
+                                       qvariant_cast<QList<QSharedPointer<Entity>>>(var);
+        if (!list.isEmpty()) {
+            auto builder = this->schema.data()->getQueryBuilder();
+            auto ptr = list.at(0);
+            QString tblName = builder.data()->generateManyToManyTableName(e, ptr);
+            if (this->schema.data()->getTables().contains(tblName)) {
+                QSqlQuery q = builder.data()->manyToManyDelete(
+                                  tblName, builder.data()->generateManyToManyColumnName(e),
+                                  e.data()->getId());
+                bool refresh = r.getCascadeType().contains(REFRESH)
+                               || r.getCascadeType().contains(ALL);
+                bool remove = r.getCascadeType().contains(REMOVE)
+                              || r.getCascadeType().contains(ALL);
+                if (q.exec()) {
+                    for (int var = 0; var < list.size(); ++var) {
+                        auto entity = list.at(var);
+                        if (remove) {
+                            this->remove(entity);
+                        } else if (refresh) {
+                            /**
+                              not really with good performance, alternatively iterate over relation attribute and delete pointer from list
+                              **/
+                            this->refresh(entity);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -407,13 +496,11 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
     auto builder = this->schema.data()->getQueryBuilder();
     if (secEntity) {
         QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>(secEntity);
-        /**
-         * @todo not good, can be buggy if the tablename starts with secEntityPtr
-         */
         QString tblName = builder.data()->generateManyToManyTableName(entity,
                           secEntityPtr);
         /**
          * maybe it would be better, to fetch first the ids, look up cache and then request missing entities
+         * with this it would be also possible to respect cascade type
          */
         if (this->schema.data()->getTables().contains(tblName)) {
             QSqlQuery q = builder.data()->manyToMany(tblName,
