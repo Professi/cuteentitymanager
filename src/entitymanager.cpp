@@ -293,8 +293,8 @@ void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
             auto entity =  qvariant_cast<QSharedPointer<Entity>>(var);
             this->save(entity);
         }
+        ++iterator;
     }
-    ++iterator;
 }
 
 void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
