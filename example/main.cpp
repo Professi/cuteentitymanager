@@ -13,14 +13,16 @@
 #include "../src/relation.h"
 #include <QGenericReturnArgument>
 #include "entityinstancefactory.h"
+#include <exception>
+#include "models/pupil.h"
 /**
   * create,remove und merge funktionieren
  */
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
 //    Q_UNUSED(argc) Q_UNUSED(argv)
-//    CuteEntityManager::EntityManager *e = new CuteEntityManager::EntityManager("QSQLITE",
-//            QDir::currentPath() + "/db.sqlite");
+    CuteEntityManager::EntityManager *e = new CuteEntityManager::EntityManager("QSQLITE",
+            QDir::currentPath() + "/db.sqlite");
 //    QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0, "Müsli"));
 //    auto ep = a.dynamicCast<CuteEntityManager::Entity>();
 //    qDebug() << e;
@@ -34,17 +36,24 @@ int main(int argc, char *argv[]) {
 //    e->create(pptr);
 //e->createTable(grp.dynamicCast<CuteEntityManager::Entity>());
 
-    QSharedPointer<Group> grp = QSharedPointer<Group>(new Group());
+//    QTime t;
+//    t.start();
+//    e->createTable(QSharedPointer<Artikel>(new Artikel()));
+//    for (int var = 0; var < 10; ++var) {
+//        QSharedPointer<Entity> a = QSharedPointer<Artikel>(new Artikel(var,QString("a")+QString::number(var)));
+//        e->save(a);
+//    }
+//    qDebug() << "Dauer:" << t.elapsed();
 
-    grp.data()->setTeacher(new Person("Test", "Test12345"));
-    grp.data()->setTeacherP(QSharedPointer<Person>(new Person("Max", "Mustermann")));
-    auto meta = grp.data()->getRelationProperties();
-    auto iterator = meta.constBegin();
-    while(iterator != meta.constEnd()) {
-        qDebug() << EntityInstanceFactory::extractEntityType(iterator.value().typeName());
-        //qDebug() << e.Type;
-        ++iterator;
+    Pupil *p = new Pupil();
+    auto hash = p->getMetaProperties();
+    auto iterator = hash.constBegin();
+    while(iterator != hash.constEnd()) {
+        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);
+
+        iterator++;
     }
+
 
     return 0;
 }

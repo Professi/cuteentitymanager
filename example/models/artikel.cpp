@@ -39,6 +39,11 @@ Artikel::~Artikel() {
 
 }
 
+Artikel::Artikel(QObject *parent) : Entity(parent)
+{
+
+}
+
 Artikel::Artikel(double preis, QString name) : Entity(){
     this->preis = preis;
     this->name = name;

@@ -7,88 +7,69 @@
 #include <QDebug>
 
 Group::Group() : Entity() {
-    connect(this, SIGNAL(personsChanged()), this, SLOT(personChangedSlot()));
-    qDebug() << "Konstruktor!";
-    persons = QList<Person *>();
-    persons.append(new Person("Vera", "Geseke", Person::FEMALE, "Vera Geseke.jpg", "", "", QDate::currentDate()));
-    persons.append(new Person("Harry", "Hirsch", Person::MALE));
-    persons.append(new Person("Sibylle", "Mentzel", Person::FEMALE, "Sibylle Mentzel.jpg", "", "", QDate::currentDate()));
 }
 
-QList<Person *> Group::getPersons() const {
-    return persons;
+QString Group::getName() const
+{
+    return name;
 }
 
-void Group::setPersons(const QList<Person *> &value) {
-    qDebug() << "set!!!";
-    persons = value;
+void Group::setName(const QString &value)
+{
+    name = value;
 }
-QSharedPointer<Person> Group::getTeacherP() const {
-    return teacherP;
-}
-
-void Group::setTeacherP(const QSharedPointer<Person> &value) {
-    teacherP = value;
-}
-Person *Group::getTeacher() const {
+QSharedPointer<Teacher> Group::getTeacher() const
+{
     return teacher;
 }
 
-void Group::setTeacher(Person *value) {
+void Group::setTeacher(const QSharedPointer<Teacher> &value)
+{
     teacher = value;
 }
-QSharedPointer<Artikel> Group::getArtikel() const {
-    return artikel;
+QList<QSharedPointer<Pupil> > Group::getPupils() const
+{
+    return pupils;
 }
 
-void Group::setArtikel(const QSharedPointer<Artikel> &value) {
-    artikel = value;
+void Group::setPupils(const QList<QSharedPointer<Pupil> > &value)
+{
+    pupils = value;
+}
+QList<QSharedPointer<Pupil> > Group::getClassPrefects() const
+{
+    return classPrefects;
 }
 
-void Group::personChangedSlot() {
-    qDebug() << "changed!";
+void Group::setClassPrefects(const QList<QSharedPointer<Pupil> > &value)
+{
+    classPrefects = value;
+}
+QList<QSharedPointer<Person> > Group::getParentSpeakers() const
+{
+    return parentSpeakers;
 }
 
-const QHash<QString, CuteEntityManager::Relation> Group::getRelations() const {
-    QHash<QString, CuteEntityManager::Relation> h = QHash<QString, CuteEntityManager::Relation>();
-    CuteEntityManager::Relation r = CuteEntityManager::Relation("artikel", CuteEntityManager::MANY_TO_ONE);
-    h.insert("artikel", r);
-    return h;
+void Group::setParentSpeakers(const QList<QSharedPointer<Person> > &value)
+{
+    parentSpeakers = value;
 }
 
-//void Group::appendPerson(QQmlListProperty<Person> *list, Person *p) {
-//    Group *group = qobject_cast<Group*>(list->object);
-//    if(group && p) {
-//        group->addPerson(p);
-//        emit group->personsChanged();
-//    }
-//}
+const QHash<QString, Relation> Group::getRelations() const
+{
+    auto hash = Entity::getRelations();
+    hash.insert("teacher",Relation("teacher",MANY_TO_ONE,false));
+    hash.insert("pupils",Relation("pupils",MANY_TO_MANY));
+    hash.insert("classPrefects",Relation("classPrefects",MANY_TO_MANY));
+    hash.insert("parentSpeakers",Relation("parentSpeakers",MANY_TO_MANY));
+    return hash;
+}
 
-//int Group::personsCount(QQmlListProperty<Person>*list)
-//{
-//    Group *group = qobject_cast<Group*>(list->object);
-//    if (group)
-//        return group->m_persons.count();
-//    return 0;
-//}
 
-//Person* Group::personAt(QQmlListProperty<Person> *list, int i)
-//{
-//    Group *group = qobject_cast<Group*>(list->object);
-//    if (group)
-//        return group->m_persons.at(i);
-//    return 0;
 
-//}
 
-//void Group::personsClear(QQmlListProperty<Person> *list)
-//{
-//    Group *group = qobject_cast<Group*>(list->object);
-//    if (group) {
-//        group->m_persons.clear();
-//        emit group->personsChanged();
-//    }
-//}
+
+
 
 
 

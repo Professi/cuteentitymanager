@@ -18,13 +18,17 @@ TEMPLATE = app
 HEADERS += \
     models/artikel.h \
     models/person.h \
-    models/group.h
+    models/group.h \
+    models/pupil.h \
+    models/teacher.h
 
 SOURCES += \
     main.cpp \
     models/artikel.cpp \
     models/person.cpp \
-    models/group.cpp
+    models/group.cpp \
+    models/pupil.cpp \
+    models/teacher.cpp
 
 unix:!macx: LIBS += -L$$PWD/../../build-EntityManager-Desktop-Debug -lCuteEntityManager
 unix:INCLUDEPATH += $$PWD/../src
