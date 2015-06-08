@@ -49,6 +49,7 @@ class Entity : public QObject {
     virtual const QHash<QString, Relation> getRelations() const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;
+    virtual const InheritanceStrategy getInheritanceStrategy() const;
 
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey();

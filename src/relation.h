@@ -25,6 +25,11 @@ enum RelationType {
     MANY_TO_MANY,
 };
 
+enum InheritanceStrategy {
+    PER_CLASS_TABLE,
+    JOINED_TABLE,
+};
+
 enum CascadeType {
     ALL,
     MERGE,

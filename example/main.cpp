@@ -47,13 +47,13 @@ int main(int argc, char *argv[]) {
 
     Pupil *p = new Pupil();
     auto hash = p->getMetaProperties();
-    auto iterator = hash.constBegin();
-    while(iterator != hash.constEnd()) {
-        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);
+//    auto iterator = hash.constBegin();
+//    while(iterator != hash.constEnd()) {
+//        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);
 
-        iterator++;
-    }
-
+//        iterator++;
+//    }
+    qDebug() << p->metaObject()->superClass()->className();
 
     return 0;
 }

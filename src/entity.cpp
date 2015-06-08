@@ -46,6 +46,10 @@ const QStringList Entity::getBLOBColumns() const {
     return QStringList();
 }
 
+const InheritanceStrategy Entity::getInheritanceStrategy() const {
+    return JOINED_TABLE;
+}
+
 QString Entity::getPrimaryKey() {
     return "id";
 }

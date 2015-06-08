@@ -141,6 +141,9 @@ class QueryBuilder {
     const;
     QString leftJoin(const QString &foreignTable, const QString &tableName,
                      const QString &foreignKey);
+    QHash<QString, QMetaProperty> superMetaObjectPropMap(const QMetaObject
+            * &superMeta, const QSharedPointer<Entity> &entity) const;
+    QString superClassColumnName(const QMetaObject *&superMeta) const;
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;

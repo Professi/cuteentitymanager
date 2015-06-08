@@ -212,10 +212,14 @@ QHash<QString, QString> QueryBuilder::generateTableDefinition(
 const {
     auto map = QHash<QString, QString>();
     auto o = entity.data()->metaObject();
+    auto superMetaObject = entity.data()->metaObject()->superClass();
+    auto superMetaObjectPropertyMap = this->superMetaObjectPropMap(superMetaObject,
+                                      entity);
     QHash<QString, Relation> relations = entity.data()->getRelations();
     for (int var = 0; var < o->propertyCount(); ++var) {
         auto m = o->property(var);
-        if (m.name() != QString("objectName") && m.isReadable()
+        if (!superMetaObjectPropertyMap.contains(QString(m.name()))
+                && m.name() != QString("objectName") && m.isReadable()
                 && !entity.data()->getTransientAttributes().contains(m.name())) {
             if (m.isEnumType()) {
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(
@@ -238,10 +242,13 @@ const {
         }
     }
     QString pkType = map.value(entity.data()->getPrimaryKey());
-    if (pkType == this->schema.data()->TYPE_BIGINT) {
-        map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
-    } else {
-        map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_PK);
+    if (entity.data()->getInheritanceStrategy() != JOINED_TABLE
+            || QString(superMetaObject->className()) == QString("Entity")) {
+        if (pkType == this->schema.data()->TYPE_BIGINT) {
+            map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
+        } else {
+            map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_PK);
+        }
     }
     return map;
 }
@@ -512,6 +519,26 @@ QString QueryBuilder::leftJoin(const QString &foreignTable,
                tableName + "." + foreignKey);
 }
 
+QHash<QString, QMetaProperty> QueryBuilder::superMetaObjectPropMap(
+    const QMetaObject *&superMeta, const QSharedPointer<Entity> &entity) const {
+    auto superMetaObjectPropertyMap = QHash<QString, QMetaProperty>();
+    if (QString(superMeta->className()) != QString("Entity")
+            && entity.data()->getInheritanceStrategy() == JOINED_TABLE) {
+        for (int var = 0; var < superMeta->propertyCount(); ++var) {
+            QMetaProperty prop = superMeta->property(var);
+            if (prop.isReadable() && prop.isWritable()) {
+                superMetaObjectPropertyMap.insert(QString(prop.name()), prop);
+            }
+        }
+    }
+    return superMetaObjectPropertyMap;
+}
+
+QString QueryBuilder::superClassColumnName(const QMetaObject *&superMeta)
+const {
+    return QString(superMeta->className()).toLower();
+}
+
 QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
     QString s = "";
     if (limit > 0) {
@@ -573,7 +600,7 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
     auto i = relations.constBegin();
     while (i != relations.constEnd()) {
         Relation r = i.value();
-        if (r.getType() == MANY_TO_ONE && props.contains(i.key())
+        if ((r.getType() == MANY_TO_ONE && props.contains(i.key()))
                 || (r.getType() == ONE_TO_ONE && r.getMappedBy().isEmpty())) {
             auto v = props.value(i.key()).read(e);
             if (v.canConvert<Entity *>()) {
