@@ -30,7 +30,8 @@ class QueryBuilder {
     QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database);
     virtual ~QueryBuilder();
     virtual bool createTable(const QSharedPointer<Entity> &entity) const;
-    virtual bool createTable(const QString &tableName,
+    virtual bool createIndices(const QSharedPointer<Entity> &entity) const;
+    virtual QString createTable(const QString &tableName,
                              const QHash<QString, QString> &tableDefinition) const;
     virtual QString createTableQuery(const QString &tableName,
                                      const QHash<QString, QString> &tableDefinition) const;
@@ -52,11 +53,13 @@ class QueryBuilder {
                                   QString refTableName,
                                   QStringList refColumns, QString deleteConstraint,
                                   QString updateConstraint) const;
+    QString generateIndexName(const QString &name,const QString &table,const QString &refColumn,const QString &refTable,const bool fk) const;
     virtual QString dropForeignKey(QString name, QString tableName) const;
     virtual QString createIndex(QString name, QString tableName,
                                 QStringList columns,
                                 bool unique)const;
     virtual QString dropIndex(QString name, QString tableName)const;
+    virtual QString createFkSuperClass(const Entity *e) const;
     QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty>
             &props,
             const QSharedPointer<Entity> &entity) const;

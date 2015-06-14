@@ -24,6 +24,8 @@
 #include "relation.h"
 #include <QStringList>
 #include <QSharedPointer>
+#include <QStack>
+#include <QQueue>
 namespace CuteEntityManager {
 
 /**
@@ -39,9 +41,9 @@ class Entity : public QObject {
 
   public:
     Entity (QObject *parent = 0);
-    virtual QString toString();
+    virtual QString toString() const;
     virtual ~Entity();
-    virtual QString getTablename();
+    virtual QString getTablename() const;
     /**
      * @brief getRelations
      * @return
@@ -49,11 +51,14 @@ class Entity : public QObject {
     virtual const QHash<QString, Relation> getRelations() const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;
-    virtual const InheritanceStrategy getInheritanceStrategy() const;
+    virtual InheritanceStrategy getInheritanceStrategy() const;
 
     //return value must be the exact name defined in Q_PROPERTY
-    virtual QString getPrimaryKey();
+    virtual QString getPrimaryKey() const;
+    const QStack<const QMetaObject *> superClasses() const;
     const QHash<QString, QMetaProperty> getMetaProperties() const;
+    static const QHash<QString, QMetaProperty> getMetaProperties(const QMetaObject* object);
+    const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
     const QHash<Relation, QMetaProperty> getRelationProperties() const;
     const char *getClassname() const;
 

@@ -34,23 +34,63 @@ QueryBuilder::~QueryBuilder() {
 }
 
 bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity) const {
-    return this->createTable(entity.data()->getTablename(),
-                             this->generateTableDefinition(entity));
-}
-
-bool QueryBuilder::createTable(const QString &tableName,
-                               const QHash<QString, QString> &tableDefinition) const {
     bool rc = false;
+    if(entity.data()) {
+        auto tableDefinition = this->generateTableDefinition(entity);
+        QString tableName = entity.data()->getTablename();
     this->schema.data()->containsTable(tableName) ? rc = true : rc = false;
     if (!rc) {
-        QSqlQuery q = this->database.data()->getQuery(this->createTableQuery(tableName,
-                      tableDefinition));
+        QSqlQuery q = this->database.data()->getQuery(this->createTable(tableName,tableDefinition));
         if (this->database.data()->transaction(q)) {
             this->schema.data()->getTableSchema(tableName);
             rc = true;
+            if(rc) {
+                rc = this->createIndices(entity);
+            }
         }
     }
+    }
     return rc;
+
+}
+
+bool QueryBuilder::createIndices(const QSharedPointer<Entity> &entity) const {
+    Entity *e = entity.data();
+    bool ok = true;
+    QStringList queries = QStringList();
+    QString superIndex = this->createFkSuperClass(e);
+    if(!superIndex.isEmpty()) {
+        queries.append(superIndex);
+    }
+    /**
+      @todo Relations
+      */
+    ok = this->database.data()->transaction(queries);
+    return ok;
+}
+
+QString QueryBuilder::createTable(const QString &tableName, const QHash<QString, QString> &tableDefinition) const
+{
+    return this->createTableQuery(tableName,
+                          tableDefinition);
+}
+
+QString QueryBuilder::createFkSuperClass(const Entity *e) const
+{
+    QString r = "";
+    auto superMetaObject = e->metaObject()->superClass();
+
+    if (e->getInheritanceStrategy() == JOINED_TABLE
+            && QString(superMetaObject->className()) != QString("Entity")) {
+        Entity *superClass  = EntityInstanceFactory::createInstance(superMetaObject->className());
+        if(superClass) {
+        QString refColumn = superClass->getPrimaryKey();
+        QString refTable = superClass->getTablename();
+        r = this->addForeignKey(this->generateIndexName(e->getPrimaryKey(),e->getTablename(),refColumn,refTable,true), e->getTablename(),QStringList(e->getPrimaryKey()),refTable,QStringList(refColumn),"CASCADE","CASCADE");
+        delete superClass;
+        }
+    }
+    return r;
 }
 
 QString QueryBuilder::createTableQuery(const QString &tableName,
@@ -134,6 +174,10 @@ QString QueryBuilder::dropPrimaryKey(QString name, QString tableName) const {
            this->schema.data()->quoteColumnName(name);
 }
 
+
+/**
+  RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
+*/
 QString QueryBuilder::addForeignKey(QString name, QString tableName,
                                     QStringList columns,
                                     QString refTableName,
@@ -153,6 +197,13 @@ QString QueryBuilder::addForeignKey(QString name, QString tableName,
         r.append(" ON UPDATE " + updateConstraint);
     }
     return r;
+}
+
+QString QueryBuilder::generateIndexName(const QString &name,
+                                        const QString &table, const QString &refColumn, const QString &refTable,
+                                        const bool fk) const {
+    return QString(fk ? "fk" : "idx").append("_").append(name).append(table).append(
+               refColumn).append(refTable);
 }
 
 QString QueryBuilder::dropForeignKey(QString name, QString tableName) const {
@@ -175,7 +226,7 @@ QString QueryBuilder::createIndex(QString name, QString tableName,
 QString QueryBuilder::dropIndex(QString name, QString tableName) const {
     return "DROP INDEX " + this->schema.data()->quoteTableName(name) + " ON " +
            this->schema.data()->quoteTableName(
-               tableName);
+                tableName);
 }
 
 QSharedPointer<Database> QueryBuilder::getDatabase() const {
@@ -241,14 +292,9 @@ const {
             }
         }
     }
-    QString pkType = map.value(entity.data()->getPrimaryKey());
-    if (entity.data()->getInheritanceStrategy() != JOINED_TABLE
-            || QString(superMetaObject->className()) == QString("Entity")) {
-        if (pkType == this->schema.data()->TYPE_BIGINT) {
-            map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
-        } else {
-            map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_PK);
-        }
+    if (QString(superMetaObject->className()) != QString("Entity")
+            && entity.data()->getInheritanceStrategy() != JOINED_TABLE) {
+        map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
     }
     return map;
 }
