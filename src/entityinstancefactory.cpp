@@ -79,3 +79,14 @@ const QString EntityInstanceFactory::extractEntityType(const QString &s) {
     }
     return r;
 }
+
+Entity *EntityInstanceFactory::newSuperClassInstance(Entity *e) {
+    Entity *super = 0;
+    if (e) {
+        auto metaObject = e->metaObject()->superClass();
+        if (QString(metaObject->className()) != QString("Entity")) {
+            super = EntityInstanceFactory::createInstance(metaObject->className());
+        }
+    }
+    return super;
+}

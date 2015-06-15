@@ -25,6 +25,17 @@ namespace CuteEntityManager {
 class Schema;
 class Entity;
 class Database;
+/**
+  RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
+*/
+enum DbForeignKeyCascade {
+    RESTRICT,
+    CASCADE,
+    NO_ACTION,
+    SET_DEFAULT,
+    SET_NULL,
+};
+
 class QueryBuilder {
   public:
     QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database);
@@ -54,6 +65,7 @@ class QueryBuilder {
                                   QStringList refColumns, QString deleteConstraint,
                                   QString updateConstraint) const;
     QString generateIndexName(const QString &name,const QString &table,const QString &refColumn,const QString &refTable,const bool fk) const;
+    virtual QString getForeignKeyCascade(DbForeignKeyCascade cascade) const;
     virtual QString dropForeignKey(QString name, QString tableName) const;
     virtual QString createIndex(QString name, QString tableName,
                                 QStringList columns,
