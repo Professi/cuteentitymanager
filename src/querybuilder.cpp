@@ -62,12 +62,25 @@ bool QueryBuilder::createIndices(const QSharedPointer<Entity> &entity) const {
     if(!superIndex.isEmpty()) {
         queries.append(superIndex);
     }
-    /**
-      @todo Relations
-      */
+    queries.append(this->relationIndices(e));
     ok = this->database.data()->transaction(queries);
     return ok;
 }
+
+
+QStringList QueryBuilder::relationIndices(const Entity *e) const
+{
+    QStringList queries = QStringList();
+    auto relations = e->getRelations();
+    auto iterator = relations.constBegin();
+    while(iterator != relations.constEnd()) {
+        
+        
+        ++iterator;
+    }
+    return queries;
+}
+
 
 QString QueryBuilder::createTable(const QString &tableName, const QHash<QString, QString> &tableDefinition) const
 {

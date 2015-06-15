@@ -63,6 +63,7 @@ class QueryBuilder {
     QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty>
             &props,
             const QSharedPointer<Entity> &entity) const;
+    virtual QStringList relationIndices(const Entity *e) const;
 
     QSharedPointer<Schema> getSchema() const;
     void setSchema(const QSharedPointer<Schema> &value);
