@@ -32,7 +32,7 @@ class EntityInstanceFactory {
                                  QHash<QString, QMetaProperty> metaprops);
     static Entity *setAttributes(Entity *e, const QHash<QString, QVariant> &attributes);
     static const QString extractEntityType(const QString &s);
-    static Entity *newSuperClassInstance(Entity *e);
+    static Entity *newSuperClassInstance(const Entity *e);
 
     template<typename T>
     static Entity *createInstance() {

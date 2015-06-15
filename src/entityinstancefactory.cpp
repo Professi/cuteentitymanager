@@ -80,7 +80,7 @@ const QString EntityInstanceFactory::extractEntityType(const QString &s) {
     return r;
 }
 
-Entity *EntityInstanceFactory::newSuperClassInstance(Entity *e) {
+Entity *EntityInstanceFactory::newSuperClassInstance(const Entity *e) {
     Entity *super = 0;
     if (e) {
         auto metaObject = e->metaObject()->superClass();
