@@ -100,11 +100,15 @@ QStringList QueryBuilder::relationIndices(const Entity *e) const {
             case ONE_TO_ONE:
                 break;
             case MANY_TO_MANY:
+                //    this->generateManyToManyTableName(entity, ptr);
                 break;
             case MANY_TO_ONE:
                 /**
                   fill in table name
                   **/
+                //    auto m = props.value(r.getPropertyName());
+                //    Entity *e = EntityInstanceFactory::createInstance(m.type());
+                //    QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
                 //this->addForeignKey(this->generateIndexName(relation.getPropertyName(),e->getTablename(),this->generateColumnNameID(relation.getPropertyName()),"",true));
                 break;
             }
@@ -113,24 +117,6 @@ QStringList QueryBuilder::relationIndices(const Entity *e) const {
     }
     return queries;
 }
-
-
-
-
-//Relation r = i.value();
-//if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
-//    QHash<QString, QString> h = QHash<QString, QString>();
-//    h.insert("id", this->schema.data()->TYPE_BIGPK);
-//    h.insert(this->generateManyToManyColumnName(entity),
-//             this->schema.data()->TYPE_BIGINT);
-//    auto m = props.value(r.getPropertyName());
-//    Entity *e = EntityInstanceFactory::createInstance(m.type());
-//    QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
-//    h.insert(this->generateManyToManyColumnName(ptr),
-//             this->schema.data()->TYPE_BIGINT);
-//    relations.insert(this->generateManyToManyTableName(entity, ptr), h);
-//}
-
 
 QString QueryBuilder::createTable(const QString &tableName,
                                   const QHash<QString, QString> &tableDefinition) const {
