@@ -73,12 +73,12 @@ QStringList QueryBuilder::relationIndices(const Entity *e) const {
     QStringList queries = QStringList();
     auto relations = e->getRelations();
     auto superObject = EntityInstanceFactory::newSuperClassInstance(e);
-    if(superObject) {
+    if (superObject) {
         auto superRelations = superObject->getRelations();
         auto iterator = superRelations.constBegin();
-        while(iterator != relations.constEnd()) {
-            if(relations.contains(iterator.key())) {
-               relations.remove(iterator.key());
+        while (iterator != relations.constEnd()) {
+            if (relations.contains(iterator.key())) {
+                relations.remove(iterator.key());
             }
             ++iterator;
         }
@@ -88,15 +88,24 @@ QStringList QueryBuilder::relationIndices(const Entity *e) const {
     auto iterator = relations.constBegin();
     while (iterator != relations.constEnd()) {
         auto relation = iterator.value();
-        if(!relation.getCascadeType().isEmpty()) {
+        if (relation.getMappedBy().isEmpty() && !relation.getCascadeType().isEmpty()) {
+            QString update = relation.getCascadeType().contains(MERGE)
+                             || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
+                                 CASCADE) : this->getForeignKeyCascade(NO_ACTION);
+            QString remove = relation.getCascadeType().contains(REMOVE)
+                             || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
+                                 CASCADE) : this->getForeignKeyCascade(SET_NULL);
+
             switch (relation.getType()) {
-            case ONE_TO_MANY:
-                break;
             case ONE_TO_ONE:
                 break;
             case MANY_TO_MANY:
                 break;
             case MANY_TO_ONE:
+                /**
+                  fill in table name
+                  **/
+                //this->addForeignKey(this->generateIndexName(relation.getPropertyName(),e->getTablename(),this->generateColumnNameID(relation.getPropertyName()),"",true));
                 break;
             }
         }
@@ -104,6 +113,23 @@ QStringList QueryBuilder::relationIndices(const Entity *e) const {
     }
     return queries;
 }
+
+
+
+
+//Relation r = i.value();
+//if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
+//    QHash<QString, QString> h = QHash<QString, QString>();
+//    h.insert("id", this->schema.data()->TYPE_BIGPK);
+//    h.insert(this->generateManyToManyColumnName(entity),
+//             this->schema.data()->TYPE_BIGINT);
+//    auto m = props.value(r.getPropertyName());
+//    Entity *e = EntityInstanceFactory::createInstance(m.type());
+//    QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
+//    h.insert(this->generateManyToManyColumnName(ptr),
+//             this->schema.data()->TYPE_BIGINT);
+//    relations.insert(this->generateManyToManyTableName(entity, ptr), h);
+//}
 
 
 QString QueryBuilder::createTable(const QString &tableName,
@@ -125,7 +151,8 @@ QString QueryBuilder::createFkSuperClass(const Entity *e) const {
             QString refTable = superClass->getTablename();
             r = this->addForeignKey(this->generateIndexName(e->getPrimaryKey(),
                                     e->getTablename(), refColumn, refTable, true), e->getTablename(),
-                                    QStringList(e->getPrimaryKey()), refTable, QStringList(refColumn), this->getForeignKeyCascade(CASCADE),
+                                    QStringList(e->getPrimaryKey()), refTable, QStringList(refColumn),
+                                    this->getForeignKeyCascade(CASCADE),
                                     this->getForeignKeyCascade(CASCADE));
             delete superClass;
         }
@@ -239,7 +266,12 @@ QString QueryBuilder::generateIndexName(const QString &name,
                                         const QString &table, const QString &refColumn, const QString &refTable,
                                         const bool fk) const {
     return QString(fk ? "fk" : "idx").append("_").append(name).append(table).append(
-               refColumn).append(refTable);
+                refColumn).append(refTable);
+}
+
+QString QueryBuilder::generateColumnNameID(QString name) const
+{
+    return name.append("_id");
 }
 
 QString QueryBuilder::getForeignKeyCascade(DbForeignKeyCascade cascade) const {
@@ -336,7 +368,7 @@ const {
                 if (r.getType() == RelationType::MANY_TO_ONE
                         || (r.getType() == RelationType::ONE_TO_ONE
                             && r.getMappedBy().isEmpty())) {
-                    map.insert(QString(m.name()) + "_id", this->schema.data()->TYPE_BIGINT);
+                    map.insert(this->generateColumnNameID(QString(m.name())), this->schema.data()->TYPE_BIGINT);
                 }
             } else if (entity.data()->getBLOBColumns().contains(m.name())) {
                 map.insert(m.name(), this->schema.data()->getTypeMap().data()->value(
@@ -654,7 +686,7 @@ QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
 
 QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity>
         &entity) const {
-    return QString(entity.data()->metaObject()->className()) + QString("_id");
+    return this->generateColumnNameID(QString(entity.data()->metaObject()->className()));
 }
 
 QSqlQuery QueryBuilder::getQuery() const {
@@ -723,7 +755,7 @@ void QueryBuilder::insertRelationId(const Entity *e,
                                     QHash<QString, QVariant> &map,
                                     QString relName) const {
     if (e && e->getId() > -1) {
-        map.insert(relName + "_id", e->getId());
+        map.insert(this->generateColumnNameID(relName), e->getId());
     }
 }
 

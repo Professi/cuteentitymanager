@@ -65,6 +65,7 @@ class QueryBuilder {
                                   QStringList refColumns, QString deleteConstraint,
                                   QString updateConstraint) const;
     QString generateIndexName(const QString &name,const QString &table,const QString &refColumn,const QString &refTable,const bool fk) const;
+    QString generateColumnNameID(QString name) const;
     virtual QString getForeignKeyCascade(DbForeignKeyCascade cascade) const;
     virtual QString dropForeignKey(QString name, QString tableName) const;
     virtual QString createIndex(QString name, QString tableName,
