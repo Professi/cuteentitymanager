@@ -26,6 +26,7 @@
 #include <QSharedPointer>
 #include <QStack>
 #include <QQueue>
+#include "entityinstancefactory.h"
 namespace CuteEntityManager {
 
 /**
@@ -49,6 +50,7 @@ class Entity : public QObject {
      * @return
      */
     virtual const QHash<QString, Relation> getRelations() const;
+    virtual const QHash<QString, Relation> getNonInheritedRelations() const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;
     virtual InheritanceStrategy getInheritanceStrategy() const;
@@ -57,6 +59,7 @@ class Entity : public QObject {
     virtual QString getPrimaryKey() const;
     const QStack<const QMetaObject *> superClasses() const;
     const QHash<QString, QMetaProperty> getMetaProperties() const;
+    const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
     static const QHash<QString, QMetaProperty> getMetaProperties(const QMetaObject* object);
     const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
     const QHash<Relation, QMetaProperty> getRelationProperties() const;

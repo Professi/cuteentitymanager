@@ -28,9 +28,11 @@ class EntityInstanceFactory {
     static Entity *createInstance(int metaTypeId);
     static Entity *createInstance(const char *className,
                                   const QHash<QString, QVariant> &attributes);
-    static Entity *setAttributes(Entity *e, const QHash<QString, QVariant> &attributes,
+    static Entity *setAttributes(Entity *e,
+                                 const QHash<QString, QVariant> &attributes,
                                  QHash<QString, QMetaProperty> metaprops);
-    static Entity *setAttributes(Entity *e, const QHash<QString, QVariant> &attributes);
+    static Entity *setAttributes(Entity *e,
+                                 const QHash<QString, QVariant> &attributes);
     static const QString extractEntityType(const QString &s);
     static Entity *newSuperClassInstance(const Entity *e);
 

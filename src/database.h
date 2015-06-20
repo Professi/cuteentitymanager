@@ -41,7 +41,8 @@ class Database {
     ~Database();
     Database(QString databaseType, QString databasename);
     Database(QString databaseType, QString connectionName, QString databasename);
-    Database(QString databaseType, QString connectionName = "", QString hostname = "",
+    Database(QString databaseType, QString connectionName = "",
+             QString hostname = "",
              QString databasename = "" ,
              QString username = "", QString password = "", qint64 port = 0);
     QSqlDatabase getDatabase();
@@ -62,7 +63,8 @@ class Database {
     void startTransaction();
     bool commitTransaction();
     static DatabaseType getDatabaseType(QString s);
-    static QSharedPointer<Schema> getSchema(int db, QSharedPointer<Database> database);
+    static QSharedPointer<Schema> getSchema(int db,
+                                            QSharedPointer<Database> database);
 
 };
 }

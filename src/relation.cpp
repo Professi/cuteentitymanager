@@ -24,8 +24,9 @@ Relation::Relation(QString propertyName, RelationType type, bool optional) {
     this->type = type;
     this->optional = optional;
     this->cascadeType = {MERGE,
-                             PERSIST,
-                             REFRESH};
+                         PERSIST,
+                         REFRESH
+                        };
 }
 
 Relation::Relation(QString propertyName, RelationType type, QString mappedBy,

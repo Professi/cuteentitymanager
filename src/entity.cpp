@@ -38,6 +38,25 @@ const QHash<QString, Relation> Entity::getRelations() const {
     return QHash<QString, Relation>();
 }
 
+const QHash<QString, Relation> Entity::getNonInheritedRelations() const
+{
+    auto relations = this->getRelations();
+        auto superObject = EntityInstanceFactory::newSuperClassInstance(this);
+        if (superObject) {
+            auto superRelations = superObject->getRelations();
+            auto iterator = superRelations.constBegin();
+            while (iterator != relations.constEnd()) {
+                if (relations.contains(iterator.key())) {
+                    relations.remove(iterator.key());
+                }
+                ++iterator;
+            }
+            delete superObject;
+            superObject = 0;
+        }
+        return relations;
+}
+
 const QStringList Entity::getTransientAttributes() const {
     return QStringList();
 }
@@ -68,6 +87,22 @@ const QStack<const QMetaObject *> Entity::superClasses() const {
 
 const QHash<QString, QMetaProperty> Entity::getMetaProperties() const {
     return Entity::getMetaProperties(this->metaObject());
+}
+
+const QHash<QString, QMetaProperty> Entity::getSuperMetaProperties() const
+{
+    auto superMetaObjectPropertyMap = QHash<QString, QMetaProperty>();
+    auto superMeta = this->metaObject()->superClass();
+    if (QString(superMeta->className()) != QString("Entity")
+            && this->getInheritanceStrategy() == JOINED_TABLE) {
+        for (int var = 0; var < superMeta->propertyCount(); ++var) {
+            QMetaProperty prop = superMeta->property(var);
+            if (prop.isReadable() && prop.isWritable()) {
+                superMetaObjectPropertyMap.insert(QString(prop.name()), prop);
+            }
+        }
+    }
+    return superMetaObjectPropertyMap;
 }
 
 const QHash<QString, QMetaProperty> Entity::getMetaProperties(const QMetaObject *object) {

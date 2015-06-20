@@ -43,7 +43,7 @@ class QueryBuilder {
     virtual bool createTable(const QSharedPointer<Entity> &entity) const;
     virtual bool createIndices(const QSharedPointer<Entity> &entity) const;
     virtual QString createTable(const QString &tableName,
-                             const QHash<QString, QString> &tableDefinition) const;
+                                const QHash<QString, QString> &tableDefinition) const;
     virtual QString createTableQuery(const QString &tableName,
                                      const QHash<QString, QString> &tableDefinition) const;
     virtual QString renameTable(QString tableName, QString newName) const;
@@ -64,7 +64,8 @@ class QueryBuilder {
                                   QString refTableName,
                                   QStringList refColumns, QString deleteConstraint,
                                   QString updateConstraint) const;
-    QString generateIndexName(const QString &name,const QString &table,const QString &refColumn,const QString &refTable,const bool fk) const;
+    QString generateIndexName(const QString &name, const QString &table,
+                              const QString &refColumn, const QString &refTable, const bool fk) const;
     QString generateColumnNameID(QString name) const;
     virtual QString getForeignKeyCascade(DbForeignKeyCascade cascade) const;
     virtual QString dropForeignKey(QString name, QString tableName) const;
@@ -76,7 +77,11 @@ class QueryBuilder {
     QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty>
             &props,
             const QSharedPointer<Entity> &entity) const;
-    virtual QStringList relationIndices(const Entity *e) const;
+    virtual QStringList relationFks(const QSharedPointer<Entity> &entity) const;
+
+    virtual QString createForeignKeyManyToMany(const QString &tableName,
+            const QSharedPointer<Entity> &entity, const QString &update,
+            const QString &remove) const;
 
     QSharedPointer<Schema> getSchema() const;
     void setSchema(const QSharedPointer<Schema> &value);
@@ -128,6 +133,7 @@ class QueryBuilder {
     QSqlQuery getQuery() const;
 
   protected:
+    virtual void createRelationFK(QStringList &queries, const QSharedPointer<Entity> &entity, const Relation &relation, const QMetaProperty &metaProperty, const QString &update, const QString &remove) const;
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map,
                           QString relName) const;
     QString buildColumns(const QStringList &columns) const;
@@ -158,8 +164,6 @@ class QueryBuilder {
     const;
     QString leftJoin(const QString &foreignTable, const QString &tableName,
                      const QString &foreignKey);
-    QHash<QString, QMetaProperty> superMetaObjectPropMap(const QMetaObject
-            * &superMeta, const QSharedPointer<Entity> &entity) const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;
 
     QSharedPointer<Schema> schema;

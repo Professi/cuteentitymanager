@@ -97,7 +97,8 @@ class EntityManager {
     bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
     void removeRelations(const QSharedPointer<Entity> &entity);
     void removeEntityList(QVariant &var);
-    void removeManyToManyEntityList(const QSharedPointer<Entity> &e, const Relation &r, QVariant &var);
+    void removeManyToManyEntityList(const QSharedPointer<Entity> &e,
+                                    const Relation &r, QVariant &var);
     void removeEntity(QVariant &var);
     void setNullOneToManyRelation(QVariant &var, const Relation &r);
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
@@ -140,8 +141,10 @@ class EntityManager {
     void refresh(QSharedPointer<Entity> &entity);
     void setSchema(const QSharedPointer<Schema> &value);
     /**
-      *@TODO create indexes
      *@TODO use conditions
+     */
+    /**
+     * @TODO Inheritance at create,save,merge,remove
      */
     template<class T> qint8 count(QHash<QString, QString> condition =
                                       QHash<QString, QString>()) {
