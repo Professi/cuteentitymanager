@@ -38,7 +38,7 @@ class SqliteQueryBuilder : public QueryBuilder {
     virtual QString addPrimaryKey(QString name, QString tableName,
                                   QStringList columns) const;
     virtual QString dropPrimaryKey(QString name, QString tableName) const;
-
+    virtual bool supportsForeignKeys() const;
 };
 
 }

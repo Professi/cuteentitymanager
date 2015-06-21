@@ -70,24 +70,30 @@ bool QueryBuilder::createIndices(const QSharedPointer<Entity> &entity) const {
 QStringList QueryBuilder::relationFks(const QSharedPointer<Entity> &entity)
 const {
     QStringList queries = QStringList();
-    auto relations = entity.data()->getNonInheritedRelations();
-    auto props = entity.data()->getMetaProperties();
-    auto iterator = relations.constBegin();
-    while (iterator != relations.constEnd()) {
-        auto relation = iterator.value();
-        if (relation.getMappedBy().isEmpty() && !relation.getCascadeType().isEmpty()) {
-            QString update = relation.getCascadeType().contains(MERGE)
-                             || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
-                                 CASCADE) : this->getForeignKeyCascade(NO_ACTION);
-            QString remove = relation.getCascadeType().contains(REMOVE)
-                             || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
-                                 CASCADE) : this->getForeignKeyCascade(SET_NULL);
-            this->createRelationFK(queries, entity, relation,
-                                   props.value(relation.getPropertyName()), update, remove);
+    if (this->supportsForeignKeys()) {
+        auto relations = entity.data()->getNonInheritedRelations();
+        auto props = entity.data()->getMetaProperties();
+        auto iterator = relations.constBegin();
+        while (iterator != relations.constEnd()) {
+            auto relation = iterator.value();
+            if (relation.getMappedBy().isEmpty() && !relation.getCascadeType().isEmpty()) {
+                QString update = relation.getCascadeType().contains(MERGE)
+                                 || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
+                                     CASCADE) : this->getForeignKeyCascade(NO_ACTION);
+                QString remove = relation.getCascadeType().contains(REMOVE)
+                                 || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
+                                     CASCADE) : this->getForeignKeyCascade(SET_NULL);
+                this->createRelationFK(queries, entity, relation,
+                                       props.value(relation.getPropertyName()), update, remove);
+            }
+            ++iterator;
         }
-        ++iterator;
     }
     return queries;
+}
+
+bool QueryBuilder::supportsForeignKeys() const {
+    return true;
 }
 
 void QueryBuilder::createRelationFK(QStringList &queries,

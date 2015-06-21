@@ -85,3 +85,7 @@ QString CuteEntityManager::SqliteQueryBuilder::dropPrimaryKey(QString name,
     //not supported
     return "";
 }
+
+bool CuteEntityManager::SqliteQueryBuilder::supportsForeignKeys() const {
+    return false;
+}

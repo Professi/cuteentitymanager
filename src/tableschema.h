@@ -22,6 +22,7 @@
 #include <QSharedPointer>
 #include <QSqlField>
 #include <QSqlRelation>
+#include <QSqlRelationalTableModel>
 namespace CuteEntityManager {
 
 class TableSchema {
@@ -52,6 +53,8 @@ class TableSchema {
     QHash<QString, QSharedPointer<QSqlRelation> > getRelations() const;
     void setRelations(const QHash<QString, QSharedPointer<QSqlRelation> > &value);
 
+    QSharedPointer<QSqlRelationalTableModel> getTableModel() const;
+
   private:
     QString schemaName;
     QString name;
@@ -60,6 +63,7 @@ class TableSchema {
     QString sequenceName;
     QHash<QString, QSharedPointer<QSqlRelation>>  relations;
     QHash<QString, QSharedPointer<QSqlField>> columns;
+
 };
 
 }

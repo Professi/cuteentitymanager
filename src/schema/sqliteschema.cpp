@@ -59,6 +59,7 @@ QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
 }
 
 QStringList SqliteSchema::findTableNames(QString schema) {
+    Q_UNUSED(schema)
     auto l = QStringList();
     QString sql =
         "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name<>'sqlite_sequence' ORDER BY tbl_name";

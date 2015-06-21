@@ -96,3 +96,9 @@ void TableSchema::setRelations(
     const QHash<QString, QSharedPointer<QSqlRelation> > &value) {
     relations = value;
 }
+
+QSharedPointer<QSqlRelationalTableModel> TableSchema::getTableModel() const {
+    QSqlRelationalTableModel *model = new QSqlRelationalTableModel;
+    model->setTable(this->getName());
+    return QSharedPointer<QSqlRelationalTableModel>(model);
+}

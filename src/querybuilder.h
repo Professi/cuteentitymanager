@@ -78,6 +78,7 @@ class QueryBuilder {
             &props,
             const QSharedPointer<Entity> &entity) const;
     virtual QStringList relationFks(const QSharedPointer<Entity> &entity) const;
+    virtual bool supportsForeignKeys() const;
 
     virtual QString createForeignKeyManyToMany(const QString &tableName,
             const QSharedPointer<Entity> &entity, const QString &update,
