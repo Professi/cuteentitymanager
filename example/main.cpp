@@ -21,13 +21,15 @@
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
 //    Q_UNUSED(argc) Q_UNUSED(argv)
-    CuteEntityManager::EntityManager *e = new CuteEntityManager::EntityManager("QSQLITE",
-            QDir::currentPath() + "/db.sqlite");
-//    QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0, "Müsli"));
-//    auto ep = a.dynamicCast<CuteEntityManager::Entity>();
-//    qDebug() << e;
-//    qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
-//    e->create(ep);
+    CuteEntityManager::EntityManager *e = new
+    CuteEntityManager::EntityManager("QSQLITE",
+                                     QDir::currentPath() + "/db.sqlite");
+    QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0,
+                                "Müsli"));
+    auto ep = a.dynamicCast<CuteEntityManager::Entity>();
+    qDebug() << e;
+    qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
+    e->create(ep);
 
 //    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
 //                               QDate::currentDate()));

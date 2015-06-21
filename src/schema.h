@@ -25,7 +25,7 @@ namespace CuteEntityManager {
 class Database;
 class Schema {
   public:
-    Schema(QSharedPointer<Database> database);
+    Schema(QSharedPointer<Database> database, QSharedPointer<QueryBuilder> builder);
     virtual ~Schema();
     //http://doc.qt.io/qt-5/sql-types.html
     const QString TYPE_PK = "pk";
@@ -82,7 +82,7 @@ class Schema {
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;
     virtual bool findColumns(const QSharedPointer<TableSchema> &ts) = 0;
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name)  = 0;
-    void initAbstractDatabaseTypes();
+    virtual void initAbstractDatabaseTypes();
     QSharedPointer<Database> database;
     QSharedPointer<QHash<QString, QString>> typeMap;
     QSharedPointer<QHash<QString, QString>> abstractTypeMap;

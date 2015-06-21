@@ -544,9 +544,9 @@ bool EntityManager::create(QList<QSharedPointer<Entity> > entities,
 }
 
 bool EntityManager::create(QSharedPointer<Entity> &entity,
-                           const bool persistRelations) {
+                           const bool persistRelations, const bool checkDuplicate) {
     bool rc = false;
-    if (this->checkTable(entity) && this->count(entity) == 0) {
+    if (this->checkTable(entity) && !(checkDuplicate && this->count(entity) == 0)) {
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->create(entity);
         rc = this->db->transaction(q);
         if (rc) {

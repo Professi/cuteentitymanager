@@ -20,11 +20,12 @@
 #include "database.h"
 using namespace CuteEntityManager;
 
-Schema::Schema(QSharedPointer<Database> database) {
+Schema::Schema(QSharedPointer<Database> database, QSharedPointer<QueryBuilder> builder)
+{
     this->database = database;
     this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>
                             (new QHash<QString, QString>());
-    this->queryBuilder = QSharedPointer<QueryBuilder>();
+    this->queryBuilder = builder;
     this->typeMap = QSharedPointer<QHash<QString, QString>>(new
                     QHash<QString, QString>());
     this->initAbstractDatabaseTypes();
@@ -34,7 +35,7 @@ Schema::~Schema() {
 }
 
 void Schema::initAbstractDatabaseTypes() {
-    this->abstractTypeMap.create();
+    this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>::create();
     this->abstractTypeMap.data()->insert("bool", TYPE_SMALLINT);
     this->abstractTypeMap.data()->insert("short", TYPE_SMALLINT);
     this->abstractTypeMap.data()->insert("int", TYPE_INTEGER);

@@ -126,7 +126,8 @@ class EntityManager {
                                bool ignoreID = false);
     bool create(QList<QSharedPointer<Entity>> entities,
                 const bool persistRelations = true);
-    bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true);
+    bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
+                const bool checkDuplicate = false);
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true);
     qint64 findId(QSharedPointer<Entity> &entity);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
