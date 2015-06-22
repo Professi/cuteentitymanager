@@ -145,7 +145,8 @@ QString QueryBuilder::createFkSuperClass(const Entity *e) const {
     QString r = "";
     auto superMetaObject = e->metaObject()->superClass();
     if (e->getInheritanceStrategy() == JOINED_TABLE
-            && QString(superMetaObject->className()) != QString("Entity")) {
+            && QString(superMetaObject->className()) != QString("CuteEntityManager::Entity")) {
+        qDebug() << superMetaObject->className();
         Entity *superClass  = EntityInstanceFactory::createInstance(
                                   superMetaObject->className());
         if (superClass) {
@@ -383,7 +384,7 @@ const {
             }
         }
     }
-    if (QString(superMetaObject->className()) != QString("Entity")
+    if (QString(superMetaObject->className()) != QString("CuteEntityManager::Entity")
             && entity.data()->getInheritanceStrategy() != JOINED_TABLE) {
         map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
     }
@@ -491,11 +492,47 @@ QString QueryBuilder::getColumnType(const QString &type) const {
  * @return
  */
 QSqlQuery QueryBuilder::find(const qint64 &id, const QString &tableName) const {
-    QSqlQuery q = this->database.data()->getQuery("SELECT * FROM " +
-                  this->schema.data()->quoteTableName(
-                      tableName) + " WHERE id= :id LIMIT 1;");
+    QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
+                      tableName)) + " WHERE id= :id LIMIT 1;");
     q.bindValue(":id", id);
     return q;
+}
+
+QString QueryBuilder::selectBase(const QStringList &tables,
+                                 const QStringList &columns) const {
+    QString r = "SELECT ";
+    if (columns.isEmpty()) {
+        r.append("*");
+    } else {
+        for (int var = 0; var < columns.size(); ++var) {
+            if (var != 0) {
+                r.append(" ");
+            }
+            r.append(this->schema.data()->quoteColumnName(columns.at(var)));
+        }
+    }
+    r.append(" FROM");
+    for (int var = 0; var < tables.size(); ++var) {
+        r.append(" ");
+        r.append(this->schema.data()->quoteTableName(tables.at(var)));
+    }
+    return r;
+}
+
+QSqlQuery QueryBuilder::find(const QSharedPointer<Entity> &entity,
+                             qint64 offset) const {
+    QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
+                      entity.data()->getTablename())) + " " + this->joinSuperClasses(
+                      entity) + " WHERE id= :id " + this->limit(1, offset));
+    q.bindValue(":id", entity.data()->getId());
+    return q;
+}
+
+QSqlQuery QueryBuilder::findAll(const QSharedPointer<Entity> &entity,
+                                const qint64 limit, qint64 offset) {
+    return this->database->getQuery(this->selectBase(QStringList(
+                                        entity.data()->getTablename())) + " " + this->joinSuperClasses(
+                                        entity) + " " + this->limit(limit, offset) + ";");
 }
 
 /**
@@ -508,9 +545,8 @@ QSqlQuery QueryBuilder::find(const qint64 &id, const QString &tableName) const {
 QSqlQuery QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
         const QString &tableName,
         const bool &ignoreID, const qint64 limit, const qint64 offset) const {
-    QSqlQuery q = this->database.data()->getQuery("SELECT * FROM " +
-                  this->schema.data()->quoteTableName(
-                      tableName) + this->where(m, "AND", ignoreID) + this->limit(limit, offset));
+    QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
+                      tableName)) + this->where(m, "AND", ignoreID) + this->limit(limit, offset));
     this->bindValues(m, q, ignoreID);
     return q;
 }
@@ -526,9 +562,7 @@ QSqlQuery QueryBuilder::findByAttributes(const QSharedPointer<Entity> &e,
 }
 
 QSqlQuery QueryBuilder::findAll(const QString &tableName) const {
-    return this->database->getQuery("SELECT * FROM " +
-                                    this->schema.data()->quoteTableName(
-                                        tableName) + ";");
+    return this->database->getQuery(this->selectBase(QStringList(tableName)) + ";");
 }
 
 QSqlQuery QueryBuilder::remove(const QSharedPointer<Entity> &entity) const {
@@ -544,11 +578,8 @@ QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
     QHash<QString, QVariant> values = this->getEntityAttributes(
                                           entity.data()->getMetaProperties(),
                                           entity);
-    QSqlQuery q = this->database.data()->getQuery("SELECT " +
-                  this->schema.data()->quoteColumnName("id")
-                  + " FROM " +
-                  this->schema.data()->quoteTableName(
-                      entity.data()->getTablename()) + this->where(values,
+    QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
+                      entity.data()->getTablename()), QStringList("id")) + this->where(values,
                               "AND", true) + " LIMIT 1");
     this->bindValues(values, q);
     return q;
@@ -559,18 +590,17 @@ QSqlQuery QueryBuilder::count(const QSharedPointer<Entity> &entity,
     QHash<QString, QVariant> values = this->getEntityAttributes(
                                           entity.data()->getMetaProperties(),
                                           entity);
-    QSqlQuery q = this->database.data()->getQuery("SELECT COUNT(*) FROM " +
-                  this->schema.data()->quoteTableName(
-                      entity.data()->getTablename()) + this->where(
+    QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
+                      entity.data()->getTablename()),
+                  QStringList(this->countFunction())) + this->where(
                       values, "AND", ignoreID));
     this->bindValues(values, q, ignoreID);
     return q;
 }
 
 QSqlQuery QueryBuilder::count(const QString &tableName) const {
-    QSqlQuery q = this->database.data()->getQuery("SELECT COUNT(*) FROM " +
-                  this->schema.data()->quoteTableName(
-                      tableName) + ";");
+    QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
+                      tableName), QStringList(this->countFunction())) + ";");
     return q;
 }
 
@@ -613,10 +643,8 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
                                    const qint64 &id,
                                    const QString &foreignKey, const QString &foreignTable) {
     QSqlQuery q = this->database.data()->getQuery();
-    QString sql = "SELECT " +
-                  this->schema.data()->quoteTableName(
-                      foreignTable) + ".* FROM " +
-                  this->schema.data()->quoteTableName(tableName) + " " + this->leftJoin(
+    QString sql = this->selectBase(QStringList(tableName),
+                                   QStringList(foreignTable + ".*")) + " " + this->leftJoin(
                       foreignTable, tableName,
                       foreignKey) + " WHERE " + this->schema.data()->quoteColumnName(
                       attribute) + "=:id;";
@@ -646,19 +674,44 @@ QSqlQuery QueryBuilder::manyToManyInsert(const QString &tableName,
     return q;
 }
 
-QString QueryBuilder::leftJoin(const QString &foreignTable,
-                               const QString &tableName,
-                               const QString &foreignKey) {
-    return "LEFT JOIN " + this->schema.data()->quoteTableName(
-               foreignTable) + " ON " +
-           this->schema.data()->quoteColumnName(foreignTable + ".id") + "=" +
-           this->schema.data()->quoteColumnName(
-               tableName + "." + foreignKey);
-}
-
 QString QueryBuilder::superClassColumnName(const QMetaObject *&superMeta)
 const {
     return QString(superMeta->className()).toLower();
+}
+
+QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
+const {
+    auto stack = entity.data()->superClasses();
+    QString joined = "";
+    bool first = true;
+    Entity *e = 0;
+    while (!stack.isEmpty()) {
+        auto metaObject = stack.pop();
+        e = EntityInstanceFactory::createInstance(metaObject->className());
+        if (first) {
+            first = false;
+        } else {
+            if (e) {
+                joined.append(" ");
+            }
+        }
+        if (e) {
+            joined.append(this->leftJoin(e->getTablename(), entity.data()->getTablename(),
+                                         e->getPrimaryKey(), entity.data()->getPrimaryKey()));
+        }
+        delete e;
+        e = 0;
+    }
+    return joined;
+}
+
+QString QueryBuilder::countFunction(const QString &distinctColumn) const {
+    return QString("COUNT(" + distinctColumn.isEmpty() ? "*" : (this->distinct() +
+                   this->schema.data()->quoteColumnName(distinctColumn)) + ")");
+}
+
+QString QueryBuilder::distinct() const {
+    return "DISTINCT";
 }
 
 QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
@@ -674,8 +727,7 @@ QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
 
 QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity>
         &entity) const {
-    return this->generateColumnNameID(QString(
-                                          entity.data()->metaObject()->className()));
+    return this->generateColumnNameID(entity.data()->getTablename());
 }
 
 QSqlQuery QueryBuilder::getQuery() const {
@@ -693,6 +745,16 @@ QHash<QString, QVariant> QueryBuilder::saveAttributes(const
         ++iterator;
     }
     return values;
+}
+
+QString QueryBuilder::leftJoin(const QString &foreignTable,
+                               const QString &tableName, const QString &foreignKey,
+                               const QString &primaryKey) const {
+    return "LEFT JOIN " + this->schema.data()->quoteTableName(
+               foreignTable) + " ON " +
+           this->schema.data()->quoteColumnName(foreignTable + "." + primaryKey) + "=" +
+           this->schema.data()->quoteColumnName(
+               tableName + "." + foreignKey);
 }
 
 QHash<QString, QVariant> QueryBuilder::getEntityAttributes(

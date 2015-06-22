@@ -38,23 +38,22 @@ const QHash<QString, Relation> Entity::getRelations() const {
     return QHash<QString, Relation>();
 }
 
-const QHash<QString, Relation> Entity::getNonInheritedRelations() const
-{
+const QHash<QString, Relation> Entity::getNonInheritedRelations() const {
     auto relations = this->getRelations();
-        auto superObject = EntityInstanceFactory::newSuperClassInstance(this);
-        if (superObject) {
-            auto superRelations = superObject->getRelations();
-            auto iterator = superRelations.constBegin();
-            while (iterator != relations.constEnd()) {
-                if (relations.contains(iterator.key())) {
-                    relations.remove(iterator.key());
-                }
-                ++iterator;
+    auto superObject = EntityInstanceFactory::newSuperClassInstance(this);
+    if (superObject) {
+        auto superRelations = superObject->getRelations();
+        auto iterator = superRelations.constBegin();
+        while (iterator != relations.constEnd()) {
+            if (relations.contains(iterator.key())) {
+                relations.remove(iterator.key());
             }
-            delete superObject;
-            superObject = 0;
+            ++iterator;
         }
-        return relations;
+        delete superObject;
+        superObject = 0;
+    }
+    return relations;
 }
 
 const QStringList Entity::getTransientAttributes() const {
@@ -73,13 +72,27 @@ QString Entity::getPrimaryKey() const {
     return "id";
 }
 
-const QStack<const QMetaObject *> Entity::superClasses() const {
+const QStack<const QMetaObject *> Entity::superClasses(bool
+        stopAtSingleTableInheritance) const {
     QStack<const QMetaObject *> classes = QStack<const QMetaObject *>();
     auto superMetaObject = this->metaObject()->superClass();
     if (this->getInheritanceStrategy() == JOINED_TABLE) {
-        while (QString(superMetaObject->className()) != QString("Entity")) {
-            classes.push(superMetaObject);
-            superMetaObject = superMetaObject->superClass();
+        Entity *e = 0;
+        while (superMetaObject != 0
+                && QString(superMetaObject->className()) != QString("CuteEntityManager::Entity")) {
+            e = EntityInstanceFactory::createInstance(superMetaObject->className());
+            if (e) {
+                classes.push(superMetaObject);
+                superMetaObject = superMetaObject->superClass();
+                quint8 s = e->getInheritanceStrategy();
+                delete e;
+                e = 0;
+                if (stopAtSingleTableInheritance && s == PER_CLASS_TABLE) {
+                    break;
+                }
+            } else {
+                break;
+            }
         }
     }
     return classes;
@@ -89,11 +102,10 @@ const QHash<QString, QMetaProperty> Entity::getMetaProperties() const {
     return Entity::getMetaProperties(this->metaObject());
 }
 
-const QHash<QString, QMetaProperty> Entity::getSuperMetaProperties() const
-{
+const QHash<QString, QMetaProperty> Entity::getSuperMetaProperties() const {
     auto superMetaObjectPropertyMap = QHash<QString, QMetaProperty>();
     auto superMeta = this->metaObject()->superClass();
-    if (QString(superMeta->className()) != QString("Entity")
+    if (QString(superMeta->className()) != QString("CuteEntityManager::Entity")
             && this->getInheritanceStrategy() == JOINED_TABLE) {
         for (int var = 0; var < superMeta->propertyCount(); ++var) {
             QMetaProperty prop = superMeta->property(var);
@@ -105,7 +117,8 @@ const QHash<QString, QMetaProperty> Entity::getSuperMetaProperties() const
     return superMetaObjectPropertyMap;
 }
 
-const QHash<QString, QMetaProperty> Entity::getMetaProperties(const QMetaObject *object) {
+const QHash<QString, QMetaProperty> Entity::getMetaProperties(
+    const QMetaObject *object) {
     auto h = QHash<QString, QMetaProperty>();
     for (int var = 0; var < object->propertyCount(); ++var) {
         QMetaProperty m = object->property(var);
@@ -119,12 +132,12 @@ const QHash<QString, QMetaProperty> Entity::getMetaProperties(const QMetaObject 
 const QHash<QString, QMetaProperty> Entity::getInheritedMetaProperties() const {
     auto classes = this->superClasses();
     auto wholeProperties = QHash<QString, QMetaProperty>();
-    while(!classes.isEmpty()) {
+    while (!classes.isEmpty()) {
         auto metaObject = classes.pop();
         auto properties = Entity::getMetaProperties(metaObject);
         auto iterator = properties.constBegin();
         while (iterator != properties.constEnd()) {
-            wholeProperties.insert(iterator.key(),iterator.value());
+            wholeProperties.insert(iterator.key(), iterator.value());
             ++iterator;
         }
     }

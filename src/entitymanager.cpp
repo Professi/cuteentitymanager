@@ -130,23 +130,24 @@ void EntityManager::removeConnectionName(const QString &name) {
     EntityManager::connectionNames.removeOne(name);
 }
 
-QSharedPointer<Entity> EntityManager::findById(const qint64 &id, Entity *&e,
+QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
+        QSharedPointer<Entity> &e,
         const bool refresh) {
     QSharedPointer<Entity> r;
-    if (e) {
-        if (refresh || ((r = this->cache.get(id, QString(e->getClassname())))
+    if (!e.isNull()) {
+        if (refresh || ((r = this->cache.get(id, QString(e.data()->getClassname())))
                         && !r.data())) {
-            auto map  = this->findByPk(id, e->getTablename());
+            auto map  = this->findByPk(e);
             r = this->convert(map, e->getClassname(), refresh);
         }
-        delete e;
     }
     return r;
 }
 
 QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
         const QString &classname) {
-    Entity *e = EntityInstanceFactory::createInstance(classname);
+    QSharedPointer<Entity> e = QSharedPointer<Entity>
+                               (EntityInstanceFactory::createInstance(classname));
     return this->findById(id, e);
 }
 
@@ -568,8 +569,9 @@ QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
 
-QHash<QString, QVariant> EntityManager::findByPk(qint64 id, QString tblname) {
-    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(id, tblname);
+QHash<QString, QVariant> EntityManager::findByPk(const QSharedPointer<Entity>
+        &e) {
+    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(e);
     auto listMap  = this->convertQueryResult(q);
     if (!listMap.isEmpty()) {
         return listMap.at(0);
@@ -627,8 +629,9 @@ QList<QHash<QString, QVariant> > EntityManager::convertQueryResult(
     return listmap;
 }
 
-QList<QHash <QString, QVariant> > EntityManager::findAll(QString tblname) {
-    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->findAll(tblname);
+QList<QHash <QString, QVariant> > EntityManager::findAll(
+    const QSharedPointer<Entity> &e) {
+    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->findAll(e);
     return this->convertQueryResult(q);
 }
 

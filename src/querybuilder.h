@@ -20,14 +20,13 @@
 #include <QSharedPointer>
 #include <QPointer>
 #include <QSqlQuery>
+#include <QStringList>
 #include "relation.h"
 namespace CuteEntityManager {
 class Schema;
 class Entity;
 class Database;
-/**
-  RESTRICT, CASCADE, NO ACTION, SET DEFAULT, SET NULL
-*/
+
 enum DbForeignKeyCascade {
     RESTRICT,
     CASCADE,
@@ -102,6 +101,8 @@ class QueryBuilder {
     QString transformAbstractTypeToRealDbType(QString typeName) const;
     QString getColumnType(const QString &type) const;
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
+    QSqlQuery find(const QSharedPointer<Entity> &entity,
+                   qint64 offset = 0) const;
     QSqlQuery findByAttributes(const QHash<QString, QVariant> &m,
                                const QString &tableName,
                                const bool &ignoreID = true, const qint64 limit = 0,
@@ -110,6 +111,8 @@ class QueryBuilder {
                                bool ignoreID = true,
                                const qint64 limit = 0, const qint64 offset = 0);
     QSqlQuery findAll(const QString &tableName) const;
+    QSqlQuery findAll(const QSharedPointer<Entity> &entity, const qint64 limit = 0,
+                      qint64 offset = 0);
     QSqlQuery remove(const QSharedPointer<Entity> &entity) const;
     QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
     QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
@@ -134,7 +137,10 @@ class QueryBuilder {
     QSqlQuery getQuery() const;
 
   protected:
-    virtual void createRelationFK(QStringList &queries, const QSharedPointer<Entity> &entity, const Relation &relation, const QMetaProperty &metaProperty, const QString &update, const QString &remove) const;
+    virtual void createRelationFK(QStringList &queries,
+                                  const QSharedPointer<Entity> &entity, const Relation &relation,
+                                  const QMetaProperty &metaProperty, const QString &update,
+                                  const QString &remove) const;
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map,
                           QString relName) const;
     QString buildColumns(const QStringList &columns) const;
@@ -164,8 +170,15 @@ class QueryBuilder {
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity)
     const;
     QString leftJoin(const QString &foreignTable, const QString &tableName,
-                     const QString &foreignKey);
+                     const QString &foreignKey = "id", const QString &primaryKey = "id") const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;
+
+    QString joinSuperClasses(const QSharedPointer<Entity> &entity) const;
+    virtual QString selectBase(const QStringList &tables,
+                               const QStringList &columns = QStringList()) const;
+    virtual QString countFunction(const QString &distinctColumn = "") const;
+    virtual QString distinct() const;
+
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;

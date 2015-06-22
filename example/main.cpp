@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     qDebug() << e;
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
     e->create(ep);
-
+    //qDebug() << e->findById<Artikel *>(1); //not working grml!
 //    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
 //                               QDate::currentDate()));
 //    auto pptr = p.dynamicCast<CuteEntityManager::Entity>();
@@ -46,7 +46,6 @@ int main(int argc, char *argv[]) {
 //        e->save(a);
 //    }
 //    qDebug() << "Dauer:" << t.elapsed();
-
     Pupil *p = new Pupil();
     auto hash = p->getMetaProperties();
 //    auto iterator = hash.constBegin();

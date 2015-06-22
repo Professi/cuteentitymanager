@@ -31,9 +31,16 @@ Entity *EntityInstanceFactory::createInstance(const QString &className) {
 
 Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
     Entity *e = 0;
-    if (metaTypeId != -1) {
+    if (metaTypeId != QMetaType::UnknownType) {
         e = static_cast<Entity *>(QMetaType::create(metaTypeId));
-    }
+        if(!e) {
+            qDebug() << "Entity instance could not created!";
+            throw -2; //testing
+        }
+        } else {
+            qDebug() << metaTypeId <<" is NOT registered! Please register it!";
+            throw -1; //testing
+        }
     return e;
 }
 
@@ -84,7 +91,7 @@ Entity *EntityInstanceFactory::newSuperClassInstance(const Entity *e) {
     Entity *super = 0;
     if (e) {
         auto metaObject = e->metaObject()->superClass();
-        if (QString(metaObject->className()) != QString("Entity")) {
+        if (QString(metaObject->className()) != QString("CuteEntityManager::Entity")) {
             super = EntityInstanceFactory::createInstance(metaObject->className());
         }
     }

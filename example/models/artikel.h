@@ -24,7 +24,7 @@
 #include <QHash>
 #include <QVariant>
 
-class Artikel : public CuteEntityManager::Entity {
+class Artikel : virtual public CuteEntityManager::Entity {
     Q_OBJECT
     Q_PROPERTY(double preis READ getPreis WRITE setPreis)
     Q_PROPERTY(QString name READ getName WRITE setName)

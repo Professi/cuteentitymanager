@@ -57,7 +57,7 @@ class Entity : public QObject {
 
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey() const;
-    const QStack<const QMetaObject *> superClasses() const;
+    const QStack<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance = false) const;
     const QHash<QString, QMetaProperty> getMetaProperties() const;
     const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
     static const QHash<QString, QMetaProperty> getMetaProperties(const QMetaObject* object);
