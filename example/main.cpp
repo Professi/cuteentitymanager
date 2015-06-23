@@ -20,17 +20,16 @@
  */
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
-//    Q_UNUSED(argc) Q_UNUSED(argv)
+    Q_UNUSED(argc) Q_UNUSED(argv)
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
                                      QDir::currentPath() + "/db.sqlite");
     QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0,
                                 "Müsli"));
     auto ep = a.dynamicCast<CuteEntityManager::Entity>();
-    qDebug() << e;
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
     e->create(ep);
-    //qDebug() << e->findById<Artikel *>(1); //not working grml!
+    auto artikel = e->findById<Artikel *>(1);
 //    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
 //                               QDate::currentDate()));
 //    auto pptr = p.dynamicCast<CuteEntityManager::Entity>();
@@ -46,15 +45,13 @@ int main(int argc, char *argv[]) {
 //        e->save(a);
 //    }
 //    qDebug() << "Dauer:" << t.elapsed();
+    //QSharedPointer<Artikel> aPtr = QSharedPointer<Artikel>(entity);
     Pupil *p = new Pupil();
-    auto hash = p->getMetaProperties();
 //    auto iterator = hash.constBegin();
 //    while(iterator != hash.constEnd()) {
 //        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);
-
 //        iterator++;
 //    }
-    qDebug() << p->metaObject()->superClass()->className();
 
     return 0;
 }

@@ -135,9 +135,9 @@ QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
         const bool refresh) {
     QSharedPointer<Entity> r;
     if (!e.isNull()) {
-        if (refresh || ((r = this->cache.get(id, QString(e.data()->getClassname())))
-                        && !r.data())) {
-            auto map  = this->findByPk(e);
+        if (refresh || !(r = this->cache.get(id, QString(e.data()->getClassname())))) {
+            e.data()->setId(id);
+            auto map  = this->findByPk(id, e);
             r = this->convert(map, e->getClassname(), refresh);
         }
     }
@@ -551,7 +551,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
         QSqlQuery q = this->schema.data()->getQueryBuilder().data()->create(entity);
         rc = this->db->transaction(q);
         if (rc) {
-            entity.data()->setId(this->schema.data()->getLastInsertID().toLongLong(&rc));
+            entity.data()->setId(q.lastInsertId().toLongLong(&rc));
             if (persistRelations) {
                 this->saveRelations(entity);
             }
@@ -569,9 +569,10 @@ QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
 
-QHash<QString, QVariant> EntityManager::findByPk(const QSharedPointer<Entity>
+QHash<QString, QVariant> EntityManager::findByPk(qint64 id,
+        const QSharedPointer<Entity>
         &e) {
-    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(e);
+    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->find(id, e);
     auto listMap  = this->convertQueryResult(q);
     if (!listMap.isEmpty()) {
         return listMap.at(0);

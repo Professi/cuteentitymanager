@@ -120,7 +120,8 @@ QStringList Schema::getTableNames(QString schema) {
 
 QVariant Schema::getLastInsertID() {
     QSqlQuery q(this->database.data()->getDatabase());
-    return q.lastInsertId();
+    auto lastId = q.lastInsertId();
+    return lastId;
 }
 
 void Schema::refresh() {

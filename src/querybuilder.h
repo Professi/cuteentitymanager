@@ -101,7 +101,7 @@ class QueryBuilder {
     QString transformAbstractTypeToRealDbType(QString typeName) const;
     QString getColumnType(const QString &type) const;
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
-    QSqlQuery find(const QSharedPointer<Entity> &entity,
+    QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
                    qint64 offset = 0) const;
     QSqlQuery findByAttributes(const QHash<QString, QVariant> &m,
                                const QString &tableName,

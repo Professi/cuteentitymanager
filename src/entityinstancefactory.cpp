@@ -22,7 +22,12 @@ EntityInstanceFactory::EntityInstanceFactory() {
 }
 
 Entity *EntityInstanceFactory::createInstance(const char *className) {
-    return EntityInstanceFactory::createInstance(QMetaType::type(className));
+    QString s = QString(className);
+    if (!s.contains("*")) {
+        s.append("*");
+    }
+    return EntityInstanceFactory::createInstance(QMetaType::type(
+                s.toUtf8().constData()));
 }
 
 Entity *EntityInstanceFactory::createInstance(const QString &className) {
@@ -32,26 +37,27 @@ Entity *EntityInstanceFactory::createInstance(const QString &className) {
 Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
     Entity *e = 0;
     if (metaTypeId != QMetaType::UnknownType) {
-        e = static_cast<Entity *>(QMetaType::create(metaTypeId));
-        if(!e) {
+        auto metaObject = QMetaType::metaObjectForType(metaTypeId);
+        e = static_cast<Entity *>(metaObject->newInstance());
+        if (!e) {
             qDebug() << "Entity instance could not created!";
-            throw -2; //testing
+            throw - 2; //testing
         }
-        } else {
-            qDebug() << metaTypeId <<" is NOT registered! Please register it!";
-            throw -1; //testing
-        }
+    } else {
+        qDebug() << metaTypeId << "EntityClass NOT registered! Please register it!";
+        throw - 1; //testing
+    }
     return e;
 }
 
 Entity *EntityInstanceFactory::createInstance(const char *className,
         const QHash<QString, QVariant> &attributes) {
     Entity *e = EntityInstanceFactory::createInstance(className);
-    EntityInstanceFactory::setAttributes(e, attributes);
+    e = EntityInstanceFactory::setAttributes(e, attributes);
     return e;
 }
 
-Entity *EntityInstanceFactory::setAttributes(Entity *e,
+Entity *EntityInstanceFactory::setAttributes(Entity *&e,
         const QHash<QString, QVariant> &attributes,
         QHash<QString, QMetaProperty> metaprops) {
     if (e) {
@@ -59,7 +65,7 @@ Entity *EntityInstanceFactory::setAttributes(Entity *e,
         while (iterator != attributes.constEnd()) {
             if (metaprops.contains(iterator.key())) {
                 QMetaProperty prop = metaprops.value(iterator.key());
-                if (!prop.isWritable() && !prop.write(e, iterator.value())) {
+                if (!(prop.isWritable() && prop.write(e, iterator.value()))) {
                     qDebug() << prop.name() << "on Entity" << e->getClassname() << "not writeable!";
                 }
             }
@@ -69,7 +75,7 @@ Entity *EntityInstanceFactory::setAttributes(Entity *e,
     return e;
 }
 
-Entity *EntityInstanceFactory::setAttributes(Entity *e,
+Entity *EntityInstanceFactory::setAttributes(Entity *&e,
         const QHash<QString, QVariant> &attributes) {
     auto metaprops = e->getMetaProperties();
     return EntityInstanceFactory::setAttributes(e, attributes, metaprops);

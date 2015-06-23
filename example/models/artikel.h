@@ -24,7 +24,7 @@
 #include <QHash>
 #include <QVariant>
 
-class Artikel : virtual public CuteEntityManager::Entity {
+class Artikel : public CuteEntityManager::Entity {
     Q_OBJECT
     Q_PROPERTY(double preis READ getPreis WRITE setPreis)
     Q_PROPERTY(QString name READ getName WRITE setName)
@@ -33,8 +33,8 @@ class Artikel : virtual public CuteEntityManager::Entity {
     QString name;
 
   public:
-    ~Artikel();
-    explicit Artikel(QObject *parent = 0);
+    virtual ~Artikel();
+    Q_INVOKABLE Artikel();
     Artikel(double preis, QString name);
     double getPreis() const;
     void setPreis(double value);

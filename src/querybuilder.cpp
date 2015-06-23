@@ -145,8 +145,8 @@ QString QueryBuilder::createFkSuperClass(const Entity *e) const {
     QString r = "";
     auto superMetaObject = e->metaObject()->superClass();
     if (e->getInheritanceStrategy() == JOINED_TABLE
-            && QString(superMetaObject->className()) != QString("CuteEntityManager::Entity")) {
-        qDebug() << superMetaObject->className();
+            && QString(superMetaObject->className()) !=
+            QString("CuteEntityManager::Entity")) {
         Entity *superClass  = EntityInstanceFactory::createInstance(
                                   superMetaObject->className());
         if (superClass) {
@@ -384,8 +384,9 @@ const {
             }
         }
     }
-    if (QString(superMetaObject->className()) != QString("CuteEntityManager::Entity")
-            && entity.data()->getInheritanceStrategy() != JOINED_TABLE) {
+    if (!(QString(superMetaObject->className()) !=
+            QString("CuteEntityManager::Entity")
+            && entity.data()->getInheritanceStrategy() == JOINED_TABLE)) {
         map.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
     }
     return map;
@@ -519,12 +520,12 @@ QString QueryBuilder::selectBase(const QStringList &tables,
     return r;
 }
 
-QSqlQuery QueryBuilder::find(const QSharedPointer<Entity> &entity,
-                             qint64 offset) const {
+QSqlQuery QueryBuilder::find(const qint64 &id, const QSharedPointer<Entity> &entity, qint64 offset) const
+{
     QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
-                      entity.data()->getTablename())) + " " + this->joinSuperClasses(
-                      entity) + " WHERE id= :id " + this->limit(1, offset));
-    q.bindValue(":id", entity.data()->getId());
+                      entity.data()->getTablename())) + this->joinSuperClasses(
+                      entity) + " WHERE id= :id" + this->limit(1, offset));
+    q.bindValue(":id", id);
     return q;
 }
 
@@ -532,7 +533,7 @@ QSqlQuery QueryBuilder::findAll(const QSharedPointer<Entity> &entity,
                                 const qint64 limit, qint64 offset) {
     return this->database->getQuery(this->selectBase(QStringList(
                                         entity.data()->getTablename())) + " " + this->joinSuperClasses(
-                                        entity) + " " + this->limit(limit, offset) + ";");
+                                        entity) + this->limit(limit, offset) + ";");
 }
 
 /**
@@ -683,19 +684,12 @@ QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
 const {
     auto stack = entity.data()->superClasses();
     QString joined = "";
-    bool first = true;
     Entity *e = 0;
     while (!stack.isEmpty()) {
         auto metaObject = stack.pop();
         e = EntityInstanceFactory::createInstance(metaObject->className());
-        if (first) {
-            first = false;
-        } else {
-            if (e) {
-                joined.append(" ");
-            }
-        }
         if (e) {
+            joined.append(" ");
             joined.append(this->leftJoin(e->getTablename(), entity.data()->getTablename(),
                                          e->getPrimaryKey(), entity.data()->getPrimaryKey()));
         }

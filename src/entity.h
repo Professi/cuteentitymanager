@@ -41,7 +41,7 @@ class Entity : public QObject {
     void idChanged();
 
   public:
-    Entity (QObject *parent = 0);
+    explicit Entity (QObject *parent = 0);
     virtual QString toString() const;
     virtual ~Entity();
     virtual QString getTablename() const;
@@ -57,10 +57,12 @@ class Entity : public QObject {
 
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey() const;
-    const QStack<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance = false) const;
+    const QStack<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
+            = false) const;
     const QHash<QString, QMetaProperty> getMetaProperties() const;
     const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
-    static const QHash<QString, QMetaProperty> getMetaProperties(const QMetaObject* object);
+    static const QHash<QString, QMetaProperty> getMetaProperties(
+        const QMetaObject *object);
     const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
     const QHash<Relation, QMetaProperty> getRelationProperties() const;
     const char *getClassname() const;
