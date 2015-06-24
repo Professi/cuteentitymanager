@@ -113,7 +113,7 @@ class QueryBuilder {
     QSqlQuery findAll(const QString &tableName) const;
     QSqlQuery findAll(const QSharedPointer<Entity> &entity, const qint64 limit = 0,
                       qint64 offset = 0);
-    QSqlQuery remove(const QSharedPointer<Entity> &entity) const;
+    QList<QSqlQuery> remove(const QSharedPointer<Entity> &entity) const;
     QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
     QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
     QSqlQuery count(const QString &tableName) const;
@@ -137,6 +137,7 @@ class QueryBuilder {
     QSqlQuery getQuery() const;
 
   protected:
+    QSqlQuery remove(const QString &tableName, const qint64 &id) const;
     virtual void createRelationFK(QStringList &queries,
                                   const QSharedPointer<Entity> &entity, const Relation &relation,
                                   const QMetaProperty &metaProperty, const QString &update,

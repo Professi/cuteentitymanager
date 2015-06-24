@@ -122,11 +122,11 @@ bool Database::transaction(QList<QSqlQuery> &queries) {
 
 
 bool Database::commitTransaction() {
-    if (this->supportTransactions && !this->database.commit()) {
-        this->database.rollback();
-        return false;
-    }
-    return true;
+    this->supportTransactions &&this->database.commit();
+}
+
+bool Database::rollbackTransaction() {
+    return supportTransactions && this->database.rollback();
 }
 
 DatabaseType Database::getDatabaseType(QString s) {

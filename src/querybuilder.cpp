@@ -520,8 +520,8 @@ QString QueryBuilder::selectBase(const QStringList &tables,
     return r;
 }
 
-QSqlQuery QueryBuilder::find(const qint64 &id, const QSharedPointer<Entity> &entity, qint64 offset) const
-{
+QSqlQuery QueryBuilder::find(const qint64 &id,
+                             const QSharedPointer<Entity> &entity, qint64 offset) const {
     QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
                       entity.data()->getTablename())) + this->joinSuperClasses(
                       entity) + " WHERE id= :id" + this->limit(1, offset));
@@ -566,14 +566,37 @@ QSqlQuery QueryBuilder::findAll(const QString &tableName) const {
     return this->database->getQuery(this->selectBase(QStringList(tableName)) + ";");
 }
 
-QSqlQuery QueryBuilder::remove(const QSharedPointer<Entity> &entity) const {
+QList<QSqlQuery> QueryBuilder::remove(const QSharedPointer<Entity> &entity)
+const {
+    QList<QSqlQuery> queries = QList<QSqlQuery>();
+    if (entity.data()->getInheritanceStrategy() != PER_CLASS_TABLE) {
+        auto stack = entity.data()->superClasses(true);
+        while (!stack.isEmpty()) {
+            auto item = stack.pop();
+            auto instance = EntityInstanceFactory::createInstance(item->className());
+            if (instance) {
+                queries.append(this->remove(instance->getTablename(), entity.data()->getId()));
+                delete instance;
+                instance = 0;
+            }
+        }
+    }
+    queries.append(this->remove(entity.data()->getTablename(),
+                                entity.data()->getId()));
+    return queries;
+}
+
+
+QSqlQuery QueryBuilder::remove(const QString &tableName,
+                               const qint64 &id) const {
     QSqlQuery q = this->database->getQuery("DELETE FROM " +
                                            this->schema.data()->quoteTableName(
-                                                   entity.data()->getTablename()) + " WHERE " +
+                                                   tableName) + " WHERE " +
                                            this->schema.data()->quoteColumnName("id") + "=:id;");
-    q.bindValue(":id", entity.data()->getId());
+    q.bindValue(":id", id);
     return q;
 }
+
 
 QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
     QHash<QString, QVariant> values = this->getEntityAttributes(

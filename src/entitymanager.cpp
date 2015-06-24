@@ -686,8 +686,18 @@ bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     bool rc = false;
     this->db->startTransaction();
     this->removeRelations(entity);
-    QSqlQuery q = this->schema.data()->getQueryBuilder().data()->remove(entity);
-    if (q.exec() && this->db->commitTransaction()) {
+    auto queries = this->schema.data()->getQueryBuilder().data()->remove(entity);
+    bool ok = true;
+    for (int var = 0; var < queries.size(); ++var) {
+        auto q = queries.at(var);
+        if (!q.exec()) {
+            this->db->rollbackTransaction();
+            qDebug() << "Remove transaction rolled back";
+            ok = false;
+            break;
+        }
+    }
+    if (ok && this->db->commitTransaction()) {
         this->cache.remove(entity);
         entity.clear();
         rc = true;
