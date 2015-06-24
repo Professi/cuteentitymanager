@@ -21,6 +21,7 @@
 #include <QtSql/QSqlField>
 #include <QString>
 #include <QStringList>
+#include <QObject>
 #include <QSharedPointer>
 #include <QDebug>
 #include "schema.h"
@@ -33,7 +34,8 @@
 
 namespace CuteEntityManager {
 
-class EntityManager {
+class EntityManager : public QObject {
+    Q_OBJECT
   signals:
     void actionFinished(qint64 id);
 
@@ -196,8 +198,7 @@ class EntityManager {
     const QString &sql) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
-            QSqlQuery q = this->schema.data()->getQueryBuilder().data()->getQuery();
-            q = this->db.data()->select(sql);
+            QSqlQuery q = this->db.data()->select(sql);
             auto result = this->convertQueryResult(q);
             auto ret = this->convert(result, e->getClassname());
             delete e;

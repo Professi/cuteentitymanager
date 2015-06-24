@@ -28,7 +28,7 @@ void EntityManager::init() {
     this->schema.data()->setTables(this->schema.data()->getTableSchemas());
 }
 
-EntityManager::EntityManager(QSqlDatabase database) {
+EntityManager::EntityManager(QSqlDatabase database) : QObject() {
     auto db = new Database(database);
     this->db = QSharedPointer<Database>(db);
     this->init();
@@ -67,7 +67,7 @@ bool EntityManager::executeQuery(const QString &query) {
 EntityManager::EntityManager(const QString &databaseType, QString databasename ,
                              QString hostname,
                              QString username,
-                             QString password, QString port) {
+                             QString password, QString port) : QObject() {
     auto db = new Database(databaseType, this->createConnection(), hostname,
                            databasename, username,
                            password,

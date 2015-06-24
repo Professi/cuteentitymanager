@@ -79,7 +79,8 @@ const QStack<const QMetaObject *> Entity::superClasses(bool
     if (this->getInheritanceStrategy() == JOINED_TABLE) {
         Entity *e = 0;
         while (superMetaObject != 0
-                && QString(superMetaObject->className()) != QString("CuteEntityManager::Entity")) {
+                && QString(superMetaObject->className()) !=
+                QString("CuteEntityManager::Entity")) {
             e = EntityInstanceFactory::createInstance(superMetaObject->className());
             if (e) {
                 classes.push(superMetaObject);
