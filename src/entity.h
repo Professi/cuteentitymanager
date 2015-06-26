@@ -45,19 +45,16 @@ class Entity : public QObject {
     virtual QString toString() const;
     virtual ~Entity();
     virtual QString getTablename() const;
-    /**
-     * @brief getRelations
-     * @return
-     */
     virtual const QHash<QString, Relation> getRelations() const;
     virtual const QHash<QString, Relation> getNonInheritedRelations() const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;
     virtual InheritanceStrategy getInheritanceStrategy() const;
+    virtual bool isInheritanceCascaded() const;
 
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey() const;
-    const QStack<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
+    const QList<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
             = false) const;
     const QHash<QString, QMetaProperty> getMetaProperties() const;
     const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
@@ -66,6 +63,7 @@ class Entity : public QObject {
     const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
     const QHash<Relation, QMetaProperty> getRelationProperties() const;
     const char *getClassname() const;
+    QVariant property(const QString &name) const;
 
     qint64 getId() const;
     void setId(const qint64 &value);

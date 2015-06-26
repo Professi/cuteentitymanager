@@ -137,7 +137,10 @@ class QueryBuilder {
     QSqlQuery getQuery() const;
 
   protected:
-    QSqlQuery remove(const QString &tableName, const qint64 &id) const;
+    QSqlQuery remove(const QString &tableName, const qint64 &id,
+                     const QString &primaryKey = "id") const;
+    QSqlQuery insert(const QString &tableName, QHash<QString, QVariant> &attributes,
+                     const QString &primaryKey = "id") const;
     virtual void createRelationFK(QStringList &queries,
                                   const QSharedPointer<Entity> &entity, const Relation &relation,
                                   const QMetaProperty &metaProperty, const QString &update,
@@ -159,15 +162,15 @@ class QueryBuilder {
                              QHash<QString, QVariant>::const_iterator end,
                              QString &p1, QString &p2) const;
     void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
-                    bool ignoreID = false) const;
+                    bool ignoreID = false, const QString &primaryKey = "id") const;
     QString where(const QSharedPointer<Entity> &entity, QString conjunction = ",",
                   bool ignoreID = false) const;
     QString where(const QHash<QString, QVariant> &m,
                   const QString &conjunction = ",",
-                  bool ignoreID = false) const;
+                  bool ignoreID = false, const QString &primaryKey = "id") const;
     QString attributes(const QHash<QString, QVariant> &m,
                        const QString &conjunction = ",",
-                       bool ignoreID = false) const;
+                       bool ignoreID = false, const QString &primaryKey = "id") const;
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity)
     const;
     QString leftJoin(const QString &foreignTable, const QString &tableName,

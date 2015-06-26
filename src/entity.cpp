@@ -68,13 +68,17 @@ InheritanceStrategy Entity::getInheritanceStrategy() const {
     return JOINED_TABLE;
 }
 
+bool Entity::isInheritanceCascaded() const {
+    return true;
+}
+
 QString Entity::getPrimaryKey() const {
     return "id";
 }
 
-const QStack<const QMetaObject *> Entity::superClasses(bool
+const QList<const QMetaObject *> Entity::superClasses(bool
         stopAtSingleTableInheritance) const {
-    QStack<const QMetaObject *> classes = QStack<const QMetaObject *>();
+    QList<const QMetaObject *> classes = QList<const QMetaObject *>();
     auto superMetaObject = this->metaObject()->superClass();
     if (this->getInheritanceStrategy() == JOINED_TABLE) {
         Entity *e = 0;
@@ -83,7 +87,7 @@ const QStack<const QMetaObject *> Entity::superClasses(bool
                 QString("CuteEntityManager::Entity")) {
             e = EntityInstanceFactory::createInstance(superMetaObject->className());
             if (e) {
-                classes.push(superMetaObject);
+                classes.append(superMetaObject);
                 superMetaObject = superMetaObject->superClass();
                 quint8 s = e->getInheritanceStrategy();
                 delete e;
@@ -133,8 +137,8 @@ const QHash<QString, QMetaProperty> Entity::getMetaProperties(
 const QHash<QString, QMetaProperty> Entity::getInheritedMetaProperties() const {
     auto classes = this->superClasses();
     auto wholeProperties = QHash<QString, QMetaProperty>();
-    while (!classes.isEmpty()) {
-        auto metaObject = classes.pop();
+    for (int var = classes.size() - 1; var >= 0; --var) {
+        auto metaObject = classes.at(var);
         auto properties = Entity::getMetaProperties(metaObject);
         auto iterator = properties.constBegin();
         while (iterator != properties.constEnd()) {
@@ -159,6 +163,10 @@ const QHash<Relation, QMetaProperty> Entity::getRelationProperties() const {
 
 const char *Entity::getClassname() const {
     return this->metaObject()->className();
+}
+
+QVariant Entity::property(const QString &name) const {
+    return this->property(name.toLatin1().constData());
 }
 
 qint64 Entity::getId() const {

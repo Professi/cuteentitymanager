@@ -53,6 +53,7 @@ int main(int argc, char *argv[]) {
     qDebug() << "Dauer:" << t.elapsed();
     //QSharedPointer<Artikel> aPtr = QSharedPointer<Artikel>(entity);
     Pupil *p = new Pupil();
+
 //    auto iterator = hash.constBegin();
 //    while(iterator != hash.constEnd()) {
 //        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);

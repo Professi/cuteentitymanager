@@ -416,12 +416,12 @@ const {
         Relation r = i.value();
         if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
             QHash<QString, QString> h = QHash<QString, QString>();
-            h.insert("id", this->schema.data()->TYPE_BIGPK);
+            h.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
             h.insert(this->generateManyToManyColumnName(entity),
                      this->schema.data()->TYPE_BIGINT);
             auto m = props.value(r.getPropertyName());
-            Entity *e = EntityInstanceFactory::createInstance(m.type());
-            QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
+            QSharedPointer<Entity> ptr = QSharedPointer<Entity>
+                                         (EntityInstanceFactory::createInstance(m.type()));
             h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema.data()->TYPE_BIGINT);
             relations.insert(this->generateManyToManyTableName(entity, ptr), h);
@@ -569,42 +569,44 @@ QSqlQuery QueryBuilder::findAll(const QString &tableName) const {
 QList<QSqlQuery> QueryBuilder::remove(const QSharedPointer<Entity> &entity)
 const {
     QList<QSqlQuery> queries = QList<QSqlQuery>();
-    if (entity.data()->getInheritanceStrategy() != PER_CLASS_TABLE) {
-        auto stack = entity.data()->superClasses(true);
-        while (!stack.isEmpty()) {
-            auto item = stack.pop();
+    queries.append(this->remove(entity.data()->getTablename(),
+                                entity.data()->property(entity.data()->getPrimaryKey()).toLongLong()));
+    if (entity.data()->getInheritanceStrategy() != PER_CLASS_TABLE
+            && entity.data()->isInheritanceCascaded()) {
+        auto classes = entity.data()->superClasses(true);
+        for (int var = 0; var < classes.size(); ++var) {
+            auto item = classes.at(var);
             auto instance = EntityInstanceFactory::createInstance(item->className());
             if (instance) {
-                queries.append(this->remove(instance->getTablename(), entity.data()->getId()));
+                queries.append(this->remove(instance->getTablename(),
+                                            entity.data()->property(entity.data()->getPrimaryKey()).toLongLong()));
                 delete instance;
                 instance = 0;
             }
         }
     }
-    queries.append(this->remove(entity.data()->getTablename(),
-                                entity.data()->getId()));
     return queries;
 }
 
 
 QSqlQuery QueryBuilder::remove(const QString &tableName,
-                               const qint64 &id) const {
+                               const qint64 &id, const QString &primaryKey) const {
     QSqlQuery q = this->database->getQuery("DELETE FROM " +
                                            this->schema.data()->quoteTableName(
                                                    tableName) + " WHERE " +
-                                           this->schema.data()->quoteColumnName("id") + "=:id;");
+                                           this->schema.data()->quoteColumnName(primaryKey) + "=:id;");
     q.bindValue(":id", id);
     return q;
 }
-
 
 QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
     QHash<QString, QVariant> values = this->getEntityAttributes(
                                           entity.data()->getMetaProperties(),
                                           entity);
     QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
-                      entity.data()->getTablename()), QStringList("id")) + this->where(values,
-                              "AND", true) + " LIMIT 1");
+                      entity.data()->getTablename()),
+                  QStringList(entity.data()->getPrimaryKey())) + this->where(values,
+                          "AND", true) + " LIMIT 1");
     this->bindValues(values, q);
     return q;
 }
@@ -633,25 +635,33 @@ QSqlQuery QueryBuilder::merge(const QSharedPointer<Entity> &entity) const {
     QSqlQuery q = this->database.data()->getQuery("UPDATE " +
                   this->schema.data()->quoteTableName(
                       entity->getTablename()) + " SET " + this->attributes(
-                      values) + " WHERE " + this->schema.data()->quoteColumnName("id") + "=:id;");
+                      values) + " WHERE " + this->schema.data()->quoteColumnName(
+                      entity.data()->getPrimaryKey()) + "=:id;");
     this->bindValues(values, q);
     return q;
 }
 
 QSqlQuery QueryBuilder::create(const QSharedPointer<Entity> &entity) const {
     QHash<QString, QVariant> values = this->saveAttributes(entity);
-    values.remove("id");
+    return this->insert(entity.data()->getTablename(), values,
+                        entity.data()->getPrimaryKey());
+}
+
+QSqlQuery QueryBuilder::insert(const QString &tableName,
+                               QHash<QString, QVariant> &attributes, const QString &primaryKey) const {
+    attributes.remove(primaryKey);
     QSqlQuery q = this->database.data()->getQuery();
     QString p1 = "INSERT INTO " + this->schema.data()->quoteTableName(
-                     entity->getTablename()) + "(";
+                     tableName) + "(";
     QString p2 = "VALUES(";
-    if (!values.isEmpty()) {
-        q.prepare(this->buildCreateQuery(values.constBegin(), values.constEnd(),
+    if (!attributes.isEmpty()) {
+        q.prepare(this->buildCreateQuery(attributes.constBegin(), attributes.constEnd(),
                                          p1, p2));
     }
-    this->bindValues(values, q);
+    this->bindValues(attributes, q);
     return q;
 }
+
 
 QSqlQuery QueryBuilder::oneToMany(const QString &tableName,
                                   const QString &attribute,
@@ -705,11 +715,11 @@ const {
 
 QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
 const {
-    auto stack = entity.data()->superClasses();
+    auto classes = entity.data()->superClasses(true);
     QString joined = "";
     Entity *e = 0;
-    while (!stack.isEmpty()) {
-        auto metaObject = stack.pop();
+    for (int var = 0; var < classes.size(); ++var) {
+        auto metaObject = classes.at(var);
         e = EntityInstanceFactory::createInstance(metaObject->className());
         if (e) {
             joined.append(" ");
@@ -822,8 +832,9 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
 void QueryBuilder::insertRelationId(const Entity *e,
                                     QHash<QString, QVariant> &map,
                                     QString relName) const {
-    if (e && e->getId() > -1) {
-        map.insert(this->generateColumnNameID(relName), e->getId());
+    if (e && e->property(e->getPrimaryKey()).toLongLong() > -1) {
+        map.insert(this->generateColumnNameID(relName),
+                   e->property(e->getPrimaryKey()));
     }
 }
 
@@ -842,10 +853,10 @@ QString QueryBuilder::buildColumns(const QStringList &columns) const {
 }
 
 void QueryBuilder::bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
-                              bool ignoreID) const {
+                              bool ignoreID, const QString &primaryKey) const {
     QHash<QString, QVariant>::const_iterator i = h.constBegin();
     while (i != h.constEnd()) {
-        if (!ignoreID || (ignoreID && !(i.key() == "id"))) {
+        if (!ignoreID || (ignoreID && !(i.key() == primaryKey))) {
             q.bindValue(":" + i.key(), i.value());
         }
         ++i;
@@ -857,26 +868,26 @@ QString QueryBuilder::where(const QSharedPointer<Entity> &entity,
                             bool ignoreID) const {
     return this->where(this->getEntityAttributes(entity.data()->getMetaProperties(),
                        entity),
-                       conjunction, ignoreID);
+                       conjunction, ignoreID, entity.data()->getPrimaryKey());
 }
 
 QString QueryBuilder::where(const QHash<QString, QVariant> &m,
                             const QString &conjunction,
-                            bool ignoreID) const {
-    if (m.size() == 0 || (ignoreID && m.contains("id") && m.size() == 1)) {
+                            bool ignoreID, const QString &primaryKey) const {
+    if (m.size() == 0 || (ignoreID && m.contains(primaryKey) && m.size() == 1)) {
         return "";
     }
-    return " WHERE " + this->attributes(m, conjunction, ignoreID);
+    return " WHERE " + this->attributes(m, conjunction, ignoreID, primaryKey);
 }
 
 QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
                                  const QString &conjunction,
-                                 bool ignoreID) const {
+                                 bool ignoreID, const QString &primaryKey) const {
     QString rc = "";
     if (!m.isEmpty()) {
         QHash<QString, QVariant>::const_iterator i = m.constBegin();
         while (i != m.constEnd()) {
-            if (!ignoreID || (ignoreID && !(i.key() == "id"))) {
+            if (!ignoreID || (ignoreID && !(i.key() == primaryKey))) {
                 if (!(rc == "")) {
                     rc += " " + conjunction + " ";
                 }
