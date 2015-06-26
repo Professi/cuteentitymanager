@@ -774,6 +774,13 @@ QHash<QString, QVariant> QueryBuilder::saveAttributes(const
     return values;
 }
 
+QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
+    const QSharedPointer<Entity> &entity) const {
+    auto list = QList<QueryBuilder::ClassAttributes>();
+
+
+}
+
 QString QueryBuilder::leftJoin(const QString &foreignTable,
                                const QString &tableName, const QString &foreignKey,
                                const QString &primaryKey) const {
@@ -905,4 +912,21 @@ QSharedPointer<Schema> QueryBuilder::getSchema() const {
 
 void QueryBuilder::setSchema(const QSharedPointer<Schema> &value) {
     schema = value;
+}
+
+QString QueryBuilder::ClassAttributes::getName() const {
+    return name;
+}
+
+void QueryBuilder::ClassAttributes::setName(const QString &value) {
+    name = value;
+}
+
+QHash<QString, QVariant> QueryBuilder::ClassAttributes::getAttributes() const {
+    return attributes;
+}
+
+void QueryBuilder::ClassAttributes::setAttributes(const QHash<QString, QVariant>
+        &value) {
+    attributes = value;
 }

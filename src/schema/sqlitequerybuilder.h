@@ -25,7 +25,7 @@ class SqliteQueryBuilder : public QueryBuilder {
 
     virtual QString truncateTable(QString tableName) const;
     virtual QString dropIndex(QString name, QString tableName) const;
-    virtual QString dropColumn(QString tableName, QString columName)const;
+    virtual QString dropColumn(QString tableName, QString columnName)const;
     virtual QString renameColumn(QString tableName, QString oldName,
                                  QString newName) const;
     virtual QString addForeignKey(QString name, QString tableName, QStringList columns,

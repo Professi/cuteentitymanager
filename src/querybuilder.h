@@ -137,6 +137,20 @@ class QueryBuilder {
     QSqlQuery getQuery() const;
 
   protected:
+    class ClassAttributes {
+    public:
+        QString getName() const;
+        void setName(const QString &value);
+
+        QHash<QString, QVariant> getAttributes() const;
+        void setAttributes(const QHash<QString, QVariant> &value);
+
+    private:
+        QString name;
+        QHash<QString, QVariant> attributes;
+    };
+
+
     QSqlQuery remove(const QString &tableName, const qint64 &id,
                      const QString &primaryKey = "id") const;
     QSqlQuery insert(const QString &tableName, QHash<QString, QVariant> &attributes,
@@ -173,6 +187,9 @@ class QueryBuilder {
                        bool ignoreID = false, const QString &primaryKey = "id") const;
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity)
     const;
+    QList<ClassAttributes> inheritedAttributes(
+            const QSharedPointer<Entity> &entity) const;
+
     QString leftJoin(const QString &foreignTable, const QString &tableName,
                      const QString &foreignKey = "id", const QString &primaryKey = "id") const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;

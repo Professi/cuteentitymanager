@@ -35,11 +35,13 @@ QString CuteEntityManager::SqliteQueryBuilder::truncateTable(
 
 QString CuteEntityManager::SqliteQueryBuilder::dropIndex(QString name,
         QString tableName) const {
+    Q_UNUSED(tableName)
     return "DROP INDEX " + this->schema.data()->quoteTableName(name);
 }
 
 QString CuteEntityManager::SqliteQueryBuilder::dropColumn(QString tableName,
-        QString columName) const {
+        QString columnName) const {
+    Q_UNUSED(tableName)Q_UNUSED(columnName)
     //not supported
     return "";
 }
@@ -47,6 +49,7 @@ QString CuteEntityManager::SqliteQueryBuilder::dropColumn(QString tableName,
 QString CuteEntityManager::SqliteQueryBuilder::renameColumn(QString tableName,
         QString oldName,
         QString newName) const {
+    Q_UNUSED(tableName)Q_UNUSED(oldName)Q_UNUSED(newName)
     //not supported
     return "";
 }
@@ -56,12 +59,16 @@ QString CuteEntityManager::SqliteQueryBuilder::addForeignKey(QString name,
         QStringList columns,
         QString refTableName, QStringList refColumns, QString deleteConstraint,
         QString updateConstraint) const {
+    Q_UNUSED(tableName)Q_UNUSED(name)Q_UNUSED(columns)Q_UNUSED(
+        refTableName)Q_UNUSED(refColumns)Q_UNUSED(deleteConstraint)Q_UNUSED(
+            updateConstraint)
     //not supported
     return "";
 }
 
 QString CuteEntityManager::SqliteQueryBuilder::dropForeignKey(QString name,
         QString tableName) const {
+    Q_UNUSED(name)Q_UNUSED(tableName)
     //not supported
     return "";
 }
@@ -69,6 +76,7 @@ QString CuteEntityManager::SqliteQueryBuilder::dropForeignKey(QString name,
 QString CuteEntityManager::SqliteQueryBuilder::alterColumn(QString tableName,
         QString columnName,
         QString newType) const {
+    Q_UNUSED(tableName)Q_UNUSED(newType)Q_UNUSED(columnName)
     //not supported
     return "";
 }
@@ -76,12 +84,14 @@ QString CuteEntityManager::SqliteQueryBuilder::alterColumn(QString tableName,
 QString CuteEntityManager::SqliteQueryBuilder::addPrimaryKey(QString name,
         QString tableName,
         QStringList columns) const {
+    Q_UNUSED(tableName)Q_UNUSED(name)Q_UNUSED(columns)
     //not supported
     return "";
 }
 
 QString CuteEntityManager::SqliteQueryBuilder::dropPrimaryKey(QString name,
         QString tableName) const {
+    Q_UNUSED(tableName)Q_UNUSED(name)
     //not supported
     return "";
 }
