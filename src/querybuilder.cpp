@@ -16,7 +16,6 @@
 #include "querybuilder.h"
 #include "database.h"
 #include <QMetaObject>
-#include <QMetaProperty>
 #include "entity.h"
 #include <QRegularExpression>
 #include "entityinstancefactory.h"
@@ -641,10 +640,16 @@ QSqlQuery QueryBuilder::merge(const QSharedPointer<Entity> &entity) const {
     return q;
 }
 
-QSqlQuery QueryBuilder::create(const QSharedPointer<Entity> &entity) const {
-    QHash<QString, QVariant> values = this->saveAttributes(entity);
-    return this->insert(entity.data()->getTablename(), values,
-                        entity.data()->getPrimaryKey());
+QList<QSqlQuery> QueryBuilder::create(const QSharedPointer<Entity> &entity)
+const {
+    auto attrs = this->inheritedAttributes(entity);
+    auto queries = QList<QSqlQuery>();
+    for (int var = 0; var < attrs.size(); ++var) {
+        auto attr = attrs.at(var);
+        auto attrHash = attr.getAttributes();
+        queries.append(this->insert(attr.getName(), attrHash, attr.getPk()));
+    }
+    return queries;
 }
 
 QSqlQuery QueryBuilder::insert(const QString &tableName,
@@ -761,11 +766,15 @@ QSqlQuery QueryBuilder::getQuery() const {
     return this->database.data()->getQuery();
 }
 
+
 QHash<QString, QVariant> QueryBuilder::saveAttributes(const
-        QSharedPointer<Entity> &entity) const {
-    auto props = entity.data()->getMetaProperties();
+        QSharedPointer<Entity> &entity, QHash<QString, QMetaProperty> props,
+        QHash<QString, Relation> relations) const {
+    if (props.isEmpty()) {
+        props = entity.data()->getMetaProperties();
+    }
     auto values = this->getEntityAttributes(props, entity);
-    auto relValues = this->getManyToOneAttributes(props, entity);
+    auto relValues = this->getManyToOneAttributes(props, entity, relations);
     auto iterator = relValues.constBegin();
     while (iterator != relValues.constEnd()) {
         values.insert(iterator.key(), iterator.value());
@@ -774,11 +783,66 @@ QHash<QString, QVariant> QueryBuilder::saveAttributes(const
     return values;
 }
 
+QHash<QString, QMetaProperty> QueryBuilder::processProperties(
+    const QSharedPointer<Entity> &e,
+    QHash<QString, QMetaProperty> &usedProperties) const {
+    auto properties = e.data()->getMetaProperties();
+    auto i = QMutableHashIterator<QString, QMetaProperty>(properties);
+    while (i.hasNext()) {
+        if (usedProperties.contains(i.key()) && i.key() != e.data()->getPrimaryKey()) {
+            properties.remove(i.key());
+        } else {
+            usedProperties.insert(i.key(), i.value());
+        }
+        i.next();
+    }
+    return properties;
+}
+
+QHash<QString, Relation> QueryBuilder::processRelations(
+    const QSharedPointer<Entity> &e,
+    QHash<QString, Relation> &usedRelations) const {
+    auto relations = e.data()->getRelations();
+    auto i = QMutableHashIterator<QString, Relation>(relations);
+    while (i.hasNext()) {
+        if (usedRelations.contains(i.key())) {
+            relations.remove(i.key());
+        } else {
+            usedRelations.insert(i.key(), i.value());
+        }
+        i.next();
+    }
+    return relations;
+}
+
 QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
     const QSharedPointer<Entity> &entity) const {
     auto list = QList<QueryBuilder::ClassAttributes>();
-
-
+    if (entity.data()->getInheritanceStrategy() == JOINED_TABLE) {
+        auto classes = QList<const QMetaObject *>();
+        classes.append(entity.data()->metaObject());
+        classes.append(entity.data()->superClasses(true));
+        auto usedProperties = QHash<QString, QMetaProperty>();
+        auto usedRelations = QHash<QString, Relation>();
+        QSharedPointer<Entity> e;
+        for (int var = classes.size(); var >= 0; --var) {
+            auto metaObj = classes.at(var);
+            e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
+                                           metaObj->className()));
+            if (e) {
+                list.append(QueryBuilder::ClassAttributes(e.data()->getTablename(),
+                            this->saveAttributes(entity, this->processProperties(e, usedProperties),
+                                                 this->processRelations(e, usedRelations)), e.data()->getPrimaryKey()));
+            } else {
+                qDebug() << "Instance of " << metaObj->className() << " could not created";
+                break;
+            }
+        }
+    } else {
+        list.append(QueryBuilder::ClassAttributes(entity.data()->getTablename(),
+                    this->saveAttributes(entity), entity.data()->getPrimaryKey()));
+    }
+    return list;
 }
 
 QString QueryBuilder::leftJoin(const QString &foreignTable,
@@ -810,12 +874,15 @@ QHash<QString, QVariant> QueryBuilder::getEntityAttributes(
 }
 
 QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
-    const QHash<QString, QMetaProperty>
-    &props,
-    const QSharedPointer<Entity> &entity) const {
+    QHash<QString, QMetaProperty>
+    props,
+    const QSharedPointer<Entity> &entity,
+    QHash<QString, Relation> relations) const {
     Entity *e = entity.data();
     auto map = QHash<QString, QVariant>();
-    auto relations = e->getRelations();
+    if (relations.isEmpty()) {
+        relations = e->getRelations();
+    }
     auto i = relations.constBegin();
     while (i != relations.constEnd()) {
         Relation r = i.value();
@@ -914,6 +981,13 @@ void QueryBuilder::setSchema(const QSharedPointer<Schema> &value) {
     schema = value;
 }
 
+QueryBuilder::ClassAttributes::ClassAttributes(const QString name,
+        const QHash<QString, QVariant> attributes, QString pk) {
+    this->name = name;
+    this->attributes = attributes;
+    this->pk = pk;
+}
+
 QString QueryBuilder::ClassAttributes::getName() const {
     return name;
 }
@@ -930,3 +1004,12 @@ void QueryBuilder::ClassAttributes::setAttributes(const QHash<QString, QVariant>
         &value) {
     attributes = value;
 }
+
+QString QueryBuilder::ClassAttributes::getPk() const {
+    return pk;
+}
+
+void QueryBuilder::ClassAttributes::setPk(const QString &value) {
+    pk = value;
+}
+

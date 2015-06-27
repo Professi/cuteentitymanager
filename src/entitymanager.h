@@ -147,7 +147,7 @@ class EntityManager : public QObject {
      *@TODO use conditions
      */
     /**
-     * @TODO Inheritance at create,save,merge
+     * @TODO Inheritance at merge
      */
     template<class T> qint8 count(QHash<QString, QString> condition =
                                       QHash<QString, QString>()) {

@@ -261,7 +261,8 @@ void EntityManager::addEntityToListProperty(const QSharedPointer<Entity>
 void EntityManager::setProperty(const QSharedPointer<Entity> &entiy,
                                 QSharedPointer<Entity> value,
                                 const QMetaProperty &property) const {
-    if (value.data() && value.data()->getId() > -1) {
+    if (value && value.data()->property(value.data()->getPrimaryKey()).toLongLong()
+            > -1) {
         property.write(entiy.data(), QVariant(value));
     }
 }
@@ -548,14 +549,29 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
                            const bool persistRelations, const bool checkDuplicate) {
     bool rc = false;
     if (this->checkTable(entity) && !(checkDuplicate && this->count(entity) == 0)) {
-        QSqlQuery q = this->schema.data()->getQueryBuilder().data()->create(entity);
-        rc = this->db->transaction(q);
-        if (rc) {
-            entity.data()->setId(q.lastInsertId().toLongLong(&rc));
+        QList<QSqlQuery> q = this->schema.data()->getQueryBuilder().data()->create(
+                                 entity);
+        this->db->startTransaction();
+        bool first = true;
+        for (int var = 0; var < q.size(); ++var) {
+            auto query = q.at(var);
+            query.exec();
+            if (first) {
+                entity.data()->setProperty(entity.data()->getPrimaryKey(),
+                                           query.lastInsertId().toLongLong(&rc));
+                first = false;
+            }
+        }
+        if (!this->db->commitTransaction() || !rc) {
+            this->db->rollbackTransaction();
+            entity.data()->setId(-1);
+            rc = false;
+        } else {
             if (persistRelations) {
                 this->saveRelations(entity);
             }
             this->cache.insert(entity);
+            rc = true;
         }
     }
     return rc;

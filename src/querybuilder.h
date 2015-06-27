@@ -21,6 +21,7 @@
 #include <QPointer>
 #include <QSqlQuery>
 #include <QStringList>
+#include <QMetaProperty>
 #include "relation.h"
 namespace CuteEntityManager {
 class Schema;
@@ -118,7 +119,7 @@ class QueryBuilder {
     QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
     QSqlQuery count(const QString &tableName) const;
     QSqlQuery merge(const QSharedPointer<Entity> &entity) const;
-    QSqlQuery create(const QSharedPointer<Entity> &entity) const;
+    QList<QSqlQuery> create(const QSharedPointer<Entity> &entity) const;
     QSqlQuery oneToMany(const QString &tableName, const QString &attribute,
                         const qint64 &id,
                         const qint64 &limit = 0);
@@ -138,15 +139,22 @@ class QueryBuilder {
 
   protected:
     class ClassAttributes {
-    public:
+      public:
+        ClassAttributes() { }
+        explicit ClassAttributes(const QString name,
+                                 const QHash<QString, QVariant> attributes, QString pk = "id");
         QString getName() const;
         void setName(const QString &value);
 
         QHash<QString, QVariant> getAttributes() const;
         void setAttributes(const QHash<QString, QVariant> &value);
 
-    private:
+        QString getPk() const;
+        void setPk(const QString &value);
+
+      private:
         QString name;
+        QString pk;
         QHash<QString, QVariant> attributes;
     };
 
@@ -162,10 +170,10 @@ class QueryBuilder {
     void insertRelationId(const Entity *e, QHash<QString, QVariant> &map,
                           QString relName) const;
     QString buildColumns(const QStringList &columns) const;
-    QHash<QString, QVariant> getManyToOneAttributes(const
-            QHash<QString, QMetaProperty>
-            &props,
-            const QSharedPointer<Entity> &entity) const;
+    QHash<QString, QVariant> getManyToOneAttributes(QHash<QString, QMetaProperty>
+            props,
+            const QSharedPointer<Entity> &entity,
+            QHash<QString, Relation> relations = QHash<QString, Relation>()) const;
     QHash<QString, QMetaProperty> getMetaProperties(const QSharedPointer<Entity>
             &entity)
     const;
@@ -185,10 +193,16 @@ class QueryBuilder {
     QString attributes(const QHash<QString, QVariant> &m,
                        const QString &conjunction = ",",
                        bool ignoreID = false, const QString &primaryKey = "id") const;
-    QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity)
+    QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity,
+                                            QHash<QString, QMetaProperty> props = QHash<QString, QMetaProperty> (),
+                                            QHash<QString, Relation> relations = QHash<QString, Relation>())
     const;
+    QHash<QString, QMetaProperty> processProperties(const QSharedPointer<Entity> &e,
+            QHash<QString, QMetaProperty> &usedProperties) const;
+    QHash<QString, Relation> processRelations(const QSharedPointer<Entity> &e,
+            QHash<QString, Relation> &usedRelations) const;
     QList<ClassAttributes> inheritedAttributes(
-            const QSharedPointer<Entity> &entity) const;
+        const QSharedPointer<Entity> &entity) const;
 
     QString leftJoin(const QString &foreignTable, const QString &tableName,
                      const QString &foreignKey = "id", const QString &primaryKey = "id") const;
