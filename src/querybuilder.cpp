@@ -836,7 +836,7 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
         auto usedProperties = QHash<QString, QMetaProperty>();
         auto usedRelations = QHash<QString, Relation>();
         QSharedPointer<Entity> e;
-        for (int var = classes.size(); var >= 0; --var) {
+        for (int var = classes.size()-1; var >= 0; --var) {
             auto metaObj = classes.at(var);
             e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
                                            metaObj->className()));

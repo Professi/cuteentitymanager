@@ -26,8 +26,9 @@ Entity *EntityInstanceFactory::createInstance(const char *className) {
     if (!s.contains("*")) {
         s.append("*");
     }
-    return EntityInstanceFactory::createInstance(QMetaType::type(
-                s.toUtf8().constData()));
+    int type = QMetaType::type(
+                    s.toUtf8().constData());
+    return EntityInstanceFactory::createInstance(type);
 }
 
 Entity *EntityInstanceFactory::createInstance(const QString &className) {

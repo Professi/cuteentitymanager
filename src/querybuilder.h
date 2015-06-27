@@ -164,7 +164,8 @@ class QueryBuilder {
                      const QString &primaryKey = "id") const;
     QSqlQuery update(const QString &tableName, QHash<QString, QVariant> &attributes,
                      const QString &primaryKey = "id") const;
-    QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity, bool insert) const;
+    QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity,
+                                   bool insert) const;
     virtual void createRelationFK(QStringList &queries,
                                   const QSharedPointer<Entity> &entity, const Relation &relation,
                                   const QMetaProperty &metaProperty, const QString &update,
