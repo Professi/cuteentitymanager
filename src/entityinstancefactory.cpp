@@ -26,9 +26,8 @@ Entity *EntityInstanceFactory::createInstance(const char *className) {
     if (!s.contains("*")) {
         s.append("*");
     }
-    int type = QMetaType::type(
-                    s.toUtf8().constData());
-    return EntityInstanceFactory::createInstance(type);
+    return EntityInstanceFactory::createInstance(QMetaType::type(
+                s.toUtf8().constData()));
 }
 
 Entity *EntityInstanceFactory::createInstance(const QString &className) {
@@ -103,4 +102,8 @@ Entity *EntityInstanceFactory::newSuperClassInstance(const Entity *e) {
         }
     }
     return super;
+}
+
+Entity *EntityInstanceFactory::createInstance(const QMetaObject *object) {
+    return qobject_cast<Entity *>(object->newInstance());
 }

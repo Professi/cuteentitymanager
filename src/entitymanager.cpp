@@ -568,14 +568,14 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
         bool first = true;
         for (int var = 0; var < q.size(); ++var) {
             auto query = q.at(var);
-            rc = query.exec();
+            rc = this->db.data()->exec(query);
             if (!rc) {
                 qDebug() << "Query failed:" << query.lastError().text();
                 break;
             }
             if (first) {
-                entity.data()->setProperty(entity.data()->getPrimaryKey(),
-                                           query.lastInsertId().toLongLong(&rc));
+                entity.data()->setProperty(
+                    entity.data()->getPrimaryKey().toLatin1().constData(), query.lastInsertId());
                 first = false;
             }
         }
@@ -602,7 +602,7 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
         bool ok = true;
         for (int var = 0; var < q.size(); ++var) {
             auto query = q.at(var);
-            ok = query.exec();
+            ok = this->db.data()->exec(query);
             if (!ok) {
                 qDebug() << query.lastError().text();
                 break;

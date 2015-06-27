@@ -798,14 +798,15 @@ QHash<QString, QMetaProperty> QueryBuilder::processProperties(
     const QSharedPointer<Entity> &e,
     QHash<QString, QMetaProperty> &usedProperties) const {
     auto properties = e.data()->getMetaProperties();
-    auto i = QMutableHashIterator<QString, QMetaProperty>(properties);
+    QMutableHashIterator<QString, QMetaProperty> i(properties);
     while (i.hasNext()) {
+        i.next();
         if (usedProperties.contains(i.key()) && i.key() != e.data()->getPrimaryKey()) {
             properties.remove(i.key());
         } else {
             usedProperties.insert(i.key(), i.value());
         }
-        i.next();
+
     }
     return properties;
 }
@@ -816,12 +817,12 @@ QHash<QString, Relation> QueryBuilder::processRelations(
     auto relations = e.data()->getRelations();
     auto i = QMutableHashIterator<QString, Relation>(relations);
     while (i.hasNext()) {
+        i.next();
         if (usedRelations.contains(i.key())) {
             relations.remove(i.key());
         } else {
             usedRelations.insert(i.key(), i.value());
         }
-        i.next();
     }
     return relations;
 }
@@ -836,10 +837,10 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
         auto usedProperties = QHash<QString, QMetaProperty>();
         auto usedRelations = QHash<QString, Relation>();
         QSharedPointer<Entity> e;
-        for (int var = classes.size()-1; var >= 0; --var) {
+        for (int var = classes.size() - 1; var >= 0; --var) {
             auto metaObj = classes.at(var);
             e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
-                                           metaObj->className()));
+                                           metaObj));
             if (e) {
                 list.append(QueryBuilder::ClassAttributes(e.data()->getTablename(),
                             this->saveAttributes(entity, this->processProperties(e, usedProperties),

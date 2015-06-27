@@ -25,16 +25,17 @@ int main(int argc, char *argv[]) {
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
                                      QDir::currentPath() + "/db.sqlite");
+    QTime t;
+    t.start();
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
-
-
     QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0,
                                 "Müsli"));
     auto ep = a.dynamicCast<CuteEntityManager::Entity>();
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
     e->create(ep);
     auto artikel = e->findById<Artikel *>(1);
+    qDebug() << "ArtikelID:" << artikel.data()->getId();
 //    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
 //                               QDate::currentDate()));
 //    auto pptr = p.dynamicCast<CuteEntityManager::Entity>();
@@ -42,23 +43,16 @@ int main(int argc, char *argv[]) {
 //    e->create(pptr);
 //e->createTable(grp.dynamicCast<CuteEntityManager::Entity>());
 
-    QTime t;
-    t.start();
 //    e->createTable(QSharedPointer<Artikel>(new Artikel()));
-    for (int var = 0; var < 10000; ++var) {
-        EntityInstanceFactory::createInstance<Artikel*>();
-//        QSharedPointer<Entity> a = QSharedPointer<Artikel>(new Artikel(var,QString("a")+QString::number(var)));
-//        e->save(a);
-    }
-    qDebug() << "Dauer:" << t.elapsed();
+
     //QSharedPointer<Artikel> aPtr = QSharedPointer<Artikel>(entity);
-    Pupil *p = new Pupil();
+    //Pupil *p = new Pupil();
 
 //    auto iterator = hash.constBegin();
 //    while(iterator != hash.constEnd()) {
 //        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);
 //        iterator++;
 //    }
-
+    qDebug() << "Duration:" << t.elapsed();
     return 0;
 }

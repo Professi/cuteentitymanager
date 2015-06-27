@@ -169,10 +169,6 @@ QVariant Entity::property(const QString &name) const {
     return this->property(name.toLatin1().constData());
 }
 
-bool Entity::setProperty(const QString &name, const QVariant &value) {
-    return this->setProperty(name.toLatin1().constData(), value);
-}
-
 qint64 Entity::getId() const {
     return id;
 }
