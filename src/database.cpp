@@ -122,7 +122,7 @@ bool Database::transaction(QList<QSqlQuery> &queries) {
 
 
 bool Database::commitTransaction() {
-    return this->supportTransactions &&this->database.commit();
+    return this->supportTransactions && this->database.commit();
 }
 
 bool Database::rollbackTransaction() {

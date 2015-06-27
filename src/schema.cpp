@@ -20,8 +20,8 @@
 #include "database.h"
 using namespace CuteEntityManager;
 
-Schema::Schema(QSharedPointer<Database> database, QSharedPointer<QueryBuilder> builder)
-{
+Schema::Schema(QSharedPointer<Database> database,
+               QSharedPointer<QueryBuilder> builder) {
     this->database = database;
     this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>
                             (new QHash<QString, QString>());
