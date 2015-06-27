@@ -629,29 +629,28 @@ QSqlQuery QueryBuilder::count(const QString &tableName) const {
     return q;
 }
 
-//@TODO Looks like create() - Refactor code
 QList<QSqlQuery> QueryBuilder::merge(const QSharedPointer<Entity> &entity)
 const {
+    return this->createOrMerge(entity, false);
+}
+
+
+QList<QSqlQuery> QueryBuilder::createOrMerge(const QSharedPointer<Entity>
+        &entity, bool insert) const {
     auto attrs = this->inheritedAttributes(entity);
     auto queries = QList<QSqlQuery>();
     for (int var = 0; var < attrs.size(); ++var) {
         auto attr = attrs.at(var);
         auto attrHash = attr.getAttributes();
-        queries.append(this->update(attr.getName(), attrHash, attr.getPk()));
+        queries.append(insert ? this->insert(attr.getName(), attrHash,
+                                             attr.getPk()) : this->update(attr.getName(), attrHash, attr.getPk()));
     }
     return queries;
 }
 
 QList<QSqlQuery> QueryBuilder::create(const QSharedPointer<Entity> &entity)
 const {
-    auto attrs = this->inheritedAttributes(entity);
-    auto queries = QList<QSqlQuery>();
-    for (int var = 0; var < attrs.size(); ++var) {
-        auto attr = attrs.at(var);
-        auto attrHash = attr.getAttributes();
-        queries.append(this->insert(attr.getName(), attrHash, attr.getPk()));
-    }
-    return queries;
+    return this->createOrMerge(entity, true);
 }
 
 QSqlQuery QueryBuilder::insert(const QString &tableName,
@@ -1024,4 +1023,3 @@ QString QueryBuilder::ClassAttributes::getPk() const {
 void QueryBuilder::ClassAttributes::setPk(const QString &value) {
     pk = value;
 }
-
