@@ -64,7 +64,7 @@ class EntityManager : public QObject {
                    const QMetaProperty &property, const bool refresh = false);
     void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                    const QMetaProperty &property, const bool refresh = false);
-    void manyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
+    void manyToMany(const QSharedPointer<Entity> &entity,
                     const QMetaProperty &property, const bool refresh = false);
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,
@@ -145,9 +145,6 @@ class EntityManager : public QObject {
     void setSchema(const QSharedPointer<Schema> &value);
     /**
      *@TODO use conditions
-     */
-    /**
-     * @TODO Inheritance at merge
      */
     template<class T> qint8 count(QHash<QString, QString> condition =
                                       QHash<QString, QString>()) {

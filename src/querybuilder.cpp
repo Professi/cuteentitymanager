@@ -520,10 +520,10 @@ QString QueryBuilder::selectBase(const QStringList &tables,
 }
 
 QSqlQuery QueryBuilder::find(const qint64 &id,
-                             const QSharedPointer<Entity> &entity, qint64 offset) const {
+                             const QSharedPointer<Entity> &entity, qint64 offset, QString pk) const {
     QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
                       entity.data()->getTablename())) + this->joinSuperClasses(
-                      entity) + " WHERE id= :id" + this->limit(1, offset));
+                      entity) + " WHERE " + pk + "= :id" + this->limit(1, offset));
     q.bindValue(":id", id);
     return q;
 }
@@ -629,15 +629,17 @@ QSqlQuery QueryBuilder::count(const QString &tableName) const {
     return q;
 }
 
-QSqlQuery QueryBuilder::merge(const QSharedPointer<Entity> &entity) const {
-    QHash<QString, QVariant> values = this->saveAttributes(entity);
-    QSqlQuery q = this->database.data()->getQuery("UPDATE " +
-                  this->schema.data()->quoteTableName(
-                      entity->getTablename()) + " SET " + this->attributes(
-                      values) + " WHERE " + this->schema.data()->quoteColumnName(
-                      entity.data()->getPrimaryKey()) + "=:id;");
-    this->bindValues(values, q);
-    return q;
+//@TODO Looks like create() - Refactor code
+QList<QSqlQuery> QueryBuilder::merge(const QSharedPointer<Entity> &entity)
+const {
+    auto attrs = this->inheritedAttributes(entity);
+    auto queries = QList<QSqlQuery>();
+    for (int var = 0; var < attrs.size(); ++var) {
+        auto attr = attrs.at(var);
+        auto attrHash = attr.getAttributes();
+        queries.append(this->update(attr.getName(), attrHash, attr.getPk()));
+    }
+    return queries;
 }
 
 QList<QSqlQuery> QueryBuilder::create(const QSharedPointer<Entity> &entity)
@@ -663,6 +665,16 @@ QSqlQuery QueryBuilder::insert(const QString &tableName,
         q.prepare(this->buildCreateQuery(attributes.constBegin(), attributes.constEnd(),
                                          p1, p2));
     }
+    this->bindValues(attributes, q);
+    return q;
+}
+
+QSqlQuery QueryBuilder::update(const QString &tableName,
+                               QHash<QString, QVariant> &attributes, const QString &primaryKey) const {
+    QSqlQuery q = this->database.data()->getQuery("UPDATE " +
+                  this->schema.data()->quoteTableName(tableName) + " SET " + this->attributes(
+                      attributes) + " WHERE " + this->schema.data()->quoteColumnName(
+                      primaryKey) + "=:id;");
     this->bindValues(attributes, q);
     return q;
 }

@@ -103,7 +103,7 @@ class QueryBuilder {
     QString getColumnType(const QString &type) const;
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
-                   qint64 offset = 0) const;
+                   qint64 offset = 0, QString pk = "id") const;
     QSqlQuery findByAttributes(const QHash<QString, QVariant> &m,
                                const QString &tableName,
                                const bool &ignoreID = true, const qint64 limit = 0,
@@ -118,7 +118,7 @@ class QueryBuilder {
     QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
     QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
     QSqlQuery count(const QString &tableName) const;
-    QSqlQuery merge(const QSharedPointer<Entity> &entity) const;
+    QList<QSqlQuery> merge(const QSharedPointer<Entity> &entity) const;
     QList<QSqlQuery> create(const QSharedPointer<Entity> &entity) const;
     QSqlQuery oneToMany(const QString &tableName, const QString &attribute,
                         const qint64 &id,
@@ -158,10 +158,11 @@ class QueryBuilder {
         QHash<QString, QVariant> attributes;
     };
 
-
     QSqlQuery remove(const QString &tableName, const qint64 &id,
                      const QString &primaryKey = "id") const;
     QSqlQuery insert(const QString &tableName, QHash<QString, QVariant> &attributes,
+                     const QString &primaryKey = "id") const;
+    QSqlQuery update(const QString &tableName, QHash<QString, QVariant> &attributes,
                      const QString &primaryKey = "id") const;
     virtual void createRelationFK(QStringList &queries,
                                   const QSharedPointer<Entity> &entity, const Relation &relation,
@@ -213,7 +214,6 @@ class QueryBuilder {
                                const QStringList &columns = QStringList()) const;
     virtual QString countFunction(const QString &distinctColumn = "") const;
     virtual QString distinct() const;
-
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;
