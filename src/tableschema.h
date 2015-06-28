@@ -28,7 +28,7 @@ namespace CuteEntityManager {
 class TableSchema {
   public:
     TableSchema();
-    ~TableSchema();
+    virtual ~TableSchema();
     virtual QSharedPointer<QSqlField> const getColumn(QString name) const;
     virtual const QStringList getColumnNames();
 

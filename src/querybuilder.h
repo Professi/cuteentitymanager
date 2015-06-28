@@ -120,6 +120,7 @@ class QueryBuilder {
     QSqlQuery count(const QString &tableName) const;
     QList<QSqlQuery> merge(const QSharedPointer<Entity> &entity) const;
     QList<QSqlQuery> create(const QSharedPointer<Entity> &entity) const;
+    QSqlQuery removeAll(const QString &tableName) const;
     QSqlQuery oneToMany(const QString &tableName, const QString &attribute,
                         const qint64 &id,
                         const qint64 &limit = 0);

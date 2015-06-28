@@ -744,6 +744,10 @@ bool EntityManager::remove(QSharedPointer<Entity> &entity) {
     return rc;
 }
 
+bool EntityManager::removeAll(QString tblname) {
+    return this->schema.data()->getQueryBuilder().data()->removeAll(tblname).exec();
+}
+
 bool EntityManager::createTable(const QSharedPointer<Entity> &entity) {
     return this->schema.data()->getQueryBuilder().data()->createTable(entity);
 }

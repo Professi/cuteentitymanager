@@ -119,6 +119,7 @@ class EntityManager : public QObject {
      * @param toInitialize list of entity classnames which database tables should be created
      * @return
      */
+    public slots:
     bool startup(QString version, QStringList toInitialize);
     bool executeQuery(const QString &query);
     static void removeConnectionName(const QString &name);
@@ -146,6 +147,7 @@ class EntityManager : public QObject {
     /**
      *@TODO use conditions
      */
+public:
     template<class T> qint8 count(QHash<QString, QString> condition =
                                       QHash<QString, QString>()) {
         Entity *e = EntityInstanceFactory::createInstance<T>();

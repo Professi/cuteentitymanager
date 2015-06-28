@@ -653,6 +653,10 @@ const {
     return this->createOrMerge(entity, true);
 }
 
+QSqlQuery QueryBuilder::removeAll(const QString &tableName) const {
+    return this->database.data()->getQuery(this->truncateTable(tableName));
+}
+
 QSqlQuery QueryBuilder::insert(const QString &tableName,
                                QHash<QString, QVariant> &attributes, const QString &primaryKey) const {
     attributes.remove(primaryKey);
