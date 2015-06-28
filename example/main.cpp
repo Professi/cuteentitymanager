@@ -34,7 +34,6 @@ int main(int argc, char *argv[]) {
     auto ep = a.dynamicCast<CuteEntityManager::Entity>();
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
     e->create(ep);
-    qDebug() << "TEST12345678990";
     auto artikel = e->findById<Artikel *>(1);
     qDebug() << "ArtikelID:" << artikel.data()->getId();
 //    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",

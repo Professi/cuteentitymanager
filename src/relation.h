@@ -21,7 +21,8 @@ namespace CuteEntityManager {
 enum RelationType {
     ONE_TO_ONE, //e.g. specialization, heritage
     ONE_TO_MANY, //@OneToMany(cascade=ALL, mappedBy="customer")
-    MANY_TO_ONE, //1-n  Entity foreign key in same table
+    MANY_TO_ONE,
+    //1-n  Entity foreign key in same table
     MANY_TO_MANY,
 };
 

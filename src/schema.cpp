@@ -67,11 +67,11 @@ void Schema::initAbstractDatabaseTypes() {
 }
 
 QString Schema::quoteSimpleTableName(QString name) {
-    return name.indexOf("`") ? name : "`" + name + "`";
+    return name.indexOf("`") != -1 ? name : "`" + name + "`";
 }
 
 QString Schema::quoteTableName(QString name) {
-    if (name.indexOf("(") || name.indexOf("{{")) {
+    if (name.indexOf("(") != -1 || name.indexOf("{{") != -1) {
         return name;
     }
     if (name.indexOf(".") == -1) {
@@ -85,12 +85,12 @@ QString Schema::quoteTableName(QString name) {
 }
 
 QString Schema::quoteColumnName(QString name) {
-    if (name.indexOf("(") || name.indexOf("[[") || name.indexOf("{{")) {
+    if (name.indexOf("(") != -1 || name.indexOf("[[") != -1 || name.indexOf("{{") != -1) {
         return name;
     }
     int pos = name.indexOf(".");
     QString prefix = "";
-    if (pos) {
+    if (pos != -1 ) {
         prefix = this->quoteTableName(name.mid(0, pos)) + ".";
         name = name.mid(pos + 1);
     }
@@ -98,7 +98,7 @@ QString Schema::quoteColumnName(QString name) {
 }
 
 QString Schema::quoteSimpleColumnName(QString name) {
-    return name.indexOf("`") || name == "*" ? name : "`" + name + "`";
+    return name.indexOf("`") != -1 || name == "*" ? name : "`" + name + "`";
 }
 
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(
