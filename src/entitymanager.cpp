@@ -60,6 +60,9 @@ bool EntityManager::startup(QString version, QStringList toInitialize) {
     QHash<QString, QVariant> map = QHash<QString, QVariant>();
     bool ok = true;
     map.insert("version", version);
+    if(!this->schema.data()->getTableNames().contains(dbm->getTablename())) {
+        this->createTable(ptrDbm,true);
+    }
     if (this->findAllByAttributes(map, dbm->getTablename()).isEmpty()) {
         for (int var = 0; var < toInitialize.size(); ++var) {
             if (ok) {
@@ -76,7 +79,6 @@ bool EntityManager::startup(QString version, QStringList toInitialize) {
             this->create(ptrDbm);
         }
     }
-    delete dbm;
     return ok;
 }
 
@@ -748,8 +750,8 @@ bool EntityManager::removeAll(QString tblname) {
     return this->schema.data()->getQueryBuilder().data()->removeAll(tblname).exec();
 }
 
-bool EntityManager::createTable(const QSharedPointer<Entity> &entity) {
-    return this->schema.data()->getQueryBuilder().data()->createTable(entity);
+bool EntityManager::createTable(const QSharedPointer<Entity> &entity,bool createRelationTables) {
+    return this->schema.data()->getQueryBuilder().data()->createTable(entity,createRelationTables);
 }
 
 qint8 EntityManager::count(const QSharedPointer<Entity> &entity,

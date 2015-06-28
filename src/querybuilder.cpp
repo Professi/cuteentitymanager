@@ -31,7 +31,7 @@ QueryBuilder::QueryBuilder(QSharedPointer<Schema> schema,
 QueryBuilder::~QueryBuilder() {
 }
 
-bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity) const {
+bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity, bool createRelationTables) const {
     bool rc = false;
     if (entity.data()) {
         auto tableDefinition = this->generateTableDefinition(entity);
@@ -40,7 +40,17 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity) const {
         if (!rc) {
             QSqlQuery q = this->database.data()->getQuery(this->createTable(tableName,
                           tableDefinition));
+
+
             if (this->database.data()->transaction(q)) {
+                if(createRelationTables) {
+                    auto relTables = this->generateRelationTables(entity);
+                    auto i = relTables.constBegin();
+                    while(i != relTables.constEnd()) {
+                        this->createTable(i.key(),i.value());
+                        ++i;
+                    }
+                }
                 this->schema.data()->getTableSchema(tableName);
                 rc = true;
                 if (rc) {
@@ -523,7 +533,7 @@ QSqlQuery QueryBuilder::find(const qint64 &id,
                              const QSharedPointer<Entity> &entity, qint64 offset, QString pk) const {
     QSqlQuery q = this->database.data()->getQuery(this->selectBase(QStringList(
                       entity.data()->getTablename())) + this->joinSuperClasses(
-                      entity) + " WHERE " + pk + "= :id" + this->limit(1, offset));
+                      entity) + " WHERE " + this->schema.data()->quoteColumnName(pk) + "= :id" + this->limit(1, offset));
     q.bindValue(":id", id);
     return q;
 }

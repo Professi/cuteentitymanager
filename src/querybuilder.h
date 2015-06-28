@@ -40,7 +40,7 @@ class QueryBuilder {
   public:
     QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database);
     virtual ~QueryBuilder();
-    virtual bool createTable(const QSharedPointer<Entity> &entity) const;
+    virtual bool createTable(const QSharedPointer<Entity> &entity, bool createRelationTables=true) const;
     virtual bool createIndices(const QSharedPointer<Entity> &entity) const;
     virtual QString createTable(const QString &tableName,
                                 const QHash<QString, QString> &tableDefinition) const;
