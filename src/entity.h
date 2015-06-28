@@ -46,14 +46,13 @@ class Entity : public QObject {
     virtual ~Entity();
     virtual QString getTablename() const;
     virtual const QHash<QString, Relation> getRelations() const;
-    virtual const QHash<QString, Relation> getNonInheritedRelations() const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;
     virtual InheritanceStrategy getInheritanceStrategy() const;
     virtual bool isInheritanceCascaded() const;
-
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey() const;
+    const QHash<QString, Relation> getNonInheritedRelations() const;
     const QList<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
             = false) const;
     const QHash<QString, QMetaProperty> getMetaProperties() const;
