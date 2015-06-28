@@ -38,7 +38,15 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
     Entity *e = 0;
     if (metaTypeId != QMetaType::UnknownType) {
         auto metaObject = QMetaType::metaObjectForType(metaTypeId);
-        e = static_cast<Entity *>(metaObject->newInstance());
+        if(metaObject) {
+        e = qobject_cast<Entity*>(metaObject->newInstance());
+        } else {
+            void* newObj = QMetaType::create(metaTypeId);
+            if(newObj) {
+            e = static_cast<Entity *>(newObj);
+            }
+        }
+
         if (!e) {
             qDebug() << "Entity instance could not created!";
             throw - 2; //testing

@@ -40,14 +40,13 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity, bool create
         if (!rc) {
             QSqlQuery q = this->database.data()->getQuery(this->createTable(tableName,
                           tableDefinition));
-
-
             if (this->database.data()->transaction(q)) {
                 if(createRelationTables) {
                     auto relTables = this->generateRelationTables(entity);
                     auto i = relTables.constBegin();
                     while(i != relTables.constEnd()) {
-                        this->createTable(i.key(),i.value());
+                        auto query = this->database.data()->getQuery(this->createTable(i.key(),i.value()));
+                        this->database.data()->exec(query);
                         ++i;
                     }
                 }
@@ -430,7 +429,7 @@ const {
                      this->schema.data()->TYPE_BIGINT);
             auto meta = props.value(r.getPropertyName());
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>
-                                         (EntityInstanceFactory::createInstance(meta.enclosingMetaObject()));
+                                         (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(QMetaType::typeName(meta.userType()))));
             h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema.data()->TYPE_BIGINT);
             relations.insert(this->generateManyToManyTableName(entity, ptr), h);
@@ -860,7 +859,7 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
                             this->saveAttributes(entity, this->processProperties(e, usedProperties),
                                                  this->processRelations(e, usedRelations)), e.data()->getPrimaryKey()));
             } else {
-                qDebug() << "Instance of " << metaObj->className() << " could not created";
+                qDebug() << "Instance of " << metaObj->className() << " could not be created";
                 break;
             }
         }

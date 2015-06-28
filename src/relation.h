@@ -41,15 +41,15 @@ enum CascadeType {
 
 class Relation {
   public:
-    Relation();
-    Relation(QString propertyName, RelationType type, bool optional = true);
+    explicit Relation();
+    explicit Relation(QString propertyName, bool optional, RelationType type);
     /**
      * @brief Relation
      * @param propertyName
      * @param type
      * @param mappedBy Q_PROPERTY in foreign Entity
      */
-    Relation(QString propertyName, RelationType type, QString mappedBy,
+    explicit Relation(QString propertyName, RelationType type, QString mappedBy,
              QList<CascadeType> cascadeType = {MERGE, PERSIST, REFRESH});
     ~Relation();
     RelationType getType() const;

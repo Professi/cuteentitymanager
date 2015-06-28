@@ -14,12 +14,13 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 #include "relation.h"
+#include <QDebug>
 using namespace CuteEntityManager;
 
 Relation::Relation() {
 }
 
-Relation::Relation(QString propertyName, RelationType type, bool optional) {
+Relation::Relation(QString propertyName, bool optional, RelationType type) {
     this->propertyName = propertyName;
     this->type = type;
     this->optional = optional;
