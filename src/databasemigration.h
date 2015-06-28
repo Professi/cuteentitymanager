@@ -25,7 +25,7 @@ class DatabaseMigration : public Entity {
     Q_PROPERTY(QDateTime applyTime READ getApplyTime WRITE setApplyTime)
 
   public:
-    DatabaseMigration();
+    Q_INVOKABLE DatabaseMigration();
     DatabaseMigration(QString version, QDateTime applyTime);
     ~DatabaseMigration();
     QString getVersion() const;
