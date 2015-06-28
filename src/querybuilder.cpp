@@ -428,9 +428,9 @@ const {
             h.insert(entity.data()->getPrimaryKey(), this->schema.data()->TYPE_BIGPK);
             h.insert(this->generateManyToManyColumnName(entity),
                      this->schema.data()->TYPE_BIGINT);
-            auto m = props.value(r.getPropertyName());
+            auto meta = props.value(r.getPropertyName());
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>
-                                         (EntityInstanceFactory::createInstance(m.type()));
+                                         (EntityInstanceFactory::createInstance(meta.enclosingMetaObject()));
             h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema.data()->TYPE_BIGINT);
             relations.insert(this->generateManyToManyTableName(entity, ptr), h);
