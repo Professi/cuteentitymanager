@@ -16,19 +16,32 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 HEADERS += \
+#    models/pupil.h \
     models/artikel.h \
-    models/person.h \
-    models/group.h \
-    models/pupil.h \
-    models/teacher.h
+#    models/person.h \
+#    models/group.h \
+#    models/teacher.h \
+    models/test/person.h \
+    models/test/group.h \
+    models/test/pupil.h \
+    models/test/address.h \
+    models/test/contact.h \
+    models/faker/createfakemodeldata.h \
+    models/test/enums.h
 
 SOURCES += \
     main.cpp \
     models/artikel.cpp \
-    models/person.cpp \
-    models/group.cpp \
-    models/pupil.cpp \
-    models/teacher.cpp
+#    models/person.cpp \
+#    models/group.cpp \
+#    models/pupil.cpp \
+#    models/teacher.cpp \
+    models/test/person.cpp \
+    models/test/group.cpp \
+    models/test/pupil.cpp \
+    models/test/address.cpp \
+    models/test/contact.cpp \
+    models/faker/createfakemodeldata.cpp
 
 unix:!macx: LIBS += -L$$PWD/../../build-EntityManager-Desktop-Debug -lCuteEntityManager
 unix:INCLUDEPATH += $$PWD/../src

@@ -6,7 +6,7 @@ Teacher::Teacher(QSharedPointer<Person> parent) : Person() {
 
 const QHash<QString, Relation> Teacher::getRelations() const {
     auto hash = Person::getRelations();
-    hash.insert("parent", Relation("parent", ONE_TO_ONE));
+    hash.insert("parent", Relation("parent", true,ONE_TO_ONE));
     hash.insert("groups", Relation("groups", ONE_TO_MANY, "teacher"));
     return hash;
 }

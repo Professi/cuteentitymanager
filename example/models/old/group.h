@@ -40,7 +40,7 @@ class Group: public CuteEntityManager::Entity {
     void parentSpeakersChanged();
 
   public:
-    virtual const QHash<QString, Relation> getRelations() const;
+//    virtual const QHash<QString, Relation> getRelations() const;
     Group();
 
     QString getName() const;

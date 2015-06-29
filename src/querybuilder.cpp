@@ -668,7 +668,11 @@ QSqlQuery QueryBuilder::removeAll(const QString &tableName) const {
 
 QSqlQuery QueryBuilder::insert(const QString &tableName,
                                QHash<QString, QVariant> &attributes, const QString &primaryKey) const {
-    attributes.remove(primaryKey);
+    //if(attributes.size() == 1) {
+   // attributes.insert(primaryKey,QVariant("null"));
+  //  } else {
+        attributes.remove(primaryKey);
+//    }
     QSqlQuery q = this->database.data()->getQuery();
     QString p1 = "INSERT INTO " + this->schema.data()->quoteTableName(
                      tableName) + "(";
@@ -922,8 +926,8 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
             } else if (v.canConvert<QPointer<Entity>>()) {
                 this->insertRelationId(qvariant_cast<QPointer<Entity>>(v).data(), map, i.key());
             }
-            ++i;
         }
+        ++i;
     }
     return map;
 }

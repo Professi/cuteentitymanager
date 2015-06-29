@@ -58,10 +58,10 @@ void Group::setParentSpeakers(const QList<QSharedPointer<Person> > &value)
 const QHash<QString, Relation> Group::getRelations() const
 {
     auto hash = Entity::getRelations();
-    hash.insert("teacher",Relation("teacher",MANY_TO_ONE,false));
-    hash.insert("pupils",Relation("pupils",MANY_TO_MANY));
-    hash.insert("classPrefects",Relation("classPrefects",MANY_TO_MANY));
-    hash.insert("parentSpeakers",Relation("parentSpeakers",MANY_TO_MANY));
+    hash.insert("teacher",Relation("teacher",false,MANY_TO_ONE));
+    hash.insert("pupils",Relation("pupils",MANY_TO_MANY,QString("")));
+    hash.insert("classPrefects",Relation("classPrefects",MANY_TO_MANY,QString("")));
+    hash.insert("parentSpeakers",Relation("parentSpeakers",MANY_TO_MANY,QString("")));
     return hash;
 }
 

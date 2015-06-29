@@ -3,19 +3,19 @@
 #include <QDir>
 #include <QDebug>
 #include "models/artikel.h"
-#include "models/person.h"
 #include <typeinfo>
 #include <QThread>
 #include <QMetaMethod>
 #include <QMetaProperty>
-#include "models/group.h"
+#include "models/test/group.h"
 #include "../src/entity.h"
 #include "../src/entitymanager.h"
 #include "../src/relation.h"
 #include <QGenericReturnArgument>
 #include "entityinstancefactory.h"
 #include <exception>
-#include "models/pupil.h"
+#include "models/test/pupil.h"
+#include "models/faker/createfakemodeldata.h"
 /**
   * create,remove und merge funktionieren
  */
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
                                 "Müsli"));
     auto ep = a.dynamicCast<CuteEntityManager::Entity>();
     qDebug() << "Tabelle artikel erstellt:" << e->createTable(ep);
-    e->create(ep);
+    //e->create(ep);
     auto artikel = e->findById<Artikel *>(1);
     qDebug() << "ArtikelID:" << artikel.data()->getId();
 //    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Person::MALE, "", "", "",
@@ -53,6 +53,16 @@ int main(int argc, char *argv[]) {
 //        qDebug() << iterator.key() << " Value:" << iterator.value().read(p);
 //        iterator++;
 //    }
+    EntityInstanceFactory::registerClass<Group>();
+    EntityInstanceFactory::registerClass<Person>();
+    Group *g = new Group();
+//    CreateFakeModelData::fillGroup(g);
+    QSharedPointer<Group> gPtr = QSharedPointer<Group>(g);
+        e->createTable(gPtr);
+    auto prrr = gPtr.objectCast<Entity>();
+    e->create(prrr);
+
     qDebug() << "Duration:" << t.elapsed();
+
     return 0;
 }
