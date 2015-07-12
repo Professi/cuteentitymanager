@@ -46,7 +46,6 @@ class EntityManager : public QObject {
     QSharedPointer<Database> db;
     Cache cache;
     QString createConnection();
-    QString createTableQuery(const QSharedPointer<Entity> &entity);
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
     bool checkTable(const QSharedPointer<Entity> &entity);
 

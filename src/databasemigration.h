@@ -20,7 +20,7 @@
 #include <QDateTime>
 namespace CuteEntityManager {
 class DatabaseMigration : public Entity {
-
+    Q_OBJECT
     Q_PROPERTY(QString version READ getVersion WRITE setVersion)
     Q_PROPERTY(QDateTime applyTime READ getApplyTime WRITE setApplyTime)
 

@@ -56,12 +56,12 @@ EntityManager::~EntityManager() {
 
 bool EntityManager::startup(QString version, QStringList toInitialize) {
     DatabaseMigration *dbm = new DatabaseMigration();
-    QSharedPointer<Entity> ptrDbm = QSharedPointer<Entity>(dbm);
+    QSharedPointer<Entity> ptrDbm = QSharedPointer<DatabaseMigration>(dbm);
     QHash<QString, QVariant> map = QHash<QString, QVariant>();
     bool ok = true;
     map.insert("version", version);
-    if(!this->schema.data()->getTableNames().contains(dbm->getTablename())) {
-        this->createTable(ptrDbm,true);
+    if (!this->schema.data()->getTableNames().contains(dbm->getTablename())) {
+        this->createTable(ptrDbm, true);
     }
     if (this->findAllByAttributes(map, dbm->getTablename()).isEmpty()) {
         for (int var = 0; var < toInitialize.size(); ++var) {
@@ -78,6 +78,7 @@ bool EntityManager::startup(QString version, QStringList toInitialize) {
             dbm->setApplyTime(QDateTime::currentDateTime());
             this->create(ptrDbm);
         }
+        this->schema.data()->setTables(this->schema.data()->getTableSchemas());
     }
     return ok;
 }
@@ -572,7 +573,8 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
             auto query = q.at(var);
             rc = this->db.data()->exec(query);
             if (!rc) {
-                qDebug() << "Query failed:" << query.lastError().text();
+                qDebug() << "Query failed:" << query.lastError().text() << " of class " <<
+                         entity.data()->getClassname();
                 break;
             }
             if (first) {
@@ -750,8 +752,11 @@ bool EntityManager::removeAll(QString tblname) {
     return this->schema.data()->getQueryBuilder().data()->removeAll(tblname).exec();
 }
 
-bool EntityManager::createTable(const QSharedPointer<Entity> &entity,bool createRelationTables) {
-    return this->schema.data()->getQueryBuilder().data()->createTable(entity,createRelationTables);
+bool EntityManager::createTable(const QSharedPointer<Entity> &entity,
+                                bool createRelationTables) {
+    return this->schema.data()->getQueryBuilder().data()->createTable(entity,
+            createRelationTables);
+
 }
 
 qint8 EntityManager::count(const QSharedPointer<Entity> &entity,

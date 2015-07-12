@@ -22,7 +22,7 @@
 namespace CuteEntityManager {
 class Entity;
 class EntityInstanceFactory {
-public:
+  public:
     static Entity *createInstance(const char *className);
     static Entity *createInstance(const QString &className);
     static Entity *createInstance(int metaTypeId);
@@ -44,35 +44,31 @@ public:
 
     //http://www.mimec.org/node/350
     template<typename T>
-    static void registerClass()
-    {
+    static void registerClass() {
         constructors().insert( T::staticMetaObject.className(), &constructorHelper<T> );
     }
 
-    static Entity* createObject( const QByteArray& className)
-    {
+    static Entity *createObject( const QByteArray &className) {
         Constructor constructor = constructors().value( className );
-        if ( constructor == NULL )
+        if ( constructor == NULL ) {
             return NULL;
+        }
         return (*constructor)();
     }
 
-private:
-    typedef Entity* (*Constructor)();
-
+  private:
+    typedef Entity *(*Constructor)();
     template<typename T>
-    static Entity* constructorHelper()
-    {
+    static Entity *constructorHelper() {
         return new T();
     }
 
-    static QHash<QByteArray, Constructor>& constructors()
-    {
+    static QHash<QByteArray, Constructor> &constructors() {
         static QHash<QByteArray, Constructor> instance;
         return instance;
     }
 
-protected:
+  protected:
     EntityInstanceFactory();
 };
 }

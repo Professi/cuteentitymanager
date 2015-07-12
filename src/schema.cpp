@@ -85,7 +85,8 @@ QString Schema::quoteTableName(QString name) {
 }
 
 QString Schema::quoteColumnName(QString name) {
-    if (name.indexOf("(") != -1 || name.indexOf("[[") != -1 || name.indexOf("{{") != -1) {
+    if (name.indexOf("(") != -1 || name.indexOf("[[") != -1
+            || name.indexOf("{{") != -1) {
         return name;
     }
     int pos = name.indexOf(".");
@@ -105,9 +106,9 @@ QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(
     QString schema, bool refresh) {
     QStringList names = this->getTableNames();
     for (int i = 0; i < names.size(); ++i) {
-        QString name;
+        QString name = names.at(i);
         if (schema != "") {
-            name = schema + "." + names.at(i);
+            name = schema + "." + name;
         }
         this->getTableSchema(name, refresh);
     }
@@ -137,14 +138,15 @@ QString Schema::getRawTable(QString name) {
 }
 
 bool Schema::containsTable(QString tblname) {
-    return this->tables.contains(tblname);
+    if (this->tables.size() !=
+            this->database.data()->getDatabase().tables().size()) {
+        this->setTables(this->getTableSchemas());
+    }
+    return this->database.data()->getDatabase().tables().contains(tblname);
 }
 
 QSharedPointer<TableSchema> Schema::getTableSchema(QString name, bool refresh) {
-    if (refresh) {
-        this->refresh();
-    }
-    if (this->tables.contains(name)) {
+    if (this->tables.contains(name) && !refresh) {
         return this->tables.value(name);
     }
     QString realName = this->getRawTable(name);

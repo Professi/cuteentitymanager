@@ -23,17 +23,13 @@ EntityInstanceFactory::EntityInstanceFactory() {
 
 Entity *EntityInstanceFactory::createInstance(const char *className) {
     QString s = QString(className);
-    bool contained = false;
     if (!s.contains("*")) {
-        contained = true;
         s.append("*");
     }
     auto ptr = EntityInstanceFactory::createInstance(QMetaType::type(
-                                                         s.toUtf8().constData()));
-    if(!ptr) {
-        if(contained) {
-            s.remove("*");
-        }
+                   s.toUtf8().constData()));
+    if (!ptr) {
+        s.remove("*");
         ptr = EntityInstanceFactory::createObject(s.toUtf8());
     }
     return ptr;
@@ -47,12 +43,12 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
     Entity *e = 0;
     if (metaTypeId != QMetaType::UnknownType) {
         auto metaObject = QMetaType::metaObjectForType(metaTypeId);
-        if(metaObject) {
-        e = qobject_cast<Entity*>(metaObject->newInstance());
+        if (metaObject) {
+            e = qobject_cast<Entity *>(metaObject->newInstance());
         } else {
-            void* newObj = QMetaType::create(metaTypeId);
-            if(newObj) {
-            e = static_cast<Entity *>(newObj);
+            void *newObj = QMetaType::create(metaTypeId);
+            if (newObj) {
+                e = static_cast<Entity *>(newObj);
             }
         }
     }

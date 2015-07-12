@@ -20,10 +20,10 @@
 namespace CuteEntityManager {
 enum RelationType {
     ONE_TO_ONE, //e.g. specialization, heritage
-    ONE_TO_MANY, //@OneToMany(cascade=ALL, mappedBy="customer")
-    MANY_TO_ONE,
+    ONE_TO_MANY, //@OneToMany(cascade=ALL, mappedBy="customer") e.g. QList<QSharedPointer<Person>>
+    MANY_TO_ONE, //e.g. QSharedPointer<Person>
     //1-n  Entity foreign key in same table
-    MANY_TO_MANY,
+    MANY_TO_MANY, //e.g. QList<QSharedPointer<Person>> - realized with seperated database table
 };
 
 enum InheritanceStrategy {
@@ -49,7 +49,7 @@ class Relation {
      * @param type
      * @param mappedBy Q_PROPERTY in foreign Entity
      */
-    explicit Relation(QString propertyName, RelationType type, QString mappedBy,
+    explicit Relation(QString propertyName, RelationType type, QString mappedBy = QString(),
              QList<CascadeType> cascadeType = {MERGE, PERSIST, REFRESH});
     ~Relation();
     RelationType getType() const;
