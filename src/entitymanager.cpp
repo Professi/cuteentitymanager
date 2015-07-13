@@ -248,8 +248,7 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
 
 bool EntityManager::canPersistRelation(const Relation &relation,
                                        const RelationType &r, const QVariant &var) const {
-    return relation.getType() == r
-           && var.canConvert<QList<QSharedPointer<Entity>>>();
+    return relation.getType() == r  && var.canConvert<QVariantList>();
 }
 
 void EntityManager::setListProperty(const QSharedPointer<Entity> &entity,
@@ -484,10 +483,12 @@ const QList<QSharedPointer<Entity> > &list, const Relation &r) {
 
 void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                       const Relation &r, const QVariant &property) {
-    QList<QSharedPointer<Entity>> list =
-                                   qvariant_cast<QList<QSharedPointer<Entity>>>(property);
+    auto list = property.value<QList<QVariant>>();
     if (!list.isEmpty()) {
-        auto ptr = list.at(0);
+        /**
+         * TODO
+         */
+        auto ptr = list.at(0).value<QSharedPointer<Entity>>();
         auto builder = this->schema.data()->getQueryBuilder();
         QString tblName = builder.data()->generateManyToManyTableName(entity, ptr);
         if (this->schema.data()->getTables().contains(tblName)) {
@@ -495,7 +496,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                               tblName, builder.data()->generateManyToManyColumnName(entity),
                               entity.data()->property(entity.data()->getPrimaryKey()).toLongLong());
             if (this->db.data()->transaction(q)) {
-                this->persistMappedByRelation(list, q, entity, r, tblName);
+                //this->persistMappedByRelation(list, q, entity, r, tblName);
             }
         } else {
             qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";
