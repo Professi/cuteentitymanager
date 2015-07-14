@@ -30,13 +30,13 @@ CuteEntityManager::SqliteQueryBuilder::~SqliteQueryBuilder() {
 
 QString CuteEntityManager::SqliteQueryBuilder::truncateTable(
     QString tableName) const {
-    return "DELETE FROM " + this->schema.data()->quoteTableName(tableName);
+    return "DELETE FROM " + this->schema->quoteTableName(tableName);
 }
 
 QString CuteEntityManager::SqliteQueryBuilder::dropIndex(QString name,
         QString tableName) const {
     Q_UNUSED(tableName)
-    return "DROP INDEX " + this->schema.data()->quoteTableName(name);
+    return "DROP INDEX " + this->schema->quoteTableName(name);
 }
 
 QString CuteEntityManager::SqliteQueryBuilder::dropColumn(QString tableName,

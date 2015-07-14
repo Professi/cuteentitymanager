@@ -166,7 +166,10 @@ const char *Entity::getClassname() const {
 }
 
 QVariant Entity::property(const QString &name) const {
-    return this->property(name.toLatin1().constData());
+    if (!name.isEmpty()) {
+        return QObject::property(name.toLatin1().constData());
+    }
+    return QVariant();
 }
 
 qint64 Entity::getId() const {

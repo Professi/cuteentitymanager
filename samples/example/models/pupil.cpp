@@ -26,4 +26,14 @@ QString Pupil::getForm() const {
 void Pupil::setForm(const QString &value) {
     form = value;
 }
+QString Pupil::getLegalGuardianNote() const
+{
+    return legalGuardianNote;
+}
+
+void Pupil::setLegalGuardianNote(const QString &value)
+{
+    legalGuardianNote = value;
+}
+
 

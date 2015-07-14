@@ -32,28 +32,28 @@ SqliteSchema::~SqliteSchema() {
 }
 
 QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
-    if (this->typeMap.data()->empty()) {
-        this->typeMap.data()->insert(TYPE_PK,
+    if (this->typeMap->empty()) {
+        this->typeMap->insert(TYPE_PK,
                                      "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
-        this->typeMap.data()->insert(TYPE_BIGPK,
+        this->typeMap->insert(TYPE_BIGPK,
                                      "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
-        this->typeMap.data()->insert(TYPE_BOOLEAN, "boolean");
-        this->typeMap.data()->insert(TYPE_SMALLINT, "smallint");
-        this->typeMap.data()->insert(TYPE_INTEGER, "integer");
-        this->typeMap.data()->insert(TYPE_BIGINT, "bigint");
-        this->typeMap.data()->insert(TYPE_FLOAT, "float");
-        this->typeMap.data()->insert(TYPE_DOUBLE, "double");
-        this->typeMap.data()->insert(TYPE_FLOAT, "real");
-        this->typeMap.data()->insert(TYPE_DECIMAL, "decimal(10,0)");
-        this->typeMap.data()->insert(TYPE_TEXT, "text");
-        this->typeMap.data()->insert(TYPE_STRING, "text");
-        this->typeMap.data()->insert(TYPE_CHAR, "char");
-        this->typeMap.data()->insert(TYPE_BINARY, "blob");
-        this->typeMap.data()->insert(TYPE_DATETIME, "datetime");
-        this->typeMap.data()->insert(TYPE_DATE, "date");
-        this->typeMap.data()->insert(TYPE_TIME, "time");
-        this->typeMap.data()->insert(TYPE_TIMESTAMP, "timestamp");
-        this->typeMap.data()->insert(TYPE_MONEY, "decimal(19,4)");
+        this->typeMap->insert(TYPE_BOOLEAN, "boolean");
+        this->typeMap->insert(TYPE_SMALLINT, "smallint");
+        this->typeMap->insert(TYPE_INTEGER, "integer");
+        this->typeMap->insert(TYPE_BIGINT, "bigint");
+        this->typeMap->insert(TYPE_FLOAT, "float");
+        this->typeMap->insert(TYPE_DOUBLE, "double");
+        this->typeMap->insert(TYPE_FLOAT, "real");
+        this->typeMap->insert(TYPE_DECIMAL, "decimal(10,0)");
+        this->typeMap->insert(TYPE_TEXT, "text");
+        this->typeMap->insert(TYPE_STRING, "text");
+        this->typeMap->insert(TYPE_CHAR, "char");
+        this->typeMap->insert(TYPE_BINARY, "blob");
+        this->typeMap->insert(TYPE_DATETIME, "datetime");
+        this->typeMap->insert(TYPE_DATE, "date");
+        this->typeMap->insert(TYPE_TIME, "time");
+        this->typeMap->insert(TYPE_TIMESTAMP, "timestamp");
+        this->typeMap->insert(TYPE_MONEY, "decimal(19,4)");
     }
     return this->typeMap;
 }
@@ -63,9 +63,9 @@ QStringList SqliteSchema::findTableNames(QString schema) {
     auto l = QStringList();
     QString sql =
         "SELECT DISTINCT tbl_name FROM sqlite_master WHERE tbl_name<>'sqlite_sequence' ORDER BY tbl_name";
-    auto q = this->database.data()->getQuery();
+    auto q = this->database->getQuery();
     q.prepare(sql);
-    this->database.data()->select(q);
+    this->database->select(q);
     while (q.next()) {
         l.append(q.value(0).toString());
     }
@@ -76,13 +76,13 @@ QHash<QString, QStringList> SqliteSchema::findUniqueIndexes(
     const QSharedPointer<TableSchema>
     &table) {
     QHash<QString, QStringList> uniqueIndexes = QHash<QString, QStringList>();
-    QSqlQuery q = this->database.data()->getQuery();
+    QSqlQuery q = this->database->getQuery();
     q.setForwardOnly(true);
     q.exec("PRAGMA index_list(" + this->quoteSimpleTableName(
                table->getName()) + ')');
     while (q.next()) {
         QString indexName = q.value("name").toString();
-        QSqlQuery q2 = this->database.data()->getQuery();
+        QSqlQuery q2 = this->database->getQuery();
         q2.setForwardOnly(true);
         if (q.value("unique").toBool()) {
             q2.exec("PRAGMA index_info(" + this->quoteSimpleTableName(indexName) + ")");
@@ -97,11 +97,11 @@ QHash<QString, QStringList> SqliteSchema::findUniqueIndexes(
 }
 
 void SqliteSchema::findConstraints(const QSharedPointer<TableSchema> &ts) {
-    QSqlQuery q = this->database.data()->getQuery();
+    QSqlQuery q = this->database->getQuery();
     q.setForwardOnly(true);
     q.exec("PRAGMA foreign_key_list(" + this->quoteSimpleTableName(
-               ts.data()->getName()) + ')');
-    auto foreignKeys = ts.data()->getRelations();
+               ts->getName()) + ')');
+    auto foreignKeys = ts->getRelations();
     while (q.next()) {
         bool ok;
         int id = q.value("id").toInt(&ok);
@@ -113,13 +113,13 @@ void SqliteSchema::findConstraints(const QSharedPointer<TableSchema> &ts) {
             foreignKeys.insert(QString::number(id), ptr);
         }
     }
-    ts.data()->setRelations(foreignKeys);
+    ts->setRelations(foreignKeys);
 }
 
 bool SqliteSchema::findColumns(const QSharedPointer<TableSchema> &ts) {
-    QSqlQuery q = this->database.data()->getQuery();
+    QSqlQuery q = this->database->getQuery();
     q.setForwardOnly(true);
-    q.exec("SELECT * FROM " + this->quoteSimpleTableName(ts.data()->getName()) +
+    q.exec("SELECT * FROM " + this->quoteSimpleTableName(ts->getName()) +
            " LIMIT 0");
     QHash<QString, QSharedPointer<QSqlField>> columns =
             QHash<QString, QSharedPointer<QSqlField>>();
@@ -132,15 +132,14 @@ bool SqliteSchema::findColumns(const QSharedPointer<TableSchema> &ts) {
         QSqlField f = rec.field(var);
         columns.insert(f.name(), QSharedPointer<QSqlField>(new QSqlField(f)));
     }
-    ts.data()->setColumns(columns);
+    ts->setColumns(columns);
     return true;
 }
 
 QSharedPointer<TableSchema> SqliteSchema::loadTableSchema(QString name) {
-    auto table = new TableSchema();
-    auto ptr = QSharedPointer<TableSchema>(table);
-    table->setName(name);
-    table->setFullName(name);
+    auto ptr = QSharedPointer<TableSchema>(new TableSchema());
+    ptr->setName(name);
+    ptr->setFullName(name);
     if (this->findColumns(ptr)) {
         this->findConstraints(ptr);
     } else {

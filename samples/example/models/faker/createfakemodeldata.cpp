@@ -6,6 +6,17 @@
 #include "../group.h"
 
 void CreateFakeModelData::fillGroup(Group* group) {
+    group->addPerson(new Person("Tim","Berg",MALE,"Tim Berg.jpg",QString(),QString(),QDate(2000,7,13),0));
+    group->addPerson(new Person("Lena","Conrad",FEMALE,"Lena Conrad.jpg",QString(),QString(),QDate(2000,7,13),0));
+    group->addPerson(new Person("Marcel","Dunst",MALE,"Marcel Dunst.jpg",QString(),QString(),QDate(2000,7,13),0));
+    group->addPerson(new Person("Carsten","Ernst",MALE,"Carsten Ernst.jpg",QString(),QString(),QDate(2000,7,13),0));
+    group->addPerson(new Person("Hannah","Eschborn",FEMALE,"Hannah Eschborn.jpg",QString(),QString(),QDate(2000,7,13),0));
+    group->addPerson(new Person("Vera","Geseke",FEMALE,"Vera Geseke.jpg",QString(),QString(),QDate(2000,4,1),0));
+    group->addPerson(new Person("Jann","Hagedorn",MALE,"Jann Hagedorn.jpg",QString(),QString(),QDate(2000,8,16),0));
+    group->addPerson(new Person("Svenja","Hartmann",FEMALE,"Svenja Hartmann.jpg",QString(),QString(),QDate(2000,2,2),0));
+    group->addPerson(new Person("Timo","Haufer",MALE,"Timo Haufer.jpg",QString(),QString(),QDate(2000,2,28),0));
+
+
     group->addPupil(new Pupil("Tim","Berg",MALE,"Tim Berg.jpg",QString(),QString(),QDate(2000,7,13),"05c",0));
     group->addPupil(new Pupil("Lena","Conrad",FEMALE,"Lena Conrad.jpg",QString(),QString(),QDate(2000,7,13),"05c",0));
     group->addPupil(new Pupil("Marcel","Dunst",MALE,"Marcel Dunst.jpg",QString(),QString(),QDate(2000,7,13),"05c",0));

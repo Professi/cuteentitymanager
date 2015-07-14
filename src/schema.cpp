@@ -36,34 +36,34 @@ Schema::~Schema() {
 
 void Schema::initAbstractDatabaseTypes() {
     this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>::create();
-    this->abstractTypeMap.data()->insert("bool", TYPE_SMALLINT);
-    this->abstractTypeMap.data()->insert("short", TYPE_SMALLINT);
-    this->abstractTypeMap.data()->insert("int", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("long", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("long long", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("qlonglong", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("float", TYPE_FLOAT);
-    this->abstractTypeMap.data()->insert("double", TYPE_FLOAT);
-    this->abstractTypeMap.data()->insert("long double", TYPE_FLOAT);
-    this->abstractTypeMap.data()->insert("qint", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("quint", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("quuid", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("qfloat", TYPE_FLOAT);
-    this->abstractTypeMap.data()->insert("unsigned short", TYPE_SMALLINT);
-    this->abstractTypeMap.data()->insert("unsigned int", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("unsigned long", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("unsigned long long", TYPE_INTEGER);
-    this->abstractTypeMap.data()->insert("char", TYPE_CHAR);
-    this->abstractTypeMap.data()->insert("std::string", TYPE_TEXT);
-    this->abstractTypeMap.data()->insert("std::wstring", TYPE_TEXT);
-    this->abstractTypeMap.data()->insert("QString", TYPE_TEXT);
-    this->abstractTypeMap.data()->insert("QVariant", TYPE_TEXT);
-    this->abstractTypeMap.data()->insert("QUuid", TYPE_TEXT);
-    this->abstractTypeMap.data()->insert("QDate", TYPE_DATE);
-    this->abstractTypeMap.data()->insert("QTime", TYPE_TIME);
-    this->abstractTypeMap.data()->insert("QDateTime", TYPE_DATETIME);
-    this->abstractTypeMap.data()->insert("QByteArray", TYPE_BINARY);
-    this->abstractTypeMap.data()->insert("QBitArray", TYPE_BINARY);
+    this->abstractTypeMap->insert("bool", TYPE_SMALLINT);
+    this->abstractTypeMap->insert("short", TYPE_SMALLINT);
+    this->abstractTypeMap->insert("int", TYPE_INTEGER);
+    this->abstractTypeMap->insert("long", TYPE_INTEGER);
+    this->abstractTypeMap->insert("long long", TYPE_INTEGER);
+    this->abstractTypeMap->insert("qlonglong", TYPE_INTEGER);
+    this->abstractTypeMap->insert("float", TYPE_FLOAT);
+    this->abstractTypeMap->insert("double", TYPE_FLOAT);
+    this->abstractTypeMap->insert("long double", TYPE_FLOAT);
+    this->abstractTypeMap->insert("qint", TYPE_INTEGER);
+    this->abstractTypeMap->insert("quint", TYPE_INTEGER);
+    this->abstractTypeMap->insert("quuid", TYPE_INTEGER);
+    this->abstractTypeMap->insert("qfloat", TYPE_FLOAT);
+    this->abstractTypeMap->insert("unsigned short", TYPE_SMALLINT);
+    this->abstractTypeMap->insert("unsigned int", TYPE_INTEGER);
+    this->abstractTypeMap->insert("unsigned long", TYPE_INTEGER);
+    this->abstractTypeMap->insert("unsigned long long", TYPE_INTEGER);
+    this->abstractTypeMap->insert("char", TYPE_CHAR);
+    this->abstractTypeMap->insert("std::string", TYPE_TEXT);
+    this->abstractTypeMap->insert("std::wstring", TYPE_TEXT);
+    this->abstractTypeMap->insert("QString", TYPE_TEXT);
+    this->abstractTypeMap->insert("QVariant", TYPE_TEXT);
+    this->abstractTypeMap->insert("QUuid", TYPE_TEXT);
+    this->abstractTypeMap->insert("QDate", TYPE_DATE);
+    this->abstractTypeMap->insert("QTime", TYPE_TIME);
+    this->abstractTypeMap->insert("QDateTime", TYPE_DATETIME);
+    this->abstractTypeMap->insert("QByteArray", TYPE_BINARY);
+    this->abstractTypeMap->insert("QBitArray", TYPE_BINARY);
 }
 
 QString Schema::quoteSimpleTableName(QString name) {
@@ -116,11 +116,12 @@ QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(
 }
 
 QStringList Schema::getTableNames(QString schema) {
-    return this->database.data()->getDatabase().tables();
+    Q_UNUSED(schema)
+    return this->database->getDatabase().tables();
 }
 
 QVariant Schema::getLastInsertID() {
-    QSqlQuery q(this->database.data()->getDatabase());
+    QSqlQuery q(this->database->getDatabase());
     auto lastId = q.lastInsertId();
     return lastId;
 }
@@ -139,10 +140,10 @@ QString Schema::getRawTable(QString name) {
 
 bool Schema::containsTable(QString tblname) {
     if (this->tables.size() !=
-            this->database.data()->getDatabase().tables().size()) {
+            this->database->getDatabase().tables().size()) {
         this->setTables(this->getTableSchemas());
     }
-    return this->database.data()->getDatabase().tables().contains(tblname);
+    return this->database->getDatabase().tables().contains(tblname);
 }
 
 QSharedPointer<TableSchema> Schema::getTableSchema(QString name, bool refresh) {

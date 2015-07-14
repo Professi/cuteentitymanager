@@ -71,7 +71,7 @@ class EntityManager : public QObject {
     bool canPersistRelation(const Relation &relation, const RelationType &r,
                             const QVariant &var) const;
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                           const QVariant &property);
+                           QVariant &property);
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -220,7 +220,7 @@ public:
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
-            e->setId(id);
+            ptr->setId(id);
             return this->remove(ptr);
         }
         return false;
@@ -228,4 +228,5 @@ public:
 
 };
 }
+Q_DECLARE_METATYPE(QSharedPointer<CuteEntityManager::Entity>)
 #endif // ENTITYMANAGER_H

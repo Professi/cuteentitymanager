@@ -4,6 +4,8 @@
 
 class Pupil : public Person {
     Q_OBJECT
+    Q_PROPERTY(QString legalGuardianNote READ getLegalGuardianNote WRITE
+               setLegalGuardianNote)
   public:
     Q_INVOKABLE Pupil();
     Pupil(QString firstName, QString familyName, Gender gender = UNKNOWNGENDER,
@@ -13,8 +15,12 @@ class Pupil : public Person {
     QString getForm() const;
     void setForm(const QString &value);
 
+    QString getLegalGuardianNote() const;
+    void setLegalGuardianNote(const QString &value);
+
   protected:
     QString form;
+    QString legalGuardianNote;
 
 };
 

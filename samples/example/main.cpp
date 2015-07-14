@@ -11,6 +11,7 @@
 #include "models/contact.h"
 #include "models/group.h"
 #include "models/faker/createfakemodeldata.h"
+#include <typeinfo>
 /**
   * create,remove und merge funktionieren
  */

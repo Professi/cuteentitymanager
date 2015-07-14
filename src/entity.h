@@ -62,6 +62,7 @@ class Entity : public QObject {
     const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
     const QHash<Relation, QMetaProperty> getRelationProperties() const;
     const char *getClassname() const;
+
     QVariant property(const QString &name) const;
 
     qint64 getId() const;

@@ -29,14 +29,9 @@ class Person: public Entity {
 
   public:
     Q_INVOKABLE explicit Person(QObject *parent = 0);
-    Person(QString firstName,
-           QString familyName,
-           Gender gender = UNKNOWNGENDER,
-           QString customPictureFileName = QString(),
-           QString namePrefix = QString(),
-           QString nickName = QString(),
-           QDate birthday = QDate(),
-           QObject *parent = 0);
+    Person(QString firstName, QString familyName, Gender gender = UNKNOWNGENDER,
+           QString customPictureFileName = QString(), QString namePrefix = QString(),
+           QString nickName = QString(), QDate birthday = QDate(), QObject *parent = 0);
 
     virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const;
 
@@ -85,9 +80,8 @@ class Person: public Entity {
     Gender gender;
     QString customPictureFileName;
     QList <QSharedPointer<Contact>> contacts;
-    QList <QSharedPointer<Address>>addresses;
-    QList<QSharedPointer<Group>> groups;
-
+    QList <QSharedPointer<Address>> addresses;
+    QList <QSharedPointer<Group>> groups;
 };
 
 

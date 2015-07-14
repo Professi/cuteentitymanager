@@ -27,7 +27,7 @@ TableSchema::~TableSchema() {
 const QSharedPointer<QSqlField> TableSchema::getColumn(QString name) const {
     auto columns = this->getColumns();
     foreach (auto schema, columns) {
-        if (schema.data()->name() == name) {
+        if (schema->name() == name) {
             return schema;
         }
     }
@@ -38,7 +38,7 @@ const QStringList TableSchema::getColumnNames() {
     QStringList l;
     auto columns = this->getColumns();
     foreach (auto schema, columns) {
-        l.append(schema.data()->name());
+        l.append(schema->name());
     }
     return l;
 }
