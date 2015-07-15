@@ -314,10 +314,10 @@ void EntityManager::saveRelations(const QSharedPointer<Entity> &entity) {
 }
 
 void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
-        &list, QSqlQuery &q, const QSharedPointer<Entity> &entity, const Relation &r,
+        &list, QSqlQuery &q, const QSharedPointer<Entity> &entity,
+        const QSharedPointer<Entity> &ptr, const Relation &r,
         const QString &tblName) {
     q.clear();
-    QSharedPointer<Entity> ptr;
     QList<QSharedPointer<Entity>> saved = r.getCascadeType().contains(ALL)
                                           || r.getCascadeType().contains(MERGE)
                                           || r.getCascadeType().contains(PERSIST) ? this->saveRelationEntities(list,
@@ -329,19 +329,30 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
     q.bindValue(0, entity->getId());
     QMetaProperty prop;
     bool first = true;
+    QSharedPointer<Entity> item;
     for (int var = 0; var < saved.size(); ++var) {
-        ptr = list.at(var);
+        item = list.at(var);
         if (first && !r.getMappedBy().isEmpty()) {
             auto props = ptr->getMetaProperties();
             if (props.contains(r.getMappedBy())) {
                 prop = props.value(r.getMappedBy());
             }
         }
+        qDebug() << "Property valid:" << prop.isValid();
+        /**
+          @todo wip
+          **/
         if (ptr->property(ptr->getPrimaryKey()).toLongLong() > -1) {
             q.bindValue(1, ptr->property(ptr->getPrimaryKey()));
             q.exec();
-            if (prop.isValid()) {
+            if (prop.isReadable()) {
                 this->addEntityToListProperty(entity, ptr, prop);
+            } else {
+                qDebug() << "Query exec for many to many relation failed." <<
+                         q.lastError().text();
+                qDebug() << "Involved entities: " << entity->getClassname() <<
+                         "(MainEntitiy) and "  << entity->getClassname();
+                qDebug() << "Relation:" << r.getType() << r.getPropertyName();
             }
         }
     }
@@ -497,7 +508,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                   entity->property(entity->getPrimaryKey()).toLongLong());
                 if (this->db->transaction(q)) {
                     auto nList = *reinterpret_cast<QList<QSharedPointer<Entity>>*>(property.data());
-                    this->persistMappedByRelation(nList, q, entity, r, tblName);
+                    this->persistMappedByRelation(nList, q, entity, ptr, r, tblName);
                 }
             } else {
                 qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";

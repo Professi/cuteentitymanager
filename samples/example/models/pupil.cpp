@@ -4,7 +4,7 @@ Pupil::Pupil() : Person() {
 
 }
 
-Pupil::Pupil(QString firstName, QString familyName, Gender gender,
+Pupil::Pupil(QString firstName, QString familyName, Enums::Gender gender,
              QString customPictureFileName, QString namePrefix, QString nickName,
              QDate birthday, QString form, QObject *parent)
     : Person(firstName, familyName, gender, customPictureFileName, namePrefix,

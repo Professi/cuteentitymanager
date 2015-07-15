@@ -11,6 +11,7 @@
 #include "models/contact.h"
 #include "models/group.h"
 #include "models/faker/createfakemodeldata.h"
+#include "models/enums.h"
 #include <typeinfo>
 /**
   * create,remove und merge funktionieren
@@ -33,7 +34,7 @@ int main(int argc, char *argv[]) {
     QStringList inits = QStringList() << "Contact" << "Address" << "Person" << "Pupil" << "Group";
     e->startup("0.1",inits);
 
-    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", MALE, "", "", "",
+    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Enums::Gender::MALE, "", "", "",
                                QDate::currentDate()));
     Group *g = new Group();
     CreateFakeModelData::fillGroup(g);

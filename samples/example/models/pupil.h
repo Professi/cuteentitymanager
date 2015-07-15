@@ -8,7 +8,7 @@ class Pupil : public Person {
                setLegalGuardianNote)
   public:
     Q_INVOKABLE Pupil();
-    Pupil(QString firstName, QString familyName, Gender gender = UNKNOWNGENDER,
+    Pupil(QString firstName, QString familyName, Enums::Gender gender = Enums::Gender::UNKNOWNGENDER,
           QString customPictureFileName = QString(), QString namePrefix = QString(),
           QString nickName = QString(), QDate birthday = QDate(),
           QString form = QString(), QObject *parent = 0);

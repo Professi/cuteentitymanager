@@ -22,7 +22,7 @@ HEADERS += \
     models/address.h \
     models/contact.h \
     models/faker/createfakemodeldata.h \
-    models/enums.h \
+    models/enums.h
 
 SOURCES += \
     main.cpp \

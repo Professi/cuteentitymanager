@@ -176,7 +176,7 @@ QString QueryBuilder::createTableQuery(const QString &tableName,
                                        const QHash<QString, QString> &tableDefinition) const {
     bool first = true;
     QString s = "CREATE TABLE ";
-    s.append(this->schema->quoteTableName(tableName).append(" (\n"));
+    s.append(this->schema->quoteTableName(tableName).append(" ("));
     auto i = tableDefinition.constBegin();
     while (i != tableDefinition.constEnd()) {
         if (first) {
@@ -189,7 +189,7 @@ QString QueryBuilder::createTableQuery(const QString &tableName,
                     i.value()));
         ++i;
     }
-    s.append("\n);");
+    s.append(");");
     return s;
 }
 

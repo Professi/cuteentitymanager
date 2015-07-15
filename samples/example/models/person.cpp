@@ -2,7 +2,7 @@
 
 Person::Person(QObject *parent): Entity(parent) {
 }
-Person::Person(QString firstName, QString familyName, Gender gender,
+Person::Person(QString firstName, QString familyName, Enums::Gender gender,
                QString customPictureFileName, QString namePrefix, QString nickName,
                QDate birthday, QObject *parent): Entity(parent) {
     setFirstName(firstName);
@@ -21,9 +21,9 @@ const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
     return hash;
 }
 
-QString Person::fullName(NameOrder nameOrder) const {
+QString Person::fullName(Enums::NameOrder nameOrder) const {
     QString name = QString();
-    if (nameOrder == FAMILY_FIRST_NAME_ORDER) {
+    if (nameOrder == Enums::NameOrder::FAMILY_FIRST_NAME_ORDER) {
         name += this->getFamilyName();
         name += ", ";
         if (!this->getNamePrefix().isEmpty()) {
@@ -77,11 +77,11 @@ QDate Person::getBirthday() const {
 void Person::setBirthday(const QDate &value) {
     birthday = value;
 }
-Gender Person::getGender() const {
+Enums::Gender Person::getGender() const {
     return gender;
 }
 
-void Person::setGender(const Gender &value) {
+void Person::setGender(const Enums::Gender &value) {
     gender = value;
 }
 QString Person::getCustomPictureFileName() const {
@@ -120,16 +120,3 @@ void Person::addContact(Contact *contact) {
 void Person::addAddress(Address *address) {
     this->addresses.append(QSharedPointer<Address>(address));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

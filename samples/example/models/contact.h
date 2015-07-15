@@ -9,29 +9,27 @@ class Contact: public CuteEntityManager::Entity
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString content READ content WRITE setContent)
-    Q_PROPERTY(ContactCategory category READ category WRITE setCategory)
-    Q_PROPERTY(QString label READ label WRITE setLabel)
+    Q_PROPERTY(QString content READ getContent WRITE setContent)
+    Q_PROPERTY(Enums::ContactCategory category READ getCategory WRITE setCategory)
+    Q_PROPERTY(QString label READ getLabel WRITE setLabel)
 
 public:
     Q_INVOKABLE Contact() {}
-    Contact(QString label, ContactCategory category, QString content);
-    // getters
-    QString content() {return m_content;}
-    ContactCategory category() {return m_category;}
-    QString label() {return m_label;}
+    Contact(QString label, Enums::ContactCategory category, QString content);
 
+    QString getContent() const;
+    void setContent(const QString &value);
 
-    // setters
-    void setContent(QString content) {m_content=content;}
-    void setCategory(ContactCategory category) {m_category=category;}
-    void setLabel(QString label) {m_label=label;}
+    Enums::ContactCategory getCategory() const;
+    void setCategory(const Enums::ContactCategory &value);
+
+    QString getLabel() const;
+    void setLabel(const QString &value);
 
 protected:
-    // members
-    QString m_content;
-    ContactCategory m_category;
-    QString m_label;
+    QString content;
+    Enums::ContactCategory category;
+    QString label;
 };
 
 #endif // CONTACT_H
