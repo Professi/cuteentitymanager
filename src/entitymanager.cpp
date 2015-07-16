@@ -266,7 +266,7 @@ void EntityManager::addEntityToListProperty(const QSharedPointer<Entity>
         auto list = EntityInstanceFactory::castQVariantList(var);
         if (!list.contains(add)) {
             list.append(add);
-             this->setListProperty(entity,list,property);
+            this->setListProperty(entity, list, property);
         }
     }
 }
@@ -326,7 +326,7 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                                   builder->generateManyToManyColumnName(entity),
                                   builder->generateManyToManyColumnName(ptr));
     q.bindValue(0, entity->getId());
-    auto prop = this->mappedProperty(r,ptr);
+    auto prop = this->mappedProperty(r, ptr);
     QSharedPointer<Entity> item;
     for (int var = 0; var < saved.size(); ++var) {
         item = list.at(var);
@@ -347,8 +347,8 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
 }
 
 
-QMetaProperty EntityManager::mappedProperty(const Relation &r, const QSharedPointer<Entity> &foreignEntity) const
-{
+QMetaProperty EntityManager::mappedProperty(const Relation &r,
+        const QSharedPointer<Entity> &foreignEntity) const {
     QMetaProperty prop;
     auto props = foreignEntity->getMetaProperties();
     if (!r.getMappedBy().isEmpty()) {
@@ -357,9 +357,10 @@ QMetaProperty EntityManager::mappedProperty(const Relation &r, const QSharedPoin
         }
     } else {
         auto relations = foreignEntity->getRelations();
-        for (auto iterator = relations.constBegin();iterator != relations.constEnd(); ++iterator) {
+        for (auto iterator = relations.constBegin(); iterator != relations.constEnd();
+                ++iterator) {
             auto rel = iterator.value();
-            if(rel.getMappedBy() == r.getPropertyName()) {
+            if (rel.getMappedBy() == r.getPropertyName()) {
                 prop = props.value(rel.getPropertyName());
                 break;
             }

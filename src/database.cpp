@@ -139,10 +139,10 @@ DatabaseType Database::getDatabaseType(QString s) {
     }
 }
 
-QSharedPointer<Schema> Database::getSchema(int db,
+QSharedPointer<Schema> Database::getSchema(DatabaseType db,
         QSharedPointer<Database> database) {
     switch (db) {
-    case SQLITE:
+    case DatabaseType::SQLITE:
         return QSharedPointer<Schema>(new SqliteSchema(database));;
         break;
 //    case PGSQL:

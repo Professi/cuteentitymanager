@@ -51,7 +51,7 @@ const QHash<QString, Relation> Entity::getNonInheritedRelations() const {
             ++iterator;
         }
         delete superObject;
-        superObject = 0;
+        superObject = nullptr;
     }
     return relations;
 }
@@ -81,9 +81,8 @@ const QList<const QMetaObject *> Entity::superClasses(bool
     QList<const QMetaObject *> classes = QList<const QMetaObject *>();
     auto superMetaObject = this->metaObject()->superClass();
     if (this->getInheritanceStrategy() == JOINED_TABLE) {
-        Entity *e = 0;
-        while (superMetaObject != 0
-                && QString(superMetaObject->className()) !=
+        Entity *e = nullptr;
+        while (superMetaObject && QString(superMetaObject->className()) !=
                 QString("CuteEntityManager::Entity")) {
             e = EntityInstanceFactory::createInstance(superMetaObject->className());
             if (e) {
@@ -91,7 +90,7 @@ const QList<const QMetaObject *> Entity::superClasses(bool
                 superMetaObject = superMetaObject->superClass();
                 quint8 s = e->getInheritanceStrategy();
                 delete e;
-                e = 0;
+                e = nullptr;
                 if (stopAtSingleTableInheritance && s == PER_CLASS_TABLE) {
                     break;
                 }

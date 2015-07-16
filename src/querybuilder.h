@@ -218,6 +218,7 @@ class QueryBuilder {
                                const QStringList &columns = QStringList()) const;
     virtual QString countFunction(const QString &distinctColumn = "") const;
     virtual QString distinct() const;
+    QString entityClassname() const;
 
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;

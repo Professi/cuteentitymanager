@@ -109,8 +109,8 @@ void QueryBuilder::createRelationFK(QStringList &queries,
                                     const QSharedPointer<Entity> &entity, const Relation &relation,
                                     const QMetaProperty &metaProperty, const QString &update,
                                     const QString &remove) const {
-    QSharedPointer<Entity> ptr = QSharedPointer<Entity>
-                                 (EntityInstanceFactory::createInstance(metaProperty.type()));
+    auto ptr = QSharedPointer<Entity>
+               (EntityInstanceFactory::createInstance(metaProperty.type()));
     if (ptr) {
         if (relation.getType() == ONE_TO_ONE || relation.getType() == MANY_TO_ONE) {
             QString indexName = this->generateIndexName(relation.getPropertyName(),
@@ -155,7 +155,7 @@ QString QueryBuilder::createFkSuperClass(const Entity *e) const {
     auto superMetaObject = e->metaObject()->superClass();
     if (e->getInheritanceStrategy() == JOINED_TABLE
             && QString(superMetaObject->className()) !=
-            QString("CuteEntityManager::Entity")) {
+            this->entityClassname()) {
         Entity *superClass  = EntityInstanceFactory::createInstance(
                                   superMetaObject->className());
         if (superClass) {
@@ -331,7 +331,7 @@ QString QueryBuilder::dropIndex(QString name, QString tableName) const {
 }
 
 QSharedPointer<Database> QueryBuilder::getDatabase() const {
-    return database;
+    return this->database;
 }
 
 void QueryBuilder::setDatabase(const QSharedPointer<Database> &value) {
@@ -394,7 +394,7 @@ const {
         }
     }
     if (!(QString(superMetaObject->className()) !=
-            QString("CuteEntityManager::Entity")
+            this->entityClassname()
             && entity->getInheritanceStrategy() == JOINED_TABLE)) {
         map.insert(entity->getPrimaryKey(), this->schema->TYPE_BIGPK);
     }
@@ -775,6 +775,10 @@ QString QueryBuilder::countFunction(const QString &distinctColumn) const {
 
 QString QueryBuilder::distinct() const {
     return "DISTINCT";
+}
+
+QString QueryBuilder::entityClassname() const {
+    return QString("CuteEntityManager::Entity");
 }
 
 QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {

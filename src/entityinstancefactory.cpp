@@ -40,7 +40,7 @@ Entity *EntityInstanceFactory::createInstance(const QString &className) {
 }
 
 Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
-    Entity *e = 0;
+    Entity *e = nullptr;
     if (metaTypeId != QMetaType::UnknownType) {
         auto metaObject = QMetaType::metaObjectForType(metaTypeId);
         if (metaObject) {
@@ -99,7 +99,7 @@ const QString EntityInstanceFactory::extractEntityType(const QString &s) {
 }
 
 Entity *EntityInstanceFactory::newSuperClassInstance(const Entity *e) {
-    Entity *super = 0;
+    Entity *super = nullptr;
     if (e) {
         auto metaObject = e->metaObject()->superClass();
         if (QString(metaObject->className()) != QString("CuteEntityManager::Entity")) {

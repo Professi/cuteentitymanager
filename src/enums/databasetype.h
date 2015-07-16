@@ -21,7 +21,7 @@
 #include "../schema/sqliteschema.h"
 
 namespace CuteEntityManager {
-enum DatabaseType {
+enum class DatabaseType {
     SQLITE = 0,
     PGSQL = 1,
     MYSQL = 2

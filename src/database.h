@@ -65,7 +65,7 @@ class Database {
     bool rollbackTransaction();
 
     static DatabaseType getDatabaseType(QString s);
-    static QSharedPointer<Schema> getSchema(int db,
+    static QSharedPointer<Schema> getSchema(DatabaseType db,
                                             QSharedPointer<Database> database);
 
 };
