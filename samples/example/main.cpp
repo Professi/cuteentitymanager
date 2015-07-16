@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
                                      QDir::currentPath() + "/db.sqlite");
+    Enums::ContactCategory::EMAIL_CONTACT;
     EntityInstanceFactory::registerClass<Group>();
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Pupil>();

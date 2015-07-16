@@ -262,12 +262,11 @@ void EntityManager::setListProperty(const QSharedPointer<Entity> &entity,
 void EntityManager::addEntityToListProperty(const QSharedPointer<Entity>
         &entity, QSharedPointer<Entity> add, const QMetaProperty &property) {
     QVariant var = property.read(entity.data());
-    if (!var.isNull() && var.canConvert<QList<QSharedPointer<Entity>>>()) {
-        QList<QSharedPointer<Entity>> list = var.value<QList<QSharedPointer<Entity>>>();
+    if (!var.isNull() && var.canConvert<QList<QVariant>>()) {
+        auto list = EntityInstanceFactory::castQVariantList(var);
         if (!list.contains(add)) {
             list.append(add);
-            var.setValue<QList<QSharedPointer<Entity>>>(list);
-            property.write(entity.data(), var);
+             this->setListProperty(entity,list,property);
         }
     }
 }
@@ -327,21 +326,10 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                                   builder->generateManyToManyColumnName(entity),
                                   builder->generateManyToManyColumnName(ptr));
     q.bindValue(0, entity->getId());
-    QMetaProperty prop;
-    bool first = true;
+    auto prop = this->mappedProperty(r,ptr);
     QSharedPointer<Entity> item;
     for (int var = 0; var < saved.size(); ++var) {
         item = list.at(var);
-        if (first && !r.getMappedBy().isEmpty()) {
-            auto props = ptr->getMetaProperties();
-            if (props.contains(r.getMappedBy())) {
-                prop = props.value(r.getMappedBy());
-            }
-        }
-        qDebug() << "Property valid:" << prop.isValid();
-        /**
-          @todo wip
-          **/
         if (ptr->property(ptr->getPrimaryKey()).toLongLong() > -1) {
             q.bindValue(1, ptr->property(ptr->getPrimaryKey()));
             q.exec();
@@ -357,6 +345,29 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
         }
     }
 }
+
+
+QMetaProperty EntityManager::mappedProperty(const Relation &r, const QSharedPointer<Entity> &foreignEntity) const
+{
+    QMetaProperty prop;
+    auto props = foreignEntity->getMetaProperties();
+    if (!r.getMappedBy().isEmpty()) {
+        if (props.contains(r.getMappedBy())) {
+            prop = props.value(r.getMappedBy());
+        }
+    } else {
+        auto relations = foreignEntity->getRelations();
+        for (auto iterator = relations.constBegin();iterator != relations.constEnd(); ++iterator) {
+            auto rel = iterator.value();
+            if(rel.getMappedBy() == r.getPropertyName()) {
+                prop = props.value(rel.getPropertyName());
+                break;
+            }
+        }
+    }
+    return prop;
+}
+
 
 bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
                                   const Relation &r) {
@@ -424,6 +435,7 @@ void EntityManager::setNullEntityPropertyRelation(QVariant &var,
         }
     }
 }
+
 
 void EntityManager::removeEntity(QVariant &var) {
     if (!var.isNull() && var.canConvert<QSharedPointer<Entity>>()) {
@@ -498,8 +510,8 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
     auto list = property.value<QList<QVariant>>();
     if (!list.isEmpty()) {
         if (!list.at(0).isNull()) {
-            QVariant var = list.at(0);
-            auto ptr = *reinterpret_cast<QSharedPointer<Entity>*>(var.data());
+            auto var = list.at(0);
+            auto ptr = EntityInstanceFactory::castQVariant(var);
             auto builder = this->schema->getQueryBuilder();
             QString tblName = builder->generateManyToManyTableName(entity, ptr);
             if (this->schema->getTables().contains(tblName)) {
@@ -507,7 +519,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                   tblName, builder->generateManyToManyColumnName(entity),
                                   entity->property(entity->getPrimaryKey()).toLongLong());
                 if (this->db->transaction(q)) {
-                    auto nList = *reinterpret_cast<QList<QSharedPointer<Entity>>*>(property.data());
+                    auto nList = EntityInstanceFactory::castQVariantList(property);
                     this->persistMappedByRelation(nList, q, entity, ptr, r, tblName);
                 }
             } else {

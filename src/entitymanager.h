@@ -103,6 +103,7 @@ class EntityManager : public QObject {
     void removeEntity(QVariant &var);
     void setNullOneToManyRelation(QVariant &var, const Relation &r);
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
+    QMetaProperty mappedProperty(const Relation &r,const QSharedPointer<Entity> &foreignEntity) const;
 
   public:
     EntityManager(QSqlDatabase database);
