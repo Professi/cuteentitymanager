@@ -3,32 +3,32 @@
 
 #include <QString>
 #include "entity.h"
-#include "enums.h"
 
-class Contact: public CuteEntityManager::Entity
-{
+class Contact: public CuteEntityManager::Entity {
     Q_OBJECT
 
     Q_PROPERTY(QString content READ getContent WRITE setContent)
-    Q_PROPERTY(Enums::ContactCategory category READ getCategory WRITE setCategory)
+    Q_PROPERTY(Category category READ getCategory WRITE setCategory)
     Q_PROPERTY(QString label READ getLabel WRITE setLabel)
 
-public:
+  public:
+    enum Category {EMAIL, MOBILE, LANDLINE, MESSENGER, EXTRA} ;
+    Q_ENUM(Category)
     Q_INVOKABLE Contact() {}
-    Contact(QString label, Enums::ContactCategory category, QString content);
+    Contact(QString label, Category category, QString content);
 
     QString getContent() const;
     void setContent(const QString &value);
 
-    Enums::ContactCategory getCategory() const;
-    void setCategory(const Enums::ContactCategory &value);
-
     QString getLabel() const;
     void setLabel(const QString &value);
 
+    Category getCategory() const;
+    void setCategory(const Category &value);
+
 protected:
     QString content;
-    Enums::ContactCategory category;
+    Category category;
     QString label;
 };
 

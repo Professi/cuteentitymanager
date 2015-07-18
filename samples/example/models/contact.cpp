@@ -1,6 +1,6 @@
 #include "contact.h"
 
-Contact::Contact(QString label, Enums::ContactCategory category, QString content) {
+Contact::Contact(QString label, Category category, QString content) {
     this->label = label;
     this->category = category;
     this->content = content;
@@ -12,13 +12,7 @@ QString Contact::getContent() const {
 void Contact::setContent(const QString &value) {
     content = value;
 }
-Enums::ContactCategory Contact::getCategory() const {
-    return category;
-}
 
-void Contact::setCategory(const Enums::ContactCategory &value) {
-    category = value;
-}
 QString Contact::getLabel() const {
     return label;
 }
@@ -26,6 +20,14 @@ QString Contact::getLabel() const {
 void Contact::setLabel(const QString &value) {
     label = value;
 }
+Contact::Category Contact::getCategory() const {
+    return category;
+}
+
+void Contact::setCategory(const Category &value) {
+    category = value;
+}
+
 
 
 

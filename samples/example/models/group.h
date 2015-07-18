@@ -1,7 +1,6 @@
 #ifndef GROUP_H
 #define GROUP_H
 
-#include "enums.h"
 #include "entity.h"
 #include "contact.h"
 #include "pupil.h"

@@ -14,8 +14,7 @@ HEADERS += \
     models/pupil.h \
     models/address.h \
     models/contact.h \
-    models/faker/createfakemodeldata.h \
-    models/enums.h
+    models/faker/createfakemodeldata.h
 
 SOURCES += \
     main.cpp \

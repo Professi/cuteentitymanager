@@ -1,9 +1,5 @@
 #include "group.h"
-
-#include "enums.h"
-
 #include "person.h"
-#include "group.h"
 #include "contact.h"
 #include <QDebug>
 

@@ -4,7 +4,7 @@ Pupil::Pupil() : Person() {
 
 }
 
-Pupil::Pupil(QString firstName, QString familyName, Enums::Gender gender,
+Pupil::Pupil(QString firstName, QString familyName, Gender gender,
              QString customPictureFileName, QString namePrefix, QString nickName,
              QDate birthday, QString form, QObject *parent)
     : Person(firstName, familyName, gender, customPictureFileName, namePrefix,
@@ -19,6 +19,14 @@ Pupil::Pupil(QString firstName, QString familyName, Enums::Gender gender,
     setForm(form);
 }
 
+QString Pupil::getLegalGuardianNote() const {
+    return legalGuardianNote;
+}
+
+void Pupil::setLegalGuardianNote(const QString &value) {
+    legalGuardianNote = value;
+}
+
 QString Pupil::getForm() const {
     return form;
 }
@@ -26,14 +34,6 @@ QString Pupil::getForm() const {
 void Pupil::setForm(const QString &value) {
     form = value;
 }
-QString Pupil::getLegalGuardianNote() const
-{
-    return legalGuardianNote;
-}
 
-void Pupil::setLegalGuardianNote(const QString &value)
-{
-    legalGuardianNote = value;
-}
 
 

@@ -11,11 +11,7 @@
 #include "models/contact.h"
 #include "models/group.h"
 #include "models/faker/createfakemodeldata.h"
-#include "models/enums.h"
-#include <typeinfo>
-/**
-  * create,remove und merge funktionieren
- */
+
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv)
@@ -24,7 +20,6 @@ int main(int argc, char *argv[]) {
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
                                      QDir::currentPath() + "/db.sqlite");
-    Enums::ContactCategory::EMAIL_CONTACT;
     EntityInstanceFactory::registerClass<Group>();
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Pupil>();
@@ -32,17 +27,36 @@ int main(int argc, char *argv[]) {
     EntityInstanceFactory::registerClass<Address>();
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
-    QStringList inits = QStringList() << "Contact" << "Address" << "Person" << "Pupil" << "Group";
-    e->startup("0.1",inits);
+    QStringList inits = QStringList() << "Contact" << "Address" << "Person" <<
+                        "Pupil" << "Group";
+    e->startup("0.1", inits);
 
-    QSharedPointer<CuteEntityManager::Entity> p = QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann", Enums::Gender::MALE, "", "", "",
-                               QDate::currentDate()));
+    QSharedPointer<CuteEntityManager::Entity> p =
+        QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
+                Person::Gender::MALE, "", "", "",
+                QDate::currentDate()));
+    /** ---------------------------------
+     * PERSIST
+     * ---------------------------------
+     */
     Group *g = new Group();
+    g->setName("9b");
     CreateFakeModelData::fillGroup(g);
     QSharedPointer<Group> gPtr = QSharedPointer<Group>(g);
     e->createTable(gPtr);
-    auto prrr = gPtr.objectCast<Entity>();
-    e->create(prrr);
+    QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
+    //Persons will also persisted
+    e->create(groupPtr, true, true);
+
+
+    /** ---------------------------------
+     * FIND
+     * ---------------------------------
+     */
+    QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
+    qDebug() << "GroupID:" << groupFindPtr->getId();
+    QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
+    qDebug() << "PersonSize:" << grp->getPersons().size();
     qDebug() << "Duration:" << t.elapsed();
     return 0;
 }
