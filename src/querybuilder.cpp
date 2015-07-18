@@ -581,7 +581,7 @@ QList<QSqlQuery> QueryBuilder::remove(const QSharedPointer<Entity> &entity)
 const {
     QList<QSqlQuery> queries = QList<QSqlQuery>();
     queries.append(this->remove(entity->getTablename(),
-                                entity->property(entity->getPrimaryKey()).toLongLong()));
+                                entity->getProperty(entity->getPrimaryKey()).toLongLong()));
     if (entity->getInheritanceStrategy() != PER_CLASS_TABLE
             && entity->isInheritanceCascaded()) {
         auto classes = entity->superClasses(true);
@@ -590,7 +590,7 @@ const {
             auto instance = EntityInstanceFactory::createInstance(item->className());
             if (instance) {
                 queries.append(this->remove(instance->getTablename(),
-                                            entity->property(entity->getPrimaryKey()).toLongLong()));
+                                            entity->getProperty(entity->getPrimaryKey()).toLongLong()));
                 delete instance;
                 instance = 0;
             }
@@ -719,7 +719,7 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
                       foreignKey) + " WHERE " + this->schema->quoteColumnName(
                       attribute) + "=:id;";
     q.prepare(sql);
-    q.bindValue(":id", id);
+    q.bindValue(":id", QVariant(id));
     return q;
 }
 
@@ -944,9 +944,9 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
 void QueryBuilder::insertRelationId(const Entity *e,
                                     QHash<QString, QVariant> &map,
                                     QString relName) const {
-    if (e && e->property(e->getPrimaryKey()).toLongLong() > -1) {
+    if (e && e->getProperty(e->getPrimaryKey()).toLongLong() > -1) {
         map.insert(this->generateColumnNameID(relName),
-                   e->property(e->getPrimaryKey()));
+                   e->getProperty(e->getPrimaryKey()));
     }
 }
 

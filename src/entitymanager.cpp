@@ -111,7 +111,7 @@ QSharedPointer<Schema> EntityManager::getSchema() const {
 }
 
 void EntityManager::refresh(QSharedPointer<Entity> &entity) {
-    entity = this->findById(entity->property(
+    entity = this->findById(entity->getProperty(
                                 entity->getPrimaryKey()).toLongLong(),
                             QString(entity->getClassname()));
 }
@@ -235,7 +235,7 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
                           e->getTablename(),
                           this->schema->getQueryBuilder()->generateColumnNameID(
                               r.getMappedBy()),
-                          entity->property(entity->getPrimaryKey()).toLongLong(), 1);
+                          entity->getProperty(entity->getPrimaryKey()).toLongLong(), 1);
         auto listMap = this->convertQueryResult(q);
         auto entities = this->convert(listMap, e->getClassname(), refresh);
         if (!entities.isEmpty()) {
@@ -274,7 +274,7 @@ void EntityManager::addEntityToListProperty(const QSharedPointer<Entity>
 void EntityManager::setProperty(const QSharedPointer<Entity> &entiy,
                                 QSharedPointer<Entity> value,
                                 const QMetaProperty &property) const {
-    if (value && value->property(value->getPrimaryKey()).toLongLong()
+    if (value && value->getProperty(value->getPrimaryKey()).toLongLong()
             > -1) {
         property.write(entiy.data(), QVariant(value));
     }
@@ -325,13 +325,13 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
     q = builder->manyToManyInsert(tblName,
                                   builder->generateManyToManyColumnName(entity),
                                   builder->generateManyToManyColumnName(ptr));
-    q.bindValue(0, entity->getId());
+    q.bindValue(0, entity->getProperty(entity->getPrimaryKey()));
     auto prop = this->mappedProperty(r, ptr);
     QSharedPointer<Entity> item;
     for (int var = 0; var < saved.size(); ++var) {
         item = list.at(var);
-        if (ptr->property(ptr->getPrimaryKey()).toLongLong() > -1) {
-            q.bindValue(1, ptr->property(ptr->getPrimaryKey()));
+        if (item->getProperty(item->getPrimaryKey()).toLongLong() > -1) {
+            q.bindValue(1, item->getProperty(ptr->getPrimaryKey()));
             q.exec();
             if (prop.isReadable()) {
                 this->addEntityToListProperty(entity, ptr, prop);
@@ -373,9 +373,9 @@ QMetaProperty EntityManager::mappedProperty(const Relation &r,
 bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
                                   const Relation &r) {
     return entity && (r.getCascadeType().contains(ALL)
-                      || (entity->property(entity->getPrimaryKey()) > -1
+                      || (entity->getProperty(entity->getPrimaryKey()) > -1
                           && r.getCascadeType().contains(MERGE))
-                      || (entity->property(entity->getPrimaryKey()) <= -1
+                      || (entity->getProperty(entity->getPrimaryKey()) <= -1
                           && r.getCascadeType().contains(PERSIST)));
 }
 
@@ -469,7 +469,7 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
             if (this->schema->getTables().contains(tblName)) {
                 QSqlQuery q = builder->manyToManyDelete(
                                   tblName, builder->generateManyToManyColumnName(e),
-                                  e->property(e->getPrimaryKey()).toLongLong());
+                                  e->getProperty(e->getPrimaryKey()).toLongLong());
                 bool refresh = r.getCascadeType().contains(REFRESH)
                                || r.getCascadeType().contains(ALL);
                 bool remove = r.getCascadeType().contains(REMOVE)
@@ -518,7 +518,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
             if (this->schema->getTables().contains(tblName)) {
                 QSqlQuery q = builder->manyToManyDelete(
                                   tblName, builder->generateManyToManyColumnName(entity),
-                                  entity->property(entity->getPrimaryKey()).toLongLong());
+                                  entity->getProperty(entity->getPrimaryKey()).toLongLong());
                 if (this->db->transaction(q)) {
                     auto nList = EntityInstanceFactory::castQVariantList(property);
                     this->persistMappedByRelation(nList, q, entity, ptr, r, tblName);
@@ -550,7 +550,7 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
         if (this->schema->getTables().contains(tblName)) {
             QSqlQuery q = builder->manyToMany(tblName,
                                               builder->generateManyToManyColumnName(entity),
-                                              entity->property(entity->getPrimaryKey()).toLongLong(),
+                                              entity->getProperty(entity->getPrimaryKey()).toLongLong(),
                                               builder->generateManyToManyColumnName(secEntityPtr),
                                               secEntityPtr->getTablename());
             auto listMap = this->convertQueryResult(q);
@@ -605,8 +605,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
                 break;
             }
             if (first) {
-                entity->setProperty(
-                    entity->getPrimaryKey().toLatin1().constData(), query.lastInsertId());
+                entity->setProperty(entity->getPrimaryKey(), query.lastInsertId());
                 first = false;
             }
         }
@@ -735,7 +734,7 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
 
 bool EntityManager::save(QSharedPointer<Entity> &entity,
                          const bool persistRelations) {
-    if (entity->property(entity->getPrimaryKey()) > -1) {
+    if (entity->getProperty(entity->getPrimaryKey()) > -1) {
         return this->merge(entity, persistRelations);
     } else {
         return this->create(entity, persistRelations);

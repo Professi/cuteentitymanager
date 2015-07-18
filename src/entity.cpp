@@ -23,7 +23,15 @@ Entity::Entity(QObject *parent) : QObject(parent) {
 }
 
 QString Entity::toString() const {
-    return this->getTablename() + ":" + QString::number(this->id);
+    QString r = "";
+    r.append(this->getClassname());
+    r.append(": {");
+    auto properties = this->getMetaProperties();
+    for (auto var = properties.constBegin(); var != properties.constEnd(); ++var) {
+        r.append(var.key() + ": " + var.value().read(this).toString() + ", ");
+    }
+    r.append("}");
+    return r;
 }
 
 Entity::~Entity() {
@@ -164,11 +172,15 @@ const char *Entity::getClassname() const {
     return this->metaObject()->className();
 }
 
-QVariant Entity::property(const QString &name) const {
+QVariant Entity::getProperty(const QString &name) const {
     if (!name.isEmpty()) {
         return QObject::property(name.toLatin1().constData());
     }
     return QVariant();
+}
+
+bool Entity::setProperty(const QString &name, const QVariant &value) {
+    return QObject::setProperty(name.toLatin1().constData(), value);
 }
 
 qint64 Entity::getId() const {
