@@ -70,7 +70,13 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
         while (iterator != attributes.constEnd()) {
             if (metaprops.contains(iterator.key())) {
                 QMetaProperty prop = metaprops.value(iterator.key());
-                if (!(prop.isWritable() && prop.write(e, iterator.value()))) {
+                if(prop.isWritable()) {
+                    if(prop.isEnumType()) {
+                        prop.write(e,prop.enumerator().key(iterator.value().toInt()));
+                    } else {
+                        prop.write(e, iterator.value());
+                    }
+                } else {
                     qDebug() << prop.name() << "on Entity" << e->getClassname() << "not writeable!";
                 }
             }

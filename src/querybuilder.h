@@ -126,9 +126,7 @@ class QueryBuilder {
                         const qint64 &id,
                         const qint64 &limit = 0);
     QSqlQuery manyToMany(const QString &tableName, const QString &attribute,
-                         const qint64 &id,
-                         const QString &foreignKey,
-                         const QString &foreignTable);
+                         const qint64 &id);
     QSqlQuery manyToManyDelete(const QString &tableName, const QString &attribute,
                                const qint64 &id);
     QSqlQuery manyToManyInsert(const QString &tableName, const QString &col1,

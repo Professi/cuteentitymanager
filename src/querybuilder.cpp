@@ -710,16 +710,15 @@ QSqlQuery QueryBuilder::oneToMany(const QString &tableName,
 
 QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
                                    const QString &attribute,
-                                   const qint64 &id,
-                                   const QString &foreignKey, const QString &foreignTable) {
+                                   const qint64 &id) {
     QSqlQuery q = this->database->getQuery();
-    QString sql = this->selectBase(QStringList(tableName),
-                                   QStringList(foreignTable + ".*")) + " " + this->leftJoin(
-                      foreignTable, tableName,
-                      foreignKey) + " WHERE " + this->schema->quoteColumnName(
-                      attribute) + "=:id;";
+    QString sql = this->selectBase(QStringList(tableName), QStringList("*"));
+    sql += " WHERE ";
+    sql += this->schema->quoteColumnName(
+               attribute);
+    sql += " = :id;";
     q.prepare(sql);
-    q.bindValue(":id", QVariant(id));
+    q.bindValue(":id", id);
     return q;
 }
 

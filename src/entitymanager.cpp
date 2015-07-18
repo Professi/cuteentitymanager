@@ -168,8 +168,8 @@ QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant>
         const char *classname, const bool refresh) {
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
                                           classname, map));
-    this->resolveRelations(ptr, map, refresh);
     this->cache.insert(ptr);
+    this->resolveRelations(ptr, map, refresh);
     return ptr;
 }
 
@@ -543,18 +543,22 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
         QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>(secEntity);
         QString tblName = builder->generateManyToManyTableName(entity,
                           secEntityPtr);
-        /**
-         * maybe it would be better, to fetch first the ids, look up cache and then request missing entities
-         * with this it would be also possible to respect cascade type
-         */
         if (this->schema->getTables().contains(tblName)) {
             QSqlQuery q = builder->manyToMany(tblName,
                                               builder->generateManyToManyColumnName(entity),
-                                              entity->getProperty(entity->getPrimaryKey()).toLongLong(),
-                                              builder->generateManyToManyColumnName(secEntityPtr),
-                                              secEntityPtr->getTablename());
+                                              entity->getProperty(entity->getPrimaryKey()).toLongLong());
             auto listMap = this->convertQueryResult(q);
-            auto entities = this->convert(listMap, entity->getClassname(), refresh);
+            auto entities = QList<QSharedPointer<Entity> >();
+            for (int var = 0; var < listMap.size(); ++var) {
+                auto id = listMap.at(var).value(builder->generateManyToManyColumnName(
+                                                    secEntityPtr));
+                if (!refresh
+                        && this->cache.contains(id.toLongLong(), secEntityPtr->getClassname())) {
+                    entities.append(this->cache.get(id.toLongLong(), secEntityPtr->getClassname()));
+                } else {
+                    entities.append(this->findById(id.toLongLong(), secEntityPtr->getClassname()));
+                }
+            }
             this->setListProperty(entity, entities, property);
         } else {
             qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";
@@ -614,10 +618,10 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
             entity->setId(-1);
             rc = false;
         } else {
+            this->cache.insert(entity);
             if (persistRelations) {
                 this->saveRelations(entity);
             }
-            this->cache.insert(entity);
             rc = true;
         }
     }
