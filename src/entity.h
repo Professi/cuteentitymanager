@@ -70,6 +70,7 @@ class Entity : public QObject {
     void setId(const qint64 &value);
 
   protected:
+    virtual QString slimToString() const;
     qint64 id;
 };
 }

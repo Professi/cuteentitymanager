@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
      * ---------------------------------
      */
     QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
-    qDebug() << "GroupID:" << groupFindPtr->getId();
     QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
+    qDebug()<< "Group:" << groupFindPtr->toString();
     qDebug() << "PersonSize:" << grp->getPersons().size();
     qDebug() << "MainTeacher:" << grp->getMainTeacher()->toString();
     qDebug() << "Duration:" << t.elapsed();

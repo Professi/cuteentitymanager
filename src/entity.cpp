@@ -28,9 +28,31 @@ QString Entity::toString() const {
     r.append(": {");
     auto properties = this->getMetaProperties();
     for (auto var = properties.constBegin(); var != properties.constEnd(); ++var) {
-        r.append(var.key() + ": " + var.value().read(this).toString() + ", ");
+        QString val = "";
+        auto value = var.value().read(this);
+        if (var.value().isEnumType()) {
+            val = var.value().enumerator().valueToKey(var.value().read(this).toInt());
+        } else if (value.canConvert<QList<QVariant>>()) {
+            auto list = value.toList();
+            val.append("[");
+            for (int var = 0; var < list.size(); ++var) {
+                val = list.at(var).toString();
+            }
+            val.append("]");
+        } else {
+            val = value.toString();
+        }
+        r.append(var.key() + ": " + val + ", ");
     }
     r.append("}");
+    return r;
+}
+
+QString Entity::slimToString() const {
+    QString r = "";
+    r.append(this->getClassname());
+    r.append(": {");
+    r.append("id: ") + this->getId() + "}";
     return r;
 }
 
