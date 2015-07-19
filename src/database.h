@@ -32,19 +32,17 @@ class Database {
   private:
     QSqlDatabase database;
     QString connectionName;
-    bool seqTable;
     bool supportTransactions;
     void init();
 
   public:
     Database(QSqlDatabase database);
     ~Database();
-    Database(QString databaseType, QString databasename);
-    Database(QString databaseType, QString connectionName, QString databasename);
-    Database(QString databaseType, QString connectionName = "",
-             QString hostname = "",
-             QString databasename = "" ,
-             QString username = "", QString password = "", qint64 port = 0);
+    Database(QString databaseType, QString connectionName = QString(""),
+             QString hostname = QString(""),
+             QString databasename = QString("") ,
+             QString username = QString(""), QString password = QString(""),
+             qint64 port = 0);
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();

@@ -38,77 +38,6 @@ class EntityManager : public QObject {
     Q_OBJECT
   signals:
     void actionFinished(qint64 id);
-
-  private:
-    static QStringList connectionNames;
-    QSharedPointer<Schema> schema;
-    static void setConnectionNames(QStringList list);
-    QSharedPointer<Database> db;
-    Cache cache;
-    QString createConnection();
-    QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
-    bool checkTable(const QSharedPointer<Entity> &entity);
-
-  protected:
-    void init();
-    QList<QHash<QString, QVariant> > findAll(const QSharedPointer<Entity> &e);
-    void resolveRelations(const QSharedPointer<Entity> &entity,
-                          const QHash<QString, QVariant> &map, const bool refresh = false);
-    QHash<QString, QVariant> findByPk(qint64 id, const QSharedPointer<Entity> &e);
-    QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
-                                   const char *classname, const bool refresh = false);
-    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
-                                          const char *classname, const bool refresh = false);
-    void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
-                   const QMetaProperty &property, const bool refresh = false);
-    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                   const QMetaProperty &property, const bool refresh = false);
-    void manyToMany(const QSharedPointer<Entity> &entity,
-                    const QMetaProperty &property, const bool refresh = false);
-    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
-                  const QMetaProperty &property, const bool refresh = false,
-                  const QVariant &id = "");
-    bool canPersistRelation(const Relation &relation, const RelationType &r,
-                            const QVariant &var) const;
-    void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                           QVariant &property);
-    QList<QHash<QString, QVariant> > findAllByAttributes(const
-            QSharedPointer<Entity> &entity,
-            bool ignoreID = false);
-    QList<QHash<QString, QVariant> > findAllByAttributes(const
-            QHash<QString, QVariant> &m,
-            const QString &tblname,
-            bool ignoreID = false);
-    QSharedPointer<Entity> findById(const qint64 &id, QSharedPointer<Entity> &e,
-                                    const bool refresh = false);
-    void addEntityToListProperty(const QSharedPointer<Entity> &entity,
-                                 QSharedPointer<Entity> add, const QMetaProperty &property);
-    void setListProperty(const QSharedPointer<Entity> &entity,
-                         QList<QSharedPointer<Entity>> &list,
-                         const QMetaProperty &property) const;
-    void setProperty(const QSharedPointer<Entity> &entity,
-                     QSharedPointer<Entity> value,
-                     const QMetaProperty &property) const;
-    void savePrePersistedRelations(const QSharedPointer<Entity> &entity);
-    void savePostPersistedRelations(const QSharedPointer<Entity> &entity);
-
-    QList<QSharedPointer<Entity>> saveRelationEntities(const
-                               QList<QSharedPointer<Entity>> &list, const Relation &r);
-    void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
-                                 QSqlQuery &q, const QSharedPointer<Entity> &entity,
-                                 const QSharedPointer<Entity> &ptr, const Relation &r,
-                                 const QString &tblName);
-    bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
-    void removeRelations(const QSharedPointer<Entity> &entity);
-    void removeEntityList(QVariant &var);
-    void removeManyToManyEntityList(const QSharedPointer<Entity> &e,
-                                    const Relation &r, QVariant &var);
-    void removeEntity(QVariant &var);
-    void setNullOneToManyRelation(QVariant &var, const Relation &r);
-    void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
-    QMetaProperty mappedProperty(const Relation &r,
-                                 const QSharedPointer<Entity> &foreignEntity) const;
-
   public:
     EntityManager(QSqlDatabase database);
     EntityManager(const QString &databaseType, QString databasename = "" ,
@@ -231,6 +160,76 @@ class EntityManager : public QObject {
         }
         return false;
     }
+
+  protected:
+    void init();
+    QList<QHash<QString, QVariant> > findAll(const QSharedPointer<Entity> &e);
+    void resolveRelations(const QSharedPointer<Entity> &entity,
+                          const QHash<QString, QVariant> &map, const bool refresh = false);
+    QHash<QString, QVariant> findByPk(qint64 id, const QSharedPointer<Entity> &e);
+    QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
+                                   const char *classname, const bool refresh = false);
+    QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
+                                          const char *classname, const bool refresh = false);
+    void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
+                   const QMetaProperty &property, const bool refresh = false);
+    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
+                   const QMetaProperty &property, const bool refresh = false);
+    void manyToMany(const QSharedPointer<Entity> &entity,
+                    const QMetaProperty &property, const bool refresh = false);
+    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
+                  const QMetaProperty &property, const bool refresh = false,
+                  const QVariant &id = "");
+    bool canPersistRelation(const Relation &relation, const RelationType &r,
+                            const QVariant &var) const;
+    void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
+                           QVariant &property);
+    QList<QHash<QString, QVariant> > findAllByAttributes(const
+            QSharedPointer<Entity> &entity,
+            bool ignoreID = false);
+    QList<QHash<QString, QVariant> > findAllByAttributes(const
+            QHash<QString, QVariant> &m,
+            const QString &tblname,
+            bool ignoreID = false);
+    QSharedPointer<Entity> findById(const qint64 &id, QSharedPointer<Entity> &e,
+                                    const bool refresh = false);
+    void addEntityToListProperty(const QSharedPointer<Entity> &entity,
+                                 QSharedPointer<Entity> add, const QMetaProperty &property);
+    void setListProperty(const QSharedPointer<Entity> &entity,
+                         QList<QSharedPointer<Entity>> &list,
+                         const QMetaProperty &property) const;
+    void setProperty(const QSharedPointer<Entity> &entity,
+                     QSharedPointer<Entity> value,
+                     const QMetaProperty &property) const;
+    void savePrePersistedRelations(const QSharedPointer<Entity> &entity);
+    void savePostPersistedRelations(const QSharedPointer<Entity> &entity);
+
+    QList<QSharedPointer<Entity>> saveRelationEntities(const
+                               QList<QSharedPointer<Entity>> &list, const Relation &r);
+    void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
+                                 QSqlQuery &q, const QSharedPointer<Entity> &entity,
+                                 const QSharedPointer<Entity> &ptr, const Relation &r,
+                                 const QString &tblName);
+    bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
+    void removeRelations(const QSharedPointer<Entity> &entity);
+    void removeEntityList(QVariant &var);
+    void removeManyToManyEntityList(const QSharedPointer<Entity> &e,
+                                    const Relation &r, QVariant &var);
+    void removeEntity(QVariant &var);
+    void setNullOneToManyRelation(QVariant &var, const Relation &r);
+    void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
+    QMetaProperty mappedProperty(const Relation &r,
+                                 const QSharedPointer<Entity> &foreignEntity) const;
+
+  private:
+    static QStringList connectionNames;
+    QSharedPointer<Schema> schema;
+    static void setConnectionNames(QStringList list);
+    QSharedPointer<Database> db;
+    Cache cache;
+    QString createConnection();
+    QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
+    bool checkTable(const QSharedPointer<Entity> &entity);
 
 };
 }

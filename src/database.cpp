@@ -25,24 +25,26 @@ Database::Database(QSqlDatabase database) {
 }
 
 Database::Database(QString databaseType, QString connectionName,
-                   QString databasename) {
-    this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
-    this->connectionName = connectionName;
-    this->database.setDatabaseName(databasename);
-    this->init();
-}
-
-Database::Database(QString databaseType, QString connectionName,
                    QString hostname,
                    QString databasename,
                    QString username, QString password, qint64 port) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
-    this->database.setHostName(hostname);
-    this->database.setDatabaseName(databasename);
-    this->database.setUserName(username);
-    this->database.setPassword(password);
-    this->database.setPort(port);
+    if (hostname != QString("")) {
+        this->database.setHostName(hostname);
+    }
+    if (databasename != QString("")) {
+        this->database.setDatabaseName(databasename);
+    }
+    if (username != QString("")) {
+        this->database.setUserName(username);
+    }
+    if (password != QString("")) {
+        this->database.setPassword(password);
+    }
+    if (port != 0) {
+        this->database.setPort(port);
+    }
     this->init();
 }
 

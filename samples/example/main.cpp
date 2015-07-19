@@ -20,6 +20,8 @@ int main(int argc, char *argv[]) {
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
                                      QDir::currentPath() + "/db.sqlite");
+//            CuteEntityManager::EntityManager("QSQLITE",
+//                                                 ":memory:");
     EntityInstanceFactory::registerClass<Group>();
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Pupil>();
