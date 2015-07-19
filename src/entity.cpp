@@ -19,7 +19,7 @@
 using namespace CuteEntityManager;
 
 Entity::Entity(QObject *parent) : QObject(parent) {
-    this->id = -1;
+    //this->id = -1;
 }
 
 QString Entity::toString() const {

@@ -649,7 +649,7 @@ const {
 
 QList<QSqlQuery> QueryBuilder::createOrMerge(const QSharedPointer<Entity>
         &entity, bool insert) const {
-    auto attrs = this->inheritedAttributes(entity);
+    const QList<ClassAttributes> attrs = this->inheritedAttributes(entity);
     auto queries = QList<QSqlQuery>();
     for (int var = 0; var < attrs.size(); ++var) {
         auto attr = attrs.at(var);
@@ -926,13 +926,9 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
         if ((r.getType() == MANY_TO_ONE && props.contains(i.key()))
                 || (r.getType() == ONE_TO_ONE && r.getMappedBy().isEmpty())) {
             auto v = props.value(i.key()).read(entity.data());
-            if (v.canConvert<Entity *>()) {
-                this->insertRelationId(qvariant_cast<Entity *>(v), map, i.key());
-            } else if (v.canConvert<QSharedPointer<Entity>>()) {
-                this->insertRelationId(qvariant_cast<QSharedPointer<Entity>>(v).data(), map,
-                                       i.key());
-            } else if (v.canConvert<QPointer<Entity>>()) {
-                this->insertRelationId(qvariant_cast<QPointer<Entity>>(v).data(), map, i.key());
+            QSharedPointer<Entity> e = EntityInstanceFactory::castQVariant(v);
+            if (e) {
+                this->insertRelationId(e.data(), map, i.key());
             }
         }
         ++i;

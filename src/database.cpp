@@ -126,6 +126,7 @@ bool Database::commitTransaction() {
 }
 
 bool Database::rollbackTransaction() {
+    qDebug() << "Transaction rolled back!";
     return supportTransactions && this->database.rollback();
 }
 

@@ -86,14 +86,17 @@ class EntityManager : public QObject {
     void setListProperty(const QSharedPointer<Entity> &entity,
                          QList<QSharedPointer<Entity>> &list,
                          const QMetaProperty &property) const;
-    void setProperty(const QSharedPointer<Entity> &entiy,
+    void setProperty(const QSharedPointer<Entity> &entity,
                      QSharedPointer<Entity> value,
                      const QMetaProperty &property) const;
-    void saveRelations(const QSharedPointer<Entity> &entity);
+    void savePrePersistedRelations(const QSharedPointer<Entity> &entity);
+    void savePostPersistedRelations(const QSharedPointer<Entity> &entity);
+
     QList<QSharedPointer<Entity>> saveRelationEntities(const
                                QList<QSharedPointer<Entity>> &list, const Relation &r);
     void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
-                                 QSqlQuery &q, const QSharedPointer<Entity> &entity, const QSharedPointer<Entity> &ptr, const Relation &r,
+                                 QSqlQuery &q, const QSharedPointer<Entity> &entity,
+                                 const QSharedPointer<Entity> &ptr, const Relation &r,
                                  const QString &tblName);
     bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
     void removeRelations(const QSharedPointer<Entity> &entity);
@@ -103,7 +106,8 @@ class EntityManager : public QObject {
     void removeEntity(QVariant &var);
     void setNullOneToManyRelation(QVariant &var, const Relation &r);
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
-    QMetaProperty mappedProperty(const Relation &r,const QSharedPointer<Entity> &foreignEntity) const;
+    QMetaProperty mappedProperty(const Relation &r,
+                                 const QSharedPointer<Entity> &foreignEntity) const;
 
   public:
     EntityManager(QSqlDatabase database);
@@ -119,7 +123,7 @@ class EntityManager : public QObject {
      * @param toInitialize list of entity classnames which database tables should be created
      * @return
      */
-    public slots:
+  public slots:
     bool startup(QString version, QStringList toInitialize);
     bool executeQuery(const QString &query);
     static void removeConnectionName(const QString &name);
@@ -136,7 +140,8 @@ class EntityManager : public QObject {
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
     bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
-    bool createTable(const QSharedPointer<Entity> &entity, bool createRelationTables=true);
+    bool createTable(const QSharedPointer<Entity> &entity,
+                     bool createRelationTables = true);
     qint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true);
     qint8 count(const QString &tableName);
     QSharedPointer<Database> getDb() const;
@@ -147,7 +152,7 @@ class EntityManager : public QObject {
     /**
      *@TODO use conditions
      */
-public:
+  public:
     template<class T> qint8 count(QHash<QString, QString> condition =
                                       QHash<QString, QString>()) {
         Entity *e = EntityInstanceFactory::createInstance<T>();

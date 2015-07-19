@@ -45,9 +45,11 @@ int main(int argc, char *argv[]) {
     QSharedPointer<Group> gPtr = QSharedPointer<Group>(g);
     e->createTable(gPtr);
     QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
+    QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
+                                         "Mustermann", Person::Gender::MALE));
+    gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
     e->create(groupPtr, true, true);
-
 
     /** ---------------------------------
      * FIND
@@ -57,6 +59,7 @@ int main(int argc, char *argv[]) {
     qDebug() << "GroupID:" << groupFindPtr->getId();
     QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
     qDebug() << "PersonSize:" << grp->getPersons().size();
+    qDebug() << "MainTeacher:" << grp->getMainTeacher()->toString();
     qDebug() << "Duration:" << t.elapsed();
     return 0;
 }
