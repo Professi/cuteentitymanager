@@ -18,6 +18,9 @@ const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
     hash.insert("groups", CuteEntityManager::Relation("groups", MANY_TO_MANY,
                 QString("persons")));
+    hash.insert("groupsMainTeacher",
+                CuteEntityManager::Relation("groupsMainTeacher",
+                                            ONE_TO_MANY, "mainTeacher"));
     return hash;
 }
 
@@ -120,3 +123,11 @@ void Person::addContact(Contact *contact) {
 void Person::addAddress(Address *address) {
     this->addresses.append(QSharedPointer<Address>(address));
 }
+QList<QSharedPointer<Group> > Person::getGroupsMainTeacher() const {
+    return groupsMainTeacher;
+}
+
+void Person::setGroupsMainTeacher(const QList<QSharedPointer<Group> > &value) {
+    groupsMainTeacher = value;
+}
+

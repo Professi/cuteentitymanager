@@ -25,6 +25,7 @@ class Person: public Entity {
     Q_PROPERTY(QDate birthday READ getBirthday WRITE setBirthday)
     Q_PROPERTY(Gender gender READ getGender WRITE setGender)
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
+    Q_PROPERTY(QList<QSharedPointer<Group>> groupsMainTeacher READ getGroupsMainTeacher WRITE setGroupsMainTeacher)
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
@@ -76,7 +77,10 @@ class Person: public Entity {
     void addContact(Contact *contact);
     void addAddress(Address *address);
 
-  protected:
+    QList<QSharedPointer<Group> > getGroupsMainTeacher() const;
+    void setGroupsMainTeacher(const QList<QSharedPointer<Group> > &value);
+
+protected:
     QString firstName;
     QString familyName;
     QString namePrefix;
@@ -87,6 +91,7 @@ class Person: public Entity {
     QList <QSharedPointer<Contact>> contacts;
     QList <QSharedPointer<Address>> addresses;
     QList <QSharedPointer<Group>> groups;
+    QList <QSharedPointer<Group>> groupsMainTeacher;
 };
 
 
