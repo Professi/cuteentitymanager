@@ -328,7 +328,6 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         }
         ++iterator;
     }
-
 }
 
 void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
@@ -340,6 +339,7 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                                           || r.getCascadeType().contains(MERGE)
                                           || r.getCascadeType().contains(PERSIST) ? this->saveRelationEntities(list,
                                                   r) : list;
+    this->db->startTransaction();
     auto builder = this->schema->getQueryBuilder();
     q = builder->manyToManyInsert(tblName,
                                   builder->generateManyToManyColumnName(entity),
@@ -362,6 +362,9 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                 qDebug() << "Relation:" << r.getType() << r.getPropertyName();
             }
         }
+    }
+    if (!this->db->commitTransaction()) {
+        this->db->rollbackTransaction();
     }
 }
 
