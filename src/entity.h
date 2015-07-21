@@ -27,16 +27,7 @@
 #include <QStack>
 #include <QQueue>
 #include "entityinstancefactory.h"
-
-#if defined CUTE_ENTITY_MANAGER_LIBRARY
- #define CUTE_ENTITY_MANAGER_LIBRARY_COMMON_DLLSPEC Q_DECL_EXPORT
-#else
- #define CUTE_ENTITY_MANAGER_LIBRARY_COMMON_DLLSPEC Q_DECL_IMPORT
-#endif
-
-
 namespace CuteEntityManager {
-
 
 /**
  * You mustn't name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager

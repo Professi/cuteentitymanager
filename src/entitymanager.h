@@ -32,12 +32,6 @@
 #include "entityinstancefactory.h"
 #include "cache.h"
 
-#if defined CUTE_ENTITY_MANAGER_LIBRARY
- #define CUTE_ENTITY_MANAGER_LIBRARY_COMMON_DLLSPEC Q_DECL_EXPORT
-#else
- #define CUTE_ENTITY_MANAGER_LIBRARY_COMMON_DLLSPEC Q_DECL_IMPORT
-#endif
-
 namespace CuteEntityManager {
 
  class EntityManager : public QObject {
