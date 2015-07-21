@@ -38,39 +38,39 @@ class Entity : public QObject {
     Q_PROPERTY(qint64 id READ getId WRITE setId NOTIFY idChanged)
 
   signals:
-    Q_DECL_EXPORT void idChanged();
+    void idChanged();
 
   public:
-    Q_DECL_EXPORT explicit Entity (QObject *parent = 0);
-    Q_DECL_EXPORT virtual QString toString() const;
-    Q_DECL_EXPORT virtual ~Entity();
-    Q_DECL_EXPORT virtual QString getTablename() const;
-    Q_DECL_EXPORT virtual const QHash<QString, Relation> getRelations() const;
-    Q_DECL_EXPORT virtual const QStringList getTransientAttributes() const;
-    Q_DECL_EXPORT virtual const QStringList getBLOBColumns() const;
-    Q_DECL_EXPORT virtual InheritanceStrategy getInheritanceStrategy() const;
-    Q_DECL_EXPORT virtual bool isInheritanceCascaded() const;
+    explicit Entity (QObject *parent = 0);
+    virtual QString toString() const;
+    virtual ~Entity();
+    virtual QString getTablename() const;
+    virtual const QHash<QString, Relation> getRelations() const;
+    virtual const QStringList getTransientAttributes() const;
+    virtual const QStringList getBLOBColumns() const;
+    virtual InheritanceStrategy getInheritanceStrategy() const;
+    virtual bool isInheritanceCascaded() const;
     //return value must be the exact name defined in Q_PROPERTY
-    Q_DECL_EXPORT virtual QString getPrimaryKey() const;
-    Q_DECL_EXPORT const QHash<QString, Relation> getNonInheritedRelations() const;
-    Q_DECL_EXPORT const QList<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
+    virtual QString getPrimaryKey() const;
+    const QHash<QString, Relation> getNonInheritedRelations() const;
+    const QList<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
             = false) const;
-    Q_DECL_EXPORT const QHash<QString, QMetaProperty> getMetaProperties() const;
-    Q_DECL_EXPORT const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
-    Q_DECL_EXPORT static const QHash<QString, QMetaProperty> getMetaProperties(
+    const QHash<QString, QMetaProperty> getMetaProperties() const;
+    const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
+    static const QHash<QString, QMetaProperty> getMetaProperties(
         const QMetaObject *object);
-    Q_DECL_EXPORT const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
-    Q_DECL_EXPORT const QHash<Relation, QMetaProperty> getRelationProperties() const;
-    Q_DECL_EXPORT const char *getClassname() const;
+    const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
+    const QHash<Relation, QMetaProperty> getRelationProperties() const;
+    const char *getClassname() const;
 
-    Q_DECL_EXPORT QVariant getProperty(const QString &name) const;
-    Q_DECL_EXPORT bool setProperty(const QString &name, const QVariant &value);
+    QVariant getProperty(const QString &name) const;
+    bool setProperty(const QString &name, const QVariant &value);
 
-    Q_DECL_EXPORT qint64 getId() const;
-    Q_DECL_EXPORT void setId(const qint64 &value);
+    qint64 getId() const;
+    void setId(const qint64 &value);
 
   protected:
-    Q_DECL_EXPORT virtual QString slimToString() const;
+    virtual QString slimToString() const;
     qint64 id;
 };
 }

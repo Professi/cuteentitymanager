@@ -41,32 +41,32 @@ enum CascadeType {
 
 class Relation {
   public:
-    Q_DECL_EXPORT explicit Relation();
-    Q_DECL_EXPORT explicit Relation(QString propertyName, bool optional, RelationType type);
+    explicit Relation();
+    explicit Relation(QString propertyName, bool optional, RelationType type);
     /**
      * @brief Relation
      * @param propertyName
      * @param type
      * @param mappedBy Q_PROPERTY in foreign Entity
      */
-    Q_DECL_EXPORT explicit Relation(QString propertyName, RelationType type,
+    explicit Relation(QString propertyName, RelationType type,
                       QString mappedBy = QString(),
                       QList<CascadeType> cascadeType = {MERGE, PERSIST, REFRESH});
-    Q_DECL_EXPORT ~Relation();
-    Q_DECL_EXPORT RelationType getType() const;
-    Q_DECL_EXPORT void setType(const RelationType &value);
+    ~Relation();
+    RelationType getType() const;
+    void setType(const RelationType &value);
 
-    Q_DECL_EXPORT QString getPropertyName() const;
-    Q_DECL_EXPORT void setPropertyName(const QString &value);
+    QString getPropertyName() const;
+    void setPropertyName(const QString &value);
 
-    Q_DECL_EXPORT bool getOptional() const;
-    Q_DECL_EXPORT void setOptional(bool value);
+    bool getOptional() const;
+    void setOptional(bool value);
 
-    Q_DECL_EXPORT QString getMappedBy() const;
-    Q_DECL_EXPORT void setMappedBy(const QString &value);
+    QString getMappedBy() const;
+    void setMappedBy(const QString &value);
 
-    Q_DECL_EXPORT QList<CascadeType> getCascadeType() const;
-    Q_DECL_EXPORT void setCascadeType(const QList<CascadeType> &value);
+    QList<CascadeType> getCascadeType() const;
+    void setCascadeType(const QList<CascadeType> &value);
 
   protected:
     QString propertyName;

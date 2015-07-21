@@ -23,30 +23,30 @@ namespace CuteEntityManager {
 class Entity;
 class EntityInstanceFactory {
   public:
-    Q_DECL_EXPORT static Entity *createInstance(const char *className);
-    Q_DECL_EXPORT static Entity *createInstance(const QString &className);
-    Q_DECL_EXPORT static Entity *createInstance(int metaTypeId);
-    Q_DECL_EXPORT static Entity *createInstance(const char *className,
+    static Entity *createInstance(const char *className);
+    static Entity *createInstance(const QString &className);
+    static Entity *createInstance(int metaTypeId);
+    static Entity *createInstance(const char *className,
                                   const QHash<QString, QVariant> &attributes);
-    Q_DECL_EXPORT static Entity *setAttributes(Entity *&e,
+    static Entity *setAttributes(Entity *&e,
                                  const QHash<QString, QVariant> &attributes,
                                  QHash<QString, QMetaProperty> metaprops);
-    Q_DECL_EXPORT static Entity *setAttributes(Entity *&e,
+    static Entity *setAttributes(Entity *&e,
                                  const QHash<QString, QVariant> &attributes);
-    Q_DECL_EXPORT static const QString extractEntityType(const QString &s);
-    Q_DECL_EXPORT static Entity *newSuperClassInstance(const Entity *e);
-    Q_DECL_EXPORT static Entity *createInstance(const QMetaObject *object);
-    Q_DECL_EXPORT static QList<QSharedPointer<Entity>> castQVariantList(QVariant &list);
-    Q_DECL_EXPORT static QSharedPointer<Entity> castQVariant(QVariant &entity);
+    static const QString extractEntityType(const QString &s);
+    static Entity *newSuperClassInstance(const Entity *e);
+    static Entity *createInstance(const QMetaObject *object);
+    static QList<QSharedPointer<Entity>> castQVariantList(QVariant &list);
+    static QSharedPointer<Entity> castQVariant(QVariant &entity);
 
     template<typename T>
-    Q_DECL_EXPORT static Entity *createInstance() {
+    static Entity *createInstance() {
         return EntityInstanceFactory::createInstance(qMetaTypeId<T>());
     }
 
     //http://www.mimec.org/node/350
     template<typename T>
-    Q_DECL_EXPORT static void registerClass() {
+    static void registerClass() {
         constructors().insert( T::staticMetaObject.className(), &constructorHelper<T> );
         QString lName = "QList<QSharedPointer<";
         lName.append(T::staticMetaObject.className());
@@ -58,7 +58,7 @@ class EntityInstanceFactory {
         qRegisterMetaType<QList<QSharedPointer<T>>>(lName.toLatin1().constData());
     }
 
-    Q_DECL_EXPORT static Entity *createObject( const QByteArray &className) {
+    static Entity *createObject( const QByteArray &className) {
         Constructor constructor = constructors().value( className );
         if ( constructor == NULL ) {
             return NULL;
