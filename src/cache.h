@@ -25,11 +25,11 @@ namespace CuteEntityManager {
 class Entity;
 class Cache {
   public:
-    Cache();
-    QHash<QString, QWeakPointer<Entity> > getCache() const;
-    bool contains(qint64 id, const QString &classname);
-    bool contains(const QString &key);
-    template<class T> bool contains(qint64 id) {
+    Q_DECL_EXPORT Cache();
+    Q_DECL_EXPORT QHash<QString, QWeakPointer<Entity> > getCache() const;
+    Q_DECL_EXPORT bool contains(qint64 id, const QString &classname);
+    Q_DECL_EXPORT bool contains(const QString &key);
+    template<class T> Q_DECL_EXPORT bool contains(qint64 id) {
         bool ok = false;
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
@@ -38,10 +38,10 @@ class Cache {
         }
         return ok;
     }
-    void insert(QSharedPointer<Entity> &entity);
-    void remove(const QSharedPointer<Entity> &entity);
-    void remove(const qint64 &id, const QString &classname);
-    template<class T> void remove(qint64 id) {
+    Q_DECL_EXPORT void insert(QSharedPointer<Entity> &entity);
+    Q_DECL_EXPORT void remove(const QSharedPointer<Entity> &entity);
+    Q_DECL_EXPORT void remove(const qint64 &id, const QString &classname);
+    template<class T> Q_DECL_EXPORT  void remove(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
             this->remove(id, QString(e->getClassname()));
@@ -49,8 +49,8 @@ class Cache {
         }
     }
 
-    QSharedPointer<Entity> get(qint64 id, const QString &classname);
-    template<class T> QSharedPointer<Entity> get(qint64 id) {
+    Q_DECL_EXPORT QSharedPointer<Entity> get(qint64 id, const QString &classname);
+    template<class T> Q_DECL_EXPORT QSharedPointer<Entity> get(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
             return this->get(id, QString(e->getClassname()));
