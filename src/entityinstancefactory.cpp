@@ -57,7 +57,7 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
 
 Entity *EntityInstanceFactory::createInstance(const char *className,
         const QHash<QString, QVariant> &attributes) {
-        Entity *e = EntityInstanceFactory::createInstance(className);
+    Entity *e = EntityInstanceFactory::createInstance(className);
     e = EntityInstanceFactory::setAttributes(e, attributes);
     return e;
 }
@@ -88,9 +88,9 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
 
 Entity *EntityInstanceFactory::setAttributes(Entity *&e,
         const QHash<QString, QVariant> &attributes) {
-    if(!attributes.isEmpty()) {
-    auto metaprops = e->getMetaProperties();
-    return EntityInstanceFactory::setAttributes(e, attributes, metaprops);
+    if (!attributes.isEmpty()) {
+        auto metaprops = e->getMetaProperties();
+        return EntityInstanceFactory::setAttributes(e, attributes, metaprops);
     } else {
         return e;
     }

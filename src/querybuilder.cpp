@@ -448,7 +448,7 @@ const {
 
 
 QString QueryBuilder::transformTypeToAbstractDbType(QString typeName) const {
-    QHash<QString, QString> *m = this->schema->getAbstractTypeMap().data();
+    auto m = this->schema->getAbstractTypeMap();
     if (m->contains(typeName)) {
         return m->value(typeName);
     }
@@ -469,7 +469,7 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     /**
       * @WARNING
       */
-    QHash<QString, QString> *tMap = this->schema->getTypeMap().data();
+    auto tMap = this->schema->getTypeMap();
     if (tMap->contains(type)) {
         return this->transformAbstractTypeToRealDbType(type);
     }
