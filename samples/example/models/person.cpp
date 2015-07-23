@@ -124,13 +124,13 @@ void Person::addContact(Contact *contact) {
 void Person::addAddress(Address *address) {
     this->addresses.append(QSharedPointer<Address>(address));
 }
-QList<QSharedPointer<Group> > Person::getMaintainedGroups() const
-{
+
+QList<QSharedPointer<Group> > Person::getMaintainedGroups() const {
     return maintainedGroups;
 }
 
-void Person::setMaintainedGroups(const QList<QSharedPointer<Group> > &value)
-{
+void Person::setMaintainedGroups(const QList<QSharedPointer<Group> > &value) {
     maintainedGroups = value;
+
 }
 

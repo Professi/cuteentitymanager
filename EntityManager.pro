@@ -47,3 +47,4 @@ unix {
     INSTALLS += target
 }
 CONFIG += c++14
+QMAKE_CXXFLAGS += -Wall -Wextra -Wuninitialized -Wmaybe-uninitialized -Wsuggest-final-types -Wstrict-overflow -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -Waddress

@@ -28,6 +28,7 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
 
+
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
     Q_ENUM(Gender)
@@ -93,6 +94,7 @@ class Person: public Entity {
     QList <QSharedPointer<Address>> addresses;
     QList <QSharedPointer<Group>> groups;
     QList <QSharedPointer<Group>> maintainedGroups;
+
 };
 
 

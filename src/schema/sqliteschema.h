@@ -22,15 +22,16 @@ class SqliteSchema : public Schema {
   public:
     SqliteSchema(QSharedPointer<Database> database);
     ~SqliteSchema();
-    QSharedPointer<QHash<QString, QString> > getTypeMap();
+    QSharedPointer<QHash<QString, QString> > getTypeMap() override;
   protected:
 
-    virtual QStringList findTableNames(QString schema = "");
-    virtual QHash<QString, QStringList> findUniqueIndexes(const QSharedPointer<TableSchema>
-            &table);
-    virtual void findConstraints(const QSharedPointer<TableSchema> &ts);
-    virtual bool findColumns(const QSharedPointer<TableSchema> &ts);
-    virtual QSharedPointer<TableSchema> loadTableSchema(QString name);
+    virtual QStringList findTableNames(QString schema = "") override;
+    virtual QHash<QString, QStringList> findUniqueIndexes(const
+            QSharedPointer<TableSchema>
+            &table) override;
+    virtual void findConstraints(const QSharedPointer<TableSchema> &ts) override;
+    virtual bool findColumns(const QSharedPointer<TableSchema> &ts) override;
+    virtual QSharedPointer<TableSchema> loadTableSchema(QString name) override;
 };
 }
 #endif // SQLITESCHEMA_H

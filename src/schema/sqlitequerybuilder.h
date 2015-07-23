@@ -23,22 +23,23 @@ class SqliteQueryBuilder : public QueryBuilder {
                        QSharedPointer<Database> database);
     ~SqliteQueryBuilder();
 
-    virtual QString truncateTable(QString tableName) const;
-    virtual QString dropIndex(QString name, QString tableName) const;
-    virtual QString dropColumn(QString tableName, QString columnName)const;
+    virtual QString truncateTable(QString tableName) const override;
+    virtual QString dropIndex(QString name, QString tableName) const override;
+    virtual QString dropColumn(QString tableName, QString columnName)const override;
     virtual QString renameColumn(QString tableName, QString oldName,
-                                 QString newName) const;
-    virtual QString addForeignKey(QString name, QString tableName, QStringList columns,
+                                 QString newName) const override;
+    virtual QString addForeignKey(QString name, QString tableName,
+                                  QStringList columns,
                                   QString refTableName,
                                   QStringList refColumns, QString deleteConstraint,
-                                  QString updateConstraint) const;
-    virtual QString dropForeignKey(QString name, QString tableName) const;
+                                  QString updateConstraint) const override;
+    virtual QString dropForeignKey(QString name, QString tableName) const override;
     virtual QString alterColumn(QString tableName, QString columnName,
-                                QString newType) const;
+                                QString newType) const override;
     virtual QString addPrimaryKey(QString name, QString tableName,
-                                  QStringList columns) const;
-    virtual QString dropPrimaryKey(QString name, QString tableName) const;
-    virtual bool supportsForeignKeys() const;
+                                  QStringList columns) const override;
+    virtual QString dropPrimaryKey(QString name, QString tableName) const override;
+    virtual bool supportsForeignKeys() const override;
 };
 
 }

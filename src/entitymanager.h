@@ -83,7 +83,7 @@ class EntityManager : public QObject {
      */
   public:
     template<class T> qint8 count(QHash<QString, QString> condition =
-                                      QHash<QString, QString>()) {
+                                      QHash<QString, QVariant>()) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         qint8 rc = 0;
         if (e) {
@@ -98,8 +98,7 @@ class EntityManager : public QObject {
                                      (EntityInstanceFactory::createInstance<T>());
         if (ptr) {
             auto maps = this->findAll(ptr);
-            const char *className = ptr.data()->getClassname();
-            return this->convert(maps, className);
+            return this->convert(maps, ptr->getClassname());
         }
         return QList<QSharedPointer<Entity>>();
     }
@@ -111,7 +110,7 @@ class EntityManager : public QObject {
     }
 
     template<class T> QSharedPointer<Entity> findEntityByAttributes(
-        const QHash<QString, QString>
+        const QHash<QString, QVariant>
         &attributes) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0);
         if (list.isEmpty()) {
@@ -121,10 +120,16 @@ class EntityManager : public QObject {
     }
 
     template<class T> QList<QSharedPointer<Entity>> findAllEntitiesByAttributes(
-                const QHash<QString, QString> &attributes =
+                const QHash<QString, QVariant> &attributes =
     QHash<QString, QString>(), quint32 limit = 0, quint32 offset = 0) {
-        auto list = this->findAllEntitiesByAttributes<T>(attributes);
-        return list;
+        QSharedPointer<Entity> e = QSharedPointer<Entity>
+                                   (EntityInstanceFactory::createInstance<T>());
+        if (e) {
+            auto results = this->findAllByAttributes(attributes, e->getTablename());
+            auto list = this->convert(results, e->getClassname());
+            return list;
+        }
+        return QList<QSharedPointer<Entity>>();
     }
 
     template<class T> QList<QSharedPointer<Entity>> findEntitiesBySql(

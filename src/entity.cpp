@@ -35,8 +35,8 @@ QString Entity::toString() const {
         } else if (value.canConvert<QList<QVariant>>()) {
             auto list = value.toList();
             val.append("[");
-            for (int var = 0; var < list.size(); ++var) {
-                val = list.at(var).toString();
+            for (int i = 0; i < list.size(); ++i) {
+                val = list.at(i).toString();
             }
             val.append("]");
         } else {
