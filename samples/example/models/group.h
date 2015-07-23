@@ -17,7 +17,7 @@ using namespace CuteEntityManager;
 
 class Group: public CuteEntityManager::Entity {
     Q_OBJECT
-    //Q_PROPERTY(QList<QSharedPointer<Pupil>> pupils READ getPupils WRITE setPupils)
+    Q_PROPERTY(QList<QSharedPointer<Pupil>> pupils READ getPupils WRITE setPupils)
     Q_PROPERTY(QList<QSharedPointer<Person>> persons READ getPersons WRITE setPersons)
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(QSharedPointer<Person> mainTeacher READ getMainTeacher WRITE

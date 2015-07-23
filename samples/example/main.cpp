@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
     EntityInstanceFactory::registerClass<Address>();
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
-    QStringList inits = QStringList() << "Contact" << "Address" << "Person" <<
+    QStringList inits = QStringList() << "Contact" << "Address" <<
                         "Pupil" << "Group";
     e->startup("0.1", inits);
 
@@ -41,10 +41,10 @@ int main(int argc, char *argv[]) {
      * PERSIST
      * ---------------------------------
      */
-    Group *g = new Group();
-    g->setName("9b");
-    CreateFakeModelData::fillGroup(g);
-    QSharedPointer<Group> gPtr = QSharedPointer<Group>(g);
+
+    QSharedPointer<Group> gPtr = QSharedPointer<Group>(new Group());
+    CreateFakeModelData::fillGroup(gPtr.data());
+    gPtr->setName("9b");
     e->createTable(gPtr);
     QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
     QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
@@ -57,6 +57,10 @@ int main(int argc, char *argv[]) {
      * FIND
      * ---------------------------------
      */
+    QSharedPointer<Person> foundMainTeacher = e->findById<Person*>(1).objectCast<Person>();
+    qDebug() << "Founded:" << foundMainTeacher->toString();
+    qDebug() << "FoundedGroupSize:" << foundMainTeacher->getMaintainedGroups().size();
+
     QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
     QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
     qDebug()<< "Group:" << groupFindPtr->toString();

@@ -34,7 +34,7 @@ QueryBuilder::~QueryBuilder() {
 bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity,
                                bool createRelationTables) const {
     bool rc = false;
-    if (entity.data()) {
+    if (entity) {
         auto tableDefinition = this->generateTableDefinition(entity);
         QString tableName = entity->getTablename();
         this->schema->containsTable(tableName) ? rc = true : rc = false;
@@ -86,12 +86,14 @@ const {
         while (iterator != relations.constEnd()) {
             auto relation = iterator.value();
             if (relation.getMappedBy().isEmpty() && !relation.getCascadeType().isEmpty()) {
-                QString update = relation.getCascadeType().contains(MERGE)
-                                 || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
+                QString update = relation.getCascadeType().contains(CascadeType::MERGE)
+                                 || relation.getCascadeType().contains(CascadeType::ALL) ?
+                                 this->getForeignKeyCascade(
                                      CASCADE) : this->getForeignKeyCascade(NO_ACTION);
-                QString remove = relation.getCascadeType().contains(REMOVE)
-                                 || relation.getCascadeType().contains(ALL) ?  this->getForeignKeyCascade(
-                                     CASCADE) : this->getForeignKeyCascade(SET_NULL);
+                QString remove = relation.getCascadeType().contains(CascadeType::REMOVE)
+                                 || relation.getCascadeType().contains(CascadeType::ALL) ?
+                                 this->getForeignKeyCascade(
+                                     CASCADE) : this->getForeignKeyCascade(DbForeignKeyCascade::SET_NULL);
                 this->createRelationFK(queries, entity, relation,
                                        props.value(relation.getPropertyName()), update, remove);
             }
@@ -112,7 +114,8 @@ void QueryBuilder::createRelationFK(QStringList &queries,
     auto ptr = QSharedPointer<Entity>
                (EntityInstanceFactory::createInstance(metaProperty.type()));
     if (ptr) {
-        if (relation.getType() == ONE_TO_ONE || relation.getType() == MANY_TO_ONE) {
+        if (relation.getType() == RelationType::ONE_TO_ONE
+                || relation.getType() == RelationType::MANY_TO_ONE) {
             QString indexName = this->generateIndexName(relation.getPropertyName(),
                                 entity->getTablename(),
                                 this->generateColumnNameID(relation.getPropertyName()),
@@ -122,7 +125,7 @@ void QueryBuilder::createRelationFK(QStringList &queries,
                                                ptr->getTablename(),
                                                QStringList(ptr->getPrimaryKey()), remove, update));
 
-        } else if (relation.getType() == MANY_TO_MANY) {
+        } else if (relation.getType() == RelationType::MANY_TO_MANY) {
             QString tableName = this->generateManyToManyTableName(entity, ptr);
             queries.append(this->createForeignKeyManyToMany(tableName, entity, update,
                            remove));
@@ -153,7 +156,7 @@ QString QueryBuilder::createTable(const QString &tableName,
 QString QueryBuilder::createFkSuperClass(const Entity *e) const {
     QString r = "";
     auto superMetaObject = e->metaObject()->superClass();
-    if (e->getInheritanceStrategy() == JOINED_TABLE
+    if (e->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE
             && QString(superMetaObject->className()) !=
             this->entityClassname()) {
         Entity *superClass  = EntityInstanceFactory::createInstance(
@@ -369,7 +372,8 @@ const {
     QHash<QString, Relation> relations = entity->getRelations();
     for (int var = 0; var < o->propertyCount(); ++var) {
         auto m = o->property(var);
-        if (!superMetaObjectPropertyMap.contains(QString(m.name()))
+        if ((!superMetaObjectPropertyMap.contains(QString(m.name()))
+                || entity->getInheritanceStrategy() == InheritanceStrategy::PER_CLASS_TABLE)
                 && m.name() != QString("objectName") && m.isReadable()
                 && !entity->getTransientAttributes().contains(m.name())) {
             if (m.isEnumType()) {
@@ -393,10 +397,12 @@ const {
             }
         }
     }
-    if (!(QString(superMetaObject->className()) !=
+    if (QString(superMetaObject->className()) ==
             this->entityClassname()
-            && entity->getInheritanceStrategy() == JOINED_TABLE)) {
+            || entity->getInheritanceStrategy() == InheritanceStrategy::PER_CLASS_TABLE) {
         map.insert(entity->getPrimaryKey(), this->schema->TYPE_BIGPK);
+    } else {
+        map.insert(entity->getPrimaryKey(), this->schema->TYPE_BIGINT);
     }
     return map;
 }
@@ -423,7 +429,7 @@ const {
     auto props = entity->getMetaProperties();
     for (auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();
-        if (r.getType() == MANY_TO_MANY && r.getMappedBy().isEmpty()) {
+        if (r.getType() == RelationType::MANY_TO_MANY && r.getMappedBy().isEmpty()) {
             QHash<QString, QString> h = QHash<QString, QString>();
             h.insert(entity->getPrimaryKey(), this->schema->TYPE_BIGPK);
             h.insert(this->generateManyToManyColumnName(entity),
@@ -582,7 +588,7 @@ const {
     QList<QSqlQuery> queries = QList<QSqlQuery>();
     queries.append(this->remove(entity->getTablename(),
                                 entity->getProperty(entity->getPrimaryKey()).toLongLong()));
-    if (entity->getInheritanceStrategy() != PER_CLASS_TABLE
+    if (entity->getInheritanceStrategy() != InheritanceStrategy::PER_CLASS_TABLE
             && entity->isInheritanceCascaded()) {
         auto classes = entity->superClasses(true);
         for (int var = 0; var < classes.size(); ++var) {
@@ -857,7 +863,7 @@ QHash<QString, Relation> QueryBuilder::processRelations(
 QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
     const QSharedPointer<Entity> &entity) const {
     auto list = QList<QueryBuilder::ClassAttributes>();
-    if (entity->getInheritanceStrategy() == JOINED_TABLE) {
+    if (entity->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE) {
         auto classes = QList<const QMetaObject *>();
         classes.append(entity->metaObject());
         classes.append(entity->superClasses(true));
@@ -923,8 +929,8 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
     auto i = relations.constBegin();
     while (i != relations.constEnd()) {
         Relation r = i.value();
-        if ((r.getType() == MANY_TO_ONE && props.contains(i.key()))
-                || (r.getType() == ONE_TO_ONE && r.getMappedBy().isEmpty())) {
+        if ((r.getType() == RelationType::MANY_TO_ONE && props.contains(i.key()))
+                || (r.getType() == RelationType::ONE_TO_ONE && r.getMappedBy().isEmpty())) {
             auto v = props.value(i.key()).read(entity.data());
             QSharedPointer<Entity> e = EntityInstanceFactory::castQVariant(v);
             if (e) {

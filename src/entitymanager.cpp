@@ -288,12 +288,13 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
-            if (r.getType() == MANY_TO_ONE) {
+            if (r.getType() == RelationType::MANY_TO_ONE) {
                 auto e = EntityInstanceFactory::castQVariant(var);
                 if (this->shouldBeSaved(e, r)) {
                     this->save(e);
                 }
-            } else if (r.getType() == ONE_TO_ONE && r.getMappedBy().isEmpty()) {
+            } else if (r.getType() == RelationType::ONE_TO_ONE
+                       && r.getMappedBy().isEmpty()) {
                 auto entity =  EntityInstanceFactory::castQVariant(var);
                 this->save(entity);
             }
@@ -310,9 +311,9 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
-            if (this->canPersistRelation(r, MANY_TO_MANY, var)) {
+            if (this->canPersistRelation(r, RelationType::MANY_TO_MANY, var)) {
                 this->persistManyToMany(entity, r, var);
-            } else if (this->canPersistRelation(r, ONE_TO_MANY, var)) {
+            } else if (this->canPersistRelation(r, RelationType::ONE_TO_MANY, var)) {
                 QList<QSharedPointer<Entity>> list = EntityInstanceFactory::castQVariantList(
                         var);
                 for (int var = 0; var < list.size(); ++var) {
@@ -321,7 +322,8 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
                         this->save(entity);
                     }
                 }
-            } else if (r.getType() == ONE_TO_ONE && !r.getMappedBy().isEmpty()) {
+            } else if (r.getType() == RelationType::ONE_TO_ONE
+                       && !r.getMappedBy().isEmpty()) {
                 auto entity =  EntityInstanceFactory::castQVariant(var);
                 this->save(entity);
             }
@@ -335,9 +337,11 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
         const QSharedPointer<Entity> &ptr, const Relation &r,
         const QString &tblName) {
     q.clear();
-    QList<QSharedPointer<Entity>> saved = r.getCascadeType().contains(ALL)
-                                          || r.getCascadeType().contains(MERGE)
-                                          || r.getCascadeType().contains(PERSIST) ? this->saveRelationEntities(list,
+    QList<QSharedPointer<Entity>> saved = r.getCascadeType().contains(
+            CascadeType::ALL)
+                                          || r.getCascadeType().contains(CascadeType::MERGE)
+                                          || r.getCascadeType().contains(CascadeType::PERSIST) ?
+                                          this->saveRelationEntities(list,
                                                   r) : list;
     this->db->startTransaction();
     auto builder = this->schema->getQueryBuilder();
@@ -359,7 +363,7 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                          q.lastError().text();
                 qDebug() << "Involved entities: " << entity->getClassname() <<
                          "(MainEntitiy) and "  << entity->getClassname();
-                qDebug() << "Relation:" << r.getType() << r.getPropertyName();
+                qDebug() << "Relation:" << r.getPropertyName();
             }
         }
     }
@@ -391,11 +395,11 @@ QMetaProperty EntityManager::mappedProperty(const Relation &r,
 
 bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
                                   const Relation &r) {
-    return entity && (r.getCascadeType().contains(ALL)
+    return entity && (r.getCascadeType().contains(CascadeType::ALL)
                       || (entity->getProperty(entity->getPrimaryKey()) > -1
-                          && r.getCascadeType().contains(MERGE))
+                          && r.getCascadeType().contains(CascadeType::MERGE))
                       || (entity->getProperty(entity->getPrimaryKey()) <= -1
-                          && r.getCascadeType().contains(PERSIST)));
+                          && r.getCascadeType().contains(CascadeType::PERSIST)));
 }
 
 void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
@@ -405,15 +409,17 @@ void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
         const Relation r = iterator.key();
         auto property = iterator.value();
         auto var = property.read(entity.data());
-        if (r.getType() == MANY_TO_MANY) {
+        if (r.getType() == RelationType::MANY_TO_MANY) {
             this->removeManyToManyEntityList(entity, r, var);
-        } else if (r.getType() == ONE_TO_MANY) {
-            if (r.getCascadeType().contains(REMOVE) || r.getCascadeType().contains(ALL)) {
+        } else if (r.getType() == RelationType::ONE_TO_MANY) {
+            if (r.getCascadeType().contains(CascadeType::REMOVE)
+                    || r.getCascadeType().contains(CascadeType::ALL)) {
                 this->removeEntityList(var);
             } else {
                 this->setNullOneToManyRelation(var, r);
             }
-        }  else if (r.getType() == MANY_TO_ONE || r.getType() == MANY_TO_ONE) {
+        }  else if (r.getType() == RelationType::MANY_TO_ONE
+                    || r.getType() == RelationType::MANY_TO_ONE) {
             this->setNullEntityPropertyRelation(var, r);
         }
         ++iterator;
@@ -441,7 +447,8 @@ void EntityManager::setNullOneToManyRelation(QVariant &var, const Relation &r) {
 
 void EntityManager::setNullEntityPropertyRelation(QVariant &var,
         const Relation &r) {
-    if (r.getCascadeType().contains(REMOVE) || r.getCascadeType().contains(ALL)) {
+    if (r.getCascadeType().contains(CascadeType::REMOVE)
+            || r.getCascadeType().contains(CascadeType::ALL)) {
         this->removeEntity(var);
     } else if (!r.getMappedBy().isEmpty() && !var.isNull()) {
         auto e = EntityInstanceFactory::castQVariant(var);
@@ -484,10 +491,10 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
                 QSqlQuery q = builder->manyToManyDelete(
                                   tblName, builder->generateManyToManyColumnName(e),
                                   e->getProperty(e->getPrimaryKey()).toLongLong());
-                bool refresh = r.getCascadeType().contains(REFRESH)
-                               || r.getCascadeType().contains(ALL);
-                bool remove = r.getCascadeType().contains(REMOVE)
-                              || r.getCascadeType().contains(ALL);
+                bool refresh = r.getCascadeType().contains(CascadeType::REFRESH)
+                               || r.getCascadeType().contains(CascadeType::ALL);
+                bool remove = r.getCascadeType().contains(CascadeType::REMOVE)
+                              || r.getCascadeType().contains(CascadeType::ALL);
                 if (q.exec()) {
                     for (int var = 0; var < list.size(); ++var) {
                         auto entity = list.at(var);
@@ -732,18 +739,18 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
         QString colName = this->schema->getQueryBuilder()->generateColumnNameID(
                               r.getPropertyName());
         switch (r.getType()) {
-        case MANY_TO_ONE:
+        case RelationType::MANY_TO_ONE:
             if (map.contains(colName)) {
                 this->manyToOne(entity, map.value(colName), property, refresh);
             }
             break;
-        case MANY_TO_MANY:
+        case RelationType::MANY_TO_MANY:
             this->manyToMany(entity, property, refresh);
             break;
-        case ONE_TO_MANY:
+        case RelationType::ONE_TO_MANY:
             this->oneToMany(entity, r, property, refresh);
             break;
-        case ONE_TO_ONE:
+        case RelationType::ONE_TO_ONE:
             this->oneToOne(entity, r, property, refresh, map.value(colName));
             break;
         }

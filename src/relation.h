@@ -18,7 +18,7 @@
 #include <QString>
 #include <QHash>
 namespace CuteEntityManager {
-enum RelationType {
+enum class RelationType {
     ONE_TO_ONE = 0, //e.g. specialization, heritage
     ONE_TO_MANY = 1, //@OneToMany(cascade=ALL, mappedBy="customer") e.g. QList<QSharedPointer<Person>>
     MANY_TO_ONE = 2, //e.g. QSharedPointer<Person>
@@ -26,12 +26,12 @@ enum RelationType {
     MANY_TO_MANY = 3, //e.g. QList<QSharedPointer<Person>> - realized with seperated database table
 };
 
-enum InheritanceStrategy {
+enum class InheritanceStrategy {
     PER_CLASS_TABLE,
     JOINED_TABLE,
 };
 
-enum CascadeType {
+enum class CascadeType {
     ALL,
     MERGE,
     PERSIST,
@@ -51,7 +51,7 @@ class Relation {
      */
     explicit Relation(QString propertyName, RelationType type,
                       QString mappedBy = QString(),
-                      QList<CascadeType> cascadeType = {MERGE, PERSIST, REFRESH});
+                      QList<CascadeType> cascadeType = {CascadeType::MERGE, CascadeType::PERSIST, CascadeType::REFRESH});
     ~Relation();
     RelationType getType() const;
     void setType(const RelationType &value);

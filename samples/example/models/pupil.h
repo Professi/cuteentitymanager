@@ -11,8 +11,7 @@ class Pupil : public Person {
     Pupil(QString firstName, QString familyName,
           Gender gender = Gender::UNKNOWNGENDER,
           QString customPictureFileName = QString(), QString namePrefix = QString(),
-          QString nickName = QString(), QDate birthday = QDate(),
-          QString form = QString(), QObject *parent = 0);
+          QString nickName = QString(), QDate birthday = QDate(), QString legalGuardianNote = "", QObject *parent = 0);
 
     QString getLegalGuardianNote() const;
     void setLegalGuardianNote(const QString &value);
@@ -22,7 +21,6 @@ class Pupil : public Person {
 
   protected:
     QString legalGuardianNote;
-    QString form;
 
 };
 

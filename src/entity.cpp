@@ -95,7 +95,7 @@ const QStringList Entity::getBLOBColumns() const {
 }
 
 InheritanceStrategy Entity::getInheritanceStrategy() const {
-    return JOINED_TABLE;
+    return InheritanceStrategy::JOINED_TABLE;
 }
 
 bool Entity::isInheritanceCascaded() const {
@@ -110,7 +110,7 @@ const QList<const QMetaObject *> Entity::superClasses(bool
         stopAtSingleTableInheritance) const {
     QList<const QMetaObject *> classes = QList<const QMetaObject *>();
     auto superMetaObject = this->metaObject()->superClass();
-    if (this->getInheritanceStrategy() == JOINED_TABLE) {
+    if (this->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE) {
         Entity *e = nullptr;
         while (superMetaObject && QString(superMetaObject->className()) !=
                 QString("CuteEntityManager::Entity")) {
@@ -118,10 +118,10 @@ const QList<const QMetaObject *> Entity::superClasses(bool
             if (e) {
                 classes.append(superMetaObject);
                 superMetaObject = superMetaObject->superClass();
-                quint8 s = e->getInheritanceStrategy();
+                InheritanceStrategy s = e->getInheritanceStrategy();
                 delete e;
                 e = nullptr;
-                if (stopAtSingleTableInheritance && s == PER_CLASS_TABLE) {
+                if (stopAtSingleTableInheritance && s == InheritanceStrategy::PER_CLASS_TABLE) {
                     break;
                 }
             } else {
@@ -140,7 +140,7 @@ const QHash<QString, QMetaProperty> Entity::getSuperMetaProperties() const {
     auto superMetaObjectPropertyMap = QHash<QString, QMetaProperty>();
     auto superMeta = this->metaObject()->superClass();
     if (QString(superMeta->className()) != QString("CuteEntityManager::Entity")
-            && this->getInheritanceStrategy() == JOINED_TABLE) {
+            && this->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE) {
         for (int var = 0; var < superMeta->propertyCount(); ++var) {
             QMetaProperty prop = superMeta->property(var);
             if (prop.isReadable() && prop.isWritable()) {
