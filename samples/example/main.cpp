@@ -51,15 +51,15 @@ int main(int argc, char *argv[]) {
                                          "Mustermann", Person::Gender::MALE));
     gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
-    //e->create(groupPtr, true, true);
+    e->create(groupPtr, true, true);
 
     /** ---------------------------------
      * FIND Group
      * ---------------------------------
      */
-    QSharedPointer<Person> foundMainTeacher = e->findById<Person*>(1).objectCast<Person>();
-    qDebug() << "Founded:" << foundMainTeacher->toString();
-    qDebug() << "FoundedGroupSize:" << foundMainTeacher->getMaintainedGroups().size();
+//    QSharedPointer<Person> foundMainTeacher = e->findById<Person*>(1).objectCast<Person>();
+//    qDebug() << "Founded:" << foundMainTeacher->toString();
+//    qDebug() << "FoundedGroupSize:" << foundMainTeacher->getMaintainedGroups().size();
 
     QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
     QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
@@ -75,7 +75,7 @@ int main(int argc, char *argv[]) {
     e->refresh(personFindPtr);
     QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
     qDebug()<< "MainTeacher:" << personFindPtr->toString();
-    qDebug() << "GroupSize:" << pers->getGroupsMainTeacher().size();
+    qDebug() << "GroupSize:" << pers->getMaintainedGroups().size();
 
 
 

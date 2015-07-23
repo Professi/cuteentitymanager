@@ -164,8 +164,9 @@ QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
 QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant>
         &map,
         const char *classname, const bool refresh) {
-    auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
-                                          classname, map));
+    auto e = EntityInstanceFactory::createInstance(
+                 classname, map);
+    auto ptr = QSharedPointer<Entity>(e);
     this->cache.insert(ptr);
     this->resolveRelations(ptr, map, refresh);
     return ptr;

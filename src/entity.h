@@ -41,7 +41,6 @@ class Entity : public QObject {
     void idChanged();
 
   public:
-    explicit Entity (QObject *parent = 0);
     virtual QString toString() const;
     virtual ~Entity();
     virtual QString getTablename() const;
@@ -70,6 +69,7 @@ class Entity : public QObject {
     void setId(const qint64 &value);
 
   protected:
+    explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
     qint64 id;
 };
