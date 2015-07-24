@@ -5,14 +5,14 @@
 #include <QString>
 #include <QList>
 #include <QObject>
-#include "contact.h"
-#include "address.h"
 #include <QAbstractListModel>
 #include <QDebug>
 #include "../../entitymanager/src/entity.h"
 
 using namespace CuteEntityManager;
 class Group;
+class Contact;
+class Address;
 
 class Person: public Entity {
     Q_OBJECT
@@ -27,7 +27,10 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
-
+    Q_PROPERTY(QList<QSharedPointer<Contact>> contacts READ getContacts WRITE
+               setContacts)
+    Q_PROPERTY(QList<QSharedPointer<Address>> addresses READ
+               getAddresses WRITE setAddresses)
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};

@@ -1,6 +1,5 @@
 #include "group.h"
-#include "person.h"
-#include "contact.h"
+#include "pupil.h"
 #include <QDebug>
 
 Group::Group() : Entity() {
@@ -9,8 +8,10 @@ Group::Group() : Entity() {
 
 const QHash<QString, CuteEntityManager::Relation> Group::getRelations() const {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
-    hash.insert("pupils", CuteEntityManager::Relation("pupils", RelationType::MANY_TO_MANY));
-    hash.insert("persons", CuteEntityManager::Relation("persons", RelationType::MANY_TO_MANY));
+    hash.insert("pupils", CuteEntityManager::Relation("pupils",
+                RelationType::MANY_TO_MANY));
+    hash.insert("persons", CuteEntityManager::Relation("persons",
+                RelationType::MANY_TO_MANY));
     hash.insert("mainTeacher", CuteEntityManager::Relation("mainTeacher",
                 RelationType::MANY_TO_ONE));
     return hash;

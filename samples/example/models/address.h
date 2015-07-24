@@ -2,40 +2,55 @@
 #define ADDRESS_H
 
 #include <QString>
-//#iclude "../../em/entitymanager/src/entity.h"
+#include <QHash>
 #include "entity.h"
 
-class Address: public CuteEntityManager::Entity
-{
+class Person;
+class Relation;
+class Pupil;
+class Address: public CuteEntityManager::Entity {
     Q_OBJECT
 
-    Q_PROPERTY(QString label READ label WRITE setLabel)
-    Q_PROPERTY(QString street READ street WRITE setStreet)
-    Q_PROPERTY(QString postcode READ postcode WRITE setPostcode)
-    Q_PROPERTY(QString city READ city WRITE setCity)
+    Q_PROPERTY(QString label READ getLabel WRITE setLabel)
+    Q_PROPERTY(QString street READ getStreet WRITE setStreet)
+    Q_PROPERTY(QString postcode READ getPostcode WRITE setPostcode)
+    Q_PROPERTY(QString city READ getCity WRITE setCity)
+    Q_PROPERTY(QList<QSharedPointer<Person>> persons READ
+               getPersons WRITE setPersons)
+    Q_PROPERTY(QList<QSharedPointer<Pupil>> pupils READ
+               getPupils WRITE setPupils)
 
-public:
+  public:
     Q_INVOKABLE Address() {}
     Address(QString label, QString street, QString postcode, QString city);
 
-    QString label() const;
-    void setLabel(const QString &label);
+    QString getLabel() const;
+    void setLabel(const QString &value);
 
-    QString street() const;
-    void setStreet(const QString &street);
+    QString getStreet() const;
+    void setStreet(const QString &value);
 
-    QString postcode() const;
-    void setPostcode(const QString &postcode);
+    QString getPostcode() const;
+    void setPostcode(const QString &value);
 
-    QString city() const;
-    void setCity(const QString &city);
+    QString getCity() const;
+    void setCity(const QString &value);
+
+    QList<QSharedPointer<Person> > getPersons() const;
+    void setPersons(const QList<QSharedPointer<Person> > &value);
+
+    const QHash<QString, CuteEntityManager::Relation> getRelations() const override;
+
+    QList<QSharedPointer<Pupil> > getPupils() const;
+    void setPupils(const QList<QSharedPointer<Pupil> > &value);
 
 protected:
-    // members
-    QString m_label;
-    QString m_street;
-    QString m_postcode;
-    QString m_city;
+    QString label;
+    QString street;
+    QString postcode;
+    QString city;
+    QList<QSharedPointer<Person>> persons;
+    QList<QSharedPointer<Pupil>> pupils;
 };
 
 #endif // ADDRESS_H
