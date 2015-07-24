@@ -136,6 +136,11 @@ class QueryBuilder {
     QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity)
     const;
     QSqlQuery getQuery() const;
+    void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
+                    bool ignoreID = false, const QString &primaryKey = "id") const;
+    void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
+    virtual QString placeHolder(const QString &key) const;
+
 
   protected:
     class ClassAttributes {
@@ -161,7 +166,7 @@ class QueryBuilder {
     QSqlQuery remove(const QString &tableName, const qint64 &id,
                      const QString &primaryKey = "id") const;
     QSqlQuery insert(const QString &tableName, QHash<QString, QVariant> &attributes,
-                     const QString &primaryKey = "id") const;
+                     const QString &primaryKey = "id", bool withId = false) const;
     QSqlQuery update(const QString &tableName, QHash<QString, QVariant> &attributes,
                      const QString &primaryKey = "id") const;
     QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity,
@@ -186,8 +191,6 @@ class QueryBuilder {
     QString buildCreateQuery(QHash<QString, QVariant>::const_iterator i,
                              QHash<QString, QVariant>::const_iterator end,
                              QString &p1, QString &p2) const;
-    void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
-                    bool ignoreID = false, const QString &primaryKey = "id") const;
     QString where(const QSharedPointer<Entity> &entity, QString conjunction = ",",
                   bool ignoreID = false) const;
     QString where(const QHash<QString, QVariant> &m,

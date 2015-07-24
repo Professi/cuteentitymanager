@@ -47,9 +47,7 @@ class Database {
     QString getConnectionName();
     QSqlQuery getQuery();
     QSqlQuery getQuery(const QString &prepare);
-    bool transaction(const QString &query);
     bool transaction(const QStringList &queries);
-    bool transaction(QSqlQuery &query);
     bool transaction(QList<QSqlQuery> &queries);
     bool exec(const QString &query);
     bool exec(QStringList queries);

@@ -65,20 +65,6 @@ QString Database::getConnectionName() {
     return this->connectionName;
 }
 
-bool Database::transaction(const QString &query) {
-    bool rc = false;
-    if (supportTransactions) {
-        this->startTransaction();
-        QSqlQuery sqlquery = QSqlQuery(this->database);
-        sqlquery.exec(query);
-        this->commitTransaction();
-    } else {
-        rc = this->exec(query);
-    }
-    qDebug() << "Executed Query:" << query;
-    return rc;
-}
-
 QSqlQuery Database::getQuery() {
     return QSqlQuery(this->database);
 }
@@ -102,13 +88,6 @@ bool Database::transaction(const QStringList &queries) {
         ok = this->exec(queries);
     }
     return ok;
-}
-
-bool Database::transaction(QSqlQuery &query) {
-    this->startTransaction();
-    query.exec();
-    this->debugQuery(query);
-    return this->commitTransaction();
 }
 
 bool Database::transaction(QList<QSqlQuery> &queries) {

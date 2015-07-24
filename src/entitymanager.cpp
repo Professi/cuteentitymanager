@@ -84,7 +84,7 @@ bool EntityManager::startup(QString version, QStringList toInitialize) {
 }
 
 bool EntityManager::executeQuery(const QString &query) {
-    return this->db->transaction(query);
+    return this->db->exec(query);
 }
 
 bool EntityManager::checkTable(const QSharedPointer<Entity> &entity) {
@@ -355,14 +355,14 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
         item = list.at(var);
         if (item->getProperty(item->getPrimaryKey()).toLongLong() > -1) {
             q.bindValue(1, item->getProperty(ptr->getPrimaryKey()));
-            q.exec();
+            this->schema->getDatabase()->exec(q);
             if (prop.isReadable()) {
                 this->addEntityToListProperty(entity, ptr, prop);
             } else {
                 qDebug() << "Query exec for many to many relation failed." <<
                          q.lastError().text();
                 qDebug() << "Involved entities: " << entity->getClassname() <<
-                         "(MainEntitiy) and "  << entity->getClassname();
+                         "(MainEntitiy) and "  << ptr->getClassname();
                 qDebug() << "Relation:" << r.getPropertyName();
             }
         }
@@ -495,7 +495,7 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
                                || r.getCascadeType().contains(CascadeType::ALL);
                 bool remove = r.getCascadeType().contains(CascadeType::REMOVE)
                               || r.getCascadeType().contains(CascadeType::ALL);
-                if (q.exec()) {
+                if (this->schema->getDatabase()->exec(q)) {
                     for (int var = 0; var < list.size(); ++var) {
                         auto entity = list.at(var);
                         if (remove) {
@@ -539,7 +539,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
             QSqlQuery q = builder->manyToManyDelete(
                               tblName, builder->generateManyToManyColumnName(entity),
                               entity->getProperty(entity->getPrimaryKey()).toLongLong());
-            if (this->db->transaction(q)) {
+            if (this->db->exec(q)) {
                 auto nList = EntityInstanceFactory::castQVariantList(property);
                 this->persistMappedByRelation(nList, q, entity, ptr, r, tblName);
             }
@@ -619,8 +619,12 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
         QList<QSqlQuery> q = this->schema->getQueryBuilder()->create(
                                  entity);
         bool first = true;
+        QVariant id = -1;
         for (int var = 0; var < q.size(); ++var) {
             auto query = q.at(var);
+            if (!first) {
+                this->schema->getQueryBuilder()->bindValue(entity->getPrimaryKey(), id, query);
+            }
             rc = this->db->exec(query);
             if (!rc) {
                 qDebug() << "Query failed:" << query.lastError().text() << " of class " <<
@@ -628,7 +632,8 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
                 break;
             }
             if (first) {
-                entity->setProperty(entity->getPrimaryKey(), query.lastInsertId());
+                id = query.lastInsertId();
+                entity->setProperty(entity->getPrimaryKey(), id);
                 first = false;
             }
         }
