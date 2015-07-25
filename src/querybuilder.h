@@ -97,7 +97,7 @@ class QueryBuilder {
             &entity)
     const;
     QString generateManyToManyTableName(const QSharedPointer<Entity> &firstEntity,
-                                        const QSharedPointer<Entity> &secondEntity) const;
+                                        const QSharedPointer<Entity> &secondEntity, const Relation &r) const;
 
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;

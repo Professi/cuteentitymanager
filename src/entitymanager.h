@@ -181,7 +181,7 @@ class EntityManager : public QObject {
     void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                    const QMetaProperty &property, const bool refresh = false);
     void manyToMany(const QSharedPointer<Entity> &entity,
-                    const QMetaProperty &property, const bool refresh = false);
+                    const QMetaProperty &property, const Relation &relation, const bool refresh = false);
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");

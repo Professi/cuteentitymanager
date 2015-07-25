@@ -126,7 +126,7 @@ void QueryBuilder::createRelationFK(QStringList &queries,
                                                QStringList(ptr->getPrimaryKey()), remove, update));
 
         } else if (relation.getType() == RelationType::MANY_TO_MANY) {
-            QString tableName = this->generateManyToManyTableName(entity, ptr);
+            QString tableName = this->generateManyToManyTableName(entity, ptr,relation);
             queries.append(this->createForeignKeyManyToMany(tableName, entity, update,
                            remove));
             queries.append(this->createForeignKeyManyToMany(tableName, ptr, update,
@@ -409,15 +409,11 @@ const {
 
 QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
         &firstEntity,
-        const QSharedPointer<Entity> &secondEntity) const {
-    QString first = QString(firstEntity->getClassname());
-    QString second = QString(secondEntity->getClassname());
-    if (QString::compare(first, second, Qt::CaseSensitive) <= 0) {
-        return firstEntity->getTablename() + "_" +
-               secondEntity->getTablename();
+        const QSharedPointer<Entity> &secondEntity, const Relation &r) const {
+    if (r.getMappedBy().isEmpty()) {
+        return firstEntity->getTablename() + "_" + r.getPropertyName();
     } else {
-        return secondEntity->getTablename() + "_" +
-               firstEntity->getTablename();
+        return secondEntity->getTablename() + "_" + r.getMappedBy();
     }
 }
 
@@ -440,7 +436,7 @@ const {
                                                  QMetaType::typeName(meta.userType()))));
             h.insert(this->generateManyToManyColumnName(ptr),
                      this->schema->TYPE_BIGINT);
-            relations.insert(this->generateManyToManyTableName(entity, ptr), h);
+            relations.insert(this->generateManyToManyTableName(entity, ptr, r), h);
         }
     }
     return relations;

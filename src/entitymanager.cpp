@@ -486,7 +486,7 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
         if (!list.isEmpty()) {
             auto builder = this->schema->getQueryBuilder();
             auto ptr = list.at(0);
-            QString tblName = builder->generateManyToManyTableName(e, ptr);
+            QString tblName = builder->generateManyToManyTableName(e, ptr, r);
             if (this->schema->getTables().contains(tblName)) {
                 QSqlQuery q = builder->manyToManyDelete(
                                   tblName, builder->generateManyToManyColumnName(e),
@@ -528,13 +528,12 @@ const QList<QSharedPointer<Entity> > &list, const Relation &r) {
 
 void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                       const Relation &r, QVariant &property) {
-    Q_UNUSED(r)
     auto list = property.value<QList<QVariant>>();
     if (!list.isEmpty() && !(list.at(0).isNull())) {
         auto var = list.at(0);
         auto ptr = EntityInstanceFactory::castQVariant(var);
         auto builder = this->schema->getQueryBuilder();
-        QString tblName = builder->generateManyToManyTableName(entity, ptr);
+        QString tblName = builder->generateManyToManyTableName(entity, ptr, r);
         if (this->schema->getTables().contains(tblName)) {
             QSqlQuery q = builder->manyToManyDelete(
                               tblName, builder->generateManyToManyColumnName(entity),
@@ -552,13 +551,14 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
 
 
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
-                               const QMetaProperty &property, const bool refresh) {
+                               const QMetaProperty &property, const Relation &relation, const bool refresh) {
     QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>
                                           (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
                                                   QString(property.typeName()))));
     auto builder = this->schema->getQueryBuilder();
     if (secEntityPtr) {
-        QString tblName = builder->generateManyToManyTableName(entity, secEntityPtr);
+        QString tblName = builder->generateManyToManyTableName(entity, secEntityPtr,
+                          relation);
         if (this->schema->getTables().contains(tblName)) {
             QSqlQuery q = builder->manyToMany(tblName,
                                               builder->generateManyToManyColumnName(entity),
@@ -750,7 +750,7 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
             }
             break;
         case RelationType::MANY_TO_MANY:
-            this->manyToMany(entity, property, refresh);
+            this->manyToMany(entity, property, r, refresh);
             break;
         case RelationType::ONE_TO_MANY:
             this->oneToMany(entity, r, property, refresh);
