@@ -25,8 +25,8 @@ SOURCES += \
     models/contact.cpp \
     models/faker/createfakemodeldata.cpp
 
-unix:!macx:CONFIG(debug, debug): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug -lCuteEntityManager
-else:unix:!macx:CONFIG(release, release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/ -lCuteEntityManager
+unix:!macx:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug -lCuteEntityManager
+else:unix:!macx:CONFIG(release, release|debug): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/ -lCuteEntityManager
 unix:INCLUDEPATH += $$PWD/../../src
 unix:DEPENDPATH += $$PWD/../../src
 CONFIG += c++14
@@ -37,4 +37,6 @@ else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-EntityManag
 win32:INCLUDEPATH += $$PWD/../../build-EntityManager-Desktop_Qt_5_4_1_MinGW_32bit-Debug/debug
 win32:DEPENDPATH += $$PWD/../../build-EntityManager-Desktop_Qt_5_4_1_MinGW_32bit-Debug/debug
 
-
+CONFIG += c++14
+QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O -Winit-self
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT

@@ -10,9 +10,9 @@ Contact::Contact(QString label, Category category, QString content) {
 const QHash<QString, CuteEntityManager::Relation> Contact::getRelations()
 const {
     auto hash = Entity::getRelations();
-    hash.insert("persons", CuteEntityManager::Relation("persons",
-                RelationType::MANY_TO_MANY,
-                QString("contacts")));
+//    hash.insert("persons", CuteEntityManager::Relation("persons",
+//                RelationType::MANY_TO_MANY,
+//                QString("contacts")));
     hash.insert("pupils", CuteEntityManager::Relation("pupils",
                 RelationType::MANY_TO_MANY,
                 QString("contacts")));

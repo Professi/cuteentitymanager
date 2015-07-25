@@ -22,6 +22,11 @@ int main(int argc, char *argv[]) {
                                      QDir::currentPath() + "/db.sqlite");
 //            CuteEntityManager::EntityManager("QSQLITE",
 //                                                 ":memory:");
+
+    /**
+     * @brief EntityInstanceFactory::registerClass<EntityClass>
+     * You must register every EntityClass, cause Qt is not creating all meta object informations for entity manager
+     */
     EntityInstanceFactory::registerClass<Group>();
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Pupil>();
@@ -31,6 +36,10 @@ int main(int argc, char *argv[]) {
     e->moveToThread(entityManager);
     QStringList inits = QStringList() << "Contact" << "Address" <<
                         "Pupil" << "Group";
+    /**
+      * Instead of startup(version,qstringlist) you can call method createTable of EntityManager (e->create(sharedptr))
+      * startup will create tables inclusive relation tables for classes in QStringList inits
+      */
     e->startup("0.1", inits);
 
     QSharedPointer<CuteEntityManager::Entity> p =
@@ -45,40 +54,62 @@ int main(int argc, char *argv[]) {
     QSharedPointer<Group> gPtr = QSharedPointer<Group>(new Group());
     CreateFakeModelData::fillGroup(gPtr.data());
     gPtr->setName("9b");
-    e->createTable(gPtr);
     QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
     QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
                                          "Mustermann", Person::Gender::MALE));
     gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
-    e->create(groupPtr, true, true);
+    //e->create(groupPtr, true, true);
 
     /** ---------------------------------
      * FIND Group
      * ---------------------------------
      */
-//    QSharedPointer<Person> foundMainTeacher = e->findById<Person*>(1).objectCast<Person>();
-//    qDebug() << "Founded:" << foundMainTeacher->toString();
-//    qDebug() << "FoundedGroupSize:" << foundMainTeacher->getMaintainedGroups().size();
-
+qDebug() << "-----------------------------";
     QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
     QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
-    qDebug()<< "Group:" << groupFindPtr->toString();
+    qDebug() << "Group:" << groupFindPtr->toString();
     qDebug() << "PersonSize:" << grp->getPersons().size();
+    qDebug() << "PupilsSize:" << grp->getPupils().size();
     qDebug() << "MainTeacher:" << grp->getMainTeacher()->toString();
 
     /** ---------------------------------
      * FIND Person
      * ---------------------------------
      */
-    QSharedPointer<Entity> personFindPtr = e->findById(1,QString("Person*"));
+    qDebug() << "-----------------------------";
+    QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person*"));
     e->refresh(personFindPtr);
     QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
-    qDebug()<< "MainTeacher:" << personFindPtr->toString();
+    qDebug() << "MainTeacher:" << personFindPtr->toString();
     qDebug() << "GroupSize:" << pers->getMaintainedGroups().size();
 
+    /**
+     * or you can use following syntax:
+     */
+    qDebug() << "-----------------------------";
+    QSharedPointer<Person> foundMainTeacher = e->findById<Person *>
+            (1).objectCast<Person>();
+    qDebug() << "FoundMainTeacher:" << foundMainTeacher->toString();
+    qDebug() << "FoundMainTeacherGroupSize:" <<
+             foundMainTeacher->getMaintainedGroups().size();
 
+    qDebug() << "-----------------------------";
+    QSharedPointer<Pupil> foundPupil = e->findById<Pupil *>
+            (20).objectCast<Pupil>();
+    qDebug() << "FoundPupil:" << foundPupil->toString();
+    qDebug() << "FoundPupilGroupSize:" <<
+             foundPupil->getGroups().size();
+
+
+    qDebug() << "-----------------------------";
+    for (int var = 0; var < grp->getPupils().size(); ++var) {
+        qDebug() << grp->getPupils().at(var)->getGroups().size();
+    }
 
     qDebug() << "Duration:" << t.elapsed();
+    Person *p2 = new Person();
+    delete p2;
+
     return 0;
 }

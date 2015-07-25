@@ -14,6 +14,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QVariantList>
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
@@ -254,7 +255,7 @@ void EntityManager::setListProperty(const QSharedPointer<Entity> &entity,
                                     const QMetaProperty &property) const {
     QVariant var;
     var.setValue<QList<QSharedPointer<Entity>>>(list);
-    property.write(entity.data(), var);
+    property.write(entity.data(),var);
 }
 
 void EntityManager::addEntityToListProperty(const QSharedPointer<Entity>
@@ -357,7 +358,7 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
             q.bindValue(1, item->getProperty(ptr->getPrimaryKey()));
             this->schema->getDatabase()->exec(q);
             if (prop.isReadable()) {
-                this->addEntityToListProperty(entity, ptr, prop);
+                this->addEntityToListProperty(ptr, entity, prop);
             } else {
                 qDebug() << "Query exec for many to many relation failed." <<
                          q.lastError().text();
@@ -570,12 +571,18 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                                                     secEntityPtr));
                 if (!refresh
                         && this->cache.contains(id.toLongLong(), secEntityPtr->getClassname())) {
-                    entities.append(this->cache.get(id.toLongLong(), secEntityPtr->getClassname()));
+                    auto entity2 = this->cache.get(id.toLongLong(), secEntityPtr->getClassname());
+                    entities.append(entity2);
+                    //this->addEntityToListProperty(entity,entity2,property);
                 } else {
-                    entities.append(this->findById(id.toLongLong(), secEntityPtr->getClassname()));
+                    auto entity2 = this->findById(id.toLongLong(), secEntityPtr->getClassname());
+                    //this->addEntityToListProperty(entity,entity2,property);
+                    entities.append(entity2);
                 }
             }
+            if(!entities.isEmpty()) {
             this->setListProperty(entity, entities, property);
+            }
         } else {
             qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";
         }

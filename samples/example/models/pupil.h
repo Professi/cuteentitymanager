@@ -15,7 +15,7 @@ class Pupil : public Person {
 
     QString getLegalGuardianNote() const;
     void setLegalGuardianNote(const QString &value);
-    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const;
+    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const override;
 
     QString getForm() const;
     void setForm(const QString &value);

@@ -27,10 +27,10 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
-    Q_PROPERTY(QList<QSharedPointer<Contact>> contacts READ getContacts WRITE
-               setContacts)
-    Q_PROPERTY(QList<QSharedPointer<Address>> addresses READ
-               getAddresses WRITE setAddresses)
+//    Q_PROPERTY(QList<QSharedPointer<Contact>> contacts READ getContacts WRITE
+//               setContacts)
+//    Q_PROPERTY(QList<QSharedPointer<Address>> addresses READ
+//               getAddresses WRITE setAddresses)
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
@@ -43,7 +43,7 @@ class Person: public Entity {
            QString customPictureFileName = QString(), QString namePrefix = QString(),
            QString nickName = QString(), QDate birthday = QDate(), QObject *parent = 0);
 
-    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const;
+    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const override;
 
     bool isPresent(QDateTime date = QDateTime::currentDateTime());
     QString fullName(NameOrder nameOrder = NameOrder::FAMILY_FIRST_NAME_ORDER)

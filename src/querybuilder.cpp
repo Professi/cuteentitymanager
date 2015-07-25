@@ -126,7 +126,7 @@ void QueryBuilder::createRelationFK(QStringList &queries,
                                                QStringList(ptr->getPrimaryKey()), remove, update));
 
         } else if (relation.getType() == RelationType::MANY_TO_MANY) {
-            QString tableName = this->generateManyToManyTableName(entity, ptr,relation);
+            QString tableName = this->generateManyToManyTableName(entity, ptr, relation);
             queries.append(this->createForeignKeyManyToMany(tableName, entity, update,
                            remove));
             queries.append(this->createForeignKeyManyToMany(tableName, ptr, update,
