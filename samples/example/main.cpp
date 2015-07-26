@@ -82,7 +82,8 @@ qDebug() << "-----------------------------";
     e->refresh(personFindPtr);
     QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
     qDebug() << "MainTeacher:" << personFindPtr->toString();
-    qDebug() << "GroupSize:" << pers->getMaintainedGroups().size();
+    qDebug() << "MaintainedGroupSize:" << pers->getMaintainedGroups().size();
+    qDebug() << "GroupSize:" << pers->getGroups().size();
 
     /**
      * or you can use following syntax:
@@ -101,15 +102,9 @@ qDebug() << "-----------------------------";
     qDebug() << "FoundPupilGroupSize:" <<
              foundPupil->getGroups().size();
 
-
     qDebug() << "-----------------------------";
-    for (int var = 0; var < grp->getPupils().size(); ++var) {
-        qDebug() << grp->getPupils().at(var)->getGroups().size();
-    }
 
     qDebug() << "Duration:" << t.elapsed();
-    Person *p2 = new Person();
-    delete p2;
 
     return 0;
 }

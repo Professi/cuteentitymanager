@@ -240,22 +240,18 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
                 auto e = EntityInstanceFactory::castQVariant(var);
                 if (this->shouldBeSaved(e, r)) {
                     this->save(e);
-                    if(!r.getMappedBy().isEmpty()) {
-                        auto props = EntityHelper::getMetaProperties(e.data());
-                        if(props.contains(r.getMappedBy())) {
-                            EntityHelper::addEntityToListProperty(e,entity,props.value(r.getMappedBy()));
-                        }
+                    auto fkProp = EntityHelper::mappedProperty(r,e);
+                    if(fkProp.isValid()) {
+                        EntityHelper::addEntityToListProperty(e,entity,fkProp);
                     }
                 }
-            } else if (r.getType() == RelationType::ONE_TO_ONE) {
+            } else if (r.getType() == RelationType::ONE_TO_ONE && r.getMappedBy().isEmpty()) {
                 auto e =  EntityInstanceFactory::castQVariant(var);
                 this->save(e);
-                /**
-                  @todo find relation of the other entity
-                  */
-//                if(!r.getMappedBy().isEmpty()) {
-//                    e->setProperty(r.getMappedBy(),entity);
-//                }
+                auto prop = EntityHelper::mappedProperty(r,e);
+                if(prop.isValid()) {
+                EntityHelper::setProperty(e,entity,prop);
+                }
             }
         }
         ++iterator;
@@ -276,21 +272,25 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
                 QList<QSharedPointer<Entity>> list = EntityInstanceFactory::castQVariantList(
                         var);
                 if(!list.isEmpty()) {
-                    //auto foreignEntityProps = list.at(0)->getMetaProperties();
-                    //QString propertyName = r.getMappedBy() ||
-
+                    auto fkProp = EntityHelper::mappedProperty(r,list.at(0));
                 for (int var = 0; var < list.size(); ++var) {
                     auto e = list.at(var);
                     if (this->shouldBeSaved(e, r)) {
                         this->save(e);
+                    if(fkProp.isValid()) {
+                        EntityHelper::addEntityToListProperty(e,entity,fkProp);
                     }
-                    //this->addEntityToListProperty();
+                    }
                 }
                 }
             } else if (r.getType() == RelationType::ONE_TO_ONE
                        && !r.getMappedBy().isEmpty()) {
                 auto e =  EntityInstanceFactory::castQVariant(var);
                 this->save(e);
+                                    auto fkProp = EntityHelper::mappedProperty(r,e);
+                                    if(fkProp.isValid()) {
+                                        EntityHelper::addEntityToListProperty(e,entity,fkProp);
+                                    }
             }
         }
         ++iterator;
@@ -496,34 +496,39 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                                const QMetaProperty &property, const Relation &relation, const bool refresh) {
     QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>
-                                          (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
-                                                  QString(property.typeName()))));
+            (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
+                                                       QString(property.typeName()))));
     auto builder = this->schema->getQueryBuilder();
     if (secEntityPtr) {
         QString tblName = builder->generateManyToManyTableName(entity, secEntityPtr,
-                          relation);
+                                                               relation);
         if (this->schema->getTables().contains(tblName)) {
             QSqlQuery q = builder->manyToMany(tblName,
                                               builder->generateManyToManyColumnName(entity),
                                               entity->getProperty(entity->getPrimaryKey()).toLongLong());
             auto listMap = this->convertQueryResult(q);
-            auto entities = QList<QSharedPointer<Entity> >();
+            QMetaProperty foreignProp;
+            bool first = true;
+            QSharedPointer<Entity> e = QSharedPointer<Entity>();
             for (int var = 0; var < listMap.size(); ++var) {
                 auto id = listMap.at(var).value(builder->generateManyToManyColumnName(
                                                     secEntityPtr));
                 if (!refresh
                         && this->cache.contains(id.toLongLong(), EntityHelper::getClassname(secEntityPtr.data()))) {
-                    auto entity2 = this->cache.get(id.toLongLong(), EntityHelper::getClassname(secEntityPtr.data()));
-                    entities.append(entity2);
-                    //this->addEntityToListProperty(entity,entity2,property);
+                    e = this->cache.get(id.toLongLong(), EntityHelper::getClassname(secEntityPtr.data()));
                 } else {
-                    auto entity2 = this->findById(id.toLongLong(), EntityHelper::getClassname(secEntityPtr.data()));
-                    //this->addEntityToListProperty(entity,entity2,property);
-                    entities.append(entity2);
+                    e = this->findById(id.toLongLong(), EntityHelper::getClassname(secEntityPtr.data()));
                 }
-            }
-            if(!entities.isEmpty()) {
-            EntityHelper::setListProperty(entity, entities, property);
+                if(first) {
+                    foreignProp = EntityHelper::mappedProperty(relation,e);
+                    first = false;
+                }
+                if(e) {
+                    EntityHelper::addEntityToListProperty(entity,e,property);
+                    if(foreignProp.isValid()) {
+                        EntityHelper::addEntityToListProperty(e,entity,foreignProp);
+                    }
+                }
             }
         } else {
             qDebug() << "MANY_TO_MANY Table " << tblName << " not exists";

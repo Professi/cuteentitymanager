@@ -35,7 +35,7 @@ public:
                      QSharedPointer<Entity> value,
                      const QString property);
     static QMetaProperty mappedProperty(const Relation &r,
-                                 const QSharedPointer<Entity> &foreignEntity) ;
+                                 const QSharedPointer<Entity> &foreignEntity);
 };
 }
 
