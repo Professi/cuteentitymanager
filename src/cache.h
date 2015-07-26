@@ -20,6 +20,7 @@
 #include <QSharedPointer>
 #include "entityinstancefactory.h"
 #include "entity.h"
+#include "entityhelper.h"
 
 namespace CuteEntityManager {
 class Entity;
@@ -33,7 +34,7 @@ class Cache {
         bool ok = false;
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
-            ok = this->contains(id, QString(e->getClassname()));
+            ok = this->contains(id, QString(EntityHelper::getClassname(e)));
             delete e;
         }
         return ok;
@@ -44,7 +45,7 @@ class Cache {
     template<class T> void remove(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
-            this->remove(id, QString(e->getClassname()));
+            this->remove(id, QString(EntityHelper::getClassname(e)));
             delete e;
         }
     }
@@ -53,7 +54,7 @@ class Cache {
     template<class T> QSharedPointer<Entity> get(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
-            return this->get(id, QString(e->getClassname()));
+            return this->get(id, QString(EntityHelper::getClassname(e)));
             delete e;
         }
         return QSharedPointer<Entity>();

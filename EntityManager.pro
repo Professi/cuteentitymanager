@@ -23,7 +23,8 @@ src/entity.h \
     src/relation.h \
     src/entityinstancefactory.h \
     src/condition.h \
-    src/cache.h
+    src/cache.h \
+    src/entityhelper.h
 
 SOURCES += \
 src/entity.cpp \
@@ -40,7 +41,8 @@ src/entity.cpp \
     src/relation.cpp \
     src/entityinstancefactory.cpp \
     src/condition.cpp \
-    src/cache.cpp
+    src/cache.cpp \
+    src/entityhelper.cpp
 
 unix {
     target.path = /usr/lib

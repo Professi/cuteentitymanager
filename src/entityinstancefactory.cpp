@@ -15,6 +15,7 @@
  */
 #include "entityinstancefactory.h"
 #include "entity.h"
+#include "entityhelper.h"
 #include <QMetaType>
 using namespace CuteEntityManager;
 EntityInstanceFactory::EntityInstanceFactory() {
@@ -77,7 +78,7 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
                         prop.write(e, iterator.value());
                     }
                 } else {
-                    qDebug() << prop.name() << "on Entity" << e->getClassname() << "not writeable!";
+                    qDebug() << prop.name() << "on Entity" << EntityHelper::getClassname(e) << "not writeable!";
                 }
             }
             ++iterator;
@@ -89,7 +90,7 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
 Entity *EntityInstanceFactory::setAttributes(Entity *&e,
         const QHash<QString, QVariant> &attributes) {
     if (!attributes.isEmpty()) {
-        auto metaprops = e->getMetaProperties();
+        auto metaprops = EntityHelper::getMetaProperties(e);
         return EntityInstanceFactory::setAttributes(e, attributes, metaprops);
     } else {
         return e;

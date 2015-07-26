@@ -14,6 +14,7 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 #include "cache.h"
+#include "entityhelper.h"
 using namespace CuteEntityManager;
 Cache::Cache() {
 
@@ -37,7 +38,7 @@ bool Cache::contains(const QString &key) {
 void Cache::insert(QSharedPointer<Entity> &entity) {
     if (entity && entity->getId() > -1) {
         QString key = this->generateKey(entity->getId(),
-                                        QString(entity->getClassname()));
+                                        EntityHelper::getClassName(entity.data()));
         if (this->cache.contains(key)) {
             QSharedPointer<Entity> ptr = this->cache.value(key).toStrongRef();
             if (ptr) {
@@ -51,7 +52,7 @@ void Cache::insert(QSharedPointer<Entity> &entity) {
 
 void Cache::remove(const QSharedPointer<Entity> &entity) {
     if (entity.data() && entity->getId() > -1) {
-        this->remove(entity->getId(), QString(entity->getClassname()));
+        this->remove(entity->getId(), EntityHelper::getClassName(entity.data()));
     }
 }
 

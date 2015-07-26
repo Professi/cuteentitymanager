@@ -51,20 +51,9 @@ class Entity : public QObject {
     virtual bool isInheritanceCascaded() const;
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey() const;
-    const QHash<QString, Relation> getNonInheritedRelations() const;
-    const QList<const QMetaObject *> superClasses(bool stopAtSingleTableInheritance
-            = false) const;
-    const QHash<QString, QMetaProperty> getMetaProperties() const;
-    const QHash<QString, QMetaProperty> getSuperMetaProperties() const;
-    static const QHash<QString, QMetaProperty> getMetaProperties(
-        const QMetaObject *object);
-    const QHash<QString, QMetaProperty> getInheritedMetaProperties() const;
-    const QHash<Relation, QMetaProperty> getRelationProperties() const;
-    const char *getClassname() const;
 
     QVariant getProperty(const QString &name) const;
     bool setProperty(const QString &name, const QVariant &value);
-
     qint64 getId() const;
     void setId(const qint64 &value);
 
