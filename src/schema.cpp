@@ -35,7 +35,6 @@ Schema::~Schema() {
 }
 
 void Schema::initAbstractDatabaseTypes() {
-    this->abstractTypeMap = QSharedPointer<QHash<QString, QString>>::create();
     this->abstractTypeMap->insert("bool", TYPE_SMALLINT);
     this->abstractTypeMap->insert("short", TYPE_SMALLINT);
     this->abstractTypeMap->insert("int", TYPE_INTEGER);
