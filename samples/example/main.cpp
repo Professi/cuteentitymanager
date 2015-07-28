@@ -59,7 +59,9 @@ int main(int argc, char *argv[]) {
                                                                            "Mustermann", Person::Gender::MALE));
     gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
-    //e->create(groupPtr, true, true);
+    if(e->count(groupPtr->getTablename()) <= 0) {
+        e->create(groupPtr, true, true);
+    }
 
     /** ---------------------------------
      * FIND Pupil

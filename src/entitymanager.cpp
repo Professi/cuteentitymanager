@@ -322,7 +322,7 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
             q.bindValue(1, item->getProperty(ptr->getPrimaryKey()));
             this->schema->getDatabase()->exec(q);
             if (prop.isReadable()) {
-                EntityHelper::addEntityToListProperty(ptr, entity, prop);
+                EntityHelper::addEntityToListProperty(item, entity, prop);
             } else {
                 qDebug() << "Query exec for many to many relation failed." <<
                             q.lastError().text();
