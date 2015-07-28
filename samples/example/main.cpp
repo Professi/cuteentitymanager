@@ -15,13 +15,13 @@
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv)
-    QTime t;
+            QTime t;
     t.start();
     CuteEntityManager::EntityManager *e = new
-    CuteEntityManager::EntityManager("QSQLITE",
-                                     QDir::currentPath() + "/db.sqlite");
-//            CuteEntityManager::EntityManager("QSQLITE",
-//                                                 ":memory:");
+            CuteEntityManager::EntityManager("QSQLITE",
+                                             QDir::currentPath() + "/db.sqlite");
+    //            CuteEntityManager::EntityManager("QSQLITE",
+    //                                                 ":memory:");
 
     /**
      * @brief EntityInstanceFactory::registerClass<EntityClass>
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
     QStringList inits = QStringList() << "Contact" << "Address" <<
-                        "Pupil" << "Group";
+                                         "Pupil" << "Group";
     /**
       * Instead of startup(version,qstringlist) you can call method createTable of EntityManager (e->create(sharedptr))
       * startup will create tables inclusive relation tables for classes in QStringList inits
@@ -43,9 +43,9 @@ int main(int argc, char *argv[]) {
     e->startup("0.1", inits);
 
     QSharedPointer<CuteEntityManager::Entity> p =
-        QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
-                Person::Gender::MALE, "", "", "",
-                QDate::currentDate()));
+            QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
+                                                                 Person::Gender::MALE, "", "", "",
+                                                                 QDate::currentDate()));
     /** ---------------------------------
      * PERSIST
      * ---------------------------------
@@ -56,16 +56,28 @@ int main(int argc, char *argv[]) {
     gPtr->setName("9b");
     QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
     QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
-                                         "Mustermann", Person::Gender::MALE));
+                                                                           "Mustermann", Person::Gender::MALE));
     gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
     //e->create(groupPtr, true, true);
 
     /** ---------------------------------
+     * FIND Pupil
+     * ---------------------------------
+     */
+    QSharedPointer<Entity> pupilFindPtr = e->findById(2, QString("Pupil*"));
+    QSharedPointer<Pupil> pupilPtr = pupilFindPtr.objectCast<Pupil>();
+    qDebug() << "Pupil:" << pupilPtr->toString();
+    qDebug() << "GroupSize:" << pupilPtr->getGroups().size();
+
+
+
+
+    /** ---------------------------------
      * FIND Group
      * ---------------------------------
      */
-qDebug() << "-----------------------------";
+    qDebug() << "-----------------------------";
     QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
     QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
     qDebug() << "Group:" << groupFindPtr->toString();
@@ -93,14 +105,14 @@ qDebug() << "-----------------------------";
             (1).objectCast<Person>();
     qDebug() << "FoundMainTeacher:" << foundMainTeacher->toString();
     qDebug() << "FoundMainTeacherGroupSize:" <<
-             foundMainTeacher->getMaintainedGroups().size();
+                foundMainTeacher->getMaintainedGroups().size();
 
     qDebug() << "-----------------------------";
     QSharedPointer<Pupil> foundPupil = e->findById<Pupil *>
-            (20).objectCast<Pupil>();
+            (5).objectCast<Pupil>();
     qDebug() << "FoundPupil:" << foundPupil->toString();
     qDebug() << "FoundPupilGroupSize:" <<
-             foundPupil->getGroups().size();
+                foundPupil->getGroups().size();
 
     qDebug() << "-----------------------------";
 

@@ -508,7 +508,7 @@ QString QueryBuilder::getColumnType(const QString &type) const {
 QSqlQuery QueryBuilder::find(const qint64 &id, const QString &tableName) const {
     QString pk = "id";
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
-                                                                tableName)) + " WHERE " + pk + " = " + this->placeHolder(pk) + " LIMIT 1;");
+                                                                tableName)) + " WHERE " + this->schema->quoteColumnName(pk) + " = " + this->placeHolder(pk) + " LIMIT 1;");
     this->bindValue(pk, id, q);
     return q;
 }
@@ -538,8 +538,7 @@ QSqlQuery QueryBuilder::find(const qint64 &id,
                              const QSharedPointer<Entity> &entity, qint64 offset, QString pk) const {
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
                                                                 entity->getTablename())) + this->joinSuperClasses(
-                                               entity) + " WHERE " + this->schema->quoteColumnName(
-                                               pk) + "= " + this->placeHolder(pk) + this->limit(1, offset));
+                                               entity) + " WHERE " + this->schema->quoteColumnName(entity->getTablename() + "." + pk) + "= " + this->placeHolder(pk) + this->limit(1, offset));
     this->bindValue(pk, id, q);
     return q;
 }
