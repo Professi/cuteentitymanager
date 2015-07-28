@@ -31,12 +31,13 @@ unix:INCLUDEPATH += $$PWD/../../src
 unix:DEPENDPATH += $$PWD/../../src
 CONFIG += c++14
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-EntityManager-Desktop_Qt_5_4_1_MinGW_32bit-Debug/release/ -lCuteEntityManager
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-EntityManager-Desktop_Qt_5_4_1_MinGW_32bit-Debug/debug/ -lCuteEntityManager
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-EntityManager-Desktop-Release/release/ -lCuteEntityManager
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-EntityManager-Desktop-Debug/debug/ -lCuteEntityManager
 
-win32:INCLUDEPATH += $$PWD/../../build-EntityManager-Desktop_Qt_5_4_1_MinGW_32bit-Debug/debug
-win32:DEPENDPATH += $$PWD/../../build-EntityManager-Desktop_Qt_5_4_1_MinGW_32bit-Debug/debug
+win32:INCLUDEPATH += $$PWD/../../build-EntityManager-Desktop-Debug/debug
+win32:DEPENDPATH += $$PWD/../../build-EntityManager-Desktop-Debug/debug
 
-CONFIG += c++14
+unix {
 QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O -Winit-self
+}
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
