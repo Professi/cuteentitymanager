@@ -507,8 +507,6 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                                               builder->generateManyToManyColumnName(entity),
                                               entity->getProperty(entity->getPrimaryKey()).toLongLong());
             auto listMap = this->convertQueryResult(q);
-//            QMetaProperty foreignProp;
-//            bool first = true;
             QSharedPointer<Entity> e = QSharedPointer<Entity>();
             for (int var = 0; var < listMap.size(); ++var) {
                 auto id = listMap.at(var).value(builder->generateManyToManyColumnName(
@@ -519,15 +517,8 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                 } else {
                     e = this->findById(id.toLongLong(), EntityHelper::getClassname(secEntityPtr.data()));
                 }
-//                if(first) {
-//                    foreignProp = EntityHelper::mappedProperty(relation,e);
-//                    first = false;
-//                }
                 if(e) {
                     EntityHelper::addEntityToListProperty(entity,e,property);
-                    //if(foreignProp.isValid()) {
-                        //  EntityHelper::addEntityToListProperty(e,entity,foreignProp);
-                    //}
                 }
             }
         } else {
