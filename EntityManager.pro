@@ -24,7 +24,8 @@ src/entity.h \
     src/entityinstancefactory.h \
     src/condition.h \
     src/cache.h \
-    src/entityhelper.h
+    src/entityhelper.h \
+    src/logger.h
 
 SOURCES += \
 src/entity.cpp \
@@ -42,7 +43,8 @@ src/entity.cpp \
     src/entityinstancefactory.cpp \
     src/condition.cpp \
     src/cache.cpp \
-    src/entityhelper.cpp
+    src/entityhelper.cpp \
+    src/logger.cpp
 
 unix {
     target.path = /usr/lib
@@ -50,5 +52,6 @@ unix {
     QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
 }
 CONFIG += c++14
+QMAKE_CXXFLAGS += -std=c++14
 #QMAKE_CXXFLAGS +=  -Winit-self
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
