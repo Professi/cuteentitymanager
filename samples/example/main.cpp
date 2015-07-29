@@ -15,13 +15,13 @@
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv)
-            QTime t;
+    QTime t;
     t.start();
     CuteEntityManager::EntityManager *e = new
-            CuteEntityManager::EntityManager("QSQLITE",
-                                             QDir::currentPath() + "/db.sqlite");
-    //            CuteEntityManager::EntityManager("QSQLITE",
-    //                                                 ":memory:");
+//            CuteEntityManager::EntityManager("QSQLITE",
+//                                             QDir::currentPath() + "/db.sqlite");
+                CuteEntityManager::EntityManager("QSQLITE",
+                                                     ":memory:");
 
     /**
      * @brief EntityInstanceFactory::registerClass<EntityClass>
@@ -67,12 +67,10 @@ int main(int argc, char *argv[]) {
      * FIND Pupil
      * ---------------------------------
      */
-    QSharedPointer<Entity> pupilFindPtr = e->findById(2, QString("Pupil*"));
+    QSharedPointer<Entity> pupilFindPtr = e->findById(22, QString("Pupil*"));
     QSharedPointer<Pupil> pupilPtr = pupilFindPtr.objectCast<Pupil>();
     qDebug() << "Pupil:" << pupilPtr->toString();
     qDebug() << "GroupSize:" << pupilPtr->getGroups().size();
-
-
 
 
     /** ---------------------------------
@@ -111,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     qDebug() << "-----------------------------";
     QSharedPointer<Pupil> foundPupil = e->findById<Pupil *>
-            (5).objectCast<Pupil>();
+            (13).objectCast<Pupil>();
     qDebug() << "FoundPupil:" << foundPupil->toString();
     qDebug() << "FoundPupilGroupSize:" <<
                 foundPupil->getGroups().size();
