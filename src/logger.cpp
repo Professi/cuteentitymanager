@@ -25,13 +25,14 @@ void Logger::lastError(const QSqlQuery &q, bool logQuery) {
         qDebug() << errorMsg;
         stream << errorMsg;
     }
-    if(logQuery) {
+    if(logQuery || !errorMsg.isEmpty()) {
         const QString query = this->generateLogMsg(q);
         if(!query.isEmpty()) {
             qDebug() << query;
             stream << query;
         }
     }
+    stream << "\n";
     stream.flush();
     log.close();
 }
@@ -48,8 +49,9 @@ void Logger::lastError(const QSqlError &e) {
     }
 }
 
-QString Logger::generateLogMsg(const QSqlQuery &q) const {
+QString Logger::generateLogMsg(const QSqlQuery &q, bool withValues) const {
     QString r = "<" + q.executedQuery() + ">";
+    if(withValues) {
     QMap<QString, QVariant> m = q.boundValues();
     QMap<QString,QVariant>::iterator i;
     if(!m.isEmpty()) {
@@ -57,6 +59,7 @@ QString Logger::generateLogMsg(const QSqlQuery &q) const {
         for (i = m.begin(); i != m.end(); ++i) {
             r += "{" + i.key() + ":" + i.value().toString() + "}";
         }
+    }
     }
     return r;
 }
@@ -74,7 +77,7 @@ void Logger::setPath(const QString &value) {
 
 QString Logger::generateLogMsg(const QSqlError &e) const {
     if(e.isValid()) {
-        return "UTC:" + QDateTime::currentDateTime().toString("yyyy-MM-dd|hh:MM:ss") + "|" + e.driverText() + "|" + e.databaseText().toLatin1() + "\n";
+        return "ErrorUTC:" + QDateTime::currentDateTime().toString("yyyy-MM-dd|hh:MM:ss") + "|" + e.driverText() + "|" + e.databaseText().toLatin1();
     } else {
         return "";
     }

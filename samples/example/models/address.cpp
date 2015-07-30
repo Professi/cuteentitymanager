@@ -52,9 +52,9 @@ void Address::setPersons(const QList<QSharedPointer<Person> > &value) {
 const QHash<QString, CuteEntityManager::Relation> Address::getRelations()
 const {
     auto hash = Entity::getRelations();
-//    hash.insert("persons", CuteEntityManager::Relation("persons",
-//                RelationType::MANY_TO_MANY,
-//                QString("addresses")));
+    hash.insert("persons", CuteEntityManager::Relation("persons",
+                RelationType::MANY_TO_MANY,
+                QString("addresses")));
     hash.insert("pupils", CuteEntityManager::Relation("pupils",
                 RelationType::MANY_TO_MANY,
                 QString("addresses")));

@@ -24,10 +24,10 @@ const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
     hash.insert("maintainedGroups", CuteEntityManager::Relation("maintainedGroups",
                 RelationType::ONE_TO_MANY,
                 QString("mainTeacher")));
-//    hash.insert("contacts", CuteEntityManager::Relation("contacts",
-//                RelationType::MANY_TO_MANY));
-//    hash.insert("addresses", CuteEntityManager::Relation("addresses",
-//                RelationType::MANY_TO_MANY));
+    hash.insert("contacts", CuteEntityManager::Relation("contacts",
+                RelationType::MANY_TO_MANY));
+    hash.insert("addresses", CuteEntityManager::Relation("addresses",
+                RelationType::MANY_TO_MANY));
     return hash;
 }
 

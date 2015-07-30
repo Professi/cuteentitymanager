@@ -20,7 +20,7 @@ public:
 
 protected:
     QString generateLogMsg(const QSqlError &e) const;
-    QString generateLogMsg(const QSqlQuery &q) const;
+    QString generateLogMsg(const QSqlQuery &q, bool withValues=true) const;
 
 private:
     QString path;
