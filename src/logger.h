@@ -10,11 +10,11 @@ class Logger
 {
 public:
     Logger(QString path="");
-    virtual ~Logger();
+    ~Logger();
     QString defaultPath() const;
 
     void lastError(const QSqlError &e);
-    void lastError(const QSqlQuery &q);
+    void lastError(const QSqlQuery &q, bool logQuery=false);
     QString getPath();
     void setPath(const QString &value);
 

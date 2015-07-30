@@ -15,15 +15,24 @@ QString Logger::defaultPath() const {
     return QDir::currentPath() + "/errors.log";
 }
 
-void Logger::lastError(const QSqlQuery &q) {
+void Logger::lastError(const QSqlQuery &q, bool logQuery) {
     QFile log(this->getPath());
     log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
     log.seek(log.size());
     QTextStream stream(&log);
-    qDebug() << this->generateLogMsg(q.lastError());
-    qDebug() << generateLogMsg(q);
-    stream << this->generateLogMsg(q.lastError());
-    stream << generateLogMsg(q);
+    const QString errorMsg = this->generateLogMsg(q.lastError());
+    if (!errorMsg.isEmpty()) {
+        qDebug() << errorMsg;
+        stream << errorMsg;
+    }
+    if(logQuery) {
+        const QString query = this->generateLogMsg(q);
+        if(!query.isEmpty()) {
+            qDebug() << query;
+            stream << query;
+        }
+    }
+    stream.flush();
     log.close();
 }
 
@@ -40,11 +49,14 @@ void Logger::lastError(const QSqlError &e) {
 }
 
 QString Logger::generateLogMsg(const QSqlQuery &q) const {
-    QString r = "Query:<" + q.executedQuery() + ">";
+    QString r = "<" + q.executedQuery() + ">";
     QMap<QString, QVariant> m = q.boundValues();
     QMap<QString,QVariant>::iterator i;
-    for (i = m.begin(); i != m.end(); ++i) {
-        r += "\n<" + i.key() + "|" + i.value().toString() + ">";
+    if(!m.isEmpty()) {
+        r += "Values: ";
+        for (i = m.begin(); i != m.end(); ++i) {
+            r += "{" + i.key() + ":" + i.value().toString() + "}";
+        }
     }
     return r;
 }
@@ -61,5 +73,9 @@ void Logger::setPath(const QString &value) {
 }
 
 QString Logger::generateLogMsg(const QSqlError &e) const {
-    return "UTC:" + QDateTime::currentDateTime().toString("yyyy-MM-dd|hh:MM:ss") + "|" + e.driverText() + "|" + e.databaseText().toLatin1() + "\n";
+    if(e.isValid()) {
+        return "UTC:" + QDateTime::currentDateTime().toString("yyyy-MM-dd|hh:MM:ss") + "|" + e.driverText() + "|" + e.databaseText().toLatin1() + "\n";
+    } else {
+        return "";
+    }
 }

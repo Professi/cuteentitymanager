@@ -34,6 +34,8 @@
 
 namespace CuteEntityManager {
 
+
+class Logger;
 class EntityManager : public QObject {
     Q_OBJECT
   signals:

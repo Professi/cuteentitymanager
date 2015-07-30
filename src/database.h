@@ -26,23 +26,27 @@
 #include <QString>
 #include <QDebug>
 #include "enums/databasetype.h"
+#include "logger.h"
 namespace CuteEntityManager {
-
 class Database {
   private:
     QSqlDatabase database;
     QString connectionName;
     bool supportTransactions;
+    Logger *logger = nullptr;
     void init();
+    void initLogger(bool activated, bool logQueries, bool logErrors);
+    bool logQueries;
+    bool logErrors;
 
   public:
-    Database(QSqlDatabase database);
+    Database(QSqlDatabase database, bool loggerActivated = true, bool logQueries=false, bool logErrors=true);
     ~Database();
     Database(QString databaseType, QString connectionName = QString(""),
              QString hostname = QString(""),
              QString databasename = QString("") ,
              QString username = QString(""), QString password = QString(""),
-             qint64 port = 0);
+             qint64 port = 0, bool loggerActivated = true, bool logQueries=false, bool logErrors=true);
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();

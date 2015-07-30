@@ -36,10 +36,14 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename ,
                              QString hostname,
                              QString username,
                              QString password, QString port) : QObject() {
+    bool logQueries = false;
+#ifdef QT_DEBUG
+    logQueries = true;
+#endif
     auto db = new Database(databaseType, this->createConnection(), hostname,
                            databasename, username,
                            password,
-                           port.toInt());
+                           port.toInt(),true,logQueries);
     this->db = QSharedPointer<Database>(db);
     this->init();
 }
