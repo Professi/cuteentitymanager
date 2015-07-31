@@ -40,13 +40,15 @@ class Database {
     bool logErrors;
 
   public:
-    Database(QSqlDatabase database, bool loggerActivated = true, bool logQueries=false, bool logErrors=true);
+    Database(QSqlDatabase database, bool loggerActivated = true,
+             bool logQueries = false, bool logErrors = true);
     ~Database();
     Database(QString databaseType, QString connectionName = QString(""),
              QString hostname = QString(""),
              QString databasename = QString("") ,
              QString username = QString(""), QString password = QString(""),
-             qint64 port = 0, bool loggerActivated = true, bool logQueries=false, bool logErrors=true);
+             qint64 port = 0, bool loggerActivated = true, bool logQueries = false,
+             bool logErrors = true);
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();

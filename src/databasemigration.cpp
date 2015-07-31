@@ -45,6 +45,3 @@ QDateTime DatabaseMigration::getApplyTime() const {
 void DatabaseMigration::setApplyTime(const QDateTime &value) {
     applyTime = value;
 }
-
-
-

@@ -45,7 +45,7 @@ class EntityManager : public QObject {
     EntityManager(const QString &databaseType, QString databasename = "" ,
                   QString hostname = "",
                   QString username = "",
-                  QString password = "", QString port = "");
+                  QString password = "", QString port = "", bool logQueries = false);
     ~EntityManager();
     static QStringList getConnectionNames();
     /**
@@ -179,7 +179,8 @@ class EntityManager : public QObject {
     void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                    const QMetaProperty &property, const bool refresh = false);
     void manyToMany(const QSharedPointer<Entity> &entity,
-                    const QMetaProperty &property, const Relation &relation, const bool refresh = false);
+                    const QMetaProperty &property, const Relation &relation,
+                    const bool refresh = false);
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");
@@ -214,9 +215,13 @@ class EntityManager : public QObject {
     void setNullOneToManyRelation(QVariant &var, const Relation &r);
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
-                                   const char *classname,const bool refresh = false);
+                                   const char *classname, const bool refresh = false);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
-                                          const char *classname,const bool refresh = false);
+                                          const char *classname, const bool refresh = false);
+    void missingManyToManyTable(const QString &tblName,
+                                const QSharedPointer<Entity> &e, const Relation &r);
+    bool isRelationPropertyValid(const QMetaProperty &prop, const Relation &r,
+                                 const QSharedPointer<Entity> &e, const QSharedPointer<Entity> &relatedEntity);
 
   private:
     static QStringList connectionNames;

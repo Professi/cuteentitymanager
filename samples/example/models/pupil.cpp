@@ -34,6 +34,3 @@ const QHash<QString, Relation> Pupil::getRelations() const {
                 QString("pupils")));
     return hash;
 }
-
-
-

@@ -18,10 +18,10 @@ int main(int argc, char *argv[]) {
     QTime t;
     t.start();
     CuteEntityManager::EntityManager *e = new
-//            CuteEntityManager::EntityManager("QSQLITE",
-//                                             QDir::currentPath() + "/db.sqlite");
-                CuteEntityManager::EntityManager("QSQLITE",
-                                                     ":memory:");
+    CuteEntityManager::EntityManager("QSQLITE",
+                                     QDir::currentPath() + "/db.sqlite");
+//                CuteEntityManager::EntityManager("QSQLITE",
+//                                                     ":memory:");
 
     /**
      * @brief EntityInstanceFactory::registerClass<EntityClass>
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
     QStringList inits = QStringList() << "Contact" << "Address" <<
-                                         "Pupil" << "Group";
+                        "Pupil" << "Group";
     /**
       * Instead of startup(version,qstringlist) you can call method createTable of EntityManager (e->create(sharedptr))
       * startup will create tables inclusive relation tables for classes in QStringList inits
@@ -43,9 +43,9 @@ int main(int argc, char *argv[]) {
     e->startup("0.1", inits);
 
     QSharedPointer<CuteEntityManager::Entity> p =
-            QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
-                                                                 Person::Gender::MALE, "", "", "",
-                                                                 QDate::currentDate()));
+        QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
+                Person::Gender::MALE, "", "", "",
+                QDate::currentDate()));
     /** ---------------------------------
      * PERSIST
      * ---------------------------------
@@ -56,10 +56,10 @@ int main(int argc, char *argv[]) {
     gPtr->setName("9b");
     QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
     QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
-                                                                           "Mustermann", Person::Gender::MALE));
+                                         "Mustermann", Person::Gender::MALE));
     gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
-    if(e->count(groupPtr->getTablename()) <= 0) {
+    if (e->count(groupPtr->getTablename()) <= 0) {
         e->create(groupPtr, true, true);
     }
 
@@ -98,21 +98,21 @@ int main(int argc, char *argv[]) {
     qDebug() << "GroupSize:" << pers->getGroups().size();
 
     /**
-     * or you can use following syntax:
+     * or you can use this syntax:
      */
     qDebug() << "-----------------------------";
     QSharedPointer<Person> foundMainTeacher = e->findById<Person *>
             (1).objectCast<Person>();
     qDebug() << "FoundMainTeacher:" << foundMainTeacher->toString();
     qDebug() << "FoundMainTeacherGroupSize:" <<
-                foundMainTeacher->getMaintainedGroups().size();
+             foundMainTeacher->getMaintainedGroups().size();
 
     qDebug() << "-----------------------------";
     QSharedPointer<Pupil> foundPupil = e->findById<Pupil *>
-            (13).objectCast<Pupil>();
+                                       (13).objectCast<Pupil>();
     qDebug() << "FoundPupil:" << foundPupil->toString();
     qDebug() << "FoundPupilGroupSize:" <<
-                foundPupil->getGroups().size();
+             foundPupil->getGroups().size();
 
     qDebug() << "-----------------------------";
 

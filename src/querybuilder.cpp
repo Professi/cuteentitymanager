@@ -473,7 +473,7 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     //cant believe that this could work in Qt
     //https://github.com/yiisoft/yii2/blob/master/framework/db/QueryBuilder.php
     QRegularExpression reg = QRegularExpression(
-                QRegularExpression::escape("/^(\\w+)\((.+?)\\)(.*)$/"));
+                QRegularExpression::escape("/^(\\w+)\\((.+?)\\)(.*)$/"));
     reg.optimize();
     QRegularExpressionMatchIterator i = reg.globalMatch(type, 0,
                                                         QRegularExpression::PartialPreferFirstMatch);

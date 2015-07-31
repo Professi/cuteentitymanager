@@ -4,13 +4,13 @@
 #include "cache.h"
 
 using namespace CuteEntityManager;
-EntityHelper::EntityHelper()
-{
+EntityHelper::EntityHelper() {
 
 }
 
 
-const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(const Entity *entity) {
+const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(
+    const Entity *entity) {
     auto relations = entity->getRelations();
     auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
     if (superObject) {
@@ -29,14 +29,15 @@ const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(const Enti
 }
 
 
-const QList<const QMetaObject *> EntityHelper::superClasses(const Entity *entity,bool
-                                                            stopAtSingleTableInheritance) {
+const QList<const QMetaObject *> EntityHelper::superClasses(
+    const Entity *entity, bool
+    stopAtSingleTableInheritance) {
     QList<const QMetaObject *> classes = QList<const QMetaObject *>();
     auto superMetaObject = entity->metaObject()->superClass();
     if (entity->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE) {
         Entity *e = nullptr;
         while (superMetaObject && QString(superMetaObject->className()) !=
-               QString("CuteEntityManager::Entity")) {
+                QString("CuteEntityManager::Entity")) {
             e = EntityInstanceFactory::createInstance(superMetaObject->className());
             if (e) {
                 classes.append(superMetaObject);
@@ -55,11 +56,13 @@ const QList<const QMetaObject *> EntityHelper::superClasses(const Entity *entity
     return classes;
 }
 
-const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(const Entity *entity) {
+const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
+    const Entity *entity) {
     return EntityHelper::getMetaProperties(entity->metaObject());
 }
 
-const QHash<QString, QMetaProperty> EntityHelper::getSuperMetaProperties(const Entity *entity) {
+const QHash<QString, QMetaProperty> EntityHelper::getSuperMetaProperties(
+    const Entity *entity) {
     auto superMetaObjectPropertyMap = QHash<QString, QMetaProperty>();
     auto superMeta = entity->metaObject()->superClass();
     if (QString(superMeta->className()) != QString("CuteEntityManager::Entity")
@@ -75,7 +78,7 @@ const QHash<QString, QMetaProperty> EntityHelper::getSuperMetaProperties(const E
 }
 
 const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
-        const QMetaObject *object) {
+    const QMetaObject *object) {
     auto h = QHash<QString, QMetaProperty>();
     for (int var = 0; var < object->propertyCount(); ++var) {
         QMetaProperty m = object->property(var);
@@ -86,7 +89,8 @@ const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
     return h;
 }
 
-const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(const Entity *entity) {
+const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(
+    const Entity *entity) {
     auto classes = EntityHelper::superClasses(entity);
     auto wholeProperties = QHash<QString, QMetaProperty>();
     for (int var = classes.size() - 1; var >= 0; --var) {
@@ -101,7 +105,8 @@ const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(con
     return wholeProperties;
 }
 
-const QHash<Relation, QMetaProperty> EntityHelper::getRelationProperties(const Entity *entity) {
+const QHash<Relation, QMetaProperty> EntityHelper::getRelationProperties(
+    const Entity *entity) {
     auto h = QHash<Relation, QMetaProperty>();
     auto relations = entity->getRelations();
     for (int var = 0; var < entity->metaObject()->propertyCount(); ++var) {
@@ -117,17 +122,16 @@ const char *EntityHelper::getClassname(const Entity *entity) {
     return entity->metaObject()->className();
 }
 
-const QString EntityHelper::getClassName(const Entity *entity)
-{
+const QString EntityHelper::getClassName(const Entity *entity) {
     return QString(entity->metaObject()->className());
 }
 
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
-                                    QList<QSharedPointer<Entity> > &list,
-                                    const QMetaProperty &property)  {
+                                   QList<QSharedPointer<Entity> > &list,
+                                   const QMetaProperty &property)  {
     QVariant var;
     var.setValue<QList<QSharedPointer<Entity>>>(list);
-    property.write(entity.data(),var);
+    property.write(entity.data(), var);
 }
 
 void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
@@ -143,8 +147,8 @@ void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
 }
 
 void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
-                                QSharedPointer<Entity> value,
-                                const QMetaProperty &property) {
+                               QSharedPointer<Entity> value,
+                               const QMetaProperty &property) {
     if (value && value->getProperty(value->getPrimaryKey()).toLongLong()
             > -1) {
         QVariant var;
@@ -153,12 +157,13 @@ void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
     }
 }
 
-void EntityHelper::setProperty(const QSharedPointer<Entity> &entity, QSharedPointer<Entity> value, const QString property) {
+void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
+                               QSharedPointer<Entity> value, const QString property) {
     auto props = EntityHelper::getMetaProperties(entity.data());
-    if(props.contains(property)) {
+    if (props.contains(property)) {
         QVariant var;
         var.setValue<QSharedPointer<Entity>>(value);
-        entity->setProperty(property,var);
+        entity->setProperty(property, var);
     }
 }
 

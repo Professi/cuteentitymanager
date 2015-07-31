@@ -34,9 +34,9 @@ SqliteSchema::~SqliteSchema() {
 QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
     if (this->typeMap->empty()) {
         this->typeMap->insert(TYPE_PK,
-                                     "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
+                              "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap->insert(TYPE_BIGPK,
-                                     "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
+                              "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap->insert(TYPE_BOOLEAN, "boolean");
         this->typeMap->insert(TYPE_SMALLINT, "smallint");
         this->typeMap->insert(TYPE_INTEGER, "integer");

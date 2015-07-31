@@ -19,17 +19,19 @@
 #include <QDir>
 using namespace CuteEntityManager;
 
-Database::Database(QSqlDatabase database, bool loggerActivated, bool logQueries, bool logErrors) {
+Database::Database(QSqlDatabase database, bool loggerActivated, bool logQueries,
+                   bool logErrors) {
     this->database = database;
     this->init();
     this->connectionName = this->database.connectionName();
-    this->initLogger(loggerActivated,logQueries,logErrors);
+    this->initLogger(loggerActivated, logQueries, logErrors);
 }
 
 Database::Database(QString databaseType, QString connectionName,
                    QString hostname,
                    QString databasename,
-                   QString username, QString password, qint64 port, bool loggerActivated, bool logQueries, bool logErrors) {
+                   QString username, QString password, qint64 port, bool loggerActivated,
+                   bool logQueries, bool logErrors) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
     if (hostname != QString("")) {
@@ -48,27 +50,28 @@ Database::Database(QString databaseType, QString connectionName,
         this->database.setPort(port);
     }
     this->init();
-    this->initLogger(loggerActivated,logQueries,logErrors);
+    this->initLogger(loggerActivated, logQueries, logErrors);
 }
 
 void Database::init() {
     this->database.open();
     this->supportTransactions = this->database.driver()->hasFeature(
-                QSqlDriver::Transactions);
+                                    QSqlDriver::Transactions);
 }
 
 void Database::initLogger(bool activated, bool logQueries, bool logErrors) {
     this->logQueries = logQueries;
     this->logErrors = logErrors;
-    if(activated) {
-        this->logger = new Logger(QDir::currentPath() + "/db" + this->connectionName + "db.log");
+    if (activated) {
+        this->logger = new Logger(QDir::currentPath() + "/db" + this->connectionName +
+                                  ".log");
     }
 }
 
 Database::~Database() {
-    if(this->logger) {
-    delete this->logger;
-    this->logger = nullptr;
+    if (this->logger) {
+        delete this->logger;
+        this->logger = nullptr;
     }
     if (this->database.isOpen()) {
         this->database.close();
@@ -138,17 +141,17 @@ DatabaseType Database::getDatabaseType(QString s) {
 }
 
 QSharedPointer<Schema> Database::getSchema(DatabaseType db,
-                                           QSharedPointer<Database> database) {
+        QSharedPointer<Database> database) {
     switch (db) {
     case DatabaseType::SQLITE:
         return QSharedPointer<Schema>(new SqliteSchema(database));;
         break;
-        //    case PGSQL:
-        //        return QSharedPointer<Schema>(new PgSqlSchema());
-        //        break;
-        //    case MYSQL:
-        //        return QSharedPointer<Schema>(new MysqlSchema());
-        //        break;
+    //    case PGSQL:
+    //        return QSharedPointer<Schema>(new PgSqlSchema());
+    //        break;
+    //    case MYSQL:
+    //        return QSharedPointer<Schema>(new MysqlSchema());
+    //        break;
     default:
         return QSharedPointer<Schema>(new SqliteSchema(database));
         break;
@@ -196,10 +199,8 @@ bool Database::exec(QList<QSqlQuery> queries) {
 }
 
 void Database::debugQuery(const QSqlQuery &query) const {
-    if(this->logger) {
-        if(this->logErrors) {
-            this->logger->lastError(query,this->logQueries);
-        }
+    if (this->logger && this->logErrors) {
+        this->logger->lastError(query, this->logQueries);
     } else {
         qDebug() << query.executedQuery();
     }

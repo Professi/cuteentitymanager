@@ -131,7 +131,7 @@ void Schema::refresh() {
 
 QString Schema::getRawTable(QString name) {
     if (name.indexOf("{{")) {
-        QRegularExpression re(QRegularExpression::escape("/\\{\{(.*?)\\}\\}/"));
+        QRegularExpression re(QRegularExpression::escape("/\\{\\{(.*?)\\}\\}/"));
         return name.replace(re, QRegularExpression::escape("\\1"));
     }
     return name;

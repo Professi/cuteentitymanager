@@ -6,23 +6,22 @@
 #include <QSqlError>
 #include <QSqlQuery>
 
-class Logger
-{
-public:
-    Logger(QString path="");
+class Logger {
+  public:
+    Logger(QString path = "");
     ~Logger();
     QString defaultPath() const;
 
     void lastError(const QSqlError &e);
-    void lastError(const QSqlQuery &q, bool logQuery=false);
+    void lastError(const QSqlQuery &q, bool logQuery = false);
     QString getPath();
     void setPath(const QString &value);
 
-protected:
+  protected:
     QString generateLogMsg(const QSqlError &e) const;
-    QString generateLogMsg(const QSqlQuery &q, bool withValues=true) const;
+    QString generateLogMsg(const QSqlQuery &q, bool withValues = true) const;
 
-private:
+  private:
     QString path;
 };
 
