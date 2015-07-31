@@ -23,6 +23,7 @@
 #include <QStringList>
 #include <QMetaProperty>
 #include "relation.h"
+#include "query.h"
 namespace CuteEntityManager {
 class Schema;
 class Entity;
@@ -140,6 +141,35 @@ class QueryBuilder {
                     bool ignoreID = false, const QString &primaryKey = "id") const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
     virtual QString placeHolder(const QString &key) const;
+    void where(Query &query,QString, QVariant);
+    void where(Query &query,QHash<QString, QVariant> conditions, QString concat="AND");
+    void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
+    void between(Query &query,QString column, QVariant firstValue, QVariant secondValue);
+    void in(Query &query,QString column, QList<QVariant> values);
+    void notIn(Query &query,QString column, QList<QVariant> values);
+    void notOperator(Query &query,QString column, QVariant value);
+    void orOperator(Query &query,QHash<QString, QVariant> conditions);
+    void andOperator(Query &query,QHash<QString, QVariant> conditions);
+    void arbitraryOperator(Query &query,QString op, QString column, QVariant value);
+
+    void plainOr(Query &query); //adds a simple OR to condition
+    void plainAnd(Query &query); //add a simple AND to condition
+    /**
+     * Generates 'foo' LIKE "%bar%"
+     * @brief like
+     * @param column
+     * @param value
+     */
+    void like(QString column, QString value, JokerPosition = JokerPosition::BOTH);
+    /**
+     * @brief like
+     * @param condition
+     * @param concat
+     */
+    void like(QHash<QString, QVariant> conditions, QString concat ="AND", JokerPosition = JokerPosition::BOTH);
+
+
+
 
 
   protected:

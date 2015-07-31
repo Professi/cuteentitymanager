@@ -24,7 +24,9 @@ src/entity.h \
     src/entityinstancefactory.h \
     src/cache.h \
     src/entityhelper.h \
-    src/logger.h
+    src/logger.h \
+    src/query.h \
+    src/join.h
 
 SOURCES += \
 src/entity.cpp \
@@ -42,7 +44,9 @@ src/entity.cpp \
     src/entityinstancefactory.cpp \
     src/cache.cpp \
     src/entityhelper.cpp \
-    src/logger.cpp
+    src/logger.cpp \
+    src/query.cpp \
+    src/join.cpp
 
 unix {
     target.path = /usr/lib
