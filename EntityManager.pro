@@ -22,7 +22,6 @@ src/entity.h \
     src/schema/sqlitequerybuilder.h \
     src/relation.h \
     src/entityinstancefactory.h \
-    src/condition.h \
     src/cache.h \
     src/entityhelper.h \
     src/logger.h
@@ -41,7 +40,6 @@ src/entity.cpp \
     src/schema/sqlitequerybuilder.cpp \
     src/relation.cpp \
     src/entityinstancefactory.cpp \
-    src/condition.cpp \
     src/cache.cpp \
     src/entityhelper.cpp \
     src/logger.cpp

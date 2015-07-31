@@ -972,7 +972,7 @@ void QueryBuilder::bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
                               bool ignoreID, const QString &primaryKey) const {
     QHash<QString, QVariant>::const_iterator i = h.constBegin();
     while (i != h.constEnd()) {
-        if (!ignoreID || (ignoreID && !(i.key() == primaryKey))) {
+        if ((!ignoreID || (ignoreID && !(i.key() == primaryKey))) && !i.value().isNull()) {
             this->bindValue(i.key(), i.value(), q);
         }
         ++i;
@@ -1012,7 +1012,7 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
     if (!m.isEmpty()) {
         QHash<QString, QVariant>::const_iterator i = m.constBegin();
         while (i != m.constEnd()) {
-            if (!ignoreID || (ignoreID && !(i.key() == primaryKey))) {
+            if ((!ignoreID || (ignoreID && !(i.key() == primaryKey))) && !i.value().isNull()) {
                 if (!(rc == "")) {
                     rc += " " + conjunction + " ";
                 }

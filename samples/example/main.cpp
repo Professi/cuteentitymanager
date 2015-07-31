@@ -64,16 +64,6 @@ int main(int argc, char *argv[]) {
     }
 
     /** ---------------------------------
-     * FIND Pupil
-     * ---------------------------------
-     */
-    QSharedPointer<Entity> pupilFindPtr = e->findById(22, QString("Pupil*"));
-    QSharedPointer<Pupil> pupilPtr = pupilFindPtr.objectCast<Pupil>();
-    qDebug() << "Pupil:" << pupilPtr->toString();
-    qDebug() << "GroupSize:" << pupilPtr->getGroups().size();
-
-
-    /** ---------------------------------
      * FIND Group
      * ---------------------------------
      */
@@ -106,13 +96,6 @@ int main(int argc, char *argv[]) {
     qDebug() << "FoundMainTeacher:" << foundMainTeacher->toString();
     qDebug() << "FoundMainTeacherGroupSize:" <<
              foundMainTeacher->getMaintainedGroups().size();
-
-    qDebug() << "-----------------------------";
-    QSharedPointer<Pupil> foundPupil = e->findById<Pupil *>
-                                       (13).objectCast<Pupil>();
-    qDebug() << "FoundPupil:" << foundPupil->toString();
-    qDebug() << "FoundPupilGroupSize:" <<
-             foundPupil->getGroups().size();
 
     qDebug() << "-----------------------------";
 
