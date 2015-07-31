@@ -146,6 +146,22 @@ void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
     }
 }
 
+void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
+        &entity, QSharedPointer<Entity> remove, const QMetaProperty &property) {
+    QVariant var = property.read(entity.data());
+    if (!var.isNull() && var.canConvert<QList<QVariant>>()) {
+        auto list = EntityInstanceFactory::castQVariantList(var);
+        for (int i = 0; i < list.size(); ++i) {
+            auto e = list.at(i);
+            if(e->getId() == remove->getId()) {
+                list.removeAt(i);
+                EntityHelper::setListProperty(entity, list, property);
+                break;
+            }
+        }
+    }
+}
+
 void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
                                QSharedPointer<Entity> value,
                                const QMetaProperty &property) {

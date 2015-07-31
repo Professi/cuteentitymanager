@@ -31,6 +31,8 @@ class EntityHelper {
     static const QString getClassName(const Entity *entity);
     static void addEntityToListProperty(const QSharedPointer<Entity> &entity,
                                         QSharedPointer<Entity> add, const QMetaProperty &property);
+    static void removeEntityFromListProperty(const QSharedPointer<Entity> &entity,
+                                        QSharedPointer<Entity> remove, const QMetaProperty &property);
     static void setListProperty(const QSharedPointer<Entity> &entity,
                                 QList<QSharedPointer<Entity>> &list,
                                 const QMetaProperty &property);

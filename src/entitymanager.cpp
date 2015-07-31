@@ -447,20 +447,18 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
                 QSqlQuery q = builder->manyToManyDelete(
                                   tblName, builder->generateManyToManyColumnName(e),
                                   e->getProperty(e->getPrimaryKey()).toLongLong());
-                bool refresh = r.getCascadeType().contains(CascadeType::REFRESH)
-                               || r.getCascadeType().contains(CascadeType::ALL);
-                bool remove = r.getCascadeType().contains(CascadeType::REMOVE)
-                              || r.getCascadeType().contains(CascadeType::ALL);
-                if (this->schema->getDatabase()->exec(q)) {
+                if (this->db->exec(q)) {
+                    bool refresh = r.getCascadeType().contains(CascadeType::REFRESH)
+                                   || r.getCascadeType().contains(CascadeType::ALL);
+                    bool remove = r.getCascadeType().contains(CascadeType::REMOVE)
+                                  || r.getCascadeType().contains(CascadeType::ALL);
+                    auto fkProp = EntityHelper::mappedProperty(r, ptr);
                     for (int var = 0; var < list.size(); ++var) {
                         auto entity = list.at(var);
                         if (remove) {
                             this->remove(entity);
                         } else if (refresh) {
-                            /**
-                              not really with good performance, alternatively iterate over relation attribute and delete pointer from list
-                              **/
-                            this->refresh(entity);
+                            EntityHelper::removeEntityFromListProperty(entity, e, fkProp);
                         }
                     }
                 }
