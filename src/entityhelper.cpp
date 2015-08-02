@@ -218,3 +218,20 @@ QMetaProperty EntityHelper::mappedProperty(const Relation &r,
     }
     return prop;
 }
+
+QHash<QString, QVariant> EntityHelper::getEntityAttributes(
+    const QHash<QString, QMetaProperty>
+    &props,
+    const QSharedPointer<Entity> &entity) {
+    auto map = QHash<QString, QVariant>();
+    auto transientAttrs = entity->getTransientAttributes();
+    auto relations = entity->getRelations();
+    auto i = props.constBegin();
+    while (i != props.constEnd()) {
+        if (!transientAttrs.contains(i.key()) && !relations.contains(i.key())) {
+            map.insert(i.key(), i.value().read(entity.data()));
+        }
+        ++i;
+    }
+    return map;
+}

@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     t.start();
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
-                                     QDir::currentPath() + "/db.sqlite");
+                                     QDir::currentPath() + "/db.sqlite","","","",0,true);
 //                CuteEntityManager::EntityManager("QSQLITE",
 //                                                     ":memory:");
 

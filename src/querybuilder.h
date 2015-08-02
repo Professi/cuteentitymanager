@@ -38,6 +38,10 @@ enum DbForeignKeyCascade {
 };
 
 class QueryBuilder {
+    /**
+     * EntityManager is a friend class, cause we want a light public api.
+     */
+    friend class EntityManager;
   public:
     QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database);
     virtual ~QueryBuilder();
@@ -66,9 +70,6 @@ class QueryBuilder {
                                   QString refTableName,
                                   QStringList refColumns, QString deleteConstraint,
                                   QString updateConstraint) const;
-    QString generateIndexName(const QString &name, const QString &table,
-                              const QString &refColumn, const QString &refTable, const bool fk) const;
-    QString generateColumnNameID(QString name) const;
     virtual QString getForeignKeyCascade(DbForeignKeyCascade cascade) const;
     virtual QString dropForeignKey(QString name, QString tableName) const;
     virtual QString createIndex(QString name, QString tableName,
@@ -76,9 +77,6 @@ class QueryBuilder {
                                 bool unique)const;
     virtual QString dropIndex(QString name, QString tableName)const;
     virtual QString createFkSuperClass(const Entity *e) const;
-    QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty>
-            &props,
-            const QSharedPointer<Entity> &entity) const;
     virtual QStringList relationFks(const QSharedPointer<Entity> &entity) const;
     virtual bool supportsForeignKeys() const;
 
@@ -97,12 +95,73 @@ class QueryBuilder {
     QHash<QString, QString> generateTableDefinition(const QSharedPointer<Entity>
             &entity)
     const;
-    QString generateManyToManyTableName(const QSharedPointer<Entity> &firstEntity,
-                                        const QSharedPointer<Entity> &secondEntity, const Relation &r) const;
-
+    QSqlQuery getQuery() const;
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
     QString getColumnType(const QString &type) const;
+    void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
+                    bool ignoreID = false, const QString &primaryKey = "id") const;
+    void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
+    virtual QString placeHolder(const QString &key) const;
+    void where(Query &query, QString column, QVariant value);
+    void where(Query &query, QHash<QString, QVariant> conditions,
+               QString concat = "AND");
+    //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
+    void between(Query &query, QString column, QVariant firstValue,
+                 QVariant secondValue);
+    void notBetween(Query &query, QString column, QVariant firstValue,
+                    QVariant secondValue);
+    void in(Query &query, QString column, QList<QVariant> values);
+    void notIn(Query &query, QString column, QList<QVariant> values);
+    void notOperator(Query &query, QString column, QVariant value);
+    void orOperator(Query &query, QHash<QString, QVariant> conditions,
+                    bool like = false);
+    void andOperator(Query &query, QHash<QString, QVariant> conditions);
+    void arbitraryOperator(Query &query, QString op, QString column,
+                           QVariant value);
+
+    void plainOr(Query &query); //adds a simple OR to condition
+    void plainAnd(Query &query); //add a simple AND to condition
+    /**
+     * Generates 'foo' LIKE "%bar%"
+     * @brief like
+     * @param column
+     * @param value
+     */
+    void like(QString column, QString value, JokerPosition = JokerPosition::BOTH);
+    /**
+     * @brief like
+     * @param condition
+     * @param concat
+     */
+    void like(QHash<QString, QVariant> conditions, QString concat = "AND",
+              JokerPosition = JokerPosition::BOTH);
+
+
+
+
+
+  protected:
+    class ClassAttributes {
+      public:
+        ClassAttributes() { }
+        explicit ClassAttributes(const QString name,
+                                 const QHash<QString, QVariant> attributes, QString pk = "id");
+        QString getName() const;
+        void setName(const QString &value);
+
+        QHash<QString, QVariant> getAttributes() const;
+        void setAttributes(const QHash<QString, QVariant> &value);
+
+        QString getPk() const;
+        void setPk(const QString &value);
+
+      private:
+        QString name;
+        QString pk;
+        QHash<QString, QVariant> attributes;
+    };
+
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
                    qint64 offset = 0, QString pk = "id") const;
@@ -132,68 +191,6 @@ class QueryBuilder {
                                const qint64 &id);
     QSqlQuery manyToManyInsert(const QString &tableName, const QString &col1,
                                const QString &col2) const;
-
-    virtual QString limit(const qint64 &limit, const qint64 &offset) const;
-    QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity)
-    const;
-    QSqlQuery getQuery() const;
-    void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
-                    bool ignoreID = false, const QString &primaryKey = "id") const;
-    void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
-    virtual QString placeHolder(const QString &key) const;
-    void where(Query &query, QString column, QVariant value);
-    void where(Query &query,QHash<QString, QVariant> conditions, QString concat="AND");
-    void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
-    void between(Query &query,QString column, QVariant firstValue, QVariant secondValue);
-    void notBetween(Query &query,QString column, QVariant firstValue, QVariant secondValue);
-    void in(Query &query,QString column, QList<QVariant> values);
-    void notIn(Query &query,QString column, QList<QVariant> values);
-    void notOperator(Query &query,QString column, QVariant value);
-    void orOperator(Query &query, QHash<QString, QVariant> conditions, bool like=false);
-    void andOperator(Query &query,QHash<QString, QVariant> conditions);
-    void arbitraryOperator(Query &query,QString op, QString column, QVariant value);
-
-    void plainOr(Query &query); //adds a simple OR to condition
-    void plainAnd(Query &query); //add a simple AND to condition
-    /**
-     * Generates 'foo' LIKE "%bar%"
-     * @brief like
-     * @param column
-     * @param value
-     */
-    void like(QString column, QString value, JokerPosition = JokerPosition::BOTH);
-    /**
-     * @brief like
-     * @param condition
-     * @param concat
-     */
-    void like(QHash<QString, QVariant> conditions, QString concat ="AND", JokerPosition = JokerPosition::BOTH);
-
-
-
-
-
-  protected:
-    class ClassAttributes {
-      public:
-        ClassAttributes() { }
-        explicit ClassAttributes(const QString name,
-                                 const QHash<QString, QVariant> attributes, QString pk = "id");
-        QString getName() const;
-        void setName(const QString &value);
-
-        QHash<QString, QVariant> getAttributes() const;
-        void setAttributes(const QHash<QString, QVariant> &value);
-
-        QString getPk() const;
-        void setPk(const QString &value);
-
-      private:
-        QString name;
-        QString pk;
-        QHash<QString, QVariant> attributes;
-    };
-
     QSqlQuery remove(const QString &tableName, const qint64 &id,
                      const QString &primaryKey = "id") const;
     QSqlQuery insert(const QString &tableName, QHash<QString, QVariant> &attributes,
@@ -202,6 +199,10 @@ class QueryBuilder {
                      const QString &primaryKey = "id") const;
     QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity,
                                    bool insert) const;
+    virtual QString limit(const qint64 &limit, const qint64 &offset) const;
+    QString generateIndexName(const QString &name, const QString &table,
+                              const QString &refColumn, const QString &refTable, const bool fk) const;
+    QString generateColumnNameID(QString name) const;
     virtual void createRelationFK(QStringList &queries,
                                   const QSharedPointer<Entity> &entity, const Relation &relation,
                                   const QMetaProperty &metaProperty, const QString &update,
@@ -219,6 +220,10 @@ class QueryBuilder {
     QHash<QString, QVariant> getPropertyValues(const QHash<QString, QMetaProperty>
             &metaProps,
             const QSharedPointer<Entity> &entity) const;
+    QString generateManyToManyTableName(const QSharedPointer<Entity> &firstEntity,
+                                        const QSharedPointer<Entity> &secondEntity, const Relation &r) const;
+    QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity)
+    const;
     QString buildCreateQuery(QHash<QString, QVariant>::const_iterator i,
                              QHash<QString, QVariant>::const_iterator end,
                              QString &p1, QString &p2) const;
@@ -226,7 +231,8 @@ class QueryBuilder {
                   bool ignoreID = false) const;
     QString where(const QHash<QString, QVariant> &m,
                   const QString &conjunction = ",",
-                  bool ignoreID = false, const QString &primaryKey = "id") const;
+                  bool ignoreID = false, const QString &primaryKey = "id",
+                  bool withKeyword = true) const;
     QString attributes(const QHash<QString, QVariant> &m,
                        const QString &conjunction = ",",
                        bool ignoreID = false, const QString &primaryKey = "id") const;
@@ -257,10 +263,13 @@ class QueryBuilder {
     virtual QString inKeyword() const;
     virtual QString whereKeyword() const;
     virtual QString countKeyword() const;
-    virtual QString inFunction(Query &q, QString column, QList<QVariant> values, bool notOp=false);
-    virtual QString between(QString colName, QString valName1, QString valName2, bool notOp=false);
+    virtual QString inFunction(Query &q, QString column, QList<QVariant> values,
+                               bool notOp = false);
+    virtual QString between(QString colName, QString valName1, QString valName2,
+                            bool notOp = false);
     QString appendNot(bool notOp);
-    virtual void appendCondition(Query &q, QString ph1, QString ph2, QVariant val1, QVariant val2, QString condition);
+    virtual void appendCondition(Query &q, QString ph1, QString ph2, QVariant val1,
+                                 QVariant val2, QString condition);
     QString entityClassname() const;
 
     QSharedPointer<Schema> schema;

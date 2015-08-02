@@ -59,6 +59,9 @@ class EntityHelper {
                             const QString property);
     static QMetaProperty mappedProperty(const Relation &r,
                                         const QSharedPointer<Entity> &foreignEntity);
+    static QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty>
+            &props,
+            const QSharedPointer<Entity> &entity);
 };
 }
 
