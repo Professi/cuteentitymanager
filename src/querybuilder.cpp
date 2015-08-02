@@ -783,8 +783,8 @@ const {
 
 QString QueryBuilder::countFunction(const QString &distinctColumn) const {
     return QString(this->countKeyword() + "(" + (distinctColumn.isEmpty() ? "*" :
-                   (this->distinct()) +
-                   this->schema->quoteColumnName(distinctColumn)) + ")");
+                   (this->distinct() +
+                   this->schema->quoteColumnName(distinctColumn))) + ")");
 }
 
 QString QueryBuilder::distinct() const {

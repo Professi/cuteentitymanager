@@ -581,7 +581,7 @@ bool EntityManager::create(QList<QSharedPointer<Entity> > entities,
 bool EntityManager::create(QSharedPointer<Entity> &entity,
                            const bool persistRelations, const bool checkDuplicate) {
     bool rc = false;
-    if (this->checkTable(entity) && !(checkDuplicate && this->count(entity) == 0)) {
+    if (this->checkTable(entity) && !(checkDuplicate && this->count(entity) > 0)) {
         if (persistRelations) {
             this->savePrePersistedRelations(entity);
         }
