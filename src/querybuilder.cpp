@@ -564,7 +564,8 @@ QSqlQuery QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
         const QString &tableName,
         const bool &ignoreID, const qint64 limit, const qint64 offset) const {
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
-            tableName)) + this->where(m, "AND", ignoreID) + this->limit(limit, offset));
+            tableName)) + this->where(m, this->andKeyword(), ignoreID) + this->limit(limit,
+                                           offset));
     this->bindValues(m, q, ignoreID);
     return q;
 }
@@ -624,7 +625,7 @@ QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
             entity->getTablename()),
                                            QStringList(entity->getPrimaryKey())) + this->where(values,
-                                                   "AND", true) + " LIMIT 1");
+                                                   this->andKeyword(), true) + " LIMIT 1");
     this->bindValues(values, q);
     return q;
 }
@@ -637,7 +638,7 @@ QSqlQuery QueryBuilder::count(const QSharedPointer<Entity> &entity,
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
             entity->getTablename()),
                                            QStringList(this->countFunction())) + this->where(
-                                                   values, "AND", ignoreID));
+                                                   values, this->andKeyword(), ignoreID));
     this->bindValues(values, q, ignoreID);
     return q;
 }
@@ -701,7 +702,8 @@ QSqlQuery QueryBuilder::insert(const QString &tableName,
 QSqlQuery QueryBuilder::update(const QString &tableName,
                                QHash<QString, QVariant> &attributes, const QString &primaryKey) const {
     QSqlQuery q = this->database->getQuery("UPDATE " + this->schema->quoteTableName(
-            tableName) + " SET " + this->attributes(attributes) + " WHERE " +
+            tableName) + " SET " + this->attributes(attributes) + " " + this->whereKeyword()
+                                           + " " +
                                            this->schema->quoteColumnName(primaryKey) + " = " + this->placeHolder(
                                                    primaryKey) + ";");
     this->bindValues(attributes, q);
@@ -724,7 +726,7 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
     QSqlQuery q = this->database->getQuery();
     QString sql = this->selectBase(QStringList(tableName), QStringList("*"));
     QString pk = "id";
-    sql += " WHERE ";
+    sql += " " + this->whereKeyword() + " ";
     sql += this->schema->quoteColumnName(
                attribute);
     sql += " = " + this->placeHolder(pk) + ";";
@@ -780,12 +782,70 @@ const {
 }
 
 QString QueryBuilder::countFunction(const QString &distinctColumn) const {
-    return QString("COUNT(" + distinctColumn.isEmpty() ? "*" : (this->distinct() +
+    return QString(this->countKeyword() + "(" + (distinctColumn.isEmpty() ? "*" :
+                   (this->distinct()) +
                    this->schema->quoteColumnName(distinctColumn)) + ")");
 }
 
 QString QueryBuilder::distinct() const {
     return "DISTINCT";
+}
+
+QString QueryBuilder::notKeyword() const {
+    return "NOT";
+}
+
+QString QueryBuilder::between() const {
+    return "BETWEEN";
+}
+
+QString QueryBuilder::andKeyword() const {
+    return "AND";
+}
+
+QString QueryBuilder::orKeyword() const {
+    return "OR";
+}
+
+QString QueryBuilder::inKeyword() const {
+    return "IN";
+}
+
+QString QueryBuilder::whereKeyword() const {
+    return "WHERE";
+}
+
+QString QueryBuilder::countKeyword() const {
+    return "COUNT";
+}
+
+QString QueryBuilder::inFunction(Query &q, QString column,
+                                 QList<QVariant> values) {
+    QString condition = "";
+    if (!values.isEmpty()) {
+        bool first = true;
+        condition = this->schema->quoteColumnName(column) + " " + this->inKeyword() +
+                    " (";
+        for (int var = 0; var < values.size(); ++var) {
+            if (first) {
+                first = false;
+            } else {
+                condition += ", ";
+            }
+            QString paramName = column + "_in" + var;
+            condition += this->placeHolder(paramName);
+            q.appendParam(paramName, values.at(var));
+        }
+        condition += ")";
+    }
+    return condition;
+}
+
+QString QueryBuilder::between(QString colName, QString valName1,
+                              QString valName2) {
+    return "(" + this->schema->quoteColumnName(colName) + " " + this->between() +
+           " " + this->placeHolder(valName1) + " " + this->andKeyword() + " " +
+           this->placeHolder(valName2) + ")";
 }
 
 QString QueryBuilder::entityClassname() const {
@@ -1069,7 +1129,7 @@ void QueryBuilder::andOperator(Query &query,
         if (first) {
             first = false;
         } else {
-            condition += " AND ";
+            condition += " " + this->andKeyword() + " ";
         }
         condition += this->schema->quoteColumnName(var.key()) + " = " +
                      this->placeHolder(var.key());
@@ -1085,11 +1145,11 @@ void QueryBuilder::arbitraryOperator(Query &query, QString op, QString column,
 }
 
 void QueryBuilder::plainOr(Query &query) {
-    query.appendCondition("OR");
+    query.appendCondition(this->orKeyword());
 }
 
 void QueryBuilder::plainAnd(Query &query) {
-    query.appendCondition("AND");
+    query.appendCondition(this->andKeyword());
 }
 
 
@@ -1109,15 +1169,20 @@ void QueryBuilder::where(Query &query,
 
 void QueryBuilder::between(Query &query, QString column, QVariant firstValue,
                            QVariant secondValue) {
-
+    QString firstPh = column + "_bet1";
+    QString secondPh = column + "_bet2";
+    query.appendParam(firstPh, firstValue);
+    query.appendParam(secondPh, secondValue);
+    query.appendCondition(this->between(column, firstPh, secondPh));
 }
 
 void QueryBuilder::in(Query &query, QString column, QList<QVariant> values) {
-
+    query.appendCondition(this->inFunction(query, column, values));
 }
 
 void QueryBuilder::notIn(Query &query, QString column, QList<QVariant> values) {
-
+    query.appendCondition(this->notKeyword() + " " + this->inFunction(query, column,
+                          values));
 }
 
 void QueryBuilder::notOperator(Query &query, QString column, QVariant value) {

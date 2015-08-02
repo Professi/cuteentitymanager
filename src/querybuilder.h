@@ -249,6 +249,15 @@ class QueryBuilder {
                                const QStringList &columns = QStringList()) const;
     virtual QString countFunction(const QString &distinctColumn = "") const;
     virtual QString distinct() const;
+    virtual QString notKeyword() const;
+    virtual QString between() const;
+    virtual QString andKeyword() const;
+    virtual QString orKeyword() const;
+    virtual QString inKeyword() const;
+    virtual QString whereKeyword() const;
+    virtual QString countKeyword() const;
+    virtual QString inFunction(Query &q, QString column, QList<QVariant> values);
+    virtual QString between(QString colName, QString valName1, QString valName2);
     QString entityClassname() const;
 
     QSharedPointer<Schema> schema;
