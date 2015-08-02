@@ -762,6 +762,29 @@ const {
     return QString(superMeta->className()).toLower();
 }
 
+QString QueryBuilder::addWildcard(QVariant var, JokerPosition jp,
+                                  QChar jokerChar) const {
+    QString val = var.toString();
+    if (!val.isEmpty())  {
+        switch (jp) {
+        case JokerPosition::BEHIND:
+            val += jokerChar;
+            break;
+        case JokerPosition::BOTH:
+            val = jokerChar + val + jokerChar;
+            break;
+        case  JokerPosition::FRONT:
+            val = jokerChar + val;
+            break;
+        case JokerPosition::NONE:
+            break;
+        default:
+            break;
+        }
+    }
+    return val;
+}
+
 QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
 const {
     auto classes = EntityHelper::superClasses(entity.data(), true);
@@ -784,7 +807,7 @@ const {
 QString QueryBuilder::countFunction(const QString &distinctColumn) const {
     return QString(this->countKeyword() + "(" + (distinctColumn.isEmpty() ? "*" :
                    (this->distinct() +
-                   this->schema->quoteColumnName(distinctColumn))) + ")");
+                    this->schema->quoteColumnName(distinctColumn))) + ")");
 }
 
 QString QueryBuilder::distinct() const {
@@ -849,6 +872,18 @@ QString QueryBuilder::between(QString colName, QString valName1,
            this->placeHolder(valName2) + ")";
 }
 
+QString QueryBuilder::likeKeyword() const {
+    return "LIKE";
+}
+
+QString QueryBuilder::limitKeyword() const {
+    return "LIMIT";
+}
+
+QString QueryBuilder::offsetKeyword() const {
+    return "OFFSET";
+}
+
 QString QueryBuilder::appendNot(bool notOp) {
     return (notOp ? (this->notKeyword() + " ") : "");
 }
@@ -860,10 +895,10 @@ QString QueryBuilder::entityClassname() const {
 QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
     QString s = "";
     if (limit > 0) {
-        s.append(" LIMIT ").append(QString::number(limit));
+        s.append(" " + this->limitKeyword() + " ").append(QString::number(limit));
     }
     if (offset > 0) {
-        s.append(" OFFSET ").append(QString::number(offset));
+        s.append(" " + this->offsetKeyword() + " ").append(QString::number(offset));
     }
     return s;
 }
@@ -1046,7 +1081,8 @@ QString QueryBuilder::where(const QHash<QString, QVariant> &m,
     if (m.size() == 0 || (ignoreID && m.contains(primaryKey) && m.size() == 1)) {
         return "";
     }
-    return (withKeyword ? " WHERE " : "") + this->attributes(m, conjunction, ignoreID, primaryKey);
+    return (withKeyword ? " WHERE " : "") + this->attributes(m, conjunction,
+            ignoreID, primaryKey);
 }
 
 QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
@@ -1128,16 +1164,67 @@ void QueryBuilder::andOperator(Query &query,
 
 void QueryBuilder::arbitraryOperator(Query &query, QString op, QString column,
                                      QVariant value) {
-    query.appendCondition(column + " " + op + this->placeHolder(column));
+    query.appendCondition(this->schema->quoteColumnName(column) + " " + op + " " +
+                          this->placeHolder(column));
     query.appendParam(column, value);
+}
+
+void QueryBuilder::isNull(Query &query, QString column) {
+    query.appendCondition(this->schema->quoteColumnName(column) + " IS NULL");
+}
+
+void QueryBuilder::isNotNull(Query &query, QString column) {
+    query.appendCondition(this->schema->quoteColumnName(column) + " IS " +
+                          this->notKeyword() + " NULL");
 }
 
 void QueryBuilder::plainOr(Query &query) {
     query.appendCondition(this->orKeyword());
 }
 
+void QueryBuilder::plainNor(Query &query) {
+    query.appendCondition(this->notKeyword() + " " + this->orKeyword());
+}
+
 void QueryBuilder::plainAnd(Query &query) {
     query.appendCondition(this->andKeyword());
+}
+
+void QueryBuilder::plainNand(Query &query) {
+    query.appendCondition(this->notKeyword() + " " +  this->andKeyword());
+}
+
+void QueryBuilder::like(Query &query, QString column, QVariant value,
+                        JokerPosition jp, QChar wildcard) {
+    this->arbitraryOperator(query, this->likeKeyword(), column,
+                            this->addWildcard(value, jp, wildcard));
+}
+
+void QueryBuilder::like(Query &query, QHash<QString, QVariant> conditions,
+                        QString conjunction,
+                        JokerPosition jp, QChar wildcard) {
+    QString condition = "(";
+    if (!conditions.isEmpty()) {
+        bool first = true;
+        for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
+            if (first) {
+                first = false;
+            } else {
+                condition += conjunction;
+            }
+            condition += this->schema->quoteColumnName(i.key()) + " " + this->likeKeyword()
+                         + " " +
+                         this->placeHolder(i.key());
+            QString newVal = this->addWildcard(i.value(), jp, wildcard);
+            query.appendParam(i.key(), newVal.isEmpty() ? i.value() : newVal);
+        }
+        condition += ")";
+        query.appendCondition(condition);
+    }
+}
+
+QSqlQuery QueryBuilder::generateQuery(const Query &query) const {
+
 }
 
 
@@ -1149,12 +1236,20 @@ void QueryBuilder::where(Query &query, QString column, QVariant value) {
 }
 
 void QueryBuilder::where(Query &query, QHash<QString, QVariant> conditions,
-                         QString concat) {
-    QString condition = this->where(conditions,concat,false,"id",false);
+                         QString conjunction) {
+    QString condition = this->where(conditions, conjunction, false, "id", false);
     for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
-        query.appendParam(i.key(),i.value());
+        query.appendParam(i.key(), i.value());
     }
     query.appendCondition(condition);
+}
+
+void QueryBuilder::where(Query &query, QString condition,
+                         QHash<QString, QVariant> values) {
+    query.appendCondition(condition);
+    for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
+        query.appendParam(i.key(), i.value());
+    }
 }
 
 void QueryBuilder::between(Query &query, QString column, QVariant firstValue,
@@ -1201,7 +1296,8 @@ void QueryBuilder::orOperator(Query &query,
             } else {
                 condition += " " + this->orKeyword() + " ";
             }
-            condition += this->schema->quoteColumnName(i.key()) + (like ? " LIKE " : "=") +
+            condition += this->schema->quoteColumnName(i.key()) + (like ? " " +
+                         this->likeKeyword() + " " : "=") +
                          this->placeHolder(i.key());
             query.appendParam(i.key(), i.value());
         }
@@ -1213,8 +1309,9 @@ void QueryBuilder::orOperator(Query &query,
 QString QueryBuilder::where(const QSharedPointer<Entity> &entity,
                             QString conjunction,
                             bool ignoreID) const {
-    return this->where(EntityHelper::getEntityAttributes(EntityHelper::getMetaProperties(
-                           entity.data()),
-                       entity),
+    return this->where(EntityHelper::getEntityAttributes(
+                           EntityHelper::getMetaProperties(
+                               entity.data()),
+                           entity),
                        conjunction, ignoreID, entity->getPrimaryKey());
 }

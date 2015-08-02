@@ -63,7 +63,8 @@ private:
 enum class JokerPosition {
     FRONT, // e.g. "%foo"
     BEHIND, // e.g. "foo%"
-    BOTH // e.g. "%foo%"
+    BOTH, // e.g. "%foo%"
+    NONE
 };
 
 

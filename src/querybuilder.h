@@ -104,8 +104,15 @@ class QueryBuilder {
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
     virtual QString placeHolder(const QString &key) const;
     void where(Query &query, QString column, QVariant value);
+    /**
+     * @brief where
+     * @param query
+     * @param conditions
+     * @param conjunction its AND or OR
+     */
     void where(Query &query, QHash<QString, QVariant> conditions,
-               QString concat = "AND");
+               QString conjunction = "AND");
+    void where(Query &query, QString condition,QHash<QString, QVariant> values= QHash<QString, QVariant>());
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
     void between(Query &query, QString column, QVariant firstValue,
                  QVariant secondValue);
@@ -117,29 +124,36 @@ class QueryBuilder {
     void orOperator(Query &query, QHash<QString, QVariant> conditions,
                     bool like = false);
     void andOperator(Query &query, QHash<QString, QVariant> conditions);
+    /**
+     * @brief arbitraryOperator
+     * @param query
+     * @param op can be = | != | <> | > | < | >= | <= | !< | !> @see http://www.tutorialspoint.com/sql/sql-operators.htm comparison operators
+     * @param column
+     * @param value
+     */
     void arbitraryOperator(Query &query, QString op, QString column,
                            QVariant value);
+    void isNull(Query &query, QString column);
+    void isNotNull(Query &query, QString column);
 
     void plainOr(Query &query); //adds a simple OR to condition
+    void plainNor(Query &query);
     void plainAnd(Query &query); //add a simple AND to condition
+    void plainNand(Query &query);
     /**
      * Generates 'foo' LIKE "%bar%"
      * @brief like
      * @param column
      * @param value
      */
-    void like(QString column, QString value, JokerPosition = JokerPosition::BOTH);
+    void like(Query &q, QString column, QVariant value, JokerPosition jp = JokerPosition::BOTH, QChar wildcard ='%');
     /**
      * @brief like
      * @param condition
      * @param concat
      */
-    void like(QHash<QString, QVariant> conditions, QString concat = "AND",
-              JokerPosition = JokerPosition::BOTH);
-
-
-
-
+    void like(Query &query, QHash<QString, QVariant> conditions, QString conjunction = "AND",
+              JokerPosition jp= JokerPosition::BOTH, QChar wildcard ='%');
 
   protected:
     class ClassAttributes {
@@ -161,6 +175,7 @@ class QueryBuilder {
         QString pk;
         QHash<QString, QVariant> attributes;
     };
+    QSqlQuery generateQuery(const Query &query) const;
 
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
@@ -250,6 +265,7 @@ class QueryBuilder {
     QString leftJoin(const QString &foreignTable, const QString &tableName,
                      const QString &foreignKey = "id", const QString &primaryKey = "id") const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;
+    QString addWildcard(QVariant var, JokerPosition jp, QChar jokerChar = '%') const;
 
     QString joinSuperClasses(const QSharedPointer<Entity> &entity) const;
     virtual QString selectBase(const QStringList &tables,
@@ -267,6 +283,9 @@ class QueryBuilder {
                                bool notOp = false);
     virtual QString between(QString colName, QString valName1, QString valName2,
                             bool notOp = false);
+    virtual QString likeKeyword() const;
+    virtual QString limitKeyword() const;
+    virtual QString offsetKeyword() const;
     QString appendNot(bool notOp);
     virtual void appendCondition(Query &q, QString ph1, QString ph2, QVariant val1,
                                  QVariant val2, QString condition);
