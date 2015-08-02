@@ -820,11 +820,12 @@ QString QueryBuilder::countKeyword() const {
 }
 
 QString QueryBuilder::inFunction(Query &q, QString column,
-                                 QList<QVariant> values) {
+                                 QList<QVariant> values, bool notOp) {
     QString condition = "";
     if (!values.isEmpty()) {
         bool first = true;
-        condition = this->schema->quoteColumnName(column) + " " + this->inKeyword() +
+        condition = this->schema->quoteColumnName(column) + " " + this->appendNot(
+                        notOp) + this->inKeyword() +
                     " (";
         for (int var = 0; var < values.size(); ++var) {
             if (first) {
@@ -842,10 +843,14 @@ QString QueryBuilder::inFunction(Query &q, QString column,
 }
 
 QString QueryBuilder::between(QString colName, QString valName1,
-                              QString valName2) {
+                              QString valName2, bool notOp) {
     return "(" + this->schema->quoteColumnName(colName) + " " + this->between() +
            " " + this->placeHolder(valName1) + " " + this->andKeyword() + " " +
            this->placeHolder(valName2) + ")";
+}
+
+QString QueryBuilder::appendNot(bool notOp) {
+    return (notOp ? (this->notKeyword() + " ") : "");
 }
 
 QString QueryBuilder::entityClassname() const {
@@ -1153,8 +1158,11 @@ void QueryBuilder::plainAnd(Query &query) {
 }
 
 
-void QueryBuilder::where(Query &query, QString, QVariant) {
-
+void QueryBuilder::where(Query &query, QString column, QVariant value) {
+    QString placeholder = column + "_where";
+    query.appendCondition(this->schema->quoteColumnName(column) + "=" +
+                          this->placeHolder(placeholder));
+    query.appendParam(placeholder, value);
 }
 
 void QueryBuilder::where(Query &query, QHash<QString, QVariant> conditions,
@@ -1171,9 +1179,24 @@ void QueryBuilder::between(Query &query, QString column, QVariant firstValue,
                            QVariant secondValue) {
     QString firstPh = column + "_bet1";
     QString secondPh = column + "_bet2";
-    query.appendParam(firstPh, firstValue);
-    query.appendParam(secondPh, secondValue);
-    query.appendCondition(this->between(column, firstPh, secondPh));
+    this->appendCondition(query, firstPh, secondPh, firstValue, secondValue,
+                          this->between(column, firstPh, secondPh));
+}
+
+void QueryBuilder::notBetween(Query &query, QString column, QVariant firstValue,
+                              QVariant secondValue) {
+    QString firstPh = column + "_nbet1";
+    QString secondPh = column + "_nbet2";
+    this->appendCondition(query, firstPh, secondPh, firstValue, secondValue,
+                          this->between(column, firstPh, secondPh, true));
+}
+
+
+void QueryBuilder::appendCondition(Query &q, QString ph1, QString ph2,
+                                   QVariant val1, QVariant val2, QString condition) {
+    q.appendParam(ph1, val1);
+    q.appendParam(ph2, val2);
+    q.appendCondition(condition);
 }
 
 void QueryBuilder::in(Query &query, QString column, QList<QVariant> values) {
@@ -1181,17 +1204,28 @@ void QueryBuilder::in(Query &query, QString column, QList<QVariant> values) {
 }
 
 void QueryBuilder::notIn(Query &query, QString column, QList<QVariant> values) {
-    query.appendCondition(this->notKeyword() + " " + this->inFunction(query, column,
-                          values));
-}
-
-void QueryBuilder::notOperator(Query &query, QString column, QVariant value) {
-
+    query.appendCondition(this->inFunction(query, column,
+                                           values, true));
 }
 
 void QueryBuilder::orOperator(Query &query,
-                              QHash<QString, QVariant> conditions) {
-
+                              QHash<QString, QVariant> conditions, bool like) {
+    if (!conditions.isEmpty()) {
+        QString condition = "(";
+        bool first = true;
+        for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
+            if (first) {
+                first = false;
+            } else {
+                condition += " " + this->orKeyword() + " ";
+            }
+            condition += this->schema->quoteColumnName(i.key()) + (like ? " LIKE " : "=") +
+                         this->placeHolder(i.key());
+            query.appendParam(i.key(), i.value());
+        }
+        condition += ")";
+        query.appendCondition(condition);
+    }
 }
 
 QString QueryBuilder::where(const QSharedPointer<Entity> &entity,

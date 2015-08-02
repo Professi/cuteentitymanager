@@ -141,14 +141,15 @@ class QueryBuilder {
                     bool ignoreID = false, const QString &primaryKey = "id") const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
     virtual QString placeHolder(const QString &key) const;
-    void where(Query &query,QString, QVariant);
+    void where(Query &query, QString column, QVariant value);
     void where(Query &query,QHash<QString, QVariant> conditions, QString concat="AND");
     void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
     void between(Query &query,QString column, QVariant firstValue, QVariant secondValue);
+    void notBetween(Query &query,QString column, QVariant firstValue, QVariant secondValue);
     void in(Query &query,QString column, QList<QVariant> values);
     void notIn(Query &query,QString column, QList<QVariant> values);
     void notOperator(Query &query,QString column, QVariant value);
-    void orOperator(Query &query,QHash<QString, QVariant> conditions);
+    void orOperator(Query &query, QHash<QString, QVariant> conditions, bool like=false);
     void andOperator(Query &query,QHash<QString, QVariant> conditions);
     void arbitraryOperator(Query &query,QString op, QString column, QVariant value);
 
@@ -256,8 +257,10 @@ class QueryBuilder {
     virtual QString inKeyword() const;
     virtual QString whereKeyword() const;
     virtual QString countKeyword() const;
-    virtual QString inFunction(Query &q, QString column, QList<QVariant> values);
-    virtual QString between(QString colName, QString valName1, QString valName2);
+    virtual QString inFunction(Query &q, QString column, QList<QVariant> values, bool notOp=false);
+    virtual QString between(QString colName, QString valName1, QString valName2, bool notOp=false);
+    QString appendNot(bool notOp);
+    virtual void appendCondition(Query &q, QString ph1, QString ph2, QVariant val1, QVariant val2, QString condition);
     QString entityClassname() const;
 
     QSharedPointer<Schema> schema;
