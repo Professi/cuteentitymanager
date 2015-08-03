@@ -867,7 +867,8 @@ QString QueryBuilder::inFunction(Query &q, QString column,
 
 QString QueryBuilder::between(QString colName, QString valName1,
                               QString valName2, bool notOp) {
-    return "(" + this->schema->quoteColumnName(colName) + " " + this->between() +
+    return "(" + this->schema->quoteColumnName(colName) + (notOp ? (" " +
+            this->notKeyword() + " ") : " ") + this->between() +
            " " + this->placeHolder(valName1) + " " + this->andKeyword() + " " +
            this->placeHolder(valName2) + ")";
 }
@@ -1222,11 +1223,6 @@ void QueryBuilder::like(Query &query, QHash<QString, QVariant> conditions,
         query.appendCondition(condition);
     }
 }
-
-QSqlQuery QueryBuilder::generateQuery(const Query &query) const {
-
-}
-
 
 void QueryBuilder::where(Query &query, QString column, QVariant value) {
     QString placeholder = column + "_where";

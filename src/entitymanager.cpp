@@ -18,6 +18,7 @@
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
+#include "queryinterpreter.h"
 using namespace CuteEntityManager;
 
 QStringList EntityManager::connectionNames = QStringList();
@@ -49,6 +50,8 @@ void EntityManager::init() {
                                           this->db->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);
     this->schema->setTables(this->schema->getTableSchemas());
+    this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
+                                 this->schema->getQueryBuilder()));
 }
 
 EntityManager::~EntityManager() {

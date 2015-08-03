@@ -1,4 +1,5 @@
 #include "query.h"
+#include "condition.h"
 using namespace CuteEntityManager;
 Query::Query() {
     this->select << "*";
@@ -9,7 +10,18 @@ QStringList Query::getSelect() const {
 }
 
 void Query::appendCondition(const QString &condition) {
+    this->conditions.append(Condition(condition));
+}
+
+void Query::appendCondition(const Condition &condition) {
     this->conditions.append(condition);
+}
+QLinkedList<Condition> Query::getConditions() const {
+    return conditions;
+}
+
+void Query::setConditions(const QLinkedList<Condition> &value) {
+    conditions = value;
 }
 
 void Query::setSelect(const QStringList &value) {
@@ -84,12 +96,4 @@ uint Query::getOffset() const {
 
 void Query::setOffset(const uint &value) {
     offset = value;
-}
-
-QLinkedList<QString> Query::getConditions() const {
-    return conditions;
-}
-
-void Query::setConditions(const QLinkedList<QString> &value) {
-    conditions = value;
 }

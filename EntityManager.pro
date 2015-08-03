@@ -26,7 +26,9 @@ src/entity.h \
     src/entityhelper.h \
     src/logger.h \
     src/query.h \
-    src/join.h
+    src/join.h \
+    src/queryinterpreter.h \
+    src/condition.h
 
 SOURCES += \
 src/entity.cpp \
@@ -46,7 +48,9 @@ src/entity.cpp \
     src/entityhelper.cpp \
     src/logger.cpp \
     src/query.cpp \
-    src/join.cpp
+    src/join.cpp \
+    src/queryinterpreter.cpp \
+    src/condition.cpp
 
 unix {
     target.path = /usr/lib

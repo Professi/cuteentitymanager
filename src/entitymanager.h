@@ -36,6 +36,7 @@ namespace CuteEntityManager {
 
 
 class Logger;
+class QueryInterpreter;
 class EntityManager : public QObject {
     Q_OBJECT
   signals:
@@ -232,6 +233,7 @@ class EntityManager : public QObject {
     QString createConnection();
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
     bool checkTable(const QSharedPointer<Entity> &entity);
+    QSharedPointer<QueryInterpreter> queryInterpreter;
 
 };
 }

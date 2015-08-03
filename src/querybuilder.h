@@ -112,7 +112,8 @@ class QueryBuilder {
      */
     void where(Query &query, QHash<QString, QVariant> conditions,
                QString conjunction = "AND");
-    void where(Query &query, QString condition,QHash<QString, QVariant> values= QHash<QString, QVariant>());
+    void where(Query &query, QString condition,
+               QHash<QString, QVariant> values = QHash<QString, QVariant>());
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
     void between(Query &query, QString column, QVariant firstValue,
                  QVariant secondValue);
@@ -146,14 +147,16 @@ class QueryBuilder {
      * @param column
      * @param value
      */
-    void like(Query &q, QString column, QVariant value, JokerPosition jp = JokerPosition::BOTH, QChar wildcard ='%');
+    void like(Query &q, QString column, QVariant value,
+              JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
     /**
      * @brief like
      * @param condition
      * @param concat
      */
-    void like(Query &query, QHash<QString, QVariant> conditions, QString conjunction = "AND",
-              JokerPosition jp= JokerPosition::BOTH, QChar wildcard ='%');
+    void like(Query &query, QHash<QString, QVariant> conditions,
+              QString conjunction = "AND",
+              JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 
   protected:
     class ClassAttributes {
@@ -175,8 +178,6 @@ class QueryBuilder {
         QString pk;
         QHash<QString, QVariant> attributes;
     };
-    QSqlQuery generateQuery(const Query &query) const;
-
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
                    qint64 offset = 0, QString pk = "id") const;
@@ -265,7 +266,8 @@ class QueryBuilder {
     QString leftJoin(const QString &foreignTable, const QString &tableName,
                      const QString &foreignKey = "id", const QString &primaryKey = "id") const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;
-    QString addWildcard(QVariant var, JokerPosition jp, QChar jokerChar = '%') const;
+    QString addWildcard(QVariant var, JokerPosition jp,
+                        QChar jokerChar = '%') const;
 
     QString joinSuperClasses(const QSharedPointer<Entity> &entity) const;
     virtual QString selectBase(const QStringList &tables,

@@ -7,9 +7,9 @@
 #include "join.h"
 
 namespace CuteEntityManager {
-class Query
-{
-public:
+class Condition;
+class Query {
+  public:
     Query();
     QStringList getSelect() const;
     void setSelect(const QStringList &value);
@@ -42,22 +42,23 @@ public:
     uint getOffset() const;
     void setOffset(const uint &value);
 
-    QLinkedList<QString> getConditions() const;
     void appendCondition(const QString &condition);
-    void setConditions(const QLinkedList<QString> &value);
+    void appendCondition(const Condition &condition);
+    QLinkedList<Condition> getConditions() const;
+    void setConditions(const QLinkedList<Condition> &value);
 
-private:
+  private:
     QStringList select;
     QString selectOption = QStringLiteral("");
     bool distinct = false;
     QStringList from;
     QStringList groupBy;
     QStringList orderBy;
-    QLinkedList<QString> conditions;
+    QLinkedList<Condition> conditions;
     QList<Join> joins;
     QHash<QString, QVariant> params;
-     uint limit = 0;
-     uint offset = 0;
+    uint limit = 0;
+    uint offset = 0;
 };
 
 enum class JokerPosition {
