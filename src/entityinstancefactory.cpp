@@ -18,6 +18,11 @@
 #include "entityhelper.h"
 #include <QMetaType>
 using namespace CuteEntityManager;
+
+QHash<QByteArray, EntityInstanceFactory::Constructor>
+EntityInstanceFactory::instance =
+    QHash<QByteArray, EntityInstanceFactory::Constructor>();
+
 EntityInstanceFactory::EntityInstanceFactory() {
 
 }

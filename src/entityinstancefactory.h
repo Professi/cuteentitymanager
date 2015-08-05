@@ -47,7 +47,7 @@ class EntityInstanceFactory {
     //http://www.mimec.org/node/350
     template<typename T>
     static void registerClass() {
-        constructors().insert( T::staticMetaObject.className(), &constructorHelper<T> );
+        EntityInstanceFactory::instance.insert( T::staticMetaObject.className(), &constructorHelper<T> );
         QString lName = "QList<QSharedPointer<";
         lName.append(T::staticMetaObject.className());
         lName.append(">>");
@@ -59,9 +59,9 @@ class EntityInstanceFactory {
     }
 
     static Entity *createObject( const QByteArray &className) {
-        Constructor constructor = constructors().value( className );
-        if ( constructor == NULL ) {
-            return NULL;
+        Constructor constructor = EntityInstanceFactory::instance.value( className );
+        if ( constructor == nullptr ) {
+            return nullptr;
         }
         return (*constructor)();
     }
@@ -72,11 +72,7 @@ class EntityInstanceFactory {
     static Entity *constructorHelper() {
         return new T();
     }
-
-    static QHash<QByteArray, Constructor> &constructors() {
-        static QHash<QByteArray, Constructor> instance;
-        return instance;
-    }
+    static QHash<QByteArray, Constructor> instance;
 
   protected:
     EntityInstanceFactory();
