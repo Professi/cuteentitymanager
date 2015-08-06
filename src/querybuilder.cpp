@@ -27,6 +27,7 @@ QueryBuilder::QueryBuilder(QSharedPointer<Schema> schema,
                            QSharedPointer<Database> database) {
     this->schema = schema;
     this->database = database;
+    this->separator = " ";
 }
 
 QueryBuilder::~QueryBuilder() {
@@ -893,7 +894,24 @@ QString QueryBuilder::entityClassname() const {
     return QString("CuteEntityManager::Entity");
 }
 
-QString QueryBuilder::limit(const qint64 &limit, const qint64 &offset) const {
+QStringList QueryBuilder::quoteTableNames(const QStringList &tables) {
+    QStringList r = QStringList();
+    for (int i = 0; i < tables.size(); ++i) {
+        r.append(this->schema->quoteTableName(tables.at(i)));
+    }
+    return r;
+}
+
+QString QueryBuilder::getSeparator() const {
+    return separator;
+}
+
+void QueryBuilder::setSeparator(const QString &value) {
+    separator = value;
+}
+
+
+QString QueryBuilder::limit(const quint64 &limit, const quint64 &offset) const {
     QString s = "";
     if (limit > 0) {
         s.append(" " + this->limitKeyword() + " ").append(QString::number(limit));
@@ -1160,39 +1178,40 @@ void QueryBuilder::andOperator(Query &query,
                      this->placeHolder(var.key());
         query.appendParam(var.key(), var.value());
     }
-    query.appendCondition(condition);
+    query.appendWhereCondition(condition);
 }
 
 void QueryBuilder::arbitraryOperator(Query &query, QString op, QString column,
                                      QVariant value) {
-    query.appendCondition(this->schema->quoteColumnName(column) + " " + op + " " +
-                          this->placeHolder(column));
+    query.appendWhereCondition(this->schema->quoteColumnName(
+                                   column) + " " + op + " " +
+                               this->placeHolder(column));
     query.appendParam(column, value);
 }
 
 void QueryBuilder::isNull(Query &query, QString column) {
-    query.appendCondition(this->schema->quoteColumnName(column) + " IS NULL");
+    query.appendWhereCondition(this->schema->quoteColumnName(column) + " IS NULL");
 }
 
 void QueryBuilder::isNotNull(Query &query, QString column) {
-    query.appendCondition(this->schema->quoteColumnName(column) + " IS " +
-                          this->notKeyword() + " NULL");
+    query.appendWhereCondition(this->schema->quoteColumnName(column) + " IS " +
+                               this->notKeyword() + " NULL");
 }
 
 void QueryBuilder::plainOr(Query &query) {
-    query.appendCondition(this->orKeyword());
+    query.appendWhereCondition(this->orKeyword());
 }
 
 void QueryBuilder::plainNor(Query &query) {
-    query.appendCondition(this->notKeyword() + " " + this->orKeyword());
+    query.appendWhereCondition(this->notKeyword() + " " + this->orKeyword());
 }
 
 void QueryBuilder::plainAnd(Query &query) {
-    query.appendCondition(this->andKeyword());
+    query.appendWhereCondition(this->andKeyword());
 }
 
 void QueryBuilder::plainNand(Query &query) {
-    query.appendCondition(this->notKeyword() + " " +  this->andKeyword());
+    query.appendWhereCondition(this->notKeyword() + " " +  this->andKeyword());
 }
 
 void QueryBuilder::like(Query &query, QString column, QVariant value,
@@ -1220,14 +1239,14 @@ void QueryBuilder::like(Query &query, QHash<QString, QVariant> conditions,
             query.appendParam(i.key(), newVal.isEmpty() ? i.value() : newVal);
         }
         condition += ")";
-        query.appendCondition(condition);
+        query.appendWhereCondition(condition);
     }
 }
 
 void QueryBuilder::where(Query &query, QString column, QVariant value) {
     QString placeholder = column + "_where";
-    query.appendCondition(this->schema->quoteColumnName(column) + "=" +
-                          this->placeHolder(placeholder));
+    query.appendWhereCondition(this->schema->quoteColumnName(column) + "=" +
+                               this->placeHolder(placeholder));
     query.appendParam(placeholder, value);
 }
 
@@ -1237,12 +1256,12 @@ void QueryBuilder::where(Query &query, QHash<QString, QVariant> conditions,
     for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
         query.appendParam(i.key(), i.value());
     }
-    query.appendCondition(condition);
+    query.appendWhereCondition(condition);
 }
 
 void QueryBuilder::where(Query &query, QString condition,
                          QHash<QString, QVariant> values) {
-    query.appendCondition(condition);
+    query.appendWhereCondition(condition);
     for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
         query.appendParam(i.key(), i.value());
     }
@@ -1269,16 +1288,16 @@ void QueryBuilder::appendCondition(Query &q, QString ph1, QString ph2,
                                    QVariant val1, QVariant val2, QString condition) {
     q.appendParam(ph1, val1);
     q.appendParam(ph2, val2);
-    q.appendCondition(condition);
+    q.appendWhereCondition(condition);
 }
 
 void QueryBuilder::in(Query &query, QString column, QList<QVariant> values) {
-    query.appendCondition(this->inFunction(query, column, values));
+    query.appendWhereCondition(this->inFunction(query, column, values));
 }
 
 void QueryBuilder::notIn(Query &query, QString column, QList<QVariant> values) {
-    query.appendCondition(this->inFunction(query, column,
-                                           values, true));
+    query.appendWhereCondition(this->inFunction(query, column,
+                               values, true));
 }
 
 void QueryBuilder::orOperator(Query &query,
@@ -1298,7 +1317,7 @@ void QueryBuilder::orOperator(Query &query,
             query.appendParam(i.key(), i.value());
         }
         condition += ")";
-        query.appendCondition(condition);
+        query.appendWhereCondition(condition);
     }
 }
 

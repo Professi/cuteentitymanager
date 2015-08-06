@@ -1,32 +1,25 @@
 #include "query.h"
 #include "condition.h"
+#include "orderby.h"
 using namespace CuteEntityManager;
 Query::Query() {
-    this->select << "*";
+    //this->select << Expression("*");
 }
 
-QStringList Query::getSelect() const {
-    return select;
+void Query::appendWhereCondition(const QString &condition) {
+    this->where.append(Condition(condition));
 }
 
-void Query::appendCondition(const QString &condition) {
-    this->conditions.append(Condition(condition));
-}
-
-void Query::appendCondition(const Condition &condition) {
-    this->conditions.append(condition);
-}
-QLinkedList<Condition> Query::getConditions() const {
-    return conditions;
-}
-
-void Query::setConditions(const QLinkedList<Condition> &value) {
-    conditions = value;
+void Query::appendWhereCondition(const Condition &condition) {
+    this->where.append(condition);
 }
 
 void Query::setSelect(const QStringList &value) {
-    select = value;
+    for (int var = 0; var < value.size(); ++var) {
+        this->appendSelect(value.at(var));
+    }
 }
+
 QString Query::getSelectOption() const {
     return selectOption;
 }
@@ -34,6 +27,7 @@ QString Query::getSelectOption() const {
 void Query::setSelectOption(const QString &value) {
     selectOption = value;
 }
+
 bool Query::getDistinct() const {
     return distinct;
 }
@@ -41,6 +35,7 @@ bool Query::getDistinct() const {
 void Query::setDistinct(bool value) {
     distinct = value;
 }
+
 QStringList Query::getFrom() const {
     return from;
 }
@@ -48,6 +43,7 @@ QStringList Query::getFrom() const {
 void Query::setFrom(const QStringList &value) {
     from = value;
 }
+
 QStringList Query::getGroupBy() const {
     return groupBy;
 }
@@ -55,13 +51,15 @@ QStringList Query::getGroupBy() const {
 void Query::setGroupBy(const QStringList &value) {
     groupBy = value;
 }
-QStringList Query::getOrderBy() const {
-    return orderBy;
+
+void Query::appendSelect(const Expression &value) {
+    this->select.append(value);
 }
 
-void Query::setOrderBy(const QStringList &value) {
-    orderBy = value;
+void Query::appendSelect(const QString &value) {
+    this->select.append(Expression(value, true));
 }
+
 QList<Join> Query::getJoins() const {
     return joins;
 }
@@ -96,4 +94,44 @@ uint Query::getOffset() const {
 
 void Query::setOffset(const uint &value) {
     offset = value;
+}
+
+void Query::appendHavingCondition(const QString &condition) {
+    this->having.append(Condition(condition));
+}
+
+void Query::appendHavingCondition(const Condition &condition) {
+    this->having.append(condition);
+}
+
+QList<Condition> Query::getWhere() const {
+    return where;
+}
+
+void Query::setWhere(const QList<Condition> &value) {
+    where = value;
+}
+
+QList<Condition> Query::getHaving() const {
+    return having;
+}
+
+void Query::setHaving(const QList<Condition> &value) {
+    having = value;
+}
+
+void Query::appendOrderBy(const OrderBy &orderBy) {
+    this->orderBy.append(orderBy);
+}
+
+void Query::appendOrderBy(const QString &column, const Direction &direction) {
+    this->orderBy.append(OrderBy(column, direction));
+}
+
+QList<OrderBy> Query::getOrderBy() const {
+    return orderBy;
+}
+
+void Query::setOrderBy(const QList<OrderBy> &value) {
+    orderBy = value;
 }

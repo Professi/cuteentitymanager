@@ -42,6 +42,7 @@ class QueryBuilder {
      * EntityManager is a friend class, cause we want a light public api.
      */
     friend class EntityManager;
+    friend class QueryInterpreter;
   public:
     QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database);
     virtual ~QueryBuilder();
@@ -158,6 +159,10 @@ class QueryBuilder {
               QString conjunction = "AND",
               JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 
+    QStringList quoteTableNames(const QStringList &tables);
+    QString getSeparator() const;
+    void setSeparator(const QString &value);
+
   protected:
     class ClassAttributes {
       public:
@@ -215,7 +220,7 @@ class QueryBuilder {
                      const QString &primaryKey = "id") const;
     QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity,
                                    bool insert) const;
-    virtual QString limit(const qint64 &limit, const qint64 &offset) const;
+    virtual QString limit(const quint64 &limit, const quint64 &offset) const;
     QString generateIndexName(const QString &name, const QString &table,
                               const QString &refColumn, const QString &refTable, const bool fk) const;
     QString generateColumnNameID(QString name) const;
@@ -292,7 +297,7 @@ class QueryBuilder {
     virtual void appendCondition(Query &q, QString ph1, QString ph2, QVariant val1,
                                  QVariant val2, QString condition);
     QString entityClassname() const;
-
+    QString separator;
     QSharedPointer<Schema> schema;
     QSharedPointer<Database> database;
 };
