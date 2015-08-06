@@ -154,8 +154,7 @@ QString QueryInterpreter::buildGroupBy(const QStringList &groupBy) const {
 }
 
 QString QueryInterpreter::buildHaving(Query &q,
-                                      const QList<Expression> &conditions)
-const {
+                                      const QList<Expression> &conditions) const {
     QString having = this->buildCondition(q, conditions);
     return having.isEmpty() ? "" : ("HAVING " + having);
 }
@@ -207,8 +206,7 @@ QString QueryInterpreter::buildOrderBy(const QList<OrderBy> &columns) const {
 }
 
 QString QueryInterpreter::buildCondition(Query &q,
-        const QList<Expression> &conditions)
-const {
+        const QList<Expression> &conditions) const {
     if (conditions.isEmpty()) {
         return "";
     }

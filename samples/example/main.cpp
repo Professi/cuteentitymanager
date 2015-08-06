@@ -92,8 +92,7 @@ int main(int argc, char *argv[]) {
      * or you can use this syntax:
      */
     qDebug() << "-----------------------------";
-    QSharedPointer<Person> foundMainTeacher = e->findById<Person>
-            (1);
+    QSharedPointer<Person> foundMainTeacher = e->findById<Person>(1);
     qDebug() << "FoundMainTeacher:" << foundMainTeacher->toString();
     qDebug() << "FoundMainTeacherGroupSize:" <<
              foundMainTeacher->getMaintainedGroups().size();
