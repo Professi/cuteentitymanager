@@ -42,20 +42,6 @@ class EntityManager : public QObject {
     Q_OBJECT
   signals:
     void actionFinished(qint64 id);
-  public:
-    EntityManager(QSqlDatabase database);
-    EntityManager(const QString &databaseType, QString databasename = "" ,
-                  QString hostname = "",
-                  QString username = "",
-                  QString password = "", QString port = "", bool logQueries = false);
-    ~EntityManager();
-    static QStringList getConnectionNames();
-    /**
-     * @brief startup
-     * @param version must be unique
-     * @param toInitialize list of entity classnames which database tables should be created
-     * @return
-     */
   public slots:
     bool startup(QString version, QStringList toInitialize);
     bool executeQuery(const QString &query);
@@ -88,6 +74,39 @@ class EntityManager : public QObject {
 
 
   public:
+public:
+  EntityManager(QSqlDatabase database);
+  EntityManager(const QString &databaseType, QString databasename = "" ,
+                QString hostname = "",
+                QString username = "",
+                QString password = "", QString port = "", bool logQueries = false);
+  ~EntityManager();
+  static QStringList getConnectionNames();
+  /**
+   * @brief startup
+   * @param version must be unique
+   * @param toInitialize list of entity classnames which database tables should be created
+   * @return
+   */
+  QSharedPointer<QueryBuilder> getQueryBuilder() const;
+
+    template<class T> QList<QSharedPointer<T>> find(Query &q) {
+        QSharedPointer<Entity> ptr = QSharedPointer<Entity>
+                                     (EntityInstanceFactory::createInstance<T *>());
+        if (ptr) {
+            if (q.getFrom().isEmpty()) {
+                q.setFrom(QStringList(ptr->getTablename()));
+            }
+            QSqlQuery query = this->queryInterpreter->build(q);
+            this->db->select(query);
+            auto maps = this->convertQueryResult(query);
+            auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()));
+            return this->convertList<T>(converted);
+        }
+        return QList<QSharedPointer<T>>();
+    }
+
+
     template<class T> QList<QSharedPointer<T>> findAll() {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());

@@ -35,7 +35,7 @@ void Expression::setOnlyColumn(bool value) {
     onlyColumn = value;
 }
 
-void Expression::addParam(const QString &key, const QVariant &value) {
+void Expression::appendParam(const QString &key, const QVariant &value) {
     this->params.insert(key, value);
 }
 

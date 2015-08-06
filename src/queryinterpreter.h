@@ -28,21 +28,21 @@ class Expression;
 class QueryInterpreter {
   public:
     QueryInterpreter(QSharedPointer<QueryBuilder> builder);
-    QSqlQuery build(const Query &q);
+    QSqlQuery build(Query &q);
 
   protected:
-    QString buildSelect(const QList<Expression> &columns,
+    QString buildSelect(Query &q, const QList<Expression> &columns,
                         const bool &distinct = false,
                         const QString &selectOption = "") const;
     QString buildFrom(const QStringList &from) const;
     QString buildJoin(const QList<Join> &joins) const;
-    QString buildWhere(const QList<Expression> &conditions) const;
+    QString buildWhere(Query &q, const QList<Expression> &conditions) const;
     QString buildGroupBy(const QStringList &groupBy) const;
-    QString buildHaving(const QList<Expression> &conditions) const;
+    QString buildHaving(Query &q, const QList<Expression> &conditions) const;
     QString buildOrderByAndLimit(QString sql, const QList<OrderBy> &orderBy,
                                  const quint64 &limit, const quint64 &offset) const;
     QString buildOrderBy(const QList<OrderBy> &columns) const;
-    QString buildCondition(const QList<Expression> &conditions) const;
+    QString buildCondition(Query &q, const QList<Expression> &conditions) const;
 
   private:
     QSharedPointer<QueryBuilder> builder;

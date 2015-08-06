@@ -27,6 +27,10 @@ QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
 
+QSharedPointer<QueryBuilder> EntityManager::getQueryBuilder() const {
+    return this->schema->getQueryBuilder();
+}
+
 EntityManager::EntityManager(QSqlDatabase database) : QObject() {
     auto db = new Database(database);
     this->db = QSharedPointer<Database>(db);

@@ -860,7 +860,7 @@ Expression QueryBuilder::inFunction(QString column,
             }
             QString paramName = column + "_in" + var;
             condition += this->placeHolder(paramName);
-            exp.addParam(paramName, values.at(var));
+            exp.appendParam(paramName, values.at(var));
         }
         condition += ")";
     }
@@ -913,13 +913,16 @@ void QueryBuilder::setSeparator(const QString &value) {
 }
 
 
-QString QueryBuilder::limit(const quint64 &limit, const quint64 &offset) const {
+QString QueryBuilder::limit(const quint64 &limit, const quint64 &offset,
+                            bool withSpace) const {
     QString s = "";
     if (limit > 0) {
-        s.append(" " + this->limitKeyword() + " ").append(QString::number(limit));
+        s.append((withSpace ? " " : "") + this->limitKeyword() + " ").append(
+            QString::number(limit));
     }
     if (offset > 0) {
-        s.append(" " + this->offsetKeyword() + " ").append(QString::number(offset));
+        s.append((withSpace ? " " : "") + this->offsetKeyword() + " ").append(
+            QString::number(offset));
     }
     return s;
 }
@@ -1178,7 +1181,7 @@ Expression QueryBuilder::andOperator(QHash<QString, QVariant> conditions) {
         }
         condition += this->schema->quoteColumnName(var.key()) + " = " +
                      this->placeHolder(var.key());
-        exp.addParam(var.key(), var.value());
+        exp.appendParam(var.key(), var.value());
     }
     exp.setExpression(condition);
     return exp;
@@ -1189,9 +1192,8 @@ Expression QueryBuilder::arbitraryOperator(QString op, QString column,
     Expression exp = Expression(this->schema->quoteColumnName(
                                     column) + " " + op + " " +
                                 this->placeHolder(column));
-    exp.addParam(column, value);
+    exp.appendParam(column, value);
     return exp;
-
 }
 
 Expression QueryBuilder::isNull(QString column) {
@@ -1221,8 +1223,8 @@ Expression QueryBuilder::plainNand() {
 
 Expression QueryBuilder::like(QString column, QVariant value,
                               JokerPosition jp, QChar wildcard) {
-    return Expression(this->arbitraryOperator(this->likeKeyword(), column,
-                      this->addWildcard(value, jp, wildcard)));
+    return this->arbitraryOperator(this->likeKeyword(), column,
+                      this->addWildcard(value, jp, wildcard));
 }
 
 Expression QueryBuilder::like(QHash<QString, QVariant> conditions,
@@ -1242,7 +1244,7 @@ Expression QueryBuilder::like(QHash<QString, QVariant> conditions,
                          + " " +
                          this->placeHolder(i.key());
             QString newVal = this->addWildcard(i.value(), jp, wildcard);
-            exp.addParam(i.key(), newVal.isEmpty() ? i.value() : newVal);
+            exp.appendParam(i.key(), newVal.isEmpty() ? i.value() : newVal);
         }
         condition += ")";
         exp.setExpression(condition);
@@ -1254,7 +1256,7 @@ Expression QueryBuilder::where(QString column, QVariant value) {
     QString placeholder = column + "_where";
     Expression exp = Expression(this->schema->quoteColumnName(column) + "=" +
                                 this->placeHolder(placeholder));
-    exp.addParam(placeholder, value);
+    exp.appendParam(placeholder, value);
     return exp;
 }
 
@@ -1263,7 +1265,7 @@ Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
     Expression exp = Expression(this->where(conditions, conjunction, false, "id",
                                             false));
     for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
-        exp.addParam(i.key(), i.value());
+        exp.appendParam(i.key(), i.value());
     }
     return exp;
 }
@@ -1272,7 +1274,7 @@ Expression QueryBuilder::where(QString condition,
                                QHash<QString, QVariant> values) {
     Expression exp = Expression(condition);
     for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
-        exp.addParam(i.key(), i.value());
+        exp.appendParam(i.key(), i.value());
     }
     return exp;
 }
@@ -1297,8 +1299,8 @@ Expression QueryBuilder::notBetween(QString column, QVariant firstValue,
 Expression QueryBuilder::appendCondition(QString ph1, QString ph2,
         QVariant val1, QVariant val2, QString condition) {
     Expression exp = Expression(condition);
-    exp.addParam(ph1, val1);
-    exp.addParam(ph2, val2);
+    exp.appendParam(ph1, val1);
+    exp.appendParam(ph2, val2);
     return exp;
 }
 
@@ -1325,7 +1327,7 @@ Expression QueryBuilder::orOperator(
             condition += this->schema->quoteColumnName(i.key()) + (like ? " " +
                          this->likeKeyword() + " " : "=") +
                          this->placeHolder(i.key());
-            exp.addParam(i.key(), i.value());
+            exp.appendParam(i.key(), i.value());
         }
         condition += ")";
         exp.setExpression(condition);

@@ -16,6 +16,7 @@
 
 #include "query.h"
 #include "orderby.h"
+#include <QDebug>
 using namespace CuteEntityManager;
 Query::Query() {
     //this->select << Expression("*");

@@ -21,6 +21,7 @@
 #include "orderby.h"
 #include "expression.h"
 #include "schema.h"
+#include <QDebug>
 using namespace CuteEntityManager;
 
 
@@ -28,15 +29,15 @@ QueryInterpreter::QueryInterpreter(QSharedPointer<QueryBuilder> builder) {
     this->builder = builder;
 }
 
-QSqlQuery QueryInterpreter::build(const Query &q) {
+QSqlQuery QueryInterpreter::build(Query &q) {
     QList<QString> clauses = QList<QString>();
-    clauses.append(this->buildSelect(q.getSelect(), q.getDistinct(),
+    clauses.append(this->buildSelect(q, q.getSelect(), q.getDistinct(),
                                      q.getSelectOption()));
     clauses.append(this->buildFrom(q.getFrom()));
     clauses.append(this->buildJoin(q.getJoins()));
-    clauses.append(this->buildWhere(q.getWhere()));
+    clauses.append(this->buildWhere(q, q.getWhere()));
     clauses.append(this->buildGroupBy(q.getGroupBy()));
-    clauses.append(this->buildHaving(q.getHaving()));
+    clauses.append(this->buildHaving(q, q.getHaving()));
     QString sql = "";
     bool first = true;
     for (int i = 0; i < clauses.size(); ++i) {
@@ -54,11 +55,19 @@ QSqlQuery QueryInterpreter::build(const Query &q) {
                                      q.getOffset());
     QSqlQuery sqlQuery = this->builder->getQuery();
     sqlQuery.prepare(sql);
+    qDebug() << "--------------------------------------";
+    for (auto i = q.getParams().constBegin(); i != q.getParams().constEnd(); ++i) {
+        qDebug() << i.key() << i.value();
+    }
+    qDebug() << "--------------------------------------";
+
+
     this->builder->bindValues(q.getParams(), sqlQuery, false);
     return sqlQuery;
 }
 
-QString QueryInterpreter::buildSelect(const QList<Expression> &columns,
+QString QueryInterpreter::buildSelect(Query &q,
+                                      const QList<Expression> &columns,
                                       const bool &distinct, const QString &selectOption) const {
     QString sqlSelect = distinct ? "SELECT DISTINCT" : "SELECT";
     if (!selectOption.isEmpty()) {
@@ -75,6 +84,7 @@ QString QueryInterpreter::buildSelect(const QList<Expression> &columns,
             sqlSelect += ", ";
         }
         Expression e = columns.at(i);
+        q.appendParams(e.getParams());
         QString nExp = e.getExpression();
         if (e.getOnlyColumn()) {
             sqlSelect += this->builder->getSchema()->quoteColumnName(e.getExpression());
@@ -139,9 +149,10 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
     return sqlJoin;
 }
 
-QString QueryInterpreter::buildWhere(const QList<Expression> &conditions)
+QString QueryInterpreter::buildWhere(Query &q,
+                                     const QList<Expression> &conditions)
 const {
-    QString where = this->buildCondition(conditions);
+    QString where = this->buildCondition(q, conditions);
     return where.isEmpty() ? "" : ("WHERE " + where);
 }
 
@@ -150,9 +161,10 @@ QString QueryInterpreter::buildGroupBy(const QStringList &groupBy) const {
                groupBy);
 }
 
-QString QueryInterpreter::buildHaving(const QList<Expression> &conditions)
+QString QueryInterpreter::buildHaving(Query &q,
+                                      const QList<Expression> &conditions)
 const {
-    QString having = this->buildCondition(conditions);
+    QString having = this->buildCondition(q, conditions);
     return having.isEmpty() ? "" : ("HAVING " + having);
 }
 
@@ -163,7 +175,7 @@ QString QueryInterpreter::buildOrderByAndLimit(QString sql,
     if (!sqlOrderBy.isEmpty()) {
         sql += this->builder->getSeparator() + sqlOrderBy;
     }
-    QString sqlLimit = this->builder->limit(limit, offset);
+    QString sqlLimit = this->builder->limit(limit, offset, false);
     if (!sqlLimit.isEmpty()) {
         sql += this->builder->getSeparator() + sqlLimit;
     }
@@ -202,7 +214,8 @@ QString QueryInterpreter::buildOrderBy(const QList<OrderBy> &columns) const {
     return sqlOrder;
 }
 
-QString QueryInterpreter::buildCondition(const QList<Expression> &conditions)
+QString QueryInterpreter::buildCondition(Query &q,
+        const QList<Expression> &conditions)
 const {
     if (conditions.isEmpty()) {
         return "";
@@ -220,6 +233,7 @@ const {
             }
         }
         sqlCondition += expression;
+        q.appendParams(q.getParams());
     }
     return sqlCondition;
 }

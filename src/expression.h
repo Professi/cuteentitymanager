@@ -34,7 +34,7 @@ class Expression {
     bool getOnlyColumn() const;
     void setOnlyColumn(bool value);
 
-    void addParam(const QString &key, const QVariant &value);
+    void appendParam(const QString &key, const QVariant &value);
     QHash<QString, QVariant> getParams() const;
     void setParams(const QHash<QString, QVariant> &value);
 

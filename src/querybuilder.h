@@ -220,7 +220,7 @@ class QueryBuilder {
                      const QString &primaryKey = "id") const;
     QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity,
                                    bool insert) const;
-    virtual QString limit(const quint64 &limit, const quint64 &offset) const;
+    virtual QString limit(const quint64 &limit, const quint64 &offset, bool withSpace=true) const;
     QString generateIndexName(const QString &name, const QString &table,
                               const QString &refColumn, const QString &refTable, const bool fk) const;
     QString generateColumnNameID(QString name) const;
