@@ -16,10 +16,8 @@
 
 #include "query.h"
 #include "orderby.h"
-#include <QDebug>
 using namespace CuteEntityManager;
 Query::Query() {
-    //this->select << Expression("*");
 }
 
 Query::Query(QStringList from, QList<Expression> where, QList<Join> joins,

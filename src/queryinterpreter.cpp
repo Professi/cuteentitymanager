@@ -21,7 +21,6 @@
 #include "orderby.h"
 #include "expression.h"
 #include "schema.h"
-#include <QDebug>
 using namespace CuteEntityManager;
 
 
@@ -55,13 +54,6 @@ QSqlQuery QueryInterpreter::build(Query &q) {
                                      q.getOffset());
     QSqlQuery sqlQuery = this->builder->getQuery();
     sqlQuery.prepare(sql);
-    qDebug() << "--------------------------------------";
-    for (auto i = q.getParams().constBegin(); i != q.getParams().constEnd(); ++i) {
-        qDebug() << i.key() << i.value();
-    }
-    qDebug() << "--------------------------------------";
-
-
     this->builder->bindValues(q.getParams(), sqlQuery, false);
     return sqlQuery;
 }
@@ -233,7 +225,7 @@ const {
             }
         }
         sqlCondition += expression;
-        q.appendParams(q.getParams());
+        q.appendParams(exp.getParams());
     }
     return sqlCondition;
 }

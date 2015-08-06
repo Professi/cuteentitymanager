@@ -35,7 +35,6 @@
 
 namespace CuteEntityManager {
 
-
 class Logger;
 class QueryInterpreter;
 class EntityManager : public QObject {
@@ -74,21 +73,21 @@ class EntityManager : public QObject {
 
 
   public:
-public:
-  EntityManager(QSqlDatabase database);
-  EntityManager(const QString &databaseType, QString databasename = "" ,
-                QString hostname = "",
-                QString username = "",
-                QString password = "", QString port = "", bool logQueries = false);
-  ~EntityManager();
-  static QStringList getConnectionNames();
-  /**
-   * @brief startup
-   * @param version must be unique
-   * @param toInitialize list of entity classnames which database tables should be created
-   * @return
-   */
-  QSharedPointer<QueryBuilder> getQueryBuilder() const;
+  public:
+    EntityManager(QSqlDatabase database);
+    EntityManager(const QString &databaseType, QString databasename = "" ,
+                  QString hostname = "",
+                  QString username = "",
+                  QString password = "", QString port = "", bool logQueries = false);
+    ~EntityManager();
+    static QStringList getConnectionNames();
+    /**
+     * @brief startup
+     * @param version must be unique
+     * @param toInitialize list of entity classnames which database tables should be created
+     * @return
+     */
+    QSharedPointer<QueryBuilder> getQueryBuilder() const;
 
     template<class T> QList<QSharedPointer<T>> find(Query &q) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
@@ -98,7 +97,6 @@ public:
                 q.setFrom(QStringList(ptr->getTablename()));
             }
             QSqlQuery query = this->queryInterpreter->build(q);
-            this->db->select(query);
             auto maps = this->convertQueryResult(query);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()));
             return this->convertList<T>(converted);
@@ -146,7 +144,6 @@ public:
             query.setLimit(limit);
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
-            this->db->select(q);
             auto results = this->convertQueryResult(q);
             auto list = this->convert(results, EntityHelper::getClassname(e.data()));
             return this->convertList<T>(list);
@@ -158,7 +155,7 @@ public:
     const QString &sql) {
         QSharedPointer<T> e = EntityInstanceFactory::createInstance<T *>();
         if (e) {
-            QSqlQuery q = this->db->select(sql);
+            QSqlQuery q = this->schema->getDatabase()->getQuery(sql);
             auto result = this->convertQueryResult(q);
             auto converted = this->convert(result, EntityHelper::getClassname(e));
             return this->convertList<T>(converted);
