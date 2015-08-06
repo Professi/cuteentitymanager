@@ -24,11 +24,11 @@
 #include <QMetaProperty>
 #include "relation.h"
 #include "query.h"
+#include "expression.h"
 namespace CuteEntityManager {
 class Schema;
 class Entity;
 class Database;
-
 enum DbForeignKeyCascade {
     RESTRICT,
     CASCADE,
@@ -104,28 +104,28 @@ class QueryBuilder {
                     bool ignoreID = false, const QString &primaryKey = "id") const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
     virtual QString placeHolder(const QString &key) const;
-    void where(Query &query, QString column, QVariant value);
+    Expression where(QString column, QVariant value);
     /**
      * @brief where
      * @param query
      * @param conditions
      * @param conjunction its AND or OR
      */
-    void where(Query &query, QHash<QString, QVariant> conditions,
+    Expression where(QHash<QString, QVariant> conditions,
                QString conjunction = "AND");
-    void where(Query &query, QString condition,
+    Expression where(QString condition,
                QHash<QString, QVariant> values = QHash<QString, QVariant>());
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
-    void between(Query &query, QString column, QVariant firstValue,
+    Expression between(QString column, QVariant firstValue,
                  QVariant secondValue);
-    void notBetween(Query &query, QString column, QVariant firstValue,
+    Expression notBetween(QString column, QVariant firstValue,
                     QVariant secondValue);
-    void in(Query &query, QString column, QList<QVariant> values);
-    void notIn(Query &query, QString column, QList<QVariant> values);
-    void notOperator(Query &query, QString column, QVariant value);
-    void orOperator(Query &query, QHash<QString, QVariant> conditions,
+    Expression in(QString column, QList<QVariant> values);
+    Expression notIn(QString column, QList<QVariant> values);
+    Expression notOperator(QString column, QVariant value);
+    Expression orOperator(QHash<QString, QVariant> conditions,
                     bool like = false);
-    void andOperator(Query &query, QHash<QString, QVariant> conditions);
+    Expression andOperator(QHash<QString, QVariant> conditions);
     /**
      * @brief arbitraryOperator
      * @param query
@@ -133,29 +133,29 @@ class QueryBuilder {
      * @param column
      * @param value
      */
-    void arbitraryOperator(Query &query, QString op, QString column,
+    Expression arbitraryOperator(QString op, QString column,
                            QVariant value);
-    void isNull(Query &query, QString column);
-    void isNotNull(Query &query, QString column);
+    Expression isNull(QString column);
+    Expression isNotNull(QString column);
 
-    void plainOr(Query &query); //adds a simple OR to condition
-    void plainNor(Query &query);
-    void plainAnd(Query &query); //add a simple AND to condition
-    void plainNand(Query &query);
+    Expression plainOr(); //adds a simple OR to condition
+    Expression plainNor();
+    Expression plainAnd(); //add a simple AND to condition
+    Expression plainNand();
     /**
      * Generates 'foo' LIKE "%bar%"
      * @brief like
      * @param column
      * @param value
      */
-    void like(Query &q, QString column, QVariant value,
+    Expression like(QString column, QVariant value,
               JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
     /**
      * @brief like
      * @param condition
      * @param concat
      */
-    void like(Query &query, QHash<QString, QVariant> conditions,
+    Expression like(QHash<QString, QVariant> conditions,
               QString conjunction = "AND",
               JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 
@@ -286,7 +286,7 @@ class QueryBuilder {
     virtual QString inKeyword() const;
     virtual QString whereKeyword() const;
     virtual QString countKeyword() const;
-    virtual QString inFunction(Query &q, QString column, QList<QVariant> values,
+    virtual Expression inFunction(QString column, QList<QVariant> values,
                                bool notOp = false);
     virtual QString between(QString colName, QString valName1, QString valName2,
                             bool notOp = false);
@@ -294,7 +294,7 @@ class QueryBuilder {
     virtual QString limitKeyword() const;
     virtual QString offsetKeyword() const;
     QString appendNot(bool notOp);
-    virtual void appendCondition(Query &q, QString ph1, QString ph2, QVariant val1,
+    virtual Expression appendCondition(QString ph1, QString ph2, QVariant val1,
                                  QVariant val2, QString condition);
     QString entityClassname() const;
     QString separator;

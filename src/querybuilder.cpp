@@ -843,9 +843,10 @@ QString QueryBuilder::countKeyword() const {
     return "COUNT";
 }
 
-QString QueryBuilder::inFunction(Query &q, QString column,
-                                 QList<QVariant> values, bool notOp) {
+Expression QueryBuilder::inFunction(QString column,
+                                    QList<QVariant> values, bool notOp) {
     QString condition = "";
+    Expression exp = Expression();
     if (!values.isEmpty()) {
         bool first = true;
         condition = this->schema->quoteColumnName(column) + " " + this->appendNot(
@@ -859,11 +860,12 @@ QString QueryBuilder::inFunction(Query &q, QString column,
             }
             QString paramName = column + "_in" + var;
             condition += this->placeHolder(paramName);
-            q.appendParam(paramName, values.at(var));
+            exp.addParam(paramName, values.at(var));
         }
         condition += ")";
     }
-    return condition;
+    exp.setExpression(condition);
+    return exp;
 }
 
 QString QueryBuilder::between(QString colName, QString valName1,
@@ -1164,9 +1166,9 @@ void QueryBuilder::ClassAttributes::setPk(const QString &value) {
     pk = value;
 }
 
-void QueryBuilder::andOperator(Query &query,
-                               QHash<QString, QVariant> conditions) {
+Expression QueryBuilder::andOperator(QHash<QString, QVariant> conditions) {
     bool first = true;
+    Expression exp = Expression();
     QString condition = "";
     for (auto var = conditions.constBegin(); var != conditions.constEnd(); ++var) {
         if (first) {
@@ -1176,53 +1178,57 @@ void QueryBuilder::andOperator(Query &query,
         }
         condition += this->schema->quoteColumnName(var.key()) + " = " +
                      this->placeHolder(var.key());
-        query.appendParam(var.key(), var.value());
+        exp.addParam(var.key(), var.value());
     }
-    query.appendWhereCondition(condition);
+    exp.setExpression(condition);
+    return exp;
 }
 
-void QueryBuilder::arbitraryOperator(Query &query, QString op, QString column,
-                                     QVariant value) {
-    query.appendWhereCondition(this->schema->quoteColumnName(
-                                   column) + " " + op + " " +
-                               this->placeHolder(column));
-    query.appendParam(column, value);
+Expression QueryBuilder::arbitraryOperator(QString op, QString column,
+        QVariant value) {
+    Expression exp = Expression(this->schema->quoteColumnName(
+                                    column) + " " + op + " " +
+                                this->placeHolder(column));
+    exp.addParam(column, value);
+    return exp;
+
 }
 
-void QueryBuilder::isNull(Query &query, QString column) {
-    query.appendWhereCondition(this->schema->quoteColumnName(column) + " IS NULL");
+Expression QueryBuilder::isNull(QString column) {
+    return Expression(this->schema->quoteColumnName(column) + " IS NULL");
 }
 
-void QueryBuilder::isNotNull(Query &query, QString column) {
-    query.appendWhereCondition(this->schema->quoteColumnName(column) + " IS " +
-                               this->notKeyword() + " NULL");
+Expression QueryBuilder::isNotNull(QString column) {
+    return Expression(this->schema->quoteColumnName(column) + " IS " +
+                      this->notKeyword() + " NULL");
 }
 
-void QueryBuilder::plainOr(Query &query) {
-    query.appendWhereCondition(this->orKeyword());
+Expression QueryBuilder::plainOr() {
+    return Expression(this->orKeyword());
 }
 
-void QueryBuilder::plainNor(Query &query) {
-    query.appendWhereCondition(this->notKeyword() + " " + this->orKeyword());
+Expression QueryBuilder::plainNor() {
+    return Expression(this->notKeyword() + " " + this->orKeyword());
 }
 
-void QueryBuilder::plainAnd(Query &query) {
-    query.appendWhereCondition(this->andKeyword());
+Expression QueryBuilder::plainAnd() {
+    return Expression(this->andKeyword());
 }
 
-void QueryBuilder::plainNand(Query &query) {
-    query.appendWhereCondition(this->notKeyword() + " " +  this->andKeyword());
+Expression QueryBuilder::plainNand() {
+    return Expression(this->notKeyword() + " " +  this->andKeyword());
 }
 
-void QueryBuilder::like(Query &query, QString column, QVariant value,
-                        JokerPosition jp, QChar wildcard) {
-    this->arbitraryOperator(query, this->likeKeyword(), column,
-                            this->addWildcard(value, jp, wildcard));
+Expression QueryBuilder::like(QString column, QVariant value,
+                              JokerPosition jp, QChar wildcard) {
+    return Expression(this->arbitraryOperator(this->likeKeyword(), column,
+                      this->addWildcard(value, jp, wildcard)));
 }
 
-void QueryBuilder::like(Query &query, QHash<QString, QVariant> conditions,
-                        QString conjunction,
-                        JokerPosition jp, QChar wildcard) {
+Expression QueryBuilder::like(QHash<QString, QVariant> conditions,
+                              QString conjunction,
+                              JokerPosition jp, QChar wildcard) {
+    Expression exp = Expression();
     QString condition = "(";
     if (!conditions.isEmpty()) {
         bool first = true;
@@ -1236,72 +1242,77 @@ void QueryBuilder::like(Query &query, QHash<QString, QVariant> conditions,
                          + " " +
                          this->placeHolder(i.key());
             QString newVal = this->addWildcard(i.value(), jp, wildcard);
-            query.appendParam(i.key(), newVal.isEmpty() ? i.value() : newVal);
+            exp.addParam(i.key(), newVal.isEmpty() ? i.value() : newVal);
         }
         condition += ")";
-        query.appendWhereCondition(condition);
+        exp.setExpression(condition);
     }
+    return exp;
 }
 
-void QueryBuilder::where(Query &query, QString column, QVariant value) {
+Expression QueryBuilder::where(QString column, QVariant value) {
     QString placeholder = column + "_where";
-    query.appendWhereCondition(this->schema->quoteColumnName(column) + "=" +
-                               this->placeHolder(placeholder));
-    query.appendParam(placeholder, value);
+    Expression exp = Expression(this->schema->quoteColumnName(column) + "=" +
+                                this->placeHolder(placeholder));
+    exp.addParam(placeholder, value);
+    return exp;
 }
 
-void QueryBuilder::where(Query &query, QHash<QString, QVariant> conditions,
-                         QString conjunction) {
-    QString condition = this->where(conditions, conjunction, false, "id", false);
+Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
+                               QString conjunction) {
+    Expression exp = Expression(this->where(conditions, conjunction, false, "id",
+                                            false));
     for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
-        query.appendParam(i.key(), i.value());
+        exp.addParam(i.key(), i.value());
     }
-    query.appendWhereCondition(condition);
+    return exp;
 }
 
-void QueryBuilder::where(Query &query, QString condition,
-                         QHash<QString, QVariant> values) {
-    query.appendWhereCondition(condition);
+Expression QueryBuilder::where(QString condition,
+                               QHash<QString, QVariant> values) {
+    Expression exp = Expression(condition);
     for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
-        query.appendParam(i.key(), i.value());
+        exp.addParam(i.key(), i.value());
     }
+    return exp;
 }
 
-void QueryBuilder::between(Query &query, QString column, QVariant firstValue,
-                           QVariant secondValue) {
+Expression QueryBuilder::between(QString column, QVariant firstValue,
+                                 QVariant secondValue) {
     QString firstPh = column + "_bet1";
     QString secondPh = column + "_bet2";
-    this->appendCondition(query, firstPh, secondPh, firstValue, secondValue,
-                          this->between(column, firstPh, secondPh));
+    return this->appendCondition(firstPh, secondPh, firstValue, secondValue,
+                                 this->between(column, firstPh, secondPh));
 }
 
-void QueryBuilder::notBetween(Query &query, QString column, QVariant firstValue,
-                              QVariant secondValue) {
+Expression QueryBuilder::notBetween(QString column, QVariant firstValue,
+                                    QVariant secondValue) {
     QString firstPh = column + "_nbet1";
     QString secondPh = column + "_nbet2";
-    this->appendCondition(query, firstPh, secondPh, firstValue, secondValue,
-                          this->between(column, firstPh, secondPh, true));
+    return this->appendCondition(firstPh, secondPh, firstValue, secondValue,
+                                 this->between(column, firstPh, secondPh, true));
 }
 
 
-void QueryBuilder::appendCondition(Query &q, QString ph1, QString ph2,
-                                   QVariant val1, QVariant val2, QString condition) {
-    q.appendParam(ph1, val1);
-    q.appendParam(ph2, val2);
-    q.appendWhereCondition(condition);
+Expression QueryBuilder::appendCondition(QString ph1, QString ph2,
+        QVariant val1, QVariant val2, QString condition) {
+    Expression exp = Expression(condition);
+    exp.addParam(ph1, val1);
+    exp.addParam(ph2, val2);
+    return exp;
 }
 
-void QueryBuilder::in(Query &query, QString column, QList<QVariant> values) {
-    query.appendWhereCondition(this->inFunction(query, column, values));
+Expression QueryBuilder::in(QString column, QList<QVariant> values) {
+    return this->inFunction(column, values);
 }
 
-void QueryBuilder::notIn(Query &query, QString column, QList<QVariant> values) {
-    query.appendWhereCondition(this->inFunction(query, column,
-                               values, true));
+Expression QueryBuilder::notIn(QString column, QList<QVariant> values) {
+    return this->inFunction(column, values, true);
 }
 
-void QueryBuilder::orOperator(Query &query,
-                              QHash<QString, QVariant> conditions, bool like) {
+Expression QueryBuilder::orOperator(
+    QHash<QString, QVariant> conditions, bool like) {
+    Expression exp = Expression();
     if (!conditions.isEmpty()) {
         QString condition = "(";
         bool first = true;
@@ -1314,11 +1325,12 @@ void QueryBuilder::orOperator(Query &query,
             condition += this->schema->quoteColumnName(i.key()) + (like ? " " +
                          this->likeKeyword() + " " : "=") +
                          this->placeHolder(i.key());
-            query.appendParam(i.key(), i.value());
+            exp.addParam(i.key(), i.value());
         }
         condition += ")";
-        query.appendWhereCondition(condition);
+        exp.setExpression(condition);
     }
+    return exp;
 }
 
 QString QueryBuilder::where(const QSharedPointer<Entity> &entity,

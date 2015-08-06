@@ -28,7 +28,6 @@ src/entity.h \
     src/query.h \
     src/join.h \
     src/queryinterpreter.h \
-    src/condition.h \
     src/expression.h \
     src/orderby.h
 
@@ -52,7 +51,6 @@ src/entity.cpp \
     src/query.cpp \
     src/join.cpp \
     src/queryinterpreter.cpp \
-    src/condition.cpp \
     src/expression.cpp \
     src/orderby.cpp
 

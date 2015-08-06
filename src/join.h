@@ -16,15 +16,15 @@
 #ifndef JOIN_H
 #define JOIN_H
 #include <QString>
-#include "condition.h"
+#include "expression.h"
 namespace CuteEntityManager {
 class Join {
   public:
     Join();
-    explicit Join(QString foreignTable, QString condition,
-         QString type = QStringLiteral("LEFT JOIN"));
-    explicit Join(QString foreignTable, Condition condition,
-         QString type = QStringLiteral("LEFT JOIN"));
+    explicit Join(QString foreignTable, QString expression,
+                  QString type = QStringLiteral("LEFT JOIN"));
+    explicit Join(QString foreignTable, Expression expression,
+                  QString type = QStringLiteral("LEFT JOIN"));
 
     QString getType() const;
     void setType(const QString &value);
@@ -32,14 +32,13 @@ class Join {
     QString getForeignTable() const;
     void setForeignTable(const QString &value);
 
-    Condition getCondition() const;
-    QString getMainCondition() const;
-    void setCondition(const Condition &value);
+    Expression getExpression() const;
+    void setExpression(const Expression &value);
 
-private:
+  private:
     QString type = QStringLiteral("LEFT JOIN");
     QString foreignTable;
-    Condition condition;
+    Expression expression;
 
 };
 }

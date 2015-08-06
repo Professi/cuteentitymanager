@@ -124,6 +124,28 @@ void EntityManager::setSchema(const QSharedPointer<Schema> &value) {
     schema = value;
 }
 
+QList<QHash<QString, QVariant> > EntityManager::selectByQuery(Query &query) {
+    QSqlQuery q = this->queryInterpreter->build(query);
+    return this->convertQueryResult(q);
+}
+
+QList<QHash<QString, QVariant> > EntityManager::selectBySql(
+    const QString &sql) {
+    QSqlQuery q = this->db->select(sql);
+    return this->convertQueryResult(q);
+}
+
+qint8 EntityManager::count(Query &query) {
+    qint8 rc = 0;
+    query.appendSelect("COUNT(*)");
+    QSqlQuery q = this->queryInterpreter->build(query);
+    this->db->select(q);
+    if (q.next()) {
+        rc = q.value(0).toInt();
+    }
+    return rc;
+}
+
 QString EntityManager::createConnection() {
     QStringList l = EntityManager::getConnectionNames();
     QString conName = "";
@@ -772,8 +794,8 @@ bool EntityManager::createTable(const QSharedPointer<Entity> &entity,
             createRelationTables);
 }
 
-qint8 EntityManager::count(const QSharedPointer<Entity> &entity,
-                           bool ignoreID) {
+quint8 EntityManager::count(const QSharedPointer<Entity> &entity,
+                            bool ignoreID) {
     qint8 rc = -1;
     QSqlQuery q = this->schema->getQueryBuilder()->count(entity,
                   ignoreID);
@@ -784,7 +806,7 @@ qint8 EntityManager::count(const QSharedPointer<Entity> &entity,
     return rc;
 }
 
-qint8 EntityManager::count(const QString &tableName) {
+quint8 EntityManager::count(const QString &tableName) {
     qint8 rc = -1;
     QSqlQuery q = this->schema->getQueryBuilder()->count(tableName);
     this->db->select(q);

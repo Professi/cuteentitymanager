@@ -15,18 +15,33 @@
  */
 
 #include "query.h"
-#include "condition.h"
 #include "orderby.h"
 using namespace CuteEntityManager;
 Query::Query() {
     //this->select << Expression("*");
 }
 
-void Query::appendWhereCondition(const QString &condition) {
-    this->where.append(Condition(condition));
+Query::Query(QStringList from, QList<Expression> where, QList<Join> joins,
+             QHash<QString, QVariant> params, quint64 limit, quint64 offset,
+             QList<Expression> select, QStringList groupBy, bool distinct,
+             QList<Expression> having) {
+    this->from = from;
+    this->where = where;
+    this->joins = joins;
+    this->params = params;
+    this->limit = limit;
+    this->offset = offset;
+    this->select = select;
+    this->groupBy = groupBy;
+    this->distinct = distinct;
+    this->having = having;
 }
 
-void Query::appendWhereCondition(const Condition &condition) {
+void Query::appendWhere(const QString &condition) {
+    this->where.append(Expression(condition));
+}
+
+void Query::appendWhere(const Expression &condition) {
     this->where.append(condition);
 }
 
@@ -34,6 +49,22 @@ void Query::setSelect(const QStringList &value) {
     for (int var = 0; var < value.size(); ++var) {
         this->appendSelect(value.at(var));
     }
+}
+
+QList<Expression> Query::getWhere() const {
+    return where;
+}
+
+void Query::setWhere(const QList<Expression> &value) {
+    where = value;
+}
+
+QList<Expression> Query::getHaving() const {
+    return having;
+}
+
+void Query::setHaving(const QList<Expression> &value) {
+    having = value;
 }
 
 QString Query::getSelectOption() const {
@@ -68,6 +99,10 @@ void Query::setGroupBy(const QStringList &value) {
     groupBy = value;
 }
 
+QList<Expression> Query::getSelect() const {
+    return this->select;
+}
+
 void Query::appendSelect(const Expression &value) {
     this->select.append(value);
 }
@@ -88,6 +123,12 @@ void Query::appendParam(const QString &column, QVariant value) {
     this->params.insert(column, value);
 }
 
+void Query::appendParams(const QHash<QString, QVariant> &params) {
+    for (auto i = params.constBegin(); i != params.constEnd(); ++i) {
+        this->params.insert(i.key(), i.value());
+    }
+}
+
 QHash<QString, QVariant> Query::getParams() const {
     return params;
 }
@@ -96,44 +137,28 @@ void Query::setParams(const QHash<QString, QVariant> &value) {
     params = value;
 }
 
-uint Query::getLimit() const {
+quint64 Query::getLimit() const {
     return limit;
 }
 
-void Query::setLimit(const uint &value) {
+void Query::setLimit(const quint64 &value) {
     limit = value;
 }
 
-uint Query::getOffset() const {
+quint64 Query::getOffset() const {
     return offset;
 }
 
-void Query::setOffset(const uint &value) {
+void Query::setOffset(const quint64 &value) {
     offset = value;
 }
 
-void Query::appendHavingCondition(const QString &condition) {
-    this->having.append(Condition(condition));
+void Query::appendHaving(const QString &condition) {
+    this->having.append(Expression(condition));
 }
 
-void Query::appendHavingCondition(const Condition &condition) {
+void Query::appendHaving(const Expression &condition) {
     this->having.append(condition);
-}
-
-QList<Condition> Query::getWhere() const {
-    return where;
-}
-
-void Query::setWhere(const QList<Condition> &value) {
-    where = value;
-}
-
-QList<Condition> Query::getHaving() const {
-    return having;
-}
-
-void Query::setHaving(const QList<Condition> &value) {
-    having = value;
 }
 
 void Query::appendOrderBy(const OrderBy &orderBy) {

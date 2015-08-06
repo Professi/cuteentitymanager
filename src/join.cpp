@@ -20,15 +20,15 @@ Join::Join() {
 
 }
 
-Join::Join(QString foreignTable, QString condition, QString type) {
+Join::Join(QString foreignTable, QString expression, QString type) {
     this->foreignTable = foreignTable;
-    this->condition = Condition(condition);
+    this->expression = Expression(expression);
     this->type = type;
 }
 
-Join::Join(QString foreignTable, Condition condition, QString type) {
+Join::Join(QString foreignTable, Expression expression, QString type) {
     this->foreignTable = foreignTable;
-    this->condition = condition;
+    this->expression = expression;
     this->type = type;
 }
 
@@ -48,20 +48,10 @@ void Join::setForeignTable(const QString &value) {
     foreignTable = value;
 }
 
-Condition Join::getCondition() const {
-    return condition;
+Expression Join::getExpression() const {
+    return expression;
 }
 
-QString Join::getMainCondition() const {
-    auto conditions = this->condition.getConditions();
-    if (!conditions.isEmpty()) {
-        return conditions.at(0);
-    } else {
-        return "";
-    }
+void Join::setExpression(const Expression &value) {
+    expression = value;
 }
-
-void Join::setCondition(const Condition &value) {
-    condition = value;
-}
-

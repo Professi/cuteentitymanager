@@ -15,7 +15,6 @@
  */
 
 #include "queryinterpreter.h"
-#include "condition.h"
 #include "join.h"
 #include "query.h"
 #include "querybuilder.h"
@@ -86,7 +85,6 @@ QString QueryInterpreter::buildSelect(const QList<Expression> &columns,
             re.optimize();
             QRegularExpressionMatchIterator iterator = re.globalMatch(nExp, 0,
                     QRegularExpression::PartialPreferFirstMatch);
-
             if (iterator.hasNext()) {
                 for (int var = 0; var < 2; ++var) {
                     QRegularExpressionMatch match = iterator.next();
@@ -96,7 +94,6 @@ QString QueryInterpreter::buildSelect(const QList<Expression> &columns,
                                                  QString::number(i));
                     }
                 }
-
             } else {
                 nExp = this->builder->getSchema()->quoteColumnName(nExp);
             }
@@ -135,17 +132,14 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
         Join j = joins.at(i);
         sqlJoin += j.getType() + this->builder->getSeparator() +
                    this->builder->getSchema()->quoteTableName(j.getForeignTable());
-        if (!j.getCondition().getConditions().isEmpty()) {
-            QString condition = this->buildCondition(j.getCondition());
-            if (!condition.isEmpty()) {
-                sqlJoin += " ON " + condition;
-            }
+        if (!j.getExpression().getExpression().isEmpty()) {
+            sqlJoin += " ON " + j.getExpression().getExpression();
         }
     }
     return sqlJoin;
 }
 
-QString QueryInterpreter::buildWhere(const QList<Condition> &conditions)
+QString QueryInterpreter::buildWhere(const QList<Expression> &conditions)
 const {
     QString where = this->buildCondition(conditions);
     return where.isEmpty() ? "" : ("WHERE " + where);
@@ -156,7 +150,7 @@ QString QueryInterpreter::buildGroupBy(const QStringList &groupBy) const {
                groupBy);
 }
 
-QString QueryInterpreter::buildHaving(const QList<Condition> &conditions)
+QString QueryInterpreter::buildHaving(const QList<Expression> &conditions)
 const {
     QString having = this->buildCondition(conditions);
     return having.isEmpty() ? "" : ("HAVING " + having);
@@ -208,15 +202,24 @@ QString QueryInterpreter::buildOrderBy(const QList<OrderBy> &columns) const {
     return sqlOrder;
 }
 
-QString QueryInterpreter::buildCondition(const QList<Condition> &conditions)
+QString QueryInterpreter::buildCondition(const QList<Expression> &conditions)
 const {
     if (conditions.isEmpty()) {
         return "";
     }
-    return "";
+    QString sqlCondition = "";
+    bool first = true;
+    for (int i = 0; i < conditions.size(); ++i) {
+        Expression exp = conditions.at(i);
+        QString expression = exp.getExpression();
+        if (!expression.isEmpty()) {
+            if (first) {
+                first = false;
+            } else if (expression.at(0) != ' ') {
+                sqlCondition += this->builder->getSeparator();
+            }
+        }
+        sqlCondition += expression;
+    }
+    return sqlCondition;
 }
-
-QString QueryInterpreter::buildCondition(const Condition &conditions) const {
-    return "";
-}
-

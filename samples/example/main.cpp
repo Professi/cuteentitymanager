@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
     t.start();
     CuteEntityManager::EntityManager *e = new
     CuteEntityManager::EntityManager("QSQLITE",
-                                     QDir::currentPath() + "/db.sqlite","","","",0,true);
+                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
 //                CuteEntityManager::EntityManager("QSQLITE",
 //                                                     ":memory:");
 
@@ -68,19 +68,18 @@ int main(int argc, char *argv[]) {
      * ---------------------------------
      */
     qDebug() << "-----------------------------";
-    QSharedPointer<Entity> groupFindPtr = e->findById<Group *>(1);
-    QSharedPointer<Group> grp = groupFindPtr.objectCast<Group>();
+    QSharedPointer<Group> groupFindPtr = e->findById<Group>(1);
     qDebug() << "Group:" << groupFindPtr->toString();
-    qDebug() << "PersonSize:" << grp->getPersons().size();
-    qDebug() << "PupilsSize:" << grp->getPupils().size();
-    qDebug() << "MainTeacher:" << grp->getMainTeacher()->toString();
+    qDebug() << "PersonSize:" << groupFindPtr->getPersons().size();
+    qDebug() << "PupilsSize:" << groupFindPtr->getPupils().size();
+    qDebug() << "MainTeacher:" << groupFindPtr->getMainTeacher()->toString();
 
     /** ---------------------------------
      * FIND Person
      * ---------------------------------
      */
     qDebug() << "-----------------------------";
-    QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person*"));
+    QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person"));
     e->refresh(personFindPtr);
     QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
     qDebug() << "MainTeacher:" << personFindPtr->toString();
@@ -91,8 +90,8 @@ int main(int argc, char *argv[]) {
      * or you can use this syntax:
      */
     qDebug() << "-----------------------------";
-    QSharedPointer<Person> foundMainTeacher = e->findById<Person *>
-            (1).objectCast<Person>();
+    QSharedPointer<Person> foundMainTeacher = e->findById<Person>
+            (1);
     qDebug() << "FoundMainTeacher:" << foundMainTeacher->toString();
     qDebug() << "FoundMainTeacherGroupSize:" <<
              foundMainTeacher->getMaintainedGroups().size();

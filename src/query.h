@@ -29,6 +29,13 @@ enum class Direction;
 class Query {
   public:
     Query();
+    Query(QStringList from, QList<Expression> where,
+          QList<Join> joins = QList<Join>(),
+          QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
+          quint64 offset = 0,
+          QList<Expression> select = QList<Expression>(),
+          QStringList groupBy = QStringList(), bool distinct = false,
+          QList<Expression> having = QList<Expression>());
 
     QString getSelectOption() const;
     void setSelectOption(const QString &value);
@@ -43,26 +50,21 @@ class Query {
     void setJoins(const QList<Join> &value);
 
     void appendParam(const QString &column, QVariant value);
+    void appendParams(const QHash<QString, QVariant> &params);
     QHash<QString, QVariant> getParams() const;
     void setParams(const QHash<QString, QVariant> &value);
 
-    uint getLimit() const;
-    void setLimit(const uint &value);
+    quint64 getLimit() const;
+    void setLimit(const quint64 &value);
 
-    uint getOffset() const;
-    void setOffset(const uint &value);
+    quint64 getOffset() const;
+    void setOffset(const quint64 &value);
 
-    void appendWhereCondition(const QString &condition);
-    void appendWhereCondition(const Condition &condition);
+    void appendWhere(const QString &condition);
+    void appendWhere(const Expression &condition);
 
-    void appendHavingCondition(const QString &condition);
-    void appendHavingCondition(const Condition &condition);
-
-    QList<Condition> getWhere() const;
-    void setWhere(const QList<Condition> &value);
-
-    QList<Condition> getHaving() const;
-    void setHaving(const QList<Condition> &value);
+    void appendHaving(const QString &condition);
+    void appendHaving(const Expression &condition);
 
     void appendOrderBy(const OrderBy &orderBy);
     void appendOrderBy(const QString &column, const Direction &direction);
@@ -78,6 +80,12 @@ class Query {
     void setSelect(const QList<Expression> &value);
     void setSelect(const QStringList &value);
 
+    QList<Expression> getWhere() const;
+    void setWhere(const QList<Expression> &value);
+
+    QList<Expression> getHaving() const;
+    void setHaving(const QList<Expression> &value);
+
   private:
     QList<Expression> select;
     QString selectOption = QStringLiteral("");
@@ -85,12 +93,12 @@ class Query {
     QStringList from;
     QStringList groupBy;
     QList<OrderBy> orderBy;
-    QList<Condition> where;
-    QList<Condition> having;
+    QList<Expression> where;
+    QList<Expression> having;
     QList<Join> joins;
     QHash<QString, QVariant> params;
-    uint limit = 0;
-    uint offset = 0;
+    quint64 limit = 0;
+    quint64 offset = 0;
 };
 
 enum class JokerPosition {
