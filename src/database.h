@@ -65,11 +65,9 @@ class Database {
     void startTransaction();
     bool commitTransaction();
     bool rollbackTransaction();
-
     static DatabaseType getDatabaseType(QString s);
     static QSharedPointer<Schema> getSchema(DatabaseType db,
                                             QSharedPointer<Database> database);
-
 };
 }
 #endif // DATABASE_H

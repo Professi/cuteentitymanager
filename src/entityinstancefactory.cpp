@@ -24,7 +24,6 @@ EntityInstanceFactory::instance =
     QHash<QByteArray, EntityInstanceFactory::Constructor>();
 
 EntityInstanceFactory::EntityInstanceFactory() {
-
 }
 
 Entity *EntityInstanceFactory::createInstance(const char *className) {

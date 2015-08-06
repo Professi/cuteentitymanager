@@ -17,7 +17,6 @@
 using namespace CuteEntityManager;
 
 DatabaseMigration::DatabaseMigration() : Entity() {
-
 }
 
 DatabaseMigration::DatabaseMigration(QString version,

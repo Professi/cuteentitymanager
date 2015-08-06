@@ -17,7 +17,6 @@
 #include "join.h"
 using namespace CuteEntityManager;
 Join::Join() {
-
 }
 
 Join::Join(QString foreignTable, QString expression, QString type) {

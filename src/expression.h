@@ -23,8 +23,9 @@ namespace CuteEntityManager {
 class Expression {
   public:
     Expression();
-    explicit Expression(QString expression,QHash<QString, QVariant> params = QHash<QString, QVariant>(),
-               bool onlyColumn = false);
+    explicit Expression(QString expression,
+                        QHash<QString, QVariant> params = QHash<QString, QVariant>(),
+                        bool onlyColumn = false);
     explicit Expression(QString expression, bool onlyColumn);
     QString getExpression() const;
     void setExpression(const QString &value);
@@ -38,7 +39,7 @@ class Expression {
     QHash<QString, QVariant> getParams() const;
     void setParams(const QHash<QString, QVariant> &value);
 
-private:
+  private:
     QString expression;
     QHash<QString, QVariant> params;
     bool onlyColumn;

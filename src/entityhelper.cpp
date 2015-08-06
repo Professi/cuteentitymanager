@@ -21,9 +21,7 @@
 
 using namespace CuteEntityManager;
 EntityHelper::EntityHelper() {
-
 }
-
 
 const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(
     const Entity *entity) {
@@ -43,7 +41,6 @@ const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(
     }
     return relations;
 }
-
 
 const QList<const QMetaObject *> EntityHelper::superClasses(
     const Entity *entity, bool
@@ -169,7 +166,7 @@ void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
         auto list = EntityInstanceFactory::castQVariantList(var);
         for (int i = 0; i < list.size(); ++i) {
             auto e = list.at(i);
-            if(e->getId() == remove->getId()) {
+            if (e->getId() == remove->getId()) {
                 list.removeAt(i);
                 EntityHelper::setListProperty(entity, list, property);
                 break;

@@ -17,11 +17,9 @@
 using namespace CuteEntityManager;
 
 TableSchema::TableSchema() {
-
 }
 
 TableSchema::~TableSchema() {
-
 }
 
 const QSharedPointer<QSqlField> TableSchema::getColumn(QString name) const {

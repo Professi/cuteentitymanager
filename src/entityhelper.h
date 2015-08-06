@@ -47,7 +47,7 @@ class EntityHelper {
     static void addEntityToListProperty(const QSharedPointer<Entity> &entity,
                                         QSharedPointer<Entity> add, const QMetaProperty &property);
     static void removeEntityFromListProperty(const QSharedPointer<Entity> &entity,
-                                        QSharedPointer<Entity> remove, const QMetaProperty &property);
+            QSharedPointer<Entity> remove, const QMetaProperty &property);
     static void setListProperty(const QSharedPointer<Entity> &entity,
                                 QList<QSharedPointer<Entity>> &list,
                                 const QMetaProperty &property);
@@ -59,7 +59,8 @@ class EntityHelper {
                             const QString property);
     static QMetaProperty mappedProperty(const Relation &r,
                                         const QSharedPointer<Entity> &foreignEntity);
-    static QHash<QString, QVariant> getEntityAttributes(const QHash<QString, QMetaProperty>
+    static QHash<QString, QVariant> getEntityAttributes(const
+            QHash<QString, QMetaProperty>
             &props,
             const QSharedPointer<Entity> &entity);
 };

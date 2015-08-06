@@ -47,7 +47,8 @@ class EntityInstanceFactory {
     //http://www.mimec.org/node/350
     template<typename T>
     static void registerClass() {
-        EntityInstanceFactory::instance.insert( T::staticMetaObject.className(), &constructorHelper<T> );
+        EntityInstanceFactory::instance.insert( T::staticMetaObject.className(),
+                                                &constructorHelper<T> );
         QString lName = "QList<QSharedPointer<";
         lName.append(T::staticMetaObject.className());
         lName.append(">>");

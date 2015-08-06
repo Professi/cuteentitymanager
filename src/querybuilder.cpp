@@ -1224,7 +1224,7 @@ Expression QueryBuilder::plainNand() {
 Expression QueryBuilder::like(QString column, QVariant value,
                               JokerPosition jp, QChar wildcard) {
     return this->arbitraryOperator(this->likeKeyword(), column,
-                      this->addWildcard(value, jp, wildcard));
+                                   this->addWildcard(value, jp, wildcard));
 }
 
 Expression QueryBuilder::like(QHash<QString, QVariant> conditions,

@@ -71,8 +71,6 @@ class EntityManager : public QObject {
     QList<QHash<QString, QVariant> > selectBySql(const QString &sql);
     qint8 count(Query &query);
 
-
-  public:
   public:
     EntityManager(QSqlDatabase database);
     EntityManager(const QString &databaseType, QString databasename = "" ,

@@ -112,19 +112,19 @@ class QueryBuilder {
      * @param conjunction its AND or OR
      */
     Expression where(QHash<QString, QVariant> conditions,
-               QString conjunction = "AND");
+                     QString conjunction = "AND");
     Expression where(QString condition,
-               QHash<QString, QVariant> values = QHash<QString, QVariant>());
+                     QHash<QString, QVariant> values = QHash<QString, QVariant>());
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
     Expression between(QString column, QVariant firstValue,
-                 QVariant secondValue);
+                       QVariant secondValue);
     Expression notBetween(QString column, QVariant firstValue,
-                    QVariant secondValue);
+                          QVariant secondValue);
     Expression in(QString column, QList<QVariant> values);
     Expression notIn(QString column, QList<QVariant> values);
     Expression notOperator(QString column, QVariant value);
     Expression orOperator(QHash<QString, QVariant> conditions,
-                    bool like = false);
+                          bool like = false);
     Expression andOperator(QHash<QString, QVariant> conditions);
     /**
      * @brief arbitraryOperator
@@ -134,7 +134,7 @@ class QueryBuilder {
      * @param value
      */
     Expression arbitraryOperator(QString op, QString column,
-                           QVariant value);
+                                 QVariant value);
     Expression isNull(QString column);
     Expression isNotNull(QString column);
 
@@ -149,15 +149,15 @@ class QueryBuilder {
      * @param value
      */
     Expression like(QString column, QVariant value,
-              JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
+                    JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
     /**
      * @brief like
      * @param condition
      * @param concat
      */
     Expression like(QHash<QString, QVariant> conditions,
-              QString conjunction = "AND",
-              JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
+                    QString conjunction = "AND",
+                    JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 
     QStringList quoteTableNames(const QStringList &tables);
     QString getSeparator() const;
@@ -220,7 +220,8 @@ class QueryBuilder {
                      const QString &primaryKey = "id") const;
     QList<QSqlQuery> createOrMerge(const QSharedPointer<Entity> &entity,
                                    bool insert) const;
-    virtual QString limit(const quint64 &limit, const quint64 &offset, bool withSpace=true) const;
+    virtual QString limit(const quint64 &limit, const quint64 &offset,
+                          bool withSpace = true) const;
     QString generateIndexName(const QString &name, const QString &table,
                               const QString &refColumn, const QString &refTable, const bool fk) const;
     QString generateColumnNameID(QString name) const;
@@ -287,7 +288,7 @@ class QueryBuilder {
     virtual QString whereKeyword() const;
     virtual QString countKeyword() const;
     virtual Expression inFunction(QString column, QList<QVariant> values,
-                               bool notOp = false);
+                                  bool notOp = false);
     virtual QString between(QString colName, QString valName1, QString valName2,
                             bool notOp = false);
     virtual QString likeKeyword() const;
@@ -295,7 +296,7 @@ class QueryBuilder {
     virtual QString offsetKeyword() const;
     QString appendNot(bool notOp);
     virtual Expression appendCondition(QString ph1, QString ph2, QVariant val1,
-                                 QVariant val2, QString condition);
+                                       QVariant val2, QString condition);
     QString entityClassname() const;
     QString separator;
     QSharedPointer<Schema> schema;
