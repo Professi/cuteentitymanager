@@ -11,6 +11,8 @@
 #include "models/contact.h"
 #include "models/group.h"
 #include "models/faker/createfakemodeldata.h"
+#include "querybuilder.h"
+#include "orderby.h"
 
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
@@ -97,8 +99,21 @@ int main(int argc, char *argv[]) {
              foundMainTeacher->getMaintainedGroups().size();
 
     qDebug() << "-----------------------------";
+    /** ---------------------------------
+     * FIND By Query
+     * ---------------------------------
+     */
+    Query q = Query();
+    q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim")));
+    q.setDistinct(true);
+    q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
+    q.setLimit(10);
+    QList<QSharedPointer<Person>> list = e->find<Person>(q);
+    for (int i = 0; i < list.size(); ++i) {
+        qDebug() << list.at(i)->toString();
+    }
+    qDebug() << "-----------------------------";
 
     qDebug() << "Duration:" << t.elapsed();
-
     return 0;
 }
