@@ -480,14 +480,10 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     QRegularExpressionMatchIterator i = reg.globalMatch(type, 0,
                                         QRegularExpression::PartialPreferFirstMatch);
     short s = 0;
-    bool ok = false;
     QString before = "";
     while (i.hasNext() && s < 2) {
         before = i.next().captured();
         if (tMap->contains(before)) {
-            ok = true;
-        }
-        if (ok) {
             return before.replace(QRegularExpression::escape("/\\(.+\\)/"),
                                   "(" + i.next().captured() + ")");
         }

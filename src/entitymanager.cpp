@@ -38,9 +38,8 @@ EntityManager::EntityManager(QSqlDatabase database,
 }
 
 EntityManager::EntityManager(const QString &databaseType, QString databasename ,
-                             QString hostname,
-                             QString username,
-                             QString password, QString port, bool logQueries) : QObject() {
+                             QString hostname, QString username, QString password, QString port,
+                             bool logQueries) : QObject() {
     auto db = new Database(databaseType, this->createConnection(), hostname,
                            databasename, username,
                            password,
@@ -230,8 +229,7 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
 
 
 void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
-                             const Relation &r,
-                             const QMetaProperty &property, const bool refresh,
+                             const Relation &r, const QMetaProperty &property, const bool refresh,
                              const QVariant &id) {
     if (r.getMappedBy().isEmpty()) {
         this->manyToOne(entity, id, property);

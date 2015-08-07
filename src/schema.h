@@ -88,8 +88,6 @@ class Schema {
     QSharedPointer<QHash<QString, QString>> abstractTypeMap;
     QHash<QString, QSharedPointer<TableSchema>> tables;
     QSharedPointer<QueryBuilder> queryBuilder;
-
-
 };
 }
 #endif // SCHEMA_H
