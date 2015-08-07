@@ -45,7 +45,11 @@ void Logger::lastError(const QSqlQuery &q, bool logQuery) {
         if (logQuery || !errorMsg.isEmpty()) {
             const QString query = this->generateLogMsg(q);
             if (!query.isEmpty()) {
-                qDebug() << query;
+                if (errorMsg.isEmpty()) {
+                    qDebug() << query;
+                } else {
+                    qWarning() << query;
+                }
                 stream << query;
             }
         }

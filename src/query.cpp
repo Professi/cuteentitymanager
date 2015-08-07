@@ -15,7 +15,6 @@
  */
 
 #include "query.h"
-#include "orderby.h"
 using namespace CuteEntityManager;
 Query::Query() {
 }

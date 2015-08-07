@@ -21,7 +21,7 @@
 #include <QLinkedList>
 #include "join.h"
 #include "expression.h"
-
+#include "orderby.h"
 namespace CuteEntityManager {
 class Condition;
 class OrderBy;
