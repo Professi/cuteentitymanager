@@ -6,9 +6,9 @@
 #include "../group.h"
 
 void CreateFakeModelData::fillGroup(Group* group) {
-    group->addPerson(new Person("Tim","Berg",Person::Gender::MALE,"Tim Berg.jpg",QString(),QString(),QDate(2000,7,13),0));
-    group->addPerson(new Person("Lena","Conrad",Person::Gender::FEMALE,"Lena Conrad.jpg",QString(),QString(),QDate(2000,7,13),0));
-    group->addPerson(new Person("Marcel","Dunst",Person::Gender::MALE,"Marcel Dunst.jpg",QString(),QString(),QDate(2000,7,13),0));
+    group->addPerson(new Person("Thomas","Berg",Person::Gender::MALE,"",QString(),QString(),QDate(1971,7,13),0));
+    group->addPerson(new Person("Teresa","Conrad",Person::Gender::FEMALE,"",QString(),QString(),QDate(1970,7,13),0));
+    group->addPerson(new Person("Heinz","Dunst",Person::Gender::MALE,"",QString(),QString(),QDate(1972,7,13),0));
 
     group->addPupil(new Pupil("Tim","Berg",Person::Gender::MALE,"Tim Berg.jpg",QString(),QString(),QDate(2000,7,13),"05c",0));
     group->addPupil(new Pupil("Lena","Conrad",Person::Gender::FEMALE,"Lena Conrad.jpg",QString(),QString(),QDate(2000,7,13),"05c",0));
@@ -22,10 +22,10 @@ void CreateFakeModelData::fillGroup(Group* group) {
     group->addPupil(new Pupil("Birthe","Jäger",Person::Gender::FEMALE,"Birthe Jaeger.jpg",QString(),QString(),QDate(2000,2,14),"05c",0));
 
     group->pupilAt(0)->addAddress(new Address("Erzieher","Bukesweg 473","33330","Gütersloh"));
-    group->pupilAt(1)->addAddress(new Address("Erzieher","Bukesweg 473","33330","Gütersloh"));
-    group->pupilAt(2)->addAddress(new Address("Erzieher","Bukesweg 473","33330","Gütersloh"));
-    group->pupilAt(3)->addAddress(new Address("Erzieher","Bukesweg 473","33330","Gütersloh"));
-    group->pupilAt(4)->addAddress(new Address("Erzieher","Bukesweg 473","33330","Gütersloh"));
+    group->pupilAt(1)->addAddress(new Address("Erzieher","Bukesweg 474","33330","Gütersloh"));
+    group->pupilAt(2)->addAddress(new Address("Erzieher","Bukesweg 47","33330","Gütersloh"));
+    group->pupilAt(3)->addAddress(new Address("Erzieher","Bukesweg 4","33330","Gütersloh"));
+    group->pupilAt(4)->addAddress(new Address("Erzieher","Bukesweg 43","33330","Gütersloh"));
     group->pupilAt(5)->addAddress(new Address("Erzieher","Auguste-Viktoria-Platz 193","77652","Offenburg"));
     group->pupilAt(6)->addAddress(new Address("Erzieher","Bullenwinkel 467","74074","Heilbronn"));
     group->pupilAt(7)->addAddress(new Address("Erzieher","Schinkelplatz 389","46236","Bottrop"));

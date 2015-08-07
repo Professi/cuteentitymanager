@@ -44,4 +44,10 @@ DEPENDPATH += $$PWD/../../src
 unix {
 QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O -Winit-self
 }
+
+win32-g++ {
+    CONFIG += c++11
+    QMAKE_CXXFLAGS += -std=c++11 -Wall
+}
+
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT

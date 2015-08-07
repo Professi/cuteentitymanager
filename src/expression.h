@@ -44,5 +44,9 @@ class Expression {
     QHash<QString, QVariant> params;
     bool onlyColumn;
 };
+
+inline bool operator==(const Expression &e1, const Expression &e2) {
+    return e1.getExpression() == e2.getExpression();
+}
 }
 #endif // EXPRESSION_H

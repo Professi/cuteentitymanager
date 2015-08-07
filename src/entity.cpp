@@ -16,6 +16,7 @@
 
 #include "entity.h"
 #include "entityhelper.h"
+#include "entityinstancefactory.h"
 using namespace CuteEntityManager;
 
 Entity::Entity(QObject *parent) : QObject(parent) {
@@ -33,11 +34,12 @@ QString Entity::toString() const {
         if (var.value().isEnumType()) {
             val = var.value().enumerator().valueToKey(var.value().read(this).toInt());
         } else if (value.canConvert<QList<QVariant>>()) {
-            auto list = value.toList();
             val.append("[");
-            for (int i = 0; i < list.size(); ++i) {
-                val = list.at(i).toString();
-            }
+            auto list = EntityInstanceFactory::castQVariantList(value);
+            int size = list.size();
+            val.append(QString::number(size));
+            val.append(" ");
+            val.append(size == 1 ? "element" : "elements");
             val.append("]");
         } else {
             val = value.toString();

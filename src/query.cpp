@@ -20,6 +20,9 @@ using namespace CuteEntityManager;
 Query::Query() {
 }
 
+Query::~Query() {
+}
+
 Query::Query(QStringList from, QList<Expression> where, QList<Join> joins,
              QHash<QString, QVariant> params, quint64 limit, quint64 offset,
              QList<Expression> select, QStringList groupBy, bool distinct,
@@ -82,12 +85,24 @@ void Query::setDistinct(bool value) {
     distinct = value;
 }
 
+void Query::appendFrom(const QString &value) {
+    if (!this->from.contains(value)) {
+        this->from.append(value);
+    }
+}
+
 QStringList Query::getFrom() const {
     return from;
 }
 
 void Query::setFrom(const QStringList &value) {
     from = value;
+}
+
+void Query::appendJoin(const Join &value) {
+    if (!this->joins.contains(value)) {
+        this->joins.append(value);
+    }
 }
 
 QStringList Query::getGroupBy() const {
@@ -174,4 +189,10 @@ QList<OrderBy> Query::getOrderBy() const {
 
 void Query::setOrderBy(const QList<OrderBy> &value) {
     orderBy = value;
+}
+
+void Query::appendGroupBy(const QString &value) {
+    if (!this->groupBy.contains(value)) {
+        this->groupBy.append(value);
+    }
 }

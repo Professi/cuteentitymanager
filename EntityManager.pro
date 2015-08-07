@@ -54,12 +54,19 @@ src/entity.cpp \
     src/expression.cpp \
     src/orderby.cpp
 
+CONFIG += c++14
+QMAKE_CXXFLAGS += -std=c++14
+
 unix {
     target.path = /usr/lib
     INSTALLS += target
     QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
 }
-CONFIG += c++14
-QMAKE_CXXFLAGS += -std=c++14
+
+win32-g++ {
+    CONFIG += c++11
+    QMAKE_CXXFLAGS += -std=c++11 -Wall
+}
+
 #QMAKE_CXXFLAGS +=  -Winit-self
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT

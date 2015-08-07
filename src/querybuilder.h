@@ -23,8 +23,8 @@
 #include <QStringList>
 #include <QMetaProperty>
 #include "relation.h"
-#include "query.h"
 #include "expression.h"
+#include "query.h"
 namespace CuteEntityManager {
 class Schema;
 class Entity;
@@ -100,10 +100,10 @@ class QueryBuilder {
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
     QString getColumnType(const QString &type) const;
+    virtual QString placeHolder(const QString &key) const;
     void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
                     bool ignoreID = false, const QString &primaryKey = "id") const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
-    virtual QString placeHolder(const QString &key) const;
     Expression where(QString column, QVariant value);
     /**
      * @brief where
@@ -159,10 +159,6 @@ class QueryBuilder {
                     QString conjunction = "AND",
                     JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 
-    QStringList quoteTableNames(const QStringList &tables);
-    QString getSeparator() const;
-    void setSeparator(const QString &value);
-
   protected:
     class ClassAttributes {
       public:
@@ -183,6 +179,10 @@ class QueryBuilder {
         QString pk;
         QHash<QString, QVariant> attributes;
     };
+
+    QStringList quoteTableNames(const QStringList &tables);
+    QString getSeparator() const;
+    void setSeparator(const QString &value);
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
                    qint64 offset = 0, QString pk = "id") const;

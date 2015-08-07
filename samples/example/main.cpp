@@ -104,10 +104,11 @@ int main(int argc, char *argv[]) {
      */
     Query q = Query();
     q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim")));
+    q.appendJoin(Join("person","pupil.id = person.id"));
     q.setDistinct(true);
     q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
     q.setLimit(10);
-    QList<QSharedPointer<Person>> list = e->find<Person>(q);
+    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q);
     for (int i = 0; i < list.size(); ++i) {
         qDebug() << list.at(i)->toString();
     }

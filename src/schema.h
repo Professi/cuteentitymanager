@@ -15,11 +15,11 @@
  */
 #ifndef SCHEMA_H
 #define SCHEMA_H
-#include "tableschema.h"
 #include <QStringList>
 #include <QHash>
 #include <QSharedPointer>
 #include <QSqlField>
+#include "tableschema.h"
 #include "querybuilder.h"
 namespace CuteEntityManager {
 class Database;

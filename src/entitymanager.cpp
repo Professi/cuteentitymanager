@@ -18,7 +18,6 @@
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
-#include "queryinterpreter.h"
 using namespace CuteEntityManager;
 
 QStringList EntityManager::connectionNames = QStringList();

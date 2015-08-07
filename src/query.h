@@ -29,6 +29,7 @@ enum class Direction;
 class Query {
   public:
     Query();
+    ~Query();
     Query(QStringList from, QList<Expression> where,
           QList<Join> joins = QList<Join>(),
           QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
@@ -43,9 +44,11 @@ class Query {
     bool getDistinct() const;
     void setDistinct(bool value);
 
+    void appendFrom(const QString &value);
     QStringList getFrom() const;
     void setFrom(const QStringList &value);
 
+    void appendJoin(const Join &value);
     QList<Join> getJoins() const;
     void setJoins(const QList<Join> &value);
 
@@ -60,17 +63,12 @@ class Query {
     quint64 getOffset() const;
     void setOffset(const quint64 &value);
 
-    void appendWhere(const QString &condition);
-    void appendWhere(const Expression &condition);
-
-    void appendHaving(const QString &condition);
-    void appendHaving(const Expression &condition);
-
     void appendOrderBy(const OrderBy &orderBy);
     void appendOrderBy(const QString &column, const Direction &direction);
     QList<OrderBy> getOrderBy() const;
     void setOrderBy(const QList<OrderBy> &value);
 
+    void appendGroupBy(const QString &value);
     QStringList getGroupBy() const;
     void setGroupBy(const QStringList &value);
 
@@ -80,9 +78,13 @@ class Query {
     void setSelect(const QList<Expression> &value);
     void setSelect(const QStringList &value);
 
+    void appendWhere(const QString &condition);
+    void appendWhere(const Expression &condition);
     QList<Expression> getWhere() const;
     void setWhere(const QList<Expression> &value);
 
+    void appendHaving(const QString &condition);
+    void appendHaving(const Expression &condition);
     QList<Expression> getHaving() const;
     void setHaving(const QList<Expression> &value);
 

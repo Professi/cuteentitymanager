@@ -35,11 +35,17 @@ class Join {
     Expression getExpression() const;
     void setExpression(const Expression &value);
 
+
   private:
     QString type = QStringLiteral("LEFT JOIN");
     QString foreignTable;
     Expression expression;
 
 };
+inline bool operator==(const Join &e1, const Join &e2) {
+    return e1.getForeignTable() == e2.getForeignTable()
+           && e1.getExpression() == e2.getExpression();
+}
+
 }
 #endif // JOIN_H

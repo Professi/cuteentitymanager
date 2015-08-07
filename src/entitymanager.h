@@ -24,15 +24,15 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QDebug>
-#include "schema.h"
 #include <QtSql/QSqlError>
 #include <QMetaType>
+#include "schema.h"
 #include "entity.h"
 #include "database.h"
 #include "entityinstancefactory.h"
-#include "cache.h"
 #include "queryinterpreter.h"
-
+#include "cache.h"
+#include "querybuilder.h"
 namespace CuteEntityManager {
 
 class Logger;
