@@ -105,6 +105,10 @@ void Query::appendJoin(const Join &value) {
     }
 }
 
+void Query::appendJoins(const QList<Join> &value) {
+    this->joins.append(value);
+}
+
 QStringList Query::getGroupBy() const {
     return groupBy;
 }

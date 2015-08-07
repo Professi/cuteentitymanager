@@ -87,27 +87,34 @@ class EntityManager : public QObject {
     static QStringList getConnectionNames();
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
 
-    template<class T> QList<QSharedPointer<T>> find(Query &q) {
+    template<class T> QList<QSharedPointer<T>> find(Query &q,
+    const bool joinBaseClasses = false, const bool resolveRelations = true) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());
         if (ptr) {
             if (q.getFrom().isEmpty()) {
                 q.setFrom(QStringList(ptr->getTablename()));
             }
+            if (joinBaseClasses) {
+                q.appendJoins(this->schema->getQueryBuilder()->joinBaseClasses(ptr));
+            }
             QSqlQuery query = this->queryInterpreter->build(q);
             auto maps = this->convertQueryResult(query);
-            auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()));
+            auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
+                                           resolveRelations);
             return this->convertList<T>(converted);
         }
         return QList<QSharedPointer<T>>();
     }
 
-    template<class T> QList<QSharedPointer<T>> findAll() {
+    template<class T> QList<QSharedPointer<T>> findAll(const bool resolveRelations =
+    true) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());
         if (ptr) {
             auto maps = this->findAll(ptr);
-            auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()));
+            auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
+                                           resolveRelations);
             return this->convertList<T>(converted);
         }
         return QList<QSharedPointer<T>>();
@@ -119,10 +126,13 @@ class EntityManager : public QObject {
         return this->findById(id, ptr).objectCast<T>();
     }
 
-    template<class T> QSharedPointer<T> findEntityByAttributes(
+    template<class T>
+    QSharedPointer<T> findEntityByAttributes(
         const QHash<QString, QVariant>
-        &attributes) {
-        auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0);
+        &attributes, const bool joinBaseClasses = false,
+        const bool resolveRelations = true) {
+        auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0,
+                    joinBaseClasses, resolveRelations);
         if (list.isEmpty()) {
             return QSharedPointer<T>();
         }
@@ -132,17 +142,22 @@ class EntityManager : public QObject {
 
     template<class T> QList<QSharedPointer<T>> findAllEntitiesByAttributes(
             const QHash<QString, QVariant> &attributes =
-    QHash<QString, QString>(), quint64 limit = 0, quint64 offset = 0) {
+                QHash<QString, QString>(), quint64 limit = 0, quint64 offset = 0,
+    bool joinBaseClasses = false, const bool resolveRelations = true) {
         QSharedPointer<Entity> e = QSharedPointer<Entity>
-                              (EntityInstanceFactory::createInstance<T *>());
+                                   (EntityInstanceFactory::createInstance<T *>());
         if (e) {
             Query query = Query(QStringList(e->getTablename()));
+            if (joinBaseClasses) {
+                query.appendJoins(this->schema->getQueryBuilder()->joinBaseClasses(e));
+            }
             query.appendWhere(this->schema->getQueryBuilder()->where(attributes));
             query.setLimit(limit);
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
             auto results = this->convertQueryResult(q);
-            auto list = this->convert(results, EntityHelper::getClassname(e.data()));
+            auto list = this->convert(results, EntityHelper::getClassname(e.data()),
+                                      resolveRelations);
             return this->convertList<T>(list);
         }
         return QList<QSharedPointer<T>>();
@@ -237,9 +252,11 @@ class EntityManager : public QObject {
     void setNullOneToManyRelation(QVariant &var, const Relation &r);
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
-                                   const char *classname, const bool refresh = false);
+                                   const char *classname, const bool refresh = false,
+                                   const bool resolveRelations = true);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
-                                          const char *classname, const bool refresh = false);
+                                          const char *classname, const bool refresh = false,
+                                          const bool resolveRelations = true);
     void missingManyToManyTable(const QString &tblName,
                                 const QSharedPointer<Entity> &e, const Relation &r);
     bool isRelationPropertyValid(const QMetaProperty &prop, const Relation &r,

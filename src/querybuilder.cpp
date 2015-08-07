@@ -702,12 +702,15 @@ QSqlQuery QueryBuilder::insert(const QString &tableName,
 
 QSqlQuery QueryBuilder::update(const QString &tableName,
                                QHash<QString, QVariant> &attributes, const QString &primaryKey) const {
+    QVariant pk = attributes.value(primaryKey);
+    attributes.remove(primaryKey);
     QSqlQuery q = this->database->getQuery("UPDATE " + this->schema->quoteTableName(
             tableName) + " SET " + this->attributes(attributes) + " " + this->whereKeyword()
                                            + " " +
                                            this->schema->quoteColumnName(primaryKey) + " = " + this->placeHolder(
                                                    primaryKey) + ";");
     this->bindValues(attributes, q);
+    this->bindValue(primaryKey, pk, q);
     return q;
 }
 
@@ -784,25 +787,6 @@ QString QueryBuilder::addWildcard(QVariant var, JokerPosition jp,
         }
     }
     return val;
-}
-
-QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
-const {
-    auto classes = EntityHelper::superClasses(entity.data(), true);
-    QString joined = "";
-    Entity *e = 0;
-    for (int var = 0; var < classes.size(); ++var) {
-        auto metaObject = classes.at(var);
-        e = EntityInstanceFactory::createInstance(metaObject->className());
-        if (e) {
-            joined.append(" ");
-            joined.append(this->leftJoin(e->getTablename(), entity->getTablename(),
-                                         e->getPrimaryKey(), entity->getPrimaryKey()));
-        }
-        delete e;
-        e = 0;
-    }
-    return joined;
 }
 
 QString QueryBuilder::countFunction(const QString &distinctColumn) const {
@@ -1022,9 +1006,9 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
 
 QString QueryBuilder::leftJoin(const QString &foreignTable,
                                const QString &tableName, const QString &foreignKey,
-                               const QString &primaryKey) const {
-    return "LEFT JOIN " + this->schema->quoteTableName(
-               foreignTable) + " ON " +
+                               const QString &primaryKey, bool onlyCondition) const {
+    return (!onlyCondition ? ("LEFT JOIN " + this->schema->quoteTableName(
+                                  foreignTable) + " ON ") : "") +
            this->schema->quoteColumnName(foreignTable + "." + primaryKey) + "=" +
            this->schema->quoteColumnName(
                tableName + "." + foreignKey);
@@ -1258,6 +1242,49 @@ Expression QueryBuilder::where(QString column, QVariant value) {
                                 this->placeHolder(placeholder));
     exp.appendParam(placeholder, value);
     return exp;
+}
+
+Join QueryBuilder::joinClasses(const QSharedPointer<Entity> &mainEntity,
+                               const QSharedPointer<Entity> &foreignEntity, const QString &joinType) const {
+    Join j = Join(foreignEntity->getTablename(),
+                  this->leftJoin(foreignEntity->getTablename(), mainEntity->getTablename(),
+                                 foreignEntity->getPrimaryKey(), mainEntity->getPrimaryKey(), true));
+    j.setType(joinType);
+    return j;
+}
+
+QList<Join> QueryBuilder::joinBaseClasses(const QSharedPointer<Entity>
+        &entity) {
+    auto classes = EntityHelper::superClasses(entity.data(), true);
+    QList<Join> joins = QList<Join>();
+    for (int var = 0; var < classes.size(); ++var) {
+        auto metaObject = classes.at(var);
+        QSharedPointer<Entity> e = QSharedPointer<Entity>
+                                   (EntityInstanceFactory::createInstance(metaObject->className()));
+        if (e) {
+            joins.append(this->joinClasses(entity, e));
+        }
+    }
+    return joins;
+}
+
+QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
+const {
+    auto classes = EntityHelper::superClasses(entity.data(), true);
+    QString joined = "";
+    Entity *e = nullptr;
+    for (int var = 0; var < classes.size(); ++var) {
+        auto metaObject = classes.at(var);
+        e = EntityInstanceFactory::createInstance(metaObject->className());
+        if (e) {
+            joined.append(" ");
+            joined.append(this->leftJoin(e->getTablename(), entity->getTablename(),
+                                         e->getPrimaryKey(), entity->getPrimaryKey()));
+        }
+        delete e;
+        e = nullptr;
+    }
+    return joined;
 }
 
 Expression QueryBuilder::where(QHash<QString, QVariant> conditions,

@@ -102,9 +102,11 @@ class QueryBuilder {
     QString getColumnType(const QString &type) const;
     virtual QString placeHolder(const QString &key) const;
     void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
-                    bool ignoreID = false, const QString &primaryKey = "id") const;
+                    bool ignoreID = false, const QString &primaryKey = QStringLiteral("id")) const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
     Expression where(QString column, QVariant value);
+    Join joinClasses(const QSharedPointer<Entity> &mainEntity, const QSharedPointer<Entity> &foreignEntity, const QString &joinType=QStringLiteral("LEFT JOIN"))const;
+    QList<Join> joinBaseClasses(const QSharedPointer<Entity> &entity);
     /**
      * @brief where
      * @param query
@@ -112,7 +114,7 @@ class QueryBuilder {
      * @param conjunction its AND or OR
      */
     Expression where(QHash<QString, QVariant> conditions,
-                     QString conjunction = "AND");
+                     QString conjunction = QStringLiteral("AND"));
     Expression where(QString condition,
                      QHash<QString, QVariant> values = QHash<QString, QVariant>());
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
@@ -156,7 +158,7 @@ class QueryBuilder {
      * @param concat
      */
     Expression like(QHash<QString, QVariant> conditions,
-                    QString conjunction = "AND",
+                    QString conjunction = QStringLiteral("AND"),
                     JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 
   protected:
@@ -270,7 +272,7 @@ class QueryBuilder {
         const QSharedPointer<Entity> &entity) const;
 
     QString leftJoin(const QString &foreignTable, const QString &tableName,
-                     const QString &foreignKey = "id", const QString &primaryKey = "id") const;
+                     const QString &foreignKey = "id", const QString &primaryKey = "id", bool onlyCondition=false) const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;
     QString addWildcard(QVariant var, JokerPosition jp,
                         QChar jokerChar = '%') const;

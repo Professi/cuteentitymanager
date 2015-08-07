@@ -650,7 +650,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
 }
 
 bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
-    if (entity->getId() > -1 && this->count(entity) == 1) {
+    if (entity->getId() > -1) {
         if (withRelations) {
             this->savePrePersistedRelations(entity);
         }
@@ -754,7 +754,7 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
 
 bool EntityManager::save(QSharedPointer<Entity> &entity,
                          const bool persistRelations) {
-    if (entity->getProperty(entity->getPrimaryKey()) > -1) {
+    if (entity->getProperty(entity->getPrimaryKey()).toLongLong() > -1) {
         return this->merge(entity, persistRelations);
     } else {
         return this->create(entity, persistRelations);
@@ -825,20 +825,22 @@ void EntityManager::setConnectionNames(QStringList list) {
 
 QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant>
         &map,
-        const char *classname, const bool refresh) {
+        const char *classname, const bool refresh, const bool resolveRelations) {
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
                                           classname, map));
     this->cache.insert(ptr);
-    this->resolveRelations(ptr, map, refresh);
+    if (resolveRelations) {
+        this->resolveRelations(ptr, map, refresh);
+    }
     return ptr;
 }
 
 QList<QSharedPointer<Entity> > EntityManager::convert(
     QList<QHash<QString, QVariant> > maps,
-    const char *classname, const bool refresh) {
+    const char *classname, const bool refresh, const bool resolveRelations) {
     auto list = QList<QSharedPointer<Entity> >();
     for (int var = 0; var < maps.size(); ++var) {
-        auto ptr = this->convert(maps.at(var), classname, refresh);
+        auto ptr = this->convert(maps.at(var), classname, refresh, resolveRelations);
         list.append(ptr);
         this->cache.insert(ptr);
     }

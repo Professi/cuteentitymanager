@@ -66,7 +66,7 @@ void Schema::initAbstractDatabaseTypes() {
 }
 
 QString Schema::quoteSimpleTableName(QString name) {
-    return name.indexOf("`") != -1 ? name : "`" + name + "`";
+    return name.indexOf("`") != -1 ? name : ("`" + name + "`");
 }
 
 QString Schema::quoteTableName(QString name) {
@@ -98,7 +98,7 @@ QString Schema::quoteColumnName(QString name) {
 }
 
 QString Schema::quoteSimpleColumnName(QString name) {
-    return name.indexOf("`") != -1 || name == "*" ? name : "`" + name + "`";
+    return name.indexOf("`") != -1 || name == "*" ? name : ("`" + name + "`");
 }
 
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(
