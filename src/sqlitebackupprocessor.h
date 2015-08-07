@@ -21,12 +21,23 @@
 #include <QString>
 #include <QVariant>
 #include <QTimer>
+#include <QDir>
 #include "database.h"
 namespace CuteEntityManager {
 class SqliteBackupProcessor : public QObject {
   public:
     explicit SqliteBackupProcessor(QSharedPointer<Database> database,
                                    QString destination);
+    /**
+     * @brief SqliteBackupProcessor
+     * @param database
+     * @param destination
+     * @param backupFilename
+     * @param timer
+     * @param incrementalBackups
+     * @param backupCount
+     * You must start the timer.
+     */
     explicit SqliteBackupProcessor(QSharedPointer<Database> database,
                                    QString destination, QString backupFilename, QSharedPointer<QTimer> timer,
                                    bool incrementalBackups = false, int backupCount = 1);
@@ -49,9 +60,12 @@ class SqliteBackupProcessor : public QObject {
     QSharedPointer<QTimer> getTimer() const;
     void setTimer(const QSharedPointer<QTimer> &value);
 
-public slots:
+  public slots:
     bool sqliteDBMemFile(bool save, QString fileName = "db.sqlite.bak");
     void backup();
+  protected slots:
+    void rotateBackup();
+
   private:
     QSharedPointer<Database> database;
     QString destination;

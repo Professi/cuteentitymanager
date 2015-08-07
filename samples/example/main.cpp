@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
 //    CuteEntityManager::EntityManager("QSQLITE",
 //                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
     CuteEntityManager::EntityManager("QSQLITE",
-                                     ":memory:","","","","",true);
+                                     ":memory:", "", "", "", "", true);
     SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
             QDir::currentPath());
     qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");

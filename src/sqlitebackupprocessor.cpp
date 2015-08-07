@@ -15,7 +15,7 @@
  */
 #include "sqlitebackupprocessor.h"
 #include <sqlite3.h>
-
+#include <QFileInfoList>
 using namespace CuteEntityManager;
 SqliteBackupProcessor::SqliteBackupProcessor(QSharedPointer<Database> database,
         QString destination) : QObject() {
@@ -46,6 +46,7 @@ QSharedPointer<Database> SqliteBackupProcessor::getDatabase() const {
 void SqliteBackupProcessor::setDatabase(const QSharedPointer<Database> &value) {
     database = value;
 }
+
 QString SqliteBackupProcessor::getDestination() const {
     return destination;
 }
@@ -134,11 +135,45 @@ bool SqliteBackupProcessor::sqliteDBMemFile(bool save, QString fileName) {
 
 void SqliteBackupProcessor::backup() {
     QString fileName = this->destination + "/" + this->getBackupFilename();
-    if (incrementalBackups) {
-        fileName += QString::number(counter);
-        ++counter;
+    if (this->incrementalBackups) {
+        this->rotateBackup();
+        if (this->counter > 0) {
+            fileName += "." + QString::number(this->counter);
+        }
+        if (this->counter < this->backupCount) {
+            ++this->counter;
+        }
     }
     this->sqliteDBMemFile(true, fileName);
+}
+
+void SqliteBackupProcessor::rotateBackup() {
+    if (this->counter == this->backupCount) {
+        QStringList nameFilter = QStringList(this->getBackupFilename());
+        QDir directory = QDir(this->destination);
+        QFileInfoList files = directory.entryInfoList(nameFilter);
+        for (int var = 0; var < files.size(); ++var) {
+            QFileInfo file = files.at(var);
+            if (file.isFile()) {
+                int lastIndex = file.filePath().lastIndexOf(".");
+                if (lastIndex > -1) {
+                    QString sub = file.filePath().mid(lastIndex);
+                    bool ok = false;
+                    int num = sub.toInt(&ok);
+                    QDir dir = QDir();
+                    if (ok) {
+                        if (num == 1) {
+                            dir.rename(file.filePath(), file.path().mid(0, lastIndex));
+                        } else {
+                            dir.rename(file.filePath(), file.path().mid(0, lastIndex) + QString(num - 1));
+                        }
+                    } else {
+                        dir.remove(file.filePath());
+                    }
+                }
+            }
+        }
+    }
 }
 
 QSharedPointer<QTimer> SqliteBackupProcessor::getTimer() const {
@@ -148,7 +183,6 @@ QSharedPointer<QTimer> SqliteBackupProcessor::getTimer() const {
 void SqliteBackupProcessor::setTimer(const QSharedPointer<QTimer> &value) {
     timer = value;
 }
-
 
 bool SqliteBackupProcessor::getIncrementalBackups() const {
     return incrementalBackups;
