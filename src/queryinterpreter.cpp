@@ -135,7 +135,17 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
         sqlJoin += j.getType() + this->builder->getSeparator() +
                    this->builder->getSchema()->quoteTableName(j.getForeignTable());
         if (!j.getExpression().getExpression().isEmpty()) {
-            sqlJoin += " ON " + j.getExpression().getExpression();
+            QString expression = j.getExpression().getExpression();
+            int count = expression.count("=");
+            if (count < 1) {
+                expression = this->builder->getSchema()->quoteTableName(expression);
+            } else if (count == 1) {
+                QStringList list = expression.split("=");
+                expression = this->builder->getSchema()->quoteTableName(list.at(
+                                 0).trimmed()) + " = ";
+                expression += this->builder->getSchema()->quoteTableName(list.at(1).trimmed());
+            }
+            sqlJoin += " ON " + expression;
         }
     }
     return sqlJoin;
