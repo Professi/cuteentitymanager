@@ -133,11 +133,11 @@ class EntityManager : public QObject {
     template<class T> QList<QSharedPointer<T>> findAllEntitiesByAttributes(
             const QHash<QString, QVariant> &attributes =
     QHash<QString, QString>(), quint64 limit = 0, quint64 offset = 0) {
-        QSharedPointer<T> e = QSharedPointer<T>
+        QSharedPointer<Entity> e = QSharedPointer<Entity>
                               (EntityInstanceFactory::createInstance<T *>());
         if (e) {
-            Query query = Query(QStringList(e->getTablename()),
-                                this->schema->getQueryBuilder()->where(attributes));
+            Query query = Query(QStringList(e->getTablename()));
+            query.appendWhere(this->schema->getQueryBuilder()->where(attributes));
             query.setLimit(limit);
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
@@ -145,7 +145,7 @@ class EntityManager : public QObject {
             auto list = this->convert(results, EntityHelper::getClassname(e.data()));
             return this->convertList<T>(list);
         }
-        return QList<QSharedPointer<Entity>>();
+        return QList<QSharedPointer<T>>();
     }
 
     template<class T> QList<QSharedPointer<T>> findEntitiesBySql(

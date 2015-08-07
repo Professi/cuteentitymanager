@@ -141,9 +141,9 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
                 expression = this->builder->getSchema()->quoteTableName(expression);
             } else if (count == 1) {
                 QStringList list = expression.split("=");
-                expression = this->builder->getSchema()->quoteTableName(list.at(
+                expression = this->builder->getSchema()->quoteColumnName(list.at(
                                  0).trimmed()) + " = ";
-                expression += this->builder->getSchema()->quoteTableName(list.at(1).trimmed());
+                expression += this->builder->getSchema()->quoteColumnName(list.at(1).trimmed());
             }
             sqlJoin += " ON " + expression;
         }

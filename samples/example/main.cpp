@@ -114,6 +114,11 @@ int main(int argc, char *argv[]) {
     }
     qDebug() << "-----------------------------";
 
+    QHash<QString,QVariant> attributes;
+    attributes["name"]=QString("05c");
+    e->findEntityByAttributes<Pupil>(attributes);
+
+
     qDebug() << "Duration:" << t.elapsed();
     return 0;
 }

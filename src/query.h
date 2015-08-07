@@ -30,7 +30,7 @@ class Query {
   public:
     Query();
     ~Query();
-    Query(QStringList from, QList<Expression> where,
+    Query(QStringList from, QList<Expression> where = QList<Expression>(),
           QList<Join> joins = QList<Join>(),
           QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
           quint64 offset = 0,
