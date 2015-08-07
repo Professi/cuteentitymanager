@@ -13,18 +13,23 @@
 #include "models/faker/createfakemodeldata.h"
 #include "querybuilder.h"
 #include "orderby.h"
+#include "sqlitebackupprocessor.h"
 
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv)
     QTime t;
     t.start();
-    CuteEntityManager::EntityManager *e = new
-    CuteEntityManager::EntityManager("QSQLITE",
-                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
-//                CuteEntityManager::EntityManager("QSQLITE",
-//                                                     ":memory:");
 
+    CuteEntityManager::EntityManager *e = new
+//    CuteEntityManager::EntityManager("QSQLITE",
+//                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
+    //QSqlDatabase db = QSqlDatabase()
+    CuteEntityManager::EntityManager("QSQLITE",
+                                     ":memory:");
+    SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
+            QDir::currentPath());
+    qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");
     /**
      * @brief EntityInstanceFactory::registerClass<EntityClass>
      * You must register every EntityClass, cause Qt is not creating all meta object informations for entity manager
@@ -45,7 +50,7 @@ int main(int argc, char *argv[]) {
       * Instead of startup(version,qstringlist) you can call method createTable of EntityManager (e->create(sharedptr))
       * startup will create tables inclusive relation tables for classes in QStringList inits
       */
-    e->startup("0.1", inits);
+    qWarning() << "Tables created:" << e->startup("0.1", inits);
     QSharedPointer<CuteEntityManager::Entity> p =
         QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
                 Person::Gender::MALE, "", "", "",
@@ -124,5 +129,7 @@ int main(int argc, char *argv[]) {
     e->remove(entityGroupFindPtr);
 
     qWarning() << "Duration:" << t.elapsed();
+    sqliteproc->sqliteDBMemFile(true, "db.sqlite");
+    delete sqliteproc;
     return 0;
 }

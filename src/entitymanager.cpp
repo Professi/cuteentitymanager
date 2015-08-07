@@ -30,8 +30,9 @@ QSharedPointer<QueryBuilder> EntityManager::getQueryBuilder() const {
     return this->schema->getQueryBuilder();
 }
 
-EntityManager::EntityManager(QSqlDatabase database) : QObject() {
-    auto db = new Database(database);
+EntityManager::EntityManager(QSqlDatabase database,
+                             bool logQueries) : QObject() {
+    auto db = new Database(database, true, logQueries);
     this->db = QSharedPointer<Database>(db);
     this->init();
 }
@@ -371,8 +372,8 @@ bool EntityManager::isRelationPropertyValid(const QMetaProperty &prop,
     if (!propertyIsValid) {
         qWarning() << "Relation is incomplete:" << r.getPropertyName();
         qWarning() << "Involved entities: " << EntityHelper::getClassName(
-                     e.data()) <<
-                 "(MainEntitiy) and "  << EntityHelper::getClassName(relatedEntity.data());
+                       e.data()) <<
+                   "(MainEntitiy) and "  << EntityHelper::getClassName(relatedEntity.data());
     }
     return propertyIsValid;
 }
@@ -534,7 +535,8 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
 void EntityManager::missingManyToManyTable(const QString &tblName,
         const QSharedPointer<Entity> &e, const Relation &r) {
     qWarning() << "MANY_TO_MANY Table " << tblName << " is missing";
-    qWarning() << "Entity " << EntityHelper::getClassName(e.data()) << " is affected";
+    qWarning() << "Entity " << EntityHelper::getClassName(e.data()) <<
+               " is affected";
     qWarning() << "Relation of property: " << r.getPropertyName();
     /**
       @todo wait for Qt 5.5.1
@@ -625,7 +627,8 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
             }
             rc = this->db->exec(query);
             if (!rc) {
-                qWarning() << "class is erroneous:" <<  EntityHelper::getClassname(entity.data());
+                qWarning() << "class is erroneous:" <<  EntityHelper::getClassname(
+                               entity.data());
                 break;
             }
             if (first) {

@@ -78,7 +78,7 @@ class EntityManager : public QObject {
     qint8 count(Query &query);
 
   public:
-    EntityManager(QSqlDatabase database);
+    EntityManager(QSqlDatabase database, bool logQueries = false);
     EntityManager(const QString &databaseType, QString databasename = "" ,
                   QString hostname = "",
                   QString username = "",

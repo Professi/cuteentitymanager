@@ -1,11 +1,15 @@
 #include "sqlitebackupprocessor.h"
-#include "sqlite3.h"
+#include <sqlite3.h>
 
 using namespace CuteEntityManager;
 SqliteBackupProcessor::SqliteBackupProcessor(QSharedPointer<Database> database,
-        QString destination) {
+        QString destination) : QObject() {
     this->database = database;
     this->destination = destination;
+}
+
+SqliteBackupProcessor::~SqliteBackupProcessor() {
+
 }
 QSharedPointer<Database> SqliteBackupProcessor::getDatabase() const {
     return database;
@@ -22,9 +26,29 @@ void SqliteBackupProcessor::setDestination(const QString &value) {
     destination = value;
 }
 
-bool SqliteBackupProcessor::backup(QString fileName = "db.sqlite.bak") {
+/**
+ * @see http://www.qtcentre.org/threads/36131-Attempting-to-use-Sqlite-backup-api-from-driver-handle-fails
+ * @brief SqliteBackupProcessor::backup
+ * @param fileName
+ * @return
+* This function is used to load the contents of a database file on disk
+* into the "main" database of open database connection pInMemory, or
+* to save the current contents of the database opened by pInMemory into
+* a database file on disk. pInMemory is probably an in-memory database,
+* but this function will also work fine if it is not.
+*
+* Parameter zFilename points to a nul-terminated string containing the
+* name of the database file on disk to load from or save to. If parameter
+* isSave is non-zero, then the contents of the file zFilename are
+* overwritten with the contents of the database opened by pInMemory. If
+* parameter isSave is zero, then the contents of the database opened by
+* pInMemory are replaced by data loaded from the file zFilename.
+*
+* If the operation is successful, SQLITE_OK is returned. Otherwise, if
+* an error occurs, an SQLite error code is returned.
+*/
+bool SqliteBackupProcessor::sqliteDBMemFile(bool save, QString fileName) {
     bool state = false;
-    bool save = true;
     QVariant v = this->database->getDatabase().driver()->handle();
     if ( v.isValid() && qstrcmp(v.typeName(), "sqlite3*") == 0 ) {
         // v.data() returns a pointer to the handle
@@ -43,7 +67,6 @@ bool SqliteBackupProcessor::backup(QString fileName = "db.sqlite.bak") {
             ** for any reason. */
             rc = sqlite3_open( zFilename, &pFile );
             if ( rc == SQLITE_OK ) {
-
                 /* If this is a 'load' operation (isSave==0), then data is copied
                 ** from the database file just opened to database pInMemory.
                 ** Otherwise, if this is a 'save' operation (isSave==1), then data
@@ -51,7 +74,6 @@ bool SqliteBackupProcessor::backup(QString fileName = "db.sqlite.bak") {
                 ** pTo accordingly. */
                 pFrom = ( save ? pInMemory : pFile);
                 pTo   = ( save ? pFile     : pInMemory);
-
                 /* Set up the backup procedure to copy from the "main" database of
                 ** connection pFile to the main database of connection pInMemory.
                 ** If something goes wrong, pBackup will be set to NULL and an error
@@ -71,11 +93,9 @@ bool SqliteBackupProcessor::backup(QString fileName = "db.sqlite.bak") {
                 }
                 rc = sqlite3_errcode(pTo);
             }
-
             /* Close the database connection opened on database file zFilename
             ** and return the result of this function. */
             (void)sqlite3_close(pFile);
-
             if ( rc == SQLITE_OK ) {
                 state = true;
             }

@@ -29,7 +29,8 @@ src/entity.h \
     src/join.h \
     src/queryinterpreter.h \
     src/expression.h \
-    src/orderby.h
+    src/orderby.h \
+    src/sqlitebackupprocessor.h
 
 SOURCES += \
 src/entity.cpp \
@@ -52,11 +53,12 @@ src/entity.cpp \
     src/join.cpp \
     src/queryinterpreter.cpp \
     src/expression.cpp \
-    src/orderby.cpp
+    src/orderby.cpp \
+    src/sqlitebackupprocessor.cpp
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14
-
+LIBS += -lsqlite3
 unix {
     target.path = /usr/lib
     INSTALLS += target

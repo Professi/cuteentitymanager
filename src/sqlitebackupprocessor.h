@@ -9,7 +9,8 @@
 namespace CuteEntityManager {
 class SqliteBackupProcessor : public QObject {
   public:
-    SqliteBackupProcessor(QSharedPointer<Database> database, QString destination);
+    explicit SqliteBackupProcessor(QSharedPointer<Database> database, QString destination);
+    ~SqliteBackupProcessor();
     QSharedPointer<Database> getDatabase() const;
     void setDatabase(const QSharedPointer<Database> &value);
 
@@ -17,7 +18,7 @@ class SqliteBackupProcessor : public QObject {
     void setDestination(const QString &value);
 
 public slots:
-    bool backup(QString fileName);
+    bool sqliteDBMemFile(bool save,QString fileName= "db.sqlite.bak");
 private:
     QSharedPointer<Database> database;
     QString destination;
