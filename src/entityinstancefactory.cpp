@@ -82,7 +82,7 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
                         prop.write(e, iterator.value());
                     }
                 } else {
-                    qDebug() << prop.name() << "on Entity" << EntityHelper::getClassname(
+                    qWarning() << prop.name() << "on Entity" << EntityHelper::getClassname(
                                  e) << "not writeable!";
                 }
             }

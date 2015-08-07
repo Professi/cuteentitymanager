@@ -916,7 +916,7 @@ QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity>
     if (entity) {
         return this->generateColumnNameID(entity->getTablename());
     }
-    qDebug() << "Entity is empty!";
+    qWarning() << "Entity is empty!";
     return "";
 }
 
@@ -993,7 +993,7 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
                             this->saveAttributes(entity, this->processProperties(e, usedProperties),
                                                  this->processRelations(e, usedRelations)), e->getPrimaryKey()));
             } else {
-                qDebug() << "Instance of " << metaObj->className() << " could not be created";
+                qWarning() << "Instance of " << metaObj->className() << " could not be created";
                 break;
             }
         }

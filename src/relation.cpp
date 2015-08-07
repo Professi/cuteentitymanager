@@ -14,7 +14,6 @@
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
 #include "relation.h"
-#include <QDebug>
 using namespace CuteEntityManager;
 
 Relation::Relation() {

@@ -39,13 +39,17 @@ void Logger::lastError(const QSqlQuery &q, bool logQuery) {
         QTextStream stream(&log);
         const QString errorMsg = this->generateLogMsg(q.lastError());
         if (!errorMsg.isEmpty()) {
-            qDebug() << errorMsg;
+            qWarning() << errorMsg;
             stream << errorMsg;
         }
         if (logQuery || !errorMsg.isEmpty()) {
             const QString query = this->generateLogMsg(q);
             if (!query.isEmpty()) {
+                if(errorMsg.isEmpty()) {
                 qDebug() << query;
+                } else{
+                    qWarning << query;
+                }
                 stream << query;
             }
         }

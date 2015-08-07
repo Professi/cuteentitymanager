@@ -369,8 +369,8 @@ bool EntityManager::isRelationPropertyValid(const QMetaProperty &prop,
         const QSharedPointer<Entity> &relatedEntity) {
     bool propertyIsValid = prop.isValid() && prop.isReadable() && prop.isWritable();
     if (!propertyIsValid) {
-        qDebug() << "Relation is incomplete:" << r.getPropertyName();
-        qDebug() << "Involved entities: " << EntityHelper::getClassName(
+        qWarning() << "Relation is incomplete:" << r.getPropertyName();
+        qWarning() << "Involved entities: " << EntityHelper::getClassName(
                      e.data()) <<
                  "(MainEntitiy) and "  << EntityHelper::getClassName(relatedEntity.data());
     }
@@ -533,9 +533,9 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
 
 void EntityManager::missingManyToManyTable(const QString &tblName,
         const QSharedPointer<Entity> &e, const Relation &r) {
-    qDebug() << "MANY_TO_MANY Table " << tblName << " is missing";
-    qDebug() << "Entity " << EntityHelper::getClassName(e.data()) << " is affected";
-    qDebug() << "Relation of property: " << r.getPropertyName();
+    qWarning() << "MANY_TO_MANY Table " << tblName << " is missing";
+    qWarning() << "Entity " << EntityHelper::getClassName(e.data()) << " is affected";
+    qWarning() << "Relation of property: " << r.getPropertyName();
     /**
       @todo wait for Qt 5.5.1
       @see https://codereview.qt-project.org/#/c/122232/
@@ -625,7 +625,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
             }
             rc = this->db->exec(query);
             if (!rc) {
-                qDebug() << "class is erroneous:" <<  EntityHelper::getClassname(entity.data());
+                qWarning() << "class is erroneous:" <<  EntityHelper::getClassname(entity.data());
                 break;
             }
             if (first) {
