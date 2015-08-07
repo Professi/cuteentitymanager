@@ -24,7 +24,6 @@ int main(int argc, char *argv[]) {
     CuteEntityManager::EntityManager *e = new
 //    CuteEntityManager::EntityManager("QSQLITE",
 //                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
-    //QSqlDatabase db = QSqlDatabase()
     CuteEntityManager::EntityManager("QSQLITE",
                                      ":memory:");
     SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
