@@ -42,6 +42,12 @@ class EntityManager : public QObject {
   signals:
     void actionFinished(qint64 id);
   public slots:
+    /**
+     * @brief startup
+     * @param version must be unique
+     * @param toInitialize list of entity classnames which database tables should be created
+     * @return
+     */
     bool startup(QString version, QStringList toInitialize);
     bool executeQuery(const QString &query);
     static void removeConnectionName(const QString &name);
@@ -79,12 +85,6 @@ class EntityManager : public QObject {
                   QString password = "", QString port = "", bool logQueries = false);
     ~EntityManager();
     static QStringList getConnectionNames();
-    /**
-     * @brief startup
-     * @param version must be unique
-     * @param toInitialize list of entity classnames which database tables should be created
-     * @return
-     */
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
 
     template<class T> QList<QSharedPointer<T>> find(Query &q) {
@@ -101,7 +101,6 @@ class EntityManager : public QObject {
         }
         return QList<QSharedPointer<T>>();
     }
-
 
     template<class T> QList<QSharedPointer<T>> findAll() {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
@@ -123,7 +122,7 @@ class EntityManager : public QObject {
     template<class T> QSharedPointer<T> findEntityByAttributes(
         const QHash<QString, QVariant>
         &attributes) {
-        auto list = this->findAllEntitiesByAttributes<T *>(attributes, 1, 0);
+        auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0);
         if (list.isEmpty()) {
             return QSharedPointer<T>();
         }
