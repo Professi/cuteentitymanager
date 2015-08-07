@@ -126,9 +126,8 @@ int main(int argc, char *argv[]) {
     qWarning() << "Remove Group";
     qWarning() << "-----------------------------";
     e->remove(entityGroupFindPtr);
-
-    qWarning() << "Duration:" << t.elapsed();
     sqliteproc->sqliteDBMemFile(true, "db.sqlite");
+    qWarning() << "Duration:" << t.elapsed();
     delete sqliteproc;
     return 0;
 }
