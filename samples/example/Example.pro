@@ -32,11 +32,11 @@ unix:DEPENDPATH += $$PWD/../../src
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../build-EntityManager-Desktop-Release/release/ -lCuteEntityManager
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../build-EntityManager-Desktop-Debug/debug/ -lCuteEntityManager
+win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/release/ -lCuteEntityManager
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug/debug/ -lCuteEntityManager
 
-win32:INCLUDEPATH += $$PWD/../../build-EntityManager-Desktop-Debug/debug
-win32:DEPENDPATH += $$PWD/../../build-EntityManager-Desktop-Debug/debug
+win32:INCLUDEPATH += $$PWD/../../../build-EntityManager-Desktop-Debug/debug
+win32:DEPENDPATH += $$PWD/../../../build-EntityManager-Desktop-Debug/debug
 
 INCLUDEPATH += $$PWD/../../src
 DEPENDPATH += $$PWD/../../src

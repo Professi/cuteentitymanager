@@ -20,11 +20,16 @@
 #include <QtSql/QSqlDriver>
 #include <QString>
 #include <QVariant>
+#include <QTimer>
 #include "database.h"
 namespace CuteEntityManager {
 class SqliteBackupProcessor : public QObject {
   public:
-    explicit SqliteBackupProcessor(QSharedPointer<Database> database, QString destination);
+    explicit SqliteBackupProcessor(QSharedPointer<Database> database,
+                                   QString destination);
+    explicit SqliteBackupProcessor(QSharedPointer<Database> database,
+                                   QString destination, QString backupFilename, QTimer timer,
+                                   bool incrementalBackups = false, int backupCount = 1);
     ~SqliteBackupProcessor();
     QSharedPointer<Database> getDatabase() const;
     void setDatabase(const QSharedPointer<Database> &value);
@@ -32,11 +37,29 @@ class SqliteBackupProcessor : public QObject {
     QString getDestination() const;
     void setDestination(const QString &value);
 
-public slots:
-    bool sqliteDBMemFile(bool save,QString fileName= "db.sqlite.bak");
-private:
+    QString getBackupFilename() const;
+    void setBackupFilename(const QString &value);
+
+    QTimer getTimer() const;
+    void setTimer(const QTimer &value);
+
+    int getBackupCount() const;
+    void setBackupCount(int value);
+
+    bool getIncrementalBackups() const;
+    void setIncrementalBackups(bool value);
+
+  public slots:
+    bool sqliteDBMemFile(bool save, QString fileName = "db.sqlite.bak");
+    void backup();
+  private:
     QSharedPointer<Database> database;
     QString destination;
+    QString backupFilename;
+    QTimer timer;
+    bool incrementalBackups;
+    int backupCount;
+    int counter = 0;
 };
 }
 

@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
       * Instead of startup(version,qstringlist) you can call method createTable of EntityManager (e->create(sharedptr))
       * startup will create tables inclusive relation tables for classes in QStringList inits
       */
-    qWarning() << "Tables created:" << e->startup("0.1", inits);
+    qWarning() << "Tables created or already set up:" << e->startup("0.1", inits);
     QSharedPointer<CuteEntityManager::Entity> p =
         QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
                 Person::Gender::MALE, "", "", "",

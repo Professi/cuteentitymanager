@@ -23,6 +23,19 @@ SqliteBackupProcessor::SqliteBackupProcessor(QSharedPointer<Database> database,
     this->destination = destination;
 }
 
+SqliteBackupProcessor::SqliteBackupProcessor(QSharedPointer<Database> database,
+        QString destination, QString backupFilename, QTimer timer,
+        bool incrementalBackups, int backupCount) {
+    this->database = database;
+    this->destination = destination;
+    this->timer = timer;
+    this->backupFilename = backupFilename;
+    this->incrementalBackups = incrementalBackups;
+    this->backupCount = backupCount;
+    connect(timer, &QTimer::timeout, this,
+            &SqliteBackupProcessor::backup);
+}
+
 SqliteBackupProcessor::~SqliteBackupProcessor() {
 }
 
@@ -118,3 +131,46 @@ bool SqliteBackupProcessor::sqliteDBMemFile(bool save, QString fileName) {
     }
     return state;
 }
+
+void SqliteBackupProcessor::backup() {
+    QString fileName = this->destination + "/" + this->getBackupFilename();
+    if (incrementalBackups) {
+        fileName += QString::number(counter);
+        ++counter;
+    }
+    this->sqliteDBMemFile(true, fileName);
+}
+
+bool SqliteBackupProcessor::getIncrementalBackups() const {
+    return incrementalBackups;
+}
+
+void SqliteBackupProcessor::setIncrementalBackups(bool value) {
+    incrementalBackups = value;
+}
+
+int SqliteBackupProcessor::getBackupCount() const {
+    return backupCount;
+}
+
+void SqliteBackupProcessor::setBackupCount(int value) {
+    backupCount = value;
+}
+
+
+QTimer SqliteBackupProcessor::getTimer() const {
+    return timer;
+}
+
+void SqliteBackupProcessor::setTimer(const QTimer &value) {
+    timer = value;
+}
+
+QString SqliteBackupProcessor::getBackupFilename() const {
+    return backupFilename;
+}
+
+void SqliteBackupProcessor::setBackupFilename(const QString &value) {
+    backupFilename = value;
+}
+
