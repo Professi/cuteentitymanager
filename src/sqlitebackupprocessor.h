@@ -28,7 +28,7 @@ class SqliteBackupProcessor : public QObject {
     explicit SqliteBackupProcessor(QSharedPointer<Database> database,
                                    QString destination);
     explicit SqliteBackupProcessor(QSharedPointer<Database> database,
-                                   QString destination, QString backupFilename, QTimer timer,
+                                   QString destination, QString backupFilename, QSharedPointer<QTimer> timer,
                                    bool incrementalBackups = false, int backupCount = 1);
     ~SqliteBackupProcessor();
     QSharedPointer<Database> getDatabase() const;
@@ -40,23 +40,23 @@ class SqliteBackupProcessor : public QObject {
     QString getBackupFilename() const;
     void setBackupFilename(const QString &value);
 
-    QTimer getTimer() const;
-    void setTimer(const QTimer &value);
-
     int getBackupCount() const;
     void setBackupCount(int value);
 
     bool getIncrementalBackups() const;
     void setIncrementalBackups(bool value);
 
-  public slots:
+    QSharedPointer<QTimer> getTimer() const;
+    void setTimer(const QSharedPointer<QTimer> &value);
+
+public slots:
     bool sqliteDBMemFile(bool save, QString fileName = "db.sqlite.bak");
     void backup();
   private:
     QSharedPointer<Database> database;
     QString destination;
     QString backupFilename;
-    QTimer timer;
+    QSharedPointer<QTimer> timer;
     bool incrementalBackups;
     int backupCount;
     int counter = 0;

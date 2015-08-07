@@ -121,7 +121,7 @@ QString QueryInterpreter::buildFrom(const QStringList &from) const {
         } else {
             clause += ", ";
         }
-        clause += from.at(var);
+        clause += tables.at(var);
     }
     return clause;
 }
