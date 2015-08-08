@@ -660,6 +660,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
 }
 
 bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
+    bool ok = false;
     if (entity->getId() > -1) {
         if (withRelations) {
             this->savePrePersistedRelations(entity);
@@ -667,7 +668,7 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
         this->db->startTransaction();
         QList<QSqlQuery> q = this->schema->getQueryBuilder()->merge(
                                  entity);
-        bool ok = this->db->exec(q);
+        ok = this->db->exec(q);
         if (!ok || !this->db->commitTransaction()) {
             this->db->rollbackTransaction();
             return false;
@@ -675,7 +676,7 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
             this->savePostPersistedRelations(entity);
         }
     }
-    return false;
+    return ok;
 }
 
 QHash<QString, QVariant> EntityManager::findByPk(qint64 id,
