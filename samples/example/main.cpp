@@ -55,78 +55,78 @@ int main(int argc, char *argv[]) {
         QSharedPointer<CuteEntityManager::Entity>(new Person("Max", "Mustermann",
                 Person::Gender::MALE, "", "", "",
                 QDate::currentDate()));
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Persist Group with Relations";
-//    qWarning() << "-----------------------------";
-//    QSharedPointer<Group> gPtr = QSharedPointer<Group>(new Group());
-//    CreateFakeModelData::fillGroup(gPtr.data());
-//    gPtr->setName("9b");
-//    QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
-//    QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
-//                                         "Mustermann", Person::Gender::MALE));
-//    gPtr->setMainTeacher(mainTeacher);
-//    //Persons will also persisted
-//    if (e->count(groupPtr->getTablename()) <= 0) {
-//        e->create(groupPtr, true, true);
-//    }
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Find All Groups";
-//    qWarning() << "-----------------------------";
-//    QList<QSharedPointer<Group>> groups = e->findAll<Group>();
-//    QSharedPointer<Group> groupFindPtr = groups.at(0);
-//    qWarning() << "Group:" << groupFindPtr->toString();
-//    qWarning() << "MainTeacher:" << groupFindPtr->getMainTeacher()->toString();
+    qWarning() << "-----------------------------";
+    qWarning() << "Persist Group with Relations";
+    qWarning() << "-----------------------------";
+    QSharedPointer<Group> gPtr = QSharedPointer<Group>(new Group());
+    CreateFakeModelData::fillGroup(gPtr.data());
+    gPtr->setName("9b");
+    QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
+    QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
+                                         "Mustermann", Person::Gender::MALE));
+    gPtr->setMainTeacher(mainTeacher);
+    //Persons will also persisted
+    if (e->count(groupPtr->getTablename()) <= 0) {
+        e->create(groupPtr, true, true);
+    }
+    qWarning() << "-----------------------------";
+    qWarning() << "Find All Groups";
+    qWarning() << "-----------------------------";
+    QList<QSharedPointer<Group>> groups = e->findAll<Group>();
+    QSharedPointer<Group> groupFindPtr = groups.at(0);
+    qWarning() << "Group:" << groupFindPtr->toString();
+    qWarning() << "MainTeacher:" << groupFindPtr->getMainTeacher()->toString();
 
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Find Person By Id Version 1";
-//    qWarning() << "-----------------------------";
+    qWarning() << "-----------------------------";
+    qWarning() << "Find Person By Id Version 1";
+    qWarning() << "-----------------------------";
 
-//    QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person"));
-//    e->refresh(personFindPtr);
-//    QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
-//    qWarning() << "MainTeacher:" << personFindPtr->toString();
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Find Person By Id Version 2";
-//    qWarning() << "-----------------------------";
+    QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person"));
+    e->refresh(personFindPtr);
+    QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
+    qWarning() << "MainTeacher:" << personFindPtr->toString();
+    qWarning() << "-----------------------------";
+    qWarning() << "Find Person By Id Version 2";
+    qWarning() << "-----------------------------";
 
-//    QSharedPointer<Person> foundMainTeacher = e->findById<Person>(1);
-//    qWarning() << "FoundMainTeacher:" << foundMainTeacher->toString();
+    QSharedPointer<Person> foundMainTeacher = e->findById<Person>(1);
+    qWarning() << "FoundMainTeacher:" << foundMainTeacher->toString();
 
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Find Pupil with Query Class";
-//    qWarning() << "-----------------------------";
+    qWarning() << "-----------------------------";
+    qWarning() << "Find Pupil with Query Class";
+    qWarning() << "-----------------------------";
 
-//    Query q = Query();
-//    q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim")));
-//    q.appendJoin(Join("person", "pupil.id = person.id"));
-//    q.setDistinct(true);
-//    q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
-//    q.setLimit(10);
-//    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q);
-//    for (int i = 0; i < list.size(); ++i) {
-//        qWarning() << list.at(i)->toString();
-//    }
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Find Pupil by Attributes";
-//    qWarning() << "-----------------------------";
+    Query q = Query();
+    q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim")));
+    q.appendJoin(Join("person", "pupil.id = person.id"));
+    q.setDistinct(true);
+    q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
+    q.setLimit(10);
+    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q);
+    for (int i = 0; i < list.size(); ++i) {
+        qWarning() << list.at(i)->toString();
+    }
+    qWarning() << "-----------------------------";
+    qWarning() << "Find Pupil by Attributes";
+    qWarning() << "-----------------------------";
 
-//    QHash<QString, QVariant> attributes;
-//    attributes["familyName"] = QString("Dunst");
-//    QSharedPointer<Pupil> pupil = e->findEntityByAttributes<Pupil>
-//                                  (attributes, true);
-//    qWarning() << pupil->toString();
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Merge Group";
-//    qWarning() << "-----------------------------";
-//    groupFindPtr->setName("10b");
-//    qWarning() << groupFindPtr->toString();
-//    QSharedPointer<Entity> entityGroupFindPtr = groupFindPtr.objectCast<Entity>();
-//    e->save(entityGroupFindPtr, false);
+    QHash<QString, QVariant> attributes;
+    attributes["familyName"] = QString("Dunst");
+    QSharedPointer<Pupil> pupil = e->findEntityByAttributes<Pupil>
+                                  (attributes, true);
+    qWarning() << pupil->toString();
+    qWarning() << "-----------------------------";
+    qWarning() << "Merge Group";
+    qWarning() << "-----------------------------";
+    groupFindPtr->setName("10b");
+    qWarning() << groupFindPtr->toString();
+    QSharedPointer<Entity> entityGroupFindPtr = groupFindPtr.objectCast<Entity>();
+    e->save(entityGroupFindPtr, false);
 
-//    qWarning() << "-----------------------------";
-//    qWarning() << "Remove Group";
-//    qWarning() << "-----------------------------";
-//    e->remove(entityGroupFindPtr);
+    qWarning() << "-----------------------------";
+    qWarning() << "Remove Group";
+    qWarning() << "-----------------------------";
+    e->remove(entityGroupFindPtr);
     sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
     delete sqliteproc;

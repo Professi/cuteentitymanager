@@ -181,8 +181,7 @@ QString QueryBuilder::createFkSuperClass(const Entity *e) const {
 QString QueryBuilder::createTableQuery(const QString &tableName,
                                        const QHash<QString, QString> &tableDefinition) const {
     bool first = true;
-    QString s = "CREATE TABLE ";
-    s.append(this->schema->quoteTableName(tableName).append(" ("));
+    QString s = "CREATE TABLE " + this->schema->quoteTableName(tableName) + " (";
     auto i = tableDefinition.constBegin();
     while (i != tableDefinition.constEnd()) {
         if (first) {
@@ -466,15 +465,10 @@ QString QueryBuilder::transformAbstractTypeToRealDbType(
 }
 
 QString QueryBuilder::getColumnType(const QString &type) const {
-    /**
-      * @WARNING
-      */
     auto tMap = this->schema->getTypeMap();
     if (tMap->contains(type)) {
         return this->transformAbstractTypeToRealDbType(type);
     }
-    //cant believe that this could work in Qt
-    //https://github.com/yiisoft/yii2/blob/master/framework/db/QueryBuilder.php
     QRegularExpression reg = QRegularExpression(
                                  QRegularExpression::escape("/^(\\w+)\\((.+?)\\)(.*)$/"));
     reg.optimize();

@@ -47,6 +47,50 @@ class Schema {
     const QString TYPE_BOOLEAN = "boolean";
     const QString TYPE_MONEY = "money";
 
+//    QString primaryKey(int length = 0) const;
+//    QString bigPrimaryKey(int length = 0) const;
+//    QString string(int length = 0, bool notNull = false,
+//                   QString defaultValue = "", bool unique = false,
+//                   QString checkConstraint = "") const;
+//    QString text(bool notNull = false, QString defaultValue = "",
+//                 bool unique = false, QString checkConstraint = "") const;
+//    QString smallInteger(int length = 0, bool notNull = false,
+//                         QString defaultValue = "", bool unique = false,
+//                         QString checkConstraint = "") const;
+//    QString integer(int length = 0, bool notNull = false,
+//                    QString defaultValue = "", bool unique = false,
+//                    QString checkConstraint = "") const;
+//    QString bigInteger(int length = 0, bool notNull = false,
+//                       QString defaultValue = "", bool unique = false,
+//                       QString checkConstraint = "") const;
+//    QString floatColumn(int precision = 0, bool notNull = false,
+//                        QString defaultValue = "", bool unique = false,
+//                        QString checkConstraint = "") const;
+//    QString doubleColumn(int precision = 0, bool notNull = false,
+//                         QString defaultValue = "", bool unique = false,
+//                         QString checkConstraint = "") const;
+//    QString decimal(int precision = 0, int scale = 0, bool notNull = false,
+//                    QString defaultValue = "", bool unique = false,
+//                    QString checkConstraint = "") const;
+//    QString dateTime(int precision = 0, bool notNull = false,
+//                     QString defaultValue = "", bool unique = false,
+//                     QString checkConstraint = "") const;
+//    QString timestamp(int precision = 0, bool notNull = false,
+//                      QString defaultValue = "", bool unique = false,
+//                      QString checkConstraint = "") const;
+//    QString time(int precision = 0, bool notNull = false,
+//                 QString defaultValue = "", bool unique = false,
+//                 QString checkConstraint = "") const;
+//    QString date( bool notNull = false, QString defaultValue = "") const;
+//    QString binary(int length = 0, bool notNull = false, bool unique = false,
+//                   QString checkConstraint = "") const;
+//    QString boolean(bool defaultValue = 0) const;
+//    QString money(int precision = 0, int scale = 0, bool notNull = false,
+//                  QString defaultValue = "", bool unique = false,
+//                  QString checkConstraint = "") const;
+
+
+
     virtual QSharedPointer<QHash<QString, QString> >getTypeMap() = 0;
     virtual QString quoteSimpleTableName(QString name);
     virtual QString quoteTableName(QString name);
