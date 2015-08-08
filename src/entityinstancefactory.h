@@ -47,16 +47,19 @@ class EntityInstanceFactory {
     //http://www.mimec.org/node/350
     template<typename T>
     static void registerClass() {
-        EntityInstanceFactory::instance.insert( T::staticMetaObject.className(),
-                                                &constructorHelper<T> );
-        QString lName = "QList<QSharedPointer<";
-        lName.append(T::staticMetaObject.className());
-        lName.append(">>");
-        /**
-         * @brief qRegisterMetaType<QList<QSharedPointer<T> > >
-         * @todo would be great if we could remove this shit
-         */
-        qRegisterMetaType<QList<QSharedPointer<T>>>(lName.toLatin1().constData());
+        if (!EntityInstanceFactory::instance.contains(
+                    T::staticMetaObject.className())) {
+            EntityInstanceFactory::instance.insert( T::staticMetaObject.className(),
+                                                    &constructorHelper<T> );
+            QString lName = "QList<QSharedPointer<";
+            lName.append(T::staticMetaObject.className());
+            lName.append(">>");
+            /**
+             * @brief qRegisterMetaType<QList<QSharedPointer<T> > >
+             * @todo would be great if we could remove this shit
+             */
+            qRegisterMetaType<QList<QSharedPointer<T>>>(lName.toLatin1().constData());
+        }
     }
 
     static Entity *createObject( const QByteArray &className) {

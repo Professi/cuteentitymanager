@@ -83,7 +83,7 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
                     }
                 } else {
                     qWarning() << prop.name() << "on Entity" << EntityHelper::getClassname(
-                                 e) << "not writeable!";
+                                   e) << "not writeable!";
                 }
             }
             ++iterator;

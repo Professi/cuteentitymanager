@@ -30,7 +30,12 @@ src/entity.h \
     src/queryinterpreter.h \
     src/expression.h \
     src/orderby.h \
-    src/sqlitebackupprocessor.h
+    src/sqlitebackupprocessor.h \
+    src/validators/validator.h \
+    src/validators/param.h \
+    src/validators/errormsg.h \
+    src/validators/defaultvalidator.h \
+    src/validators/validatorfactory.h
 
 SOURCES += \
 src/entity.cpp \
@@ -54,7 +59,12 @@ src/entity.cpp \
     src/queryinterpreter.cpp \
     src/expression.cpp \
     src/orderby.cpp \
-    src/sqlitebackupprocessor.cpp
+    src/sqlitebackupprocessor.cpp \
+    src/validators/validator.cpp \
+    src/validators/param.cpp \
+    src/validators/errormsg.cpp \
+    src/validators/defaultvalidator.cpp \
+    src/validators/validatorfactory.cpp
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14
