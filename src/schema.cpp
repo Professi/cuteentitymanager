@@ -34,6 +34,99 @@ Schema::Schema(QSharedPointer<Database> database,
 Schema::~Schema() {
 }
 
+QString Schema::primaryKey(int length) const {
+    return this->buildColumnSchema(TYPE_PK, this->lengthToString(length));
+}
+
+QString Schema::bigPrimaryKey(int length) const {
+    return this->buildColumnSchema(TYPE_BIGPK, this->lengthToString(length));
+}
+
+QString Schema::string(int length, bool notNull, QString defaultValue,
+                       bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_STRING, this->lengthToString(length),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::text(bool notNull, QString defaultValue, bool unique,
+                     QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_TEXT, "", notNull, defaultValue, unique,
+                                   checkConstraint);
+}
+
+QString Schema::smallInteger(int length, bool notNull, QString defaultValue,
+                             bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_SMALLINT, this->lengthToString(length),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::integer(int length, bool notNull, QString defaultValue,
+                        bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_INTEGER, this->lengthToString(length),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::bigInteger(int length, bool notNull, QString defaultValue,
+                           bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_BIGINT, this->lengthToString(length),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::floatColumn(int precision, bool notNull, QString defaultValue,
+                            bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_FLOAT, this->lengthToString(precision),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::doubleColumn(int precision, bool notNull, QString defaultValue,
+                             bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_DOUBLE, this->lengthToString(precision),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::decimal(int precision, int scale, bool notNull,
+                        QString defaultValue, bool unique, QString checkConstraint) const {
+
+    return this->buildColumnSchema(TYPE_DECIMAL,
+                                   this->combineScaleAndPrecision(precision, scale), notNull, defaultValue,
+                                   unique, checkConstraint);
+}
+
+QString Schema::dateTime(int precision, bool notNull, QString defaultValue,
+                         bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_DATETIME, this->lengthToString(precision),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::timestamp(int precision, bool notNull, QString defaultValue,
+                          bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_TIMESTAMP, this->lengthToString(precision),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::time(int precision, bool notNull, QString defaultValue,
+                     bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_TIME, this->lengthToString(precision),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
+QString Schema::binary(int length, bool notNull, bool unique,
+                       QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_BINARY, this->lengthToString(length),
+                                   notNull, "", unique, checkConstraint);
+}
+
+QString Schema::boolean(QString defaultValue, bool notNull) const {
+    return this->buildColumnSchema(TYPE_DOUBLE, "", notNull, defaultValue);
+}
+
+QString Schema::money(int precision, int scale, bool notNull,
+                      QString defaultValue, bool unique, QString checkConstraint) const {
+    return this->buildColumnSchema(TYPE_MONEY,
+                                   this->combineScaleAndPrecision(precision, scale),
+                                   notNull, defaultValue, unique, checkConstraint);
+}
+
 void Schema::initAbstractDatabaseTypes() {
     this->abstractTypeMap->insert("bool", TYPE_SMALLINT);
     this->abstractTypeMap->insert("short", TYPE_SMALLINT);
@@ -198,11 +291,46 @@ QString Schema::buildUniqueString(bool unique) const {
 }
 
 QString Schema::buildDefaultString(QString def) const {
-
+    if (def.isEmpty()) {
+        return "";
+    }
+    QString defaultValue = " DEFAULT ";
+    bool ok;
+    def.toInt(&ok);
+    if (ok) {
+        return (defaultValue + def);
+    }
+    if (def == "true" || def == "false") {
+        return (defaultValue + def.toUpper());
+    }
+    QString copy = def.replace(",", ".");
+    copy.toDouble(&ok);
+    if (ok) {
+        return (defaultValue + copy);
+    }
+    return ("\'" + defaultValue + def + "\'");
 }
 
 QString Schema::buildCheckString(QString check) const {
     return check.isEmpty() ? "" : (" CHECK (" + check + ")");
+}
+
+QString Schema::lengthToString(int length) const {
+    return length != 0 ? QString::number(length) : "";
+}
+
+QString Schema::combineScaleAndPrecision(int precision, int scale) const {
+    QString length = "";
+    if (precision != 0) {
+        length += QString::number(precision);
+    }
+    if (scale != 0) {
+        if (precision != 0) {
+            length += ", ";
+        }
+        length += QString::number(scale);
+    }
+    return length;
 }
 
 
