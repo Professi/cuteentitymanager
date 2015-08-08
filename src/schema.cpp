@@ -177,6 +177,34 @@ void Schema::setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> >
     abstractTypeMap = value;
 }
 
+QString Schema::buildColumnSchema(QString type, QString length, bool notNull,
+                                  QString defaultValue,
+                                  bool unique, QString checkConstraint) const {
+    return type + this->buildLengthString(length) + this->buildNotNullString(
+               notNull) + this->buildUniqueString(unique) + this->buildDefaultString(
+               defaultValue) + this->buildCheckString(checkConstraint);
+}
+
+QString Schema::buildLengthString(QString length) const {
+    return length.isEmpty() ? "" : "(" + length + ")";
+}
+
+QString Schema::buildNotNullString(bool notNull) const {
+    return notNull ? " NOT NULL" : "";
+}
+
+QString Schema::buildUniqueString(bool unique) const {
+    return unique ? " UNIQUE" : "";
+}
+
+QString Schema::buildDefaultString(QString def) const {
+
+}
+
+QString Schema::buildCheckString(QString check) const {
+    return check.isEmpty() ? "" : (" CHECK (" + check + ")");
+}
+
 
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() const {
     return this->tables;

@@ -119,6 +119,16 @@ class Schema {
     void setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> > &value);
 
   protected:
+    virtual QString buildColumnSchema(QString type, QString length, bool notNull = false, QString defaultValue = "",
+                                               bool unique = false, QString checkConstraint = "") const;
+    virtual QString buildLengthString(QString length) const;
+    virtual QString buildNotNullString(bool notNull) const;
+    virtual QString buildUniqueString(bool unique) const;
+    virtual QString buildDefaultString(QString def) const;
+    virtual QString buildCheckString(QString check) const;
+
+
+
     virtual QStringList findTableNames(QString schema = "") = 0;
     virtual QHash<QString, QStringList> findUniqueIndexes(const
             QSharedPointer<TableSchema>
