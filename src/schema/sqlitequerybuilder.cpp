@@ -63,12 +63,19 @@ QString CuteEntityManager::SqliteQueryBuilder::addForeignKey(QString name,
         refTableName)Q_UNUSED(refColumns)Q_UNUSED(deleteConstraint)Q_UNUSED(
             updateConstraint)
     //not supported
+    if (this->supportsForeignKeys()) {
+        return QueryBuilder::addForeignKey(name, tableName, columns, refTableName,
+                                           refColumns, deleteConstraint, updateConstraint);
+    }
     return "";
 }
 
 QString CuteEntityManager::SqliteQueryBuilder::dropForeignKey(QString name,
         QString tableName) const {
     Q_UNUSED(name)Q_UNUSED(tableName)
+    if (this->supportsForeignKeys()) {
+        return QueryBuilder::dropForeignKey(name, tableName);
+    }
     //not supported
     return "";
 }

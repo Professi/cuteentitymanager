@@ -39,11 +39,11 @@ EntityManager::EntityManager(QSqlDatabase database,
 
 EntityManager::EntityManager(const QString &databaseType, QString databasename ,
                              QString hostname, QString username, QString password, QString port,
-                             bool logQueries) : QObject() {
+                             bool logQueries, QString databaseOptions) : QObject() {
     auto db = new Database(databaseType, this->createConnection(), hostname,
                            databasename, username,
                            password,
-                           port.toInt(), true, logQueries);
+                           port.toInt(), true, logQueries, true, databaseOptions);
     this->db = QSharedPointer<Database>(db);
     this->init();
 }
@@ -61,7 +61,8 @@ EntityManager::~EntityManager() {
     EntityManager::removeConnectionName(this->db->getConnectionName());
 }
 
-bool EntityManager::startup(QString version, QStringList toInitialize) {
+bool EntityManager::startup(QString version, QStringList toInitialize,
+                            bool createIndices) {
     QSharedPointer<Entity> dbm = QSharedPointer<DatabaseMigration>
                                  (new DatabaseMigration());
     QHash<QString, QVariant> map = QHash<QString, QVariant>();
@@ -71,13 +72,21 @@ bool EntityManager::startup(QString version, QStringList toInitialize) {
         this->createTable(dbm, true);
     }
     if (this->findAllByAttributes(map, dbm->getTablename()).isEmpty()) {
+        QList<QSharedPointer<Entity>> entities = QList<QSharedPointer<Entity>>();
         for (int var = 0; var < toInitialize.size(); ++var) {
             if (ok) {
                 QString c = toInitialize.at(var);
-                ok = this->createTable(QSharedPointer<Entity>
-                                       (EntityInstanceFactory::createInstance(c)));
+                auto entity = QSharedPointer<Entity>
+                              (EntityInstanceFactory::createInstance(c));
+                ok = this->createTable(entity);
+                entities.append(entity);
             } else {
                 break;
+            }
+        }
+        if (createIndices) {
+            for (int i = 0; i < entities.size(); ++i) {
+                ok = this->schema->getQueryBuilder()->createIndices(entities.at(i));
             }
         }
         if (ok) {

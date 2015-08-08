@@ -31,23 +31,26 @@ Database::Database(QString databaseType, QString connectionName,
                    QString hostname,
                    QString databasename,
                    QString username, QString password, qint64 port, bool loggerActivated,
-                   bool logQueries, bool logErrors) {
+                   bool logQueries, bool logErrors, QString databaseOptions) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
-    if (hostname != QString("")) {
+    if (!hostname.isEmpty()) {
         this->database.setHostName(hostname);
     }
-    if (databasename != QString("")) {
+    if (!databasename.isEmpty()) {
         this->database.setDatabaseName(databasename);
     }
-    if (username != QString("")) {
+    if (!username.isEmpty()) {
         this->database.setUserName(username);
     }
-    if (password != QString("")) {
+    if (!password.isEmpty()) {
         this->database.setPassword(password);
     }
     if (port != 0) {
         this->database.setPort(port);
+    }
+    if(!databaseOptions.isEmpty()) {
+        this->database.setConnectOptions(databaseOptions);
     }
     this->init();
     this->initLogger(loggerActivated, logQueries, logErrors);

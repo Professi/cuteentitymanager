@@ -39,8 +39,6 @@ class Logger;
 class QueryInterpreter;
 class EntityManager : public QObject {
     Q_OBJECT
-  signals:
-    void actionFinished(qint64 id);
   public slots:
     /**
      * @brief startup
@@ -48,7 +46,7 @@ class EntityManager : public QObject {
      * @param toInitialize list of entity classnames which database tables should be created
      * @return
      */
-    bool startup(QString version, QStringList toInitialize);
+    bool startup(QString version, QStringList toInitialize, bool createIndices = false);
     bool executeQuery(const QString &query);
     static void removeConnectionName(const QString &name);
     QSharedPointer<Entity> findById(const qint64 &id, const QString &classname);
@@ -82,7 +80,7 @@ class EntityManager : public QObject {
     EntityManager(const QString &databaseType, QString databasename = "" ,
                   QString hostname = "",
                   QString username = "",
-                  QString password = "", QString port = "", bool logQueries = false);
+                  QString password = "", QString port = "", bool logQueries = false, QString databaseOptions = "");
     ~EntityManager();
     static QStringList getConnectionNames();
     QSharedPointer<QueryBuilder> getQueryBuilder() const;

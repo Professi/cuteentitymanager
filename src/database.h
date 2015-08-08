@@ -48,7 +48,7 @@ class Database {
              QString databasename = QString("") ,
              QString username = QString(""), QString password = QString(""),
              qint64 port = 0, bool loggerActivated = true, bool logQueries = false,
-             bool logErrors = true);
+             bool logErrors = true, QString databaseOptions = "");
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();

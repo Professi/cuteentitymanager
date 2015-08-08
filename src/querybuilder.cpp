@@ -56,9 +56,6 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity,
                 }
                 this->schema->getTableSchema(tableName);
                 rc = true;
-                if (rc) {
-                    rc = this->createIndices(entity);
-                }
             }
         }
     }
@@ -73,6 +70,7 @@ bool QueryBuilder::createIndices(const QSharedPointer<Entity> &entity) const {
         queries.append(superIndex);
     }
     queries.append(this->relationFks(entity));
+    qDebug() << "create index:" << entity->getTablename() << queries.size();
     ok = this->database->transaction(queries);
     return ok;
 }
@@ -157,21 +155,24 @@ QString QueryBuilder::createTable(const QString &tableName,
 
 QString QueryBuilder::createFkSuperClass(const Entity *e) const {
     QString r = "";
-    auto superMetaObject = e->metaObject()->superClass();
-    if (e->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE
-            && QString(superMetaObject->className()) !=
-            this->entityClassname()) {
-        Entity *superClass  = EntityInstanceFactory::createInstance(
-                                  superMetaObject->className());
-        if (superClass) {
-            QString refColumn = superClass->getPrimaryKey();
-            QString refTable = superClass->getTablename();
-            r = this->addForeignKey(this->generateIndexName(e->getPrimaryKey(),
-                                    e->getTablename(), refColumn, refTable, true), e->getTablename(),
-                                    QStringList(e->getPrimaryKey()), refTable, QStringList(refColumn),
-                                    this->getForeignKeyCascade(CASCADE),
-                                    this->getForeignKeyCascade(CASCADE));
-            delete superClass;
+    if (supportsForeignKeys()) {
+        auto superMetaObject = e->metaObject()->superClass();
+        if (e->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE
+                && QString(superMetaObject->className()) !=
+                this->entityClassname()) {
+            Entity *superClass  = EntityInstanceFactory::createInstance(
+                                      superMetaObject->className());
+            if (superClass) {
+                QString refColumn = superClass->getPrimaryKey();
+                QString refTable = superClass->getTablename();
+                r = this->addForeignKey(this->generateIndexName(e->getPrimaryKey(),
+                                        e->getTablename(), refColumn, refTable, this->supportsForeignKeys()),
+                                        e->getTablename(),
+                                        QStringList(e->getPrimaryKey()), refTable, QStringList(refColumn),
+                                        this->getForeignKeyCascade(CASCADE),
+                                        this->getForeignKeyCascade(CASCADE));
+                delete superClass;
+            }
         }
     }
     return r;
