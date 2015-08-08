@@ -115,6 +115,7 @@ class EntityManager : public QObject {
         if (ptr) {
             auto maps = this->findAll(ptr);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
+                                           false,
                                            resolveRelations);
             return this->convertList<T>(converted);
         }
@@ -157,7 +158,7 @@ class EntityManager : public QObject {
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
             auto results = this->convertQueryResult(q);
-            auto list = this->convert(results, EntityHelper::getClassname(e.data()),
+            auto list = this->convert(results, EntityHelper::getClassname(e.data()), false,
                                       resolveRelations);
             return this->convertList<T>(list);
         }
