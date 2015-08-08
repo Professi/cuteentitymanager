@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
     q.setDistinct(true);
     q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
     q.setLimit(10);
-    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true);
+    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true,false);
     for (int i = 0; i < list.size(); ++i) {
         qWarning() << list.at(i)->toString();
     }

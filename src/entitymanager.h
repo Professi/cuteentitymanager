@@ -46,7 +46,8 @@ class EntityManager : public QObject {
      * @param toInitialize list of entity classnames which database tables should be created
      * @return
      */
-    bool startup(QString version, QStringList toInitialize, bool createIndices = false);
+    bool startup(QString version, QStringList toInitialize,
+                 bool createIndices = false);
     bool executeQuery(const QString &query);
     static void removeConnectionName(const QString &name);
     QSharedPointer<Entity> findById(const qint64 &id, const QString &classname);
@@ -80,7 +81,8 @@ class EntityManager : public QObject {
     EntityManager(const QString &databaseType, QString databasename = "" ,
                   QString hostname = "",
                   QString username = "",
-                  QString password = "", QString port = "", bool logQueries = false, QString databaseOptions = "");
+                  QString password = "", QString port = "", bool logQueries = false,
+                  QString databaseOptions = "");
     ~EntityManager();
     static QStringList getConnectionNames();
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
@@ -99,6 +101,7 @@ class EntityManager : public QObject {
             QSqlQuery query = this->queryInterpreter->build(q);
             auto maps = this->convertQueryResult(query);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
+                                           false,
                                            resolveRelations);
             return this->convertList<T>(converted);
         }
