@@ -819,7 +819,7 @@ QString QueryBuilder::countKeyword() const {
 }
 
 Expression QueryBuilder::inFunction(QString column,
-                                    QList<QVariant> values, bool notOp) {
+                                    QList<QVariant> values, bool notOp) const {
     QString condition = "";
     Expression exp = Expression();
     if (!values.isEmpty()) {
@@ -844,7 +844,7 @@ Expression QueryBuilder::inFunction(QString column,
 }
 
 QString QueryBuilder::between(QString colName, QString valName1,
-                              QString valName2, bool notOp) {
+                              QString valName2, bool notOp) const {
     return "(" + this->schema->quoteColumnName(colName) + (notOp ? (" " +
             this->notKeyword() + " ") : " ") + this->between() +
            " " + this->placeHolder(valName1) + " " + this->andKeyword() + " " +
@@ -863,7 +863,7 @@ QString QueryBuilder::offsetKeyword() const {
     return "OFFSET";
 }
 
-QString QueryBuilder::appendNot(bool notOp) {
+QString QueryBuilder::appendNot(bool notOp) const {
     return (notOp ? (this->notKeyword() + " ") : "");
 }
 
@@ -1144,7 +1144,8 @@ void QueryBuilder::ClassAttributes::setPk(const QString &value) {
     pk = value;
 }
 
-Expression QueryBuilder::andOperator(QHash<QString, QVariant> conditions) {
+Expression QueryBuilder::andOperator(QHash<QString, QVariant> conditions)
+const {
     bool first = true;
     Expression exp = Expression();
     QString condition = "";
@@ -1162,8 +1163,16 @@ Expression QueryBuilder::andOperator(QHash<QString, QVariant> conditions) {
     return exp;
 }
 
+Expression QueryBuilder::andOperator() const {
+    return this->plainAnd();
+}
+
+Expression QueryBuilder::nandOperator() const {
+    return this->plainNand();
+}
+
 Expression QueryBuilder::arbitraryOperator(QString op, QString column,
-        QVariant value) {
+        QVariant value) const {
     Expression exp = Expression(this->schema->quoteColumnName(
                                     column) + " " + op + " " +
                                 this->placeHolder(column));
@@ -1171,28 +1180,28 @@ Expression QueryBuilder::arbitraryOperator(QString op, QString column,
     return exp;
 }
 
-Expression QueryBuilder::isNull(QString column) {
+Expression QueryBuilder::isNull(QString column) const {
     return Expression(this->schema->quoteColumnName(column) + " IS NULL");
 }
 
-Expression QueryBuilder::isNotNull(QString column) {
+Expression QueryBuilder::isNotNull(QString column) const {
     return Expression(this->schema->quoteColumnName(column) + " IS " +
                       this->notKeyword() + " NULL");
 }
 
-Expression QueryBuilder::plainOr() {
+Expression QueryBuilder::plainOr() const {
     return Expression(this->orKeyword());
 }
 
-Expression QueryBuilder::plainNor() {
+Expression QueryBuilder::plainNor() const {
     return Expression(this->notKeyword() + " " + this->orKeyword());
 }
 
-Expression QueryBuilder::plainAnd() {
+Expression QueryBuilder::plainAnd() const {
     return Expression(this->andKeyword());
 }
 
-Expression QueryBuilder::plainNand() {
+Expression QueryBuilder::plainNand() const {
     return Expression(this->notKeyword() + " " +  this->andKeyword());
 }
 
@@ -1279,7 +1288,7 @@ const {
 }
 
 Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
-                               QString conjunction) {
+                               QString conjunction) const {
     Expression exp = Expression(this->where(conditions, conjunction, false, "id",
                                             false));
     for (auto i = conditions.constBegin(); i != conditions.constEnd(); ++i) {
@@ -1289,7 +1298,7 @@ Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
 }
 
 Expression QueryBuilder::where(QString condition,
-                               QHash<QString, QVariant> values) {
+                               QHash<QString, QVariant> values) const {
     Expression exp = Expression(condition);
     for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
         exp.appendParam(i.key(), i.value());
@@ -1298,7 +1307,7 @@ Expression QueryBuilder::where(QString condition,
 }
 
 Expression QueryBuilder::between(QString column, QVariant firstValue,
-                                 QVariant secondValue) {
+                                 QVariant secondValue) const {
     QString firstPh = column + "_bet1";
     QString secondPh = column + "_bet2";
     return this->appendCondition(firstPh, secondPh, firstValue, secondValue,
@@ -1306,7 +1315,7 @@ Expression QueryBuilder::between(QString column, QVariant firstValue,
 }
 
 Expression QueryBuilder::notBetween(QString column, QVariant firstValue,
-                                    QVariant secondValue) {
+                                    QVariant secondValue) const {
     QString firstPh = column + "_nbet1";
     QString secondPh = column + "_nbet2";
     return this->appendCondition(firstPh, secondPh, firstValue, secondValue,
@@ -1315,23 +1324,30 @@ Expression QueryBuilder::notBetween(QString column, QVariant firstValue,
 
 
 Expression QueryBuilder::appendCondition(QString ph1, QString ph2,
-        QVariant val1, QVariant val2, QString condition) {
+        QVariant val1, QVariant val2, QString condition) const {
     Expression exp = Expression(condition);
     exp.appendParam(ph1, val1);
     exp.appendParam(ph2, val2);
     return exp;
 }
 
-Expression QueryBuilder::in(QString column, QList<QVariant> values) {
+Expression QueryBuilder::in(QString column, QList<QVariant> values) const {
     return this->inFunction(column, values);
 }
 
-Expression QueryBuilder::notIn(QString column, QList<QVariant> values) {
+Expression QueryBuilder::notIn(QString column, QList<QVariant> values) const {
     return this->inFunction(column, values, true);
 }
 
+Expression QueryBuilder::notOperator(QString op, QString column,
+                                     QVariant value) const {
+    Expression e = this->arbitraryOperator(op, column, value);
+    e.setExpression(this->notKeyword() + " " + e.getExpression());
+    return e;
+}
+
 Expression QueryBuilder::orOperator(
-    QHash<QString, QVariant> conditions, bool like) {
+    QHash<QString, QVariant> conditions, bool like) const {
     Expression exp = Expression();
     if (!conditions.isEmpty()) {
         QString condition = "(";
@@ -1351,6 +1367,14 @@ Expression QueryBuilder::orOperator(
         exp.setExpression(condition);
     }
     return exp;
+}
+
+Expression QueryBuilder::orOperator() const {
+    return this->plainOr();
+}
+
+Expression QueryBuilder::norOperator() const {
+    return this->plainNor();
 }
 
 QString QueryBuilder::where(const QSharedPointer<Entity> &entity,

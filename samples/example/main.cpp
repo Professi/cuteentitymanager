@@ -97,12 +97,16 @@ int main(int argc, char *argv[]) {
     qWarning() << "-----------------------------";
 
     Query q = Query();
-    q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim")));
-    q.appendJoin(Join("person", "pupil.id = person.id"));
+    q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim"),
+                  JokerPosition::BEHIND));
+    q.appendWhere(e->getQueryBuilder()->andOperator());
+    q.appendWhere(e->getQueryBuilder()->arbitraryOperator("<", "birthday",
+                  QDate(2000, 10, 10)));
+    //q.appendJoin(Join("person", "pupil.id = person.id"));
     q.setDistinct(true);
     q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
     q.setLimit(10);
-    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q);
+    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true);
     for (int i = 0; i < list.size(); ++i) {
         qWarning() << list.at(i)->toString();
     }

@@ -105,7 +105,9 @@ class QueryBuilder {
                     bool ignoreID = false, const QString &primaryKey = QStringLiteral("id")) const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
     Expression where(QString column, QVariant value);
-    Join joinClasses(const QSharedPointer<Entity> &mainEntity, const QSharedPointer<Entity> &foreignEntity, const QString &joinType=QStringLiteral("LEFT JOIN"))const;
+    Join joinClasses(const QSharedPointer<Entity> &mainEntity,
+                     const QSharedPointer<Entity> &foreignEntity,
+                     const QString &joinType = QStringLiteral("LEFT JOIN"))const;
     QList<Join> joinBaseClasses(const QSharedPointer<Entity> &entity);
     /**
      * @brief where
@@ -114,20 +116,25 @@ class QueryBuilder {
      * @param conjunction its AND or OR
      */
     Expression where(QHash<QString, QVariant> conditions,
-                     QString conjunction = QStringLiteral("AND"));
+                     QString conjunction = QStringLiteral("AND")) const;
     Expression where(QString condition,
-                     QHash<QString, QVariant> values = QHash<QString, QVariant>());
+                     QHash<QString, QVariant> values = QHash<QString, QVariant>()) const;
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
     Expression between(QString column, QVariant firstValue,
-                       QVariant secondValue);
+                       QVariant secondValue) const;
     Expression notBetween(QString column, QVariant firstValue,
-                          QVariant secondValue);
-    Expression in(QString column, QList<QVariant> values);
-    Expression notIn(QString column, QList<QVariant> values);
-    Expression notOperator(QString column, QVariant value);
+                          QVariant secondValue) const;
+    Expression in(QString column, QList<QVariant> values) const;
+    Expression notIn(QString column, QList<QVariant> values) const;
+    Expression notOperator(QString op, QString column,
+                           QVariant value) const;
     Expression orOperator(QHash<QString, QVariant> conditions,
-                          bool like = false);
-    Expression andOperator(QHash<QString, QVariant> conditions);
+                          bool like = false) const;
+    Expression orOperator() const;
+    Expression norOperator() const;
+    Expression andOperator(QHash<QString, QVariant> conditions) const;
+    Expression andOperator() const;
+    Expression nandOperator() const;
     /**
      * @brief arbitraryOperator
      * @param query
@@ -136,14 +143,14 @@ class QueryBuilder {
      * @param value
      */
     Expression arbitraryOperator(QString op, QString column,
-                                 QVariant value);
-    Expression isNull(QString column);
-    Expression isNotNull(QString column);
+                                 QVariant value) const;
+    Expression isNull(QString column) const;
+    Expression isNotNull(QString column) const;
 
-    Expression plainOr(); //adds a simple OR to condition
-    Expression plainNor();
-    Expression plainAnd(); //add a simple AND to condition
-    Expression plainNand();
+    Expression plainOr() const; //adds a simple OR to condition
+    Expression plainNor() const;
+    Expression plainAnd() const; //add a simple AND to condition
+    Expression plainNand() const;
     /**
      * Generates 'foo' LIKE "%bar%"
      * @brief like
@@ -254,7 +261,7 @@ class QueryBuilder {
     QString where(const QSharedPointer<Entity> &entity, QString conjunction = ",",
                   bool ignoreID = false) const;
     QString where(const QHash<QString, QVariant> &m,
-                  const QString &conjunction = ",",
+                  const QString &conjunction,
                   bool ignoreID = false, const QString &primaryKey = "id",
                   bool withKeyword = true) const;
     QString attributes(const QHash<QString, QVariant> &m,
@@ -272,7 +279,8 @@ class QueryBuilder {
         const QSharedPointer<Entity> &entity) const;
 
     QString leftJoin(const QString &foreignTable, const QString &tableName,
-                     const QString &foreignKey = "id", const QString &primaryKey = "id", bool onlyCondition=false) const;
+                     const QString &foreignKey = "id", const QString &primaryKey = "id",
+                     bool onlyCondition = false) const;
     QString superClassColumnName(const QMetaObject *&superMeta) const;
     QString addWildcard(QVariant var, JokerPosition jp,
                         QChar jokerChar = '%') const;
@@ -290,15 +298,15 @@ class QueryBuilder {
     virtual QString whereKeyword() const;
     virtual QString countKeyword() const;
     virtual Expression inFunction(QString column, QList<QVariant> values,
-                                  bool notOp = false);
+                                  bool notOp = false) const;
     virtual QString between(QString colName, QString valName1, QString valName2,
-                            bool notOp = false);
+                            bool notOp = false) const;
     virtual QString likeKeyword() const;
     virtual QString limitKeyword() const;
     virtual QString offsetKeyword() const;
-    QString appendNot(bool notOp);
+    QString appendNot(bool notOp) const;
     virtual Expression appendCondition(QString ph1, QString ph2, QVariant val1,
-                                       QVariant val2, QString condition);
+                                       QVariant val2, QString condition) const;
     QString entityClassname() const;
     QString separator;
     QSharedPointer<Schema> schema;
