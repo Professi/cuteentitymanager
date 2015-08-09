@@ -1,5 +1,4 @@
 #include "defaultvalidator.h"
-#include "validator.h"
 using namespace CuteEntityManager;
 DefaultValidator::DefaultValidator() : Validator() {
 }

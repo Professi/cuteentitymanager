@@ -25,7 +25,6 @@ class ValidationRule {
     explicit ValidationRule(QString validatorName, QStringList attributeNames,
                             QString paramName1, QVariant paramValue1, QString paramName2,
                             QVariant paramValue2);
-
     ~ValidationRule();
     QString getValidatorName() const;
     void setValidatorName(const QString &value);

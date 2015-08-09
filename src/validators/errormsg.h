@@ -3,7 +3,7 @@
 #include <QString>
 namespace CuteEntityManager {
 class ErrorMsg {
-public:
+  public:
     ErrorMsg();
     ~ErrorMsg();
     ErrorMsg(QString param, QString errorMsg, QString propertyName = "");
@@ -17,7 +17,7 @@ public:
     QString getErrorMsg() const;
     void setErrorMsg(const QString &value);
 
-private:
+  private:
     QString param;
     QString propertyName;
     QString errorMsg;

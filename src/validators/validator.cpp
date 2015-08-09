@@ -18,7 +18,7 @@ const QHash<QString, QString> Validator::builtInValidators() {
 //    hash.insert("size", "SizeValidator");
 //    hash.insert("number", "NumberValidator");
 //    hash.insert("date", "DateValidator");
-//    hash.insert("required", "RequiredValidator");
+    hash.insert("required", "RequiredValidator");
 //    hash.insert("unique", "UniqueValidator");
 //    hash.insert("url", "UrlValidator");
     return hash;

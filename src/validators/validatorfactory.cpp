@@ -1,5 +1,7 @@
 #include "validatorfactory.h"
 #include "defaultvalidator.h"
+#include "requiredvalidator.h"
+#include "numbervalidator.h"
 using namespace CuteEntityManager;
 
 ValidatorFactory::ValidatorFactory() {
@@ -39,16 +41,16 @@ QSharedPointer<Validator> ValidatorFactory::getValidatorObject(
 
 void ValidatorFactory::registerClasses() {
     if (ValidatorFactory::instance.isEmpty()) {
-        //        Validator::registerClass<CompareValidator>();
+        //        ValidatorFactory::registerClass<CompareValidator>();
         ValidatorFactory::registerClass<DefaultValidator>();
-        //        Validator::registerClass<EmailValidator>();
-        //        Validator::registerClass<ExistValidator>();
-//        Validator::registerClass<ImageValidator>();
-//        Validator::registerClass<SizeValidator>();
-//        Validator::registerClass<NumberValidator>();
-//        Validator::registerClass<DateValidator>();
-//        Validator::registerClass<RequiredValidator>();
-//        Validator::registerClass<UniqueValidator>();
-//        Validator::registerClass<UrlValidator>();
+        //        ValidatorFactory::registerClass<EmailValidator>();
+        //        ValidatorFactory::registerClass<ExistValidator>();
+//        ValidatorFactory::registerClass<ImageValidator>();
+//        ValidatorFactory::registerClass<SizeValidator>();
+        ValidatorFactory::registerClass<NumberValidator>();
+//        ValidatorFactory::registerClass<DateValidator>();
+        ValidatorFactory::registerClass<RequiredValidator>();
+//        ValidatorFactory::registerClass<UniqueValidator>();
+//        ValidatorFactory::registerClass<UrlValidator>();
     }
 }

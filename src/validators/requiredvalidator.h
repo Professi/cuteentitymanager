@@ -1,13 +1,13 @@
-#ifndef DEFAULTVALIDATOR_H
-#define DEFAULTVALIDATOR_H
+#ifndef REQUIREDVALIDATOR_H
+#define REQUIREDVALIDATOR_H
 #include "validator.h"
 namespace CuteEntityManager {
-class DefaultValidator : public Validator {
+class RequiredValidator : public Validator {
     Q_OBJECT
   public:
-    DefaultValidator();
+    RequiredValidator();
     ErrorMsg validateParam(QVariant value, Param param) const final override;
 };
 }
 
-#endif // DEFAULTVALIDATOR_H
+#endif // REQUIREDVALIDATOR_H

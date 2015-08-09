@@ -387,7 +387,7 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
             } else if (r.getType() == RelationType::ONE_TO_ONE
                        && !r.getMappedBy().isEmpty()) {
                 auto e =  EntityInstanceFactory::castQVariant(var);
-                    this->save(e, true, false);
+                this->save(e, true, false);
                 auto fkProp = EntityHelper::mappedProperty(r, e);
                 if (fkProp.isValid()) {
                     EntityHelper::addEntityToListProperty(e, entity, fkProp);
@@ -719,6 +719,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
             rc = true;
         }
     }
+    entity->idChanged();
     return rc;
 }
 

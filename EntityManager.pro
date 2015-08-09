@@ -36,7 +36,9 @@ src/entity.h \
     src/validators/errormsg.h \
     src/validators/defaultvalidator.h \
     src/validators/validatorfactory.h \
-    src/validators/validatorrule.h
+    src/validators/validatorrule.h \
+    src/validators/requiredvalidator.h \
+    src/validators/numbervalidator.h
 
 SOURCES += \
 src/entity.cpp \
@@ -66,7 +68,9 @@ src/entity.cpp \
     src/validators/errormsg.cpp \
     src/validators/defaultvalidator.cpp \
     src/validators/validatorfactory.cpp \
-    src/validators/validatorrule.cpp
+    src/validators/validatorrule.cpp \
+    src/validators/requiredvalidator.cpp \
+    src/validators/numbervalidator.cpp
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14

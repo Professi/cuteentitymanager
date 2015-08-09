@@ -112,9 +112,9 @@ int main(int argc, char *argv[]) {
         qWarning() << "-----------------------------";
         qWarning() << "Merge Pupil";
         qWarning() << "-----------------------------";
-        list.at(i)->setBirthday(QDate(2222,12,22));
+        list.at(i)->setBirthday(QDate(2222, 12, 22));
         QSharedPointer<Entity> pupilE = list.at(i).objectCast<Entity>();
-        e->merge(pupilE,true);
+        e->merge(pupilE, true);
         qWarning() << list.at(i)->toString();
     }
     qWarning() << "-----------------------------";
@@ -137,10 +137,7 @@ int main(int argc, char *argv[]) {
     qWarning() << "-----------------------------";
     qWarning() << "Remove Group";
     qWarning() << "-----------------------------";
-    //e->remove(entityGroupFindPtr);
-
-
-
+    e->remove(entityGroupFindPtr);
 
     sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
