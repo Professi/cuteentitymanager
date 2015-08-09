@@ -57,9 +57,20 @@ QString Entity::slimToString() const {
     r.append("id: ") + this->getId() + "}";
     return r;
 }
+QList<ErrorMsg> Entity::getErrors() const {
+    return errors;
+}
+
+void Entity::setErrors(const QList<ErrorMsg> &value) {
+    errors = value;
+}
 
 Entity::~Entity() {
 
+}
+
+QList<ValidationRule> Entity::validationRules() const {
+    return QList<ValidationRule>();
 }
 
 QString Entity::getTablename() const {
@@ -110,4 +121,8 @@ void Entity::setId(const qint64 &value) {
         id = value;
         emit idChanged();
     }
+}
+
+bool Entity::hasErrors() const {
+    return !this->errors.isEmpty();
 }

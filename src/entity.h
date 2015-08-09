@@ -27,6 +27,8 @@
 #include <QStack>
 #include <QQueue>
 #include "entityinstancefactory.h"
+#include "validators/validatorrule.h"
+#include "validators/errormsg.h"
 namespace CuteEntityManager {
 
 /**
@@ -43,6 +45,7 @@ class Entity : public QObject {
   public:
     virtual QString toString() const;
     virtual ~Entity();
+    virtual QList<ValidationRule> validationRules() const;
     virtual QString getTablename() const;
     virtual const QHash<QString, Relation> getRelations() const;
     virtual const QStringList getTransientAttributes() const;
@@ -57,9 +60,15 @@ class Entity : public QObject {
     qint64 getId() const;
     void setId(const qint64 &value);
 
-  protected:
+    bool hasErrors() const;
+
+    QList<ErrorMsg> getErrors() const;
+    void setErrors(const QList<ErrorMsg> &value);
+
+protected:
     explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
+    QList<ErrorMsg> errors;
     qint64 id;
 };
 }

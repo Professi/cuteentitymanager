@@ -18,6 +18,9 @@
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
+#include "validators/validatorfactory.h"
+#include "validators/validator.h"
+#include "validators/validatorrule.h"
 using namespace CuteEntityManager;
 
 QStringList EntityManager::connectionNames = QStringList();
@@ -156,6 +159,24 @@ qint8 EntityManager::count(Query &query) {
         rc = q.value(0).toInt();
     }
     return rc;
+}
+
+bool EntityManager::validate(QSharedPointer<Entity> &entity) {
+    QList<ValidationRule> rules = entity->validationRules();
+    QList<ErrorMsg> list = QList<ErrorMsg>();
+    for (int i = 0; i < rules.size(); ++i) {
+        ValidationRule rule = rules.at(i);
+        QSharedPointer<Validator> validator = ValidatorFactory::getValidatorObject(
+                rule.getValidatorName());
+        if (validator) {
+            for (int var = 0; var < rule.getAttributes().size(); ++var) {
+                QString attr = rule.getAttributes().at(var);
+                list.append(validator->validate(entity->getProperty(attr), rule.getParams()));
+            }
+        }
+    }
+    entity->setErrors(list);
+    return !entity->hasErrors();
 }
 
 QString EntityManager::createConnection() {
@@ -604,10 +625,10 @@ QList<QSharedPointer<Entity> > EntityManager::findEntityByAttributes(
  * @return
  */
 bool EntityManager::create(QList<QSharedPointer<Entity> > entities,
-                           const bool persistRelations) {
+                           const bool persistRelations, const bool validate) {
     bool ok = true;
     foreach (QSharedPointer<Entity> ent, entities) {
-        ok = this->create(ent, persistRelations);
+        ok = this->create(ent, persistRelations, validate);
         if (!ok) {
             break;
         }
@@ -616,9 +637,10 @@ bool EntityManager::create(QList<QSharedPointer<Entity> > entities,
 }
 
 bool EntityManager::create(QSharedPointer<Entity> &entity,
-                           const bool persistRelations, const bool checkDuplicate) {
+                           const bool persistRelations, const bool checkDuplicate, const bool validate) {
     bool rc = false;
-    if (this->checkTable(entity) && !(checkDuplicate && this->count(entity) > 0)) {
+    if (this->checkTable(entity) && ((validate && this->validate(entity))
+                                     || !validate) && !(checkDuplicate && this->count(entity) > 0)) {
         if (persistRelations) {
             this->savePrePersistedRelations(entity);
         }
@@ -659,9 +681,11 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
     return rc;
 }
 
-bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations) {
+bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations,
+                          const bool validate) {
     bool ok = false;
-    if (entity->getId() > -1) {
+    if (entity->getId() > -1 && ((validate && this->validate(entity))
+                                 || !validate)) {
         if (withRelations) {
             this->savePrePersistedRelations(entity);
         }

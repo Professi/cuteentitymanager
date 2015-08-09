@@ -106,8 +106,14 @@ int main(int argc, char *argv[]) {
     q.setDistinct(true);
     q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
     q.setLimit(10);
-    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true,false);
+    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true);
     for (int i = 0; i < list.size(); ++i) {
+//        qWarning() << "-----------------------------";
+//        qWarning() << "Merge Pupil";
+//        qWarning() << "-----------------------------";
+//        list.at(i)->setBirthday(QDate(2222,12,22));
+//        QSharedPointer<Entity> pupilE = list.at(i).objectCast<Entity>();
+//        e->merge(pupilE,true);
         qWarning() << list.at(i)->toString();
     }
     qWarning() << "-----------------------------";
@@ -131,6 +137,10 @@ int main(int argc, char *argv[]) {
     qWarning() << "Remove Group";
     qWarning() << "-----------------------------";
     e->remove(entityGroupFindPtr);
+
+
+
+
     sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
     delete sqliteproc;

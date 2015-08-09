@@ -33,6 +33,7 @@
 #include "queryinterpreter.h"
 #include "cache.h"
 #include "querybuilder.h"
+#include "validators/errormsg.h"
 namespace CuteEntityManager {
 
 class Logger;
@@ -55,12 +56,13 @@ class EntityManager : public QObject {
                                QSharedPointer<Entity> &entity,
                                bool ignoreID = false);
     bool create(QList<QSharedPointer<Entity>> entities,
-                const bool persistRelations = true);
+                const bool persistRelations = true, const bool validate = true);
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-                const bool checkDuplicate = false);
+                const bool checkDuplicate = false, const bool validate = true);
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true);
     qint64 findId(QSharedPointer<Entity> &entity);
-    bool merge(QSharedPointer<Entity> &entity, bool withRelations = true);
+    bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
+               const bool validate = true);
     bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
     bool createTable(const QSharedPointer<Entity> &entity,
@@ -75,6 +77,7 @@ class EntityManager : public QObject {
     QList<QHash<QString, QVariant> > selectByQuery(Query &query);
     QList<QHash<QString, QVariant> > selectBySql(const QString &sql);
     qint8 count(Query &query);
+    bool validate(QSharedPointer<Entity> &entity);
 
   public:
     EntityManager(QSqlDatabase database, bool logQueries = false);
