@@ -287,7 +287,11 @@ QString QueryBuilder::generateIndexName(const QString &name,
 }
 
 QString QueryBuilder::generateColumnNameID(QString name) const {
-    return name.append("_id");
+    return name.append(this->columnNameIDAppendix());
+}
+
+QString QueryBuilder::columnNameIDAppendix() const {
+    return "_id";
 }
 
 QString QueryBuilder::getForeignKeyCascade(DbForeignKeyCascade cascade) const {

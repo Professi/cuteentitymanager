@@ -234,6 +234,7 @@ class QueryBuilder {
     QString generateIndexName(const QString &name, const QString &table,
                               const QString &refColumn, const QString &refTable, const bool fk) const;
     QString generateColumnNameID(QString name) const;
+    QString columnNameIDAppendix() const;
     virtual void createRelationFK(QStringList &queries,
                                   const QSharedPointer<Entity> &entity, const Relation &relation,
                                   const QMetaProperty &metaProperty, const QString &update,

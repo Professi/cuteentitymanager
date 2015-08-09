@@ -78,6 +78,8 @@ class EntityManager : public QObject {
     QList<QHash<QString, QVariant> > selectBySql(const QString &sql);
     qint8 count(Query &query);
     bool validate(QSharedPointer<Entity> &entity);
+    bool hasChanged(QSharedPointer<Entity> &entity);
+
 
   public:
     EntityManager(QSqlDatabase database, bool logQueries = false);

@@ -179,6 +179,47 @@ bool EntityManager::validate(QSharedPointer<Entity> &entity) {
     return !entity->hasErrors();
 }
 
+bool EntityManager::hasChanged(QSharedPointer<Entity> &entity) {
+    bool changed = true;
+    if (entity->getId() >= -1) {
+        changed = false;
+        auto listmap = this->findByPk(entity->getId(), entity);
+        auto relations = entity->getRelations();
+        QStringList rels = QStringList();
+        for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
+            if (i.value().getType() == RelationType::MANY_TO_ONE
+                    || (i.value().getType() == RelationType::ONE_TO_ONE
+                        && i.value().getMappedBy().isEmpty())) {
+                rels.append(this->schema->getQueryBuilder()->generateColumnNameID(i.key()));
+            }
+        }
+        for (auto i = listmap.constBegin(); i != listmap.constEnd(); ++i) {
+            if (rels.contains(i.key())) {
+                QString appendix =
+                    this->schema->getQueryBuilder()->columnNameIDAppendix();
+                QString relKey = i.key();
+                QVariant v = entity->getProperty(relKey.remove(relKey.size() - appendix.size(),
+                                                 appendix.size()));
+                if (!v.isNull()) {
+                    auto entity = EntityInstanceFactory::castQVariant(v);
+                    if (entity->getProperty(entity->getPrimaryKey()) != i.value()) {
+                        changed = true;
+                        break;
+                    }
+                }
+            } else {
+                QVariant property = entity->getProperty(i.key());
+                changed = i.value() != property && !(i.value().isNull() && property.isNull());
+                if (changed) {
+                    break;
+                }
+            }
+        }
+
+    }
+    return changed;
+}
+
 QString EntityManager::createConnection() {
     QStringList l = EntityManager::getConnectionNames();
     QString conName = "";

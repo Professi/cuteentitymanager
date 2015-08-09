@@ -82,6 +82,7 @@ int main(int argc, char *argv[]) {
     qWarning() << "-----------------------------";
 
     QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person"));
+    qDebug() << "HASCHANGED:" << e->hasChanged(personFindPtr);
     e->refresh(personFindPtr);
     QSharedPointer<Person> pers = personFindPtr.objectCast<Person>();
     qWarning() << "MainTeacher:" << personFindPtr->toString();
