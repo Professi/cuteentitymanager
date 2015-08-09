@@ -59,7 +59,7 @@ class EntityManager : public QObject {
                 const bool persistRelations = true, const bool validate = true);
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
                 const bool checkDuplicate = false, const bool validate = true);
-    bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true);
+    bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true, const bool ignoreHasChanged=true);
     qint64 findId(QSharedPointer<Entity> &entity);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
                const bool validate = true);

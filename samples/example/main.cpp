@@ -132,12 +132,12 @@ int main(int argc, char *argv[]) {
     groupFindPtr->setName("10b");
     qWarning() << groupFindPtr->toString();
     QSharedPointer<Entity> entityGroupFindPtr = groupFindPtr.objectCast<Entity>();
-    e->save(entityGroupFindPtr, false);
+    e->save(entityGroupFindPtr, true);
 
     qWarning() << "-----------------------------";
     qWarning() << "Remove Group";
     qWarning() << "-----------------------------";
-    e->remove(entityGroupFindPtr);
+    //e->remove(entityGroupFindPtr);
 
 
 

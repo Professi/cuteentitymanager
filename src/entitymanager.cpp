@@ -339,7 +339,7 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
             if (r.getType() == RelationType::MANY_TO_ONE) {
                 auto e = EntityInstanceFactory::castQVariant(var);
                 if (this->shouldBeSaved(e, r)) {
-                    this->save(e);
+                    this->save(e, true, false);
                     auto fkProp = EntityHelper::mappedProperty(r, e);
                     if (fkProp.isValid()) {
                         EntityHelper::addEntityToListProperty(e, entity, fkProp);
@@ -348,7 +348,7 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
             } else if (r.getType() == RelationType::ONE_TO_ONE
                        && r.getMappedBy().isEmpty()) {
                 auto e =  EntityInstanceFactory::castQVariant(var);
-                this->save(e);
+                this->save(e, true, false);
                 auto prop = EntityHelper::mappedProperty(r, e);
                 if (prop.isValid()) {
                     EntityHelper::setProperty(e, entity, prop);
@@ -377,7 +377,7 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
                     for (int var = 0; var < list.size(); ++var) {
                         auto e = list.at(var);
                         if (this->shouldBeSaved(e, r)) {
-                            this->save(e);
+                            this->save(e, true, false);
                             if (fkProp.isValid()) {
                                 EntityHelper::addEntityToListProperty(e, entity, fkProp);
                             }
@@ -387,7 +387,9 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
             } else if (r.getType() == RelationType::ONE_TO_ONE
                        && !r.getMappedBy().isEmpty()) {
                 auto e =  EntityInstanceFactory::castQVariant(var);
-                this->save(e);
+                if (this->hasChanged(e)) {
+                    this->save(e, true, false);
+                }
                 auto fkProp = EntityHelper::mappedProperty(r, e);
                 if (fkProp.isValid()) {
                     EntityHelper::addEntityToListProperty(e, entity, fkProp);
@@ -570,7 +572,8 @@ const QList<QSharedPointer<Entity> > &list, const Relation &r) {
     QSharedPointer<Entity> ptr;
     for (int var = 0; var < list.size(); ++var) {
         ptr = list.at(var);
-        if (this->shouldBeSaved(ptr, r) && this->hasChanged(ptr) && this->save(ptr)) {
+        if ((this->shouldBeSaved(ptr, r) && this->save(ptr, true, false))
+                || ptr->getProperty(ptr->getPrimaryKey()).toLongLong() > -1) {
             saved.append(ptr);
         }
     }
@@ -828,12 +831,15 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
 }
 
 bool EntityManager::save(QSharedPointer<Entity> &entity,
-                         const bool persistRelations) {
-    if (entity->getProperty(entity->getPrimaryKey()).toLongLong() > -1) {
-        return this->merge(entity, persistRelations);
-    } else {
-        return this->create(entity, persistRelations);
+                         const bool persistRelations, const bool ignoreHasChanged) {
+    if (ignoreHasChanged || (!ignoreHasChanged && this->hasChanged(entity))) {
+        if (entity->getProperty(entity->getPrimaryKey()).toLongLong() > -1) {
+            return this->merge(entity, persistRelations);
+        } else {
+            return this->create(entity, persistRelations);
+        }
     }
+    return false;
 }
 
 qint64 EntityManager::findId(QSharedPointer<Entity> &entity) {
