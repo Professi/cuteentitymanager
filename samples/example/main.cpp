@@ -109,12 +109,12 @@ int main(int argc, char *argv[]) {
     q.setLimit(10);
     QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true);
     for (int i = 0; i < list.size(); ++i) {
-//        qWarning() << "-----------------------------";
-//        qWarning() << "Merge Pupil";
-//        qWarning() << "-----------------------------";
-//        list.at(i)->setBirthday(QDate(2222,12,22));
-//        QSharedPointer<Entity> pupilE = list.at(i).objectCast<Entity>();
-//        e->merge(pupilE,true);
+        qWarning() << "-----------------------------";
+        qWarning() << "Merge Pupil";
+        qWarning() << "-----------------------------";
+        list.at(i)->setBirthday(QDate(2222,12,22));
+        QSharedPointer<Entity> pupilE = list.at(i).objectCast<Entity>();
+        e->merge(pupilE,true);
         qWarning() << list.at(i)->toString();
     }
     qWarning() << "-----------------------------";

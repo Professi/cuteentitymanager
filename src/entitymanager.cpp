@@ -181,7 +181,7 @@ bool EntityManager::validate(QSharedPointer<Entity> &entity) {
 
 bool EntityManager::hasChanged(QSharedPointer<Entity> &entity) {
     bool changed = true;
-    if (entity->getId() >= -1) {
+    if (entity->getId() > -1) {
         changed = false;
         auto listmap = this->findByPk(entity->getId(), entity);
         auto relations = entity->getRelations();
@@ -215,7 +215,6 @@ bool EntityManager::hasChanged(QSharedPointer<Entity> &entity) {
                 }
             }
         }
-
     }
     return changed;
 }
@@ -571,7 +570,7 @@ const QList<QSharedPointer<Entity> > &list, const Relation &r) {
     QSharedPointer<Entity> ptr;
     for (int var = 0; var < list.size(); ++var) {
         ptr = list.at(var);
-        if (this->shouldBeSaved(ptr, r) && this->save(ptr)) {
+        if (this->shouldBeSaved(ptr, r) && this->hasChanged(ptr) && this->save(ptr)) {
             saved.append(ptr);
         }
     }

@@ -70,7 +70,6 @@ bool QueryBuilder::createIndices(const QSharedPointer<Entity> &entity) const {
         queries.append(superIndex);
     }
     queries.append(this->relationFks(entity));
-    qDebug() << "create index:" << entity->getTablename() << queries.size();
     ok = this->database->transaction(queries);
     return ok;
 }
