@@ -16,7 +16,7 @@ const QHash<QString, QString> Validator::builtInValidators() {
 //    hash.insert("exist", "ExistValidator");
 //    hash.insert("image", "ImageValidator");
 //    hash.insert("size", "SizeValidator");
-//    hash.insert("number", "NumberValidator");
+    hash.insert("number", "NumberValidator");
 //    hash.insert("date", "DateValidator");
     hash.insert("required", "RequiredValidator");
 //    hash.insert("unique", "UniqueValidator");
