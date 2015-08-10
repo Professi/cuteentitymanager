@@ -10,17 +10,17 @@ Validator::~Validator() {
 
 const QHash<QString, QString> Validator::builtInValidators() {
     QHash<QString, QString> hash = QHash<QString, QString>();
-//    hash.insert("compare", "CompareValidator");
+    hash.insert("compare", "CompareValidator");
     hash.insert("default", "DefaultValidator");
-//    hash.insert("email", "EmailValidator");
-//    hash.insert("exist", "ExistValidator");
-//    hash.insert("image", "ImageValidator");
-//    hash.insert("size", "SizeValidator");
+    hash.insert("email", "EmailValidator");
+    hash.insert("exist", "ExistValidator");
+    hash.insert("file", "FileValidator");
+    hash.insert("image", "ImageValidator");
     hash.insert("number", "NumberValidator");
-//    hash.insert("date", "DateValidator");
+    hash.insert("date", "DateValidator");
     hash.insert("required", "RequiredValidator");
-//    hash.insert("unique", "UniqueValidator");
-//    hash.insert("url", "UrlValidator");
+    hash.insert("unique", "UniqueValidator");
+    hash.insert("url", "UrlValidator");
     return hash;
 }
 

@@ -38,7 +38,15 @@ src/entity.h \
     src/validators/validatorfactory.h \
     src/validators/validatorrule.h \
     src/validators/requiredvalidator.h \
-    src/validators/numbervalidator.h
+    src/validators/numbervalidator.h \
+    src/validators/urlvalidator.h \
+    src/validators/comparevalidator.h \
+    src/validators/datevalidator.h \
+    src/validators/emailvalidator.h \
+    src/validators/existvalidator.h \
+    src/validators/filevalidator.h \
+    src/validators/imagevalidator.h \
+    src/validators/uniquevalidator.h
 
 SOURCES += \
 src/entity.cpp \
@@ -70,7 +78,15 @@ src/entity.cpp \
     src/validators/validatorfactory.cpp \
     src/validators/validatorrule.cpp \
     src/validators/requiredvalidator.cpp \
-    src/validators/numbervalidator.cpp
+    src/validators/numbervalidator.cpp \
+    src/validators/urlvalidator.cpp \
+    src/validators/comparevalidator.cpp \
+    src/validators/datevalidator.cpp \
+    src/validators/emailvalidator.cpp \
+    src/validators/existvalidator.cpp \
+    src/validators/filevalidator.cpp \
+    src/validators/imagevalidator.cpp \
+    src/validators/uniquevalidator.cpp
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14

@@ -94,7 +94,3 @@ QList<Param> ValidationRule::getParams() const {
 void ValidationRule::setParams(const QList<Param> &value) {
     params = value;
 }
-
-
-
-
