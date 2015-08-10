@@ -7,6 +7,11 @@ class CompareValidator : public Validator {
   public:
     CompareValidator();
     ErrorMsg validateParam(QVariant value, Param param) const final override;
+    QString getDefaultOperator() const;
+    void setDefaultOperator(const QString &value);
+
+  protected:
+    QString defaultOperator = QStringLiteral("==");
 };
 }
 
