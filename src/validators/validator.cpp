@@ -13,7 +13,7 @@ const QHash<QString, QString> Validator::builtInValidators() {
     hash.insert("compare", "CompareValidator");
     hash.insert("default", "DefaultValidator");
     hash.insert("email", "EmailValidator");
-    hash.insert("exist", "ExistValidator");
+    hash.insert("exists", "ExistValidator");
     hash.insert("file", "FileValidator");
     hash.insert("image", "ImageValidator");
     hash.insert("number", "NumberValidator");

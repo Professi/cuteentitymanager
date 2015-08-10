@@ -16,7 +16,7 @@ ErrorMsg EmailValidator::validateParam(QVariant value, Param param) const {
     if (exp.match(val).hasMatch()) {
         return ErrorMsg();
     }
-    return ErrorMsg(param.getName(), "Value is not a valid email address.");
+    return ErrorMsg(param.getName(), "<property> is not a valid email address.");
 }
 
 QString EmailValidator::getPattern() const {

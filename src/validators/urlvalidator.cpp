@@ -32,7 +32,7 @@ ErrorMsg UrlValidator::validateParam(QVariant value, Param param) const {
         if (regExp.match(val).hasMatch()) {
             return ErrorMsg();
         } else {
-            return ErrorMsg(param.getName(), "Value is not a valid URL.");
+            return ErrorMsg(param.getName(), "<property> is not a valid URL.");
         }
     }
     return ErrorMsg();
