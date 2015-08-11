@@ -14,21 +14,24 @@ FileValidator::FileValidator() : Validator() {
  * @return
  */
 ErrorMsg FileValidator::validateParam(QVariant value, Param param) const {
-    QFileInfo file = QFileInfo(value.toString());
-    if (param.getName() == "mimeTypes") {
-        return this->validateMIMEType(file, param);
-    } else if (param.getName() == "extensions") {
-        return this->validateExtension(file, param);
-    } else if (param.getName() == "minSize"
-               && file.size() < param.getValue().toLongLong()) {
-        return ErrorMsg(param.getName(),
-                        "The file <property> is too small. Its size cannot be smaller than " +
-                        param.getValue().toString() + " bytes.");
+    QString fileName = value.toString();
+    if (!fileName.isEmpty()) {
+        QFileInfo file = QFileInfo(value.toString());
+        if (param.getName() == "mimeTypes") {
+            return this->validateMIMEType(file, param);
+        } else if (param.getName() == "extensions") {
+            return this->validateExtension(file, param);
+        } else if (param.getName() == "minSize"
+                   && file.size() < param.getValue().toLongLong()) {
+            return ErrorMsg(param.getName(),
+                            "The file <property> is too small. Its size cannot be smaller than " +
+                            param.getValue().toString() + " bytes.");
 
-    } else if (param.getName() == "maxSize") {
-        return ErrorMsg(param.getName(),
-                        "The file <property> is too big. Its size cannot exceed " +
-                        param.getValue().toString() + " bytes.");
+        } else if (param.getName() == "maxSize") {
+            return ErrorMsg(param.getName(),
+                            "The file <property> is too big. Its size cannot exceed " +
+                            param.getValue().toString() + " bytes.");
+        }
     }
     return ErrorMsg();
 }

@@ -7,7 +7,7 @@ UrlValidator::UrlValidator() : Validator() {
 
 ErrorMsg UrlValidator::validateParam(QVariant value, Param param) const {
     QString val = value.toString();
-    if (val.size() < 2000) {
+    if (!val.isEmpty() && val.size() < 2000) {
         if (param.getName() == "defaultScheme" && !param.getValue().isNull()) {
             val = param.getValue().toString() + "://" + val;
         }
