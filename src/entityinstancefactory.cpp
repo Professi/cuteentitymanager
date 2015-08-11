@@ -17,6 +17,7 @@
 #include "entity.h"
 #include "entityhelper.h"
 #include <QMetaType>
+#include <QDebug>
 using namespace CuteEntityManager;
 
 QHash<QByteArray, EntityInstanceFactory::Constructor>

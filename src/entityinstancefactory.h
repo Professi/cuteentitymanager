@@ -18,7 +18,6 @@
 #include <QString>
 #include <QVariant>
 #include <QHash>
-
 namespace CuteEntityManager {
 class Entity;
 class EntityInstanceFactory {
