@@ -37,7 +37,7 @@ QList<ErrorMsg> UniqueValidator::validate(QVariant value,
             e = nullptr;
             QHash<QString, QVariant> params = QHash<QString, QVariant>();
             params.insert(targetAttribute, value);
-            q.appendWhere(Expression(targetAttribute, params));
+            q.appendWhere(em->getQueryBuilder()->where(params));
             if (em->count(q) > 0) {
                 msgs.append(ErrorMsg("",
                                      "<property> \"" + value.toString() + "\" has already been taken."));
