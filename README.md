@@ -1,9 +1,64 @@
 # CuteEntityManager for Qt
 ## German
-Mit dem CuteEntityManager ist es möglich Entities zu persistieren, zu mergen, zu finden und zu löschen. Die Funktionalität ist dem EntityManager der JPA nachempfunden. Für eine Anwendung war ich auf der Suche nach einem leicht zu benutzenden ORM. Entweder enthielt die jeweilige Library zusätzliche Abhängigkeiten, hatte nicht den gewünschten Funktionsumfang, war in der Benutzung zu "kompliziert"(imho) oder war nur an bestimmte Plattformen gekoppelt. Der CuteEntityManager unterstützt grundsätzlich alle von Qt unterstützten Plattformen. Da ich hauptberuflich Java & PHP Entwickler bin, ist der CuteEntityManager dem o.g. EntityManager der JPA und zum Teil dem PHP Yii Framework nachempfunden.
-Der CuteEntityManager basiert ausschließlich auf Qt/C++ Techniken. Der Properties für das ORM werden anhand von Q_PROPERTY Makros festgelegt. Es ist möglich Vererbung zu nutzen. Relationen (ONE_TO_ONE, MANY_TO_ONE, ONE_TO_MANY und MANY_TO_MANY) sind natürlich auch möglich. Um SELECT Statements zu vereinfachen gibt es eine Query API. Man kann also ohne ein Stückchen SQL eine komplette Anwendung mit SQL Datenbank Anbindung implementieren. Man sollte sich natürlich über die "Besonderheiten" einer relationalen Datenbank im Klaren sein (insbesondere eben bei Relationen). Aktuell ist nur einigermaßen die SQLite Unterstützung getestet. Eine Erweiterung für MySQL/PGSQL/MSSQL sollte relativ problemlos möglich sein.
+Mit dem CuteEntityManager ist es möglich Entities zu persistieren, zu 
+mergen, zu finden und zu löschen. Die Funktionalität ist dem 
+EntityManager der JPA nachempfunden. Für eine andere Anwendung war ich 
+auf der Suche nach einem leicht zu benutzenden ORM. Entweder enthielten 
+die jeweiligen Librarys zusätzliche Abhängigkeiten, hatten nicht den 
+gewünschten Funktionsumfang, waren in der Benutzung zu 
+"kompliziert"(imho) oder an bestimmte Plattformen gekoppelt.
 
-Der CuteEntityManager ist sicherlich weit davon entfernt in einem guten (getesteten) bzw. fertigen Zustand zu sein, da er aber für die Entwicklung einer anderen Anwendung genutzt wird, wird sich der Zustand sicherlich fortlaufend verbessern. Kritik, Lob, Verbesserungsvorschläge, Pull Requests, Code Reviews sind jederzeit Willkommen. Man kann mich auf direktem Wege per Mail an c.ehringfeld[at]t-online.de erreichen.
+Der CuteEntityManager unterstützt grundsätzlich alle von Qt 
+unterstützten Plattformen. Da ich hauptberuflich Java & PHP Entwickler 
+bin, ist der CuteEntityManager dem o.g. EntityManager der JPA und zum 
+Teil dem PHP Yii Framework nachempfunden.
+
+Der CuteEntityManager basiert ausschließlich auf Qt/C++ Techniken. Der 
+Properties für das ORM werden anhand von Q_PROPERTY Makros festgelegt. 
+Es ist möglich Vererbung zu nutzen. Relationen (ONE_TO_ONE, MANY_TO_ONE, 
+ONE_TO_MANY und MANY_TO_MANY) sind natürlich auch möglich. Um SELECT 
+Statements zu vereinfachen gibt es eine Query API. Man kann also ohne 
+ein Stückchen SQL eine komplette Anwendung mit SQL-Datenbank Anbindung 
+implementieren. Man sollte sich natürlich über die "Besonderheiten" 
+einer relationalen Datenbank im Klaren sein (insbesondere eben bei 
+Relationen). Aktuell ist nur die SQLite Unterstützung einigermaßen 
+getestet. Erweiterungen für MySQL/PGSQL/MSSQL sollte relativ problemlos 
+möglich sein.
+
+Der CuteEntityManager ist sicherlich weit davon entfernt in einem guten 
+(getesteten) bzw. fertigen Zustand zu sein, da er aber für die 
+Entwicklung einer anderen Anwendung genutzt wird, wird sich der Zustand 
+sicherlich fortlaufend verbessern. Kritik, Lob, Verbesserungsvorschläge, 
+Pull Requests, Code Reviews sind jederzeit Willkommen. Man kann mich auf 
+direktem Wege per Mail an c.ehringfeld[at]t-online.de erreichen.
 
 ## English
-tbc.
+With CuteEntityManager it is possible to persist, merge, find or delete 
+entities. It's funcionality is based on JPA's EntityManager. For a 
+different application I was in search of an easy-to-use ORM. Either 
+those particular libraries had additional dependencies, a smaller 
+functional range, were too "complicated" to use (imho) or bound to 
+specific platforms.
+
+CuteEntityManager basically supports all platforms supported by Qt. 
+Because I am a Java & PHP developer for a living, CuteEntityManager is 
+conceptionally based on the aforementioned EntityManager of JPA and in 
+parts on the PHP Yii framework.
+
+CuteEntityManager builds solely on Qt/C++ techniqes. The properties for 
+the ORM are established by the usage of Q_PROPERTY macros. It is 
+possible to use inheritance. Of course, relations (ONE_TO_ONE, 
+MANY_TO_ONE, ONE_TO_MANY and MANY_TO_MANY) are also possible. To 
+simplify SELECT statements there is a Query API. Thus, it's possible to 
+implement a whole Application with database connection without using a 
+single bit of SQL. Of course, you should be aware of the "specifics" of 
+a relational database (notably in matters of relations). Currently, only 
+SQLite support is passably tested. Extensions for MySQL/PGSQL/MSSQL 
+should be possible quite smoothly.
+
+CuteEntityManager is definitely far from a proper (and tested) or even 
+finished state, but because of it's use for the creation of another 
+application, surely this state will successively improve. Criticism, 
+praise, improvement suggestions, pull requests and code reviews are 
+welcome at any time. You can reach me directly by mail under
+c.ehringfeld[at]t-online.de.

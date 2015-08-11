@@ -16,11 +16,13 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 HEADERS += \
-    artikel.h
+    address.h \
+    person.h
 
 SOURCES += \
     main.cpp \
-    artikel.cpp
+    address.cpp \
+    person.cpp
 
 unix:!macx:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug -lCuteEntityManager
 else:unix:!macx:CONFIG(release, release|debug): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/ -lCuteEntityManager

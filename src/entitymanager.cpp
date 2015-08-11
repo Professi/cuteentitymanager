@@ -173,6 +173,7 @@ bool EntityManager::validate(QSharedPointer<Entity> &entity) {
         ValidationRule rule = rules.at(i);
         QSharedPointer<Validator> validator = ValidatorFactory::getValidatorObject(
                 rule.getValidatorName());
+        qDebug() << "VALIDATOR" << validator;
         if (validator) {
             for (int var = 0; var < rule.getAttributes().size(); ++var) {
                 QString attr = rule.getAttributes().at(var);
@@ -916,6 +917,12 @@ bool EntityManager::createTable(const QSharedPointer<Entity> &entity,
                                 bool createRelationTables) {
     return this->schema->getQueryBuilder()->createTable(entity,
             createRelationTables);
+}
+
+bool EntityManager::createTable(QString className, bool createRelationTables) {
+    QSharedPointer<Entity> e = QSharedPointer<Entity>
+                               (EntityInstanceFactory::createInstance(className));
+    return this->schema->getQueryBuilder()->createTable(e, createRelationTables);
 }
 
 quint8 EntityManager::count(const QSharedPointer<Entity> &entity,
