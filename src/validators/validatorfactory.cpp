@@ -12,6 +12,8 @@
 #include "urlvalidator.h"
 #include "uniquevalidator.h"
 #include "patternvalidator.h"
+#include "lengthvalidator.h"
+#include <QDebug>
 using namespace CuteEntityManager;
 
 ValidatorFactory::ValidatorFactory() {
@@ -37,12 +39,14 @@ Validator *ValidatorFactory::createObject(const QByteArray &className) {
     if ( constructor == nullptr ) {
         return nullptr;
     }
+
     return (*constructor)();
 }
 
 QSharedPointer<Validator> ValidatorFactory::getValidatorObject(
     const QString &shortname) {
     if (!ValidatorFactory::validatorInstances.contains(shortname)) {
+        ValidatorFactory::registerClasses();
         ValidatorFactory::validatorInstances.insert(shortname,
                 QSharedPointer<Validator>(ValidatorFactory::createValidator(shortname)));
     }
@@ -63,5 +67,6 @@ void ValidatorFactory::registerClasses() {
         ValidatorFactory::registerClass<PatternValidator>();
         ValidatorFactory::registerClass<UniqueValidator>();
         ValidatorFactory::registerClass<UrlValidator>();
+        ValidatorFactory::registerClass<LengthValidator>();
     }
 }

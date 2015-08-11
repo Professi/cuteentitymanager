@@ -11,8 +11,7 @@ class ValidatorFactory {
     static Validator *createValidator(const QString &shortname);
     template<typename T>
     static void registerClass() {
-        if (!ValidatorFactory::instance.contains(
-                    T::staticMetaObject.className())) {
+        if (!ValidatorFactory::instance.contains(T::staticMetaObject.className())) {
             ValidatorFactory::instance.insert( T::staticMetaObject.className(),
                                                &constructorHelper<T> );
         }
