@@ -30,13 +30,21 @@ class Query {
   public:
     Query();
     ~Query();
-    Query(QStringList from, QList<Expression> where = QList<Expression>(),
-          QList<Join> joins = QList<Join>(),
-          QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
-          quint64 offset = 0,
-          QList<Expression> select = QList<Expression>(),
-          QStringList groupBy = QStringList(), bool distinct = false,
-          QList<Expression> having = QList<Expression>());
+    explicit Query(QStringList from, QList<Expression> where = QList<Expression>(),
+                   QList<Join> joins = QList<Join>(),
+                   QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
+                   quint64 offset = 0,
+                   QList<Expression> select = QList<Expression>(),
+                   QStringList groupBy = QStringList(), bool distinct = false,
+                   QList<Expression> having = QList<Expression>());
+
+    explicit Query(QString from, Expression where = Expression(),
+                   Join join = Join(),
+                   QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
+                   quint64 offset = 0,
+                   Expression select = Expression(),
+                   QString groupBy = "", bool distinct = false,
+                   QList<Expression> having = QList<Expression>());
 
     QString getSelectOption() const;
     void setSelectOption(const QString &value);

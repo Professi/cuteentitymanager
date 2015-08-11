@@ -6,7 +6,6 @@ class EmailValidator : public Validator {
     Q_OBJECT
   public:
     EmailValidator();
-    ErrorMsg validateParam(QVariant value, Param param) const final override;
     QString getPattern() const;
     void setPattern(const QString &value);
 
@@ -14,6 +13,7 @@ class EmailValidator : public Validator {
     void setFullPattern(const QString &value);
 
   protected:
+    ErrorMsg validateParam(QVariant value, Param param) const final override;
     QString pattern =
         QStringLiteral("/^[a-zA-Z0-9!#$%&\'*+\\/=?^_`{|}~-]+(?:\\\\.[a-zA-Z0-9!#$%&\'*+\\\\/=?^_`{|}~-]+)*@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/");
     QString fullPattern =

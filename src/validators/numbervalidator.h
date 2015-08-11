@@ -6,6 +6,7 @@ class NumberValidator : public Validator {
     Q_OBJECT
   public:
     NumberValidator();
+  protected:
     ErrorMsg validateParam(QVariant value, Param param) const final override;
 };
 }

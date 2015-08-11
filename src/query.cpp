@@ -38,6 +38,22 @@ Query::Query(QStringList from, QList<Expression> where, QList<Join> joins,
     this->having = having;
 }
 
+Query::Query(QString from, Expression where, Join join,
+             QHash<QString, QVariant> params, quint64 limit, quint64 offset,
+             Expression select, QString groupBy, bool distinct, QList<Expression> having) {
+    this->from.append(from);
+    this->where.append(where);
+    this->joins.append(join);
+    this->params = params;
+    this->limit = limit;
+    this->offset = offset;
+    this->select.append(select);
+    this->groupBy.append(groupBy);
+    this->distinct = distinct;
+    this->having = having;
+
+}
+
 void Query::appendWhere(const QString &condition) {
     this->where.append(Expression(condition));
 }

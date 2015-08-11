@@ -50,7 +50,6 @@ class EntityManager : public QObject {
     bool startup(QString version, QStringList toInitialize,
                  bool createIndices = false);
     bool executeQuery(const QString &query);
-    static void removeConnectionName(const QString &name);
     QSharedPointer<Entity> findById(const qint64 &id, const QString &classname);
     QList<QSharedPointer<Entity>> findEntityByAttributes(const
                                QSharedPointer<Entity> &entity,
@@ -59,7 +58,8 @@ class EntityManager : public QObject {
                 const bool persistRelations = true, const bool validate = true);
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
                 const bool checkDuplicate = false, const bool validate = true);
-    bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true, const bool ignoreHasChanged=true);
+    bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
+              const bool ignoreHasChanged = true);
     qint64 findId(QSharedPointer<Entity> &entity);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
                const bool validate = true);
@@ -88,8 +88,12 @@ class EntityManager : public QObject {
                   QString username = "",
                   QString password = "", QString port = "", bool logQueries = false,
                   QString databaseOptions = "");
-    ~EntityManager();
+    virtual ~EntityManager();
     static QStringList getConnectionNames();
+    static void removeConnectionName(const QString &name);
+    static QHash<QString, EntityManager *> getInstances();
+    static EntityManager *getDefaultInstance();
+    static EntityManager *getInstance(QString name);
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
 
     template<class T> QList<QSharedPointer<T>> find(Query &q,
@@ -268,9 +272,13 @@ class EntityManager : public QObject {
                                 const QSharedPointer<Entity> &e, const Relation &r);
     bool isRelationPropertyValid(const QMetaProperty &prop, const Relation &r,
                                  const QSharedPointer<Entity> &e, const QSharedPointer<Entity> &relatedEntity);
+    QString generateObjectName();
+    void appendToInstanceList();
 
   private:
     static QStringList connectionNames;
+    static QHash<QString, EntityManager *> instances;
+    QString id;
     QSharedPointer<Schema> schema;
     static void setConnectionNames(QStringList list);
     QSharedPointer<Database> db;

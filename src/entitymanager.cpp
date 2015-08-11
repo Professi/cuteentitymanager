@@ -25,6 +25,9 @@ using namespace CuteEntityManager;
 
 QStringList EntityManager::connectionNames = QStringList();
 
+QHash<QString, EntityManager *> EntityManager::instances =
+    QHash<QString, EntityManager *>();
+
 QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
@@ -58,10 +61,12 @@ void EntityManager::init() {
     this->schema->setTables(this->schema->getTableSchemas());
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
                                  this->schema->getQueryBuilder()));
+    this->appendToInstanceList();
 }
 
 EntityManager::~EntityManager() {
     EntityManager::removeConnectionName(this->db->getConnectionName());
+    EntityManager::instances.remove(this->objectName());
 }
 
 bool EntityManager::startup(QString version, QStringList toInitialize,
@@ -445,6 +450,42 @@ bool EntityManager::isRelationPropertyValid(const QMetaProperty &prop,
     }
     return propertyIsValid;
 }
+
+QString EntityManager::generateObjectName() {
+    int i = 0;
+    QString name = "em[";
+    while (true) {
+        if (!EntityManager::instances.contains(name + QString::number(i) + "]")) {
+            name += QString::number(i) + "]";
+            break;
+        }
+    }
+    return name;
+}
+
+void EntityManager::appendToInstanceList() {
+    this->setObjectName(this->generateObjectName());
+    EntityManager::instances.insert(this->objectName(), this);
+}
+QHash<QString, EntityManager *> EntityManager::getInstances() {
+    return instances;
+}
+
+EntityManager *EntityManager::getDefaultInstance() {
+    for (auto i = EntityManager::instances.constBegin();
+            i != EntityManager::instances.constEnd(); ++i) {
+        return i.value();
+    }
+    return nullptr;
+}
+
+EntityManager *EntityManager::getInstance(QString name) {
+    if (EntityManager::instances.contains(name)) {
+        return EntityManager::instances.value(name);
+    }
+    return nullptr;
+}
+
 
 bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
                                   const Relation &r) {

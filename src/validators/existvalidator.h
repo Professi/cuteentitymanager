@@ -6,6 +6,7 @@ class ExistValidator : public Validator {
     Q_OBJECT
   public:
     ExistValidator();
+  protected:
     ErrorMsg validateParam(QVariant value, Param param) const final override;
 };
 }

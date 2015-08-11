@@ -6,6 +6,7 @@ class PatternValidator : public Validator {
     Q_OBJECT
   public:
     PatternValidator();
+  protected:
     ErrorMsg validateParam(QVariant value, Param param) const final override;
 };
 }

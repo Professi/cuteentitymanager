@@ -6,6 +6,7 @@ class DateValidator : public Validator {
     Q_OBJECT
   public:
     DateValidator();
+  protected:
     ErrorMsg validateParam(QVariant value, Param param) const final override;
 };
 }

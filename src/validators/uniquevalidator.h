@@ -6,6 +6,8 @@ class UniqueValidator : public Validator {
     Q_OBJECT
   public:
     UniqueValidator();
+    virtual QList<ErrorMsg> validate(QVariant value, QList<Param> params) const override;
+  protected:
     ErrorMsg validateParam(QVariant value, Param param) const final override;
 };
 }

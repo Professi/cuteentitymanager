@@ -6,6 +6,7 @@ class ImageValidator : public FileValidator {
     Q_OBJECT
   public:
     ImageValidator();
+  protected:
     ErrorMsg validateParam(QVariant value, Param param) const final override;
     virtual ErrorMsg validateImage(QVariant value, Param param) const;
 };
