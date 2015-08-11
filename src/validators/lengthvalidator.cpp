@@ -1,9 +1,7 @@
 #include "lengthvalidator.h"
 using namespace CuteEntityManager;
 LengthValidator::LengthValidator() : Validator() {
-
 }
-
 
 ErrorMsg LengthValidator::validateParam(QVariant value, Param param) const {
     QString val = value.toString();

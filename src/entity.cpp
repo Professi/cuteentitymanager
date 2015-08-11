@@ -61,8 +61,24 @@ QList<ErrorMsg> Entity::getErrors() const {
     return errors;
 }
 
+QString Entity::getErrorsAsString() const {
+    QList<ErrorMsg> errors = this->getErrors();
+    bool first = true;
+    QString r = "";
+    for (int i = 0; i < errors.size(); ++i) {
+        ErrorMsg msg = errors.at(i);
+        if (first) {
+            first = false;
+        } else {
+            r += ";";
+        }
+        r += msg.getErrorMsg();
+    }
+    return r;
+}
+
 void Entity::setErrors(const QList<ErrorMsg> &value) {
-    errors = value;
+    this->errors = value;
 }
 
 Entity::~Entity() {

@@ -173,11 +173,17 @@ bool EntityManager::validate(QSharedPointer<Entity> &entity) {
         ValidationRule rule = rules.at(i);
         QSharedPointer<Validator> validator = ValidatorFactory::getValidatorObject(
                 rule.getValidatorName());
-        qDebug() << "VALIDATOR" << validator;
         if (validator) {
             for (int var = 0; var < rule.getAttributes().size(); ++var) {
                 QString attr = rule.getAttributes().at(var);
-                list.append(validator->validate(entity->getProperty(attr), rule.getParams()));
+                QList<ErrorMsg> msgs = validator->validate(entity->getProperty(attr),
+                                       rule.getParams());
+                for (int i = 0; i < msgs.size(); ++i) {
+                    QString emsg = msgs.at(i).getErrorMsg().replace("<property>", attr);
+                    ErrorMsg m = msgs.at(i);
+                    m.setErrorMsg(emsg);
+                    list.append(m);
+                }
             }
         }
     }

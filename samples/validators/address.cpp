@@ -10,8 +10,9 @@ Address::Address(QString label, QString street, QString postcode,
 
 QList<ValidationRule> Address::validationRules() const {
     QList<ValidationRule> rules = QList<ValidationRule>();
-    rules.append(ValidationRule("required", {"street", "postcode","label"}));
-    //rules.append(ValidationRule("required"));
+    rules.append(ValidationRule("required", {"street", "postcode", "city"}));
+    //German postcodes
+    rules.append(ValidationRule("number", "postcode", "min", 10000, "max", 99999));
     return rules;
 }
 

@@ -1,5 +1,6 @@
 #include "validator.h"
 #include "validatorfactory.h"
+#include <QDebug>
 using namespace CuteEntityManager;
 Validator::Validator() : QObject() {
     ValidatorFactory::registerClasses();

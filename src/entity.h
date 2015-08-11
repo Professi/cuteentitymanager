@@ -63,6 +63,7 @@ class Entity : public QObject {
     bool hasErrors() const;
 
     QList<ErrorMsg> getErrors() const;
+    QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
 
 protected:

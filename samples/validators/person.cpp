@@ -24,7 +24,9 @@ const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
 }
 
 QList<ValidationRule> Person::validationRules() const {
-    return Entity::validationRules();
+    QList<ValidationRule> rules = QList<ValidationRule>();
+    rules.append(ValidationRule("length", {"firstName", "familyName"}, "min", 2));
+    return rules;
 }
 
 QString Person::fullName(NameOrder nameOrder) const {
