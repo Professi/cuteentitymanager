@@ -26,6 +26,8 @@ const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
 QList<ValidationRule> Person::validationRules() const {
     QList<ValidationRule> rules = QList<ValidationRule>();
     rules.append(ValidationRule("length", {"firstName", "familyName"}, "min", 2));
+    rules.append(ValidationRule("date", "birthday", "past", "", "min", QDate(1973,
+                                1, 1)));
     return rules;
 }
 

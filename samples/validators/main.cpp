@@ -46,8 +46,8 @@ int main(int argc, char *argv[]) {
 
     QSharedPointer<Entity> p1 = QSharedPointer<Person>(new Person("Thomas", "B",
                                 Person::Gender::MALE, "", QString(), QString(), QDate(1971, 7, 13), 0));
-    QSharedPointer<Entity>p2 = QSharedPointer<Person>(new Person("Teresa", "Conrad",
-                               Person::Gender::FEMALE, "", QString(), QString(), QDate(1970, 7, 13), 0));
+    QSharedPointer<Entity> p2 = QSharedPointer<Person>(new Person("Teresa", "Conrad",
+                               Person::Gender::FEMALE, "", QString(), QString(), QDate(2016, 7, 13), 0));
     QSharedPointer<Entity> p3 = QSharedPointer<Person>(new Person("Heinz", "Dunst",
                                 Person::Gender::MALE, "", QString(), QString(), QDate(1972, 7, 13), 0));
 
