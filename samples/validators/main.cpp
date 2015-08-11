@@ -26,20 +26,22 @@ int main(int argc, char *argv[]) {
                                 Person::Gender::MALE, "", QString(), QString(), QDate(1972, 7, 13), 0));
 
     //validation takes also place before save/create/merge
-    qDebug() << "p1 valid:" << e->validate(p1) << p1->getErrorsAsString();
-    qDebug() << "p2 valid:" << e->validate(p2) << p2->getErrorsAsString();
-    qDebug() << "p3 valid:" << e->validate(p3) << p3->getErrorsAsString();
-
+    qDebug() << "p1 valid:" << e->validate(p1);
+    qDebug() << p1->getErrorsAsString();
+    qDebug() << "p2 valid:" << e->validate(p2);
+    qDebug() << p2->getErrorsAsString();
+    qDebug() << "p3 valid:" << e->validate(p3);
+    qDebug() << p3->getErrorsAsString();
     QSharedPointer<Entity> a1 = QSharedPointer<Address>(new Address("",
                                 "Mentzelstraße 327",
                                 "33617", "Bielefeld"));
     QSharedPointer<Entity> a2 = QSharedPointer<Address>(new Address("Erzieher",
                                 "Bundesallee 252",
                                 "4908", "Osnabrück"));
-
-    qDebug() << "a1 valid:" << e->validate(a1) << a1->getErrorsAsString();
-    qDebug() << "a2 valid:" << e->validate(a2) << a2->getErrorsAsString();
-qDebug() << a2->getErrors().size();
+    qDebug() << "a1 valid:" << e->validate(a1);
+    qDebug() << a1->getErrorsAsString();
+    qDebug() << "a2 valid:" << e->validate(a2);
+    qDebug() << a2->getErrorsAsString();
 
     return 0;
 }
