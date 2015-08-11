@@ -1,5 +1,7 @@
 QT       += core
 QT       += sql
+#if you need Image Validation you must compile with += gui
+#QT       += gui
 QT       -= gui
 
 TARGET = CuteEntityManager
@@ -46,7 +48,8 @@ src/entity.h \
     src/validators/existvalidator.h \
     src/validators/filevalidator.h \
     src/validators/imagevalidator.h \
-    src/validators/uniquevalidator.h
+    src/validators/uniquevalidator.h \
+    src/validators/patternvalidator.h
 
 SOURCES += \
 src/entity.cpp \
@@ -86,7 +89,8 @@ src/entity.cpp \
     src/validators/existvalidator.cpp \
     src/validators/filevalidator.cpp \
     src/validators/imagevalidator.cpp \
-    src/validators/uniquevalidator.cpp
+    src/validators/uniquevalidator.cpp \
+    src/validators/patternvalidator.cpp
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14

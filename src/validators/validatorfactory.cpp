@@ -11,6 +11,7 @@
 #include "requiredvalidator.h"
 #include "urlvalidator.h"
 #include "uniquevalidator.h"
+#include "patternvalidator.h"
 using namespace CuteEntityManager;
 
 ValidatorFactory::ValidatorFactory() {
@@ -59,6 +60,7 @@ void ValidatorFactory::registerClasses() {
         ValidatorFactory::registerClass<NumberValidator>();
         ValidatorFactory::registerClass<DateValidator>();
         ValidatorFactory::registerClass<RequiredValidator>();
+        ValidatorFactory::registerClass<PatternValidator>();
         ValidatorFactory::registerClass<UniqueValidator>();
         ValidatorFactory::registerClass<UrlValidator>();
     }
