@@ -1,7 +1,6 @@
 #include "datevalidator.h"
 #include <QDate>
 #include <QLocale>
-#include <QDebug>
 using namespace CuteEntityManager;
 DateValidator::DateValidator() : Validator() {
 }

@@ -18,7 +18,6 @@
 #define ENTITY_H
 #include <QtGlobal>
 #include <QMap>
-#include <QDebug>
 #include <QObject>
 #include <QMetaProperty>
 #include "relation.h"
