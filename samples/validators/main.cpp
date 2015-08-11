@@ -17,6 +17,32 @@ int main(int argc, char *argv[]) {
     EntityInstanceFactory::registerClass<Address>();
     e->createTable("Person");
     e->createTable("Address");
+    /**
+     * You can define the following validators:
+     * "compare" -> CompareValidator  (Params: ==, !=, <,>,<=,>=)
+     * "default" -> DefaultValidator You must only provide a value. Param name can be empty.
+     * "email" -> EmailValidator You can provide "full" param.
+     *      It would check "Max Example<max.example@synlos.net>".
+     *      Without this param it checks for "max.example@synlos.net"
+     * "exists" -> ExistValidator Checks if a MANY_TO_ONE/ONE_TO_ONE Relation Entity already has a ID
+     * "file" -> FileValidator (Params: mimeTypes, extensions, minSize, maxSize)
+     * "image" -> ImageValidator !Only Available when the EM was compiled with QT += gui
+     *      (Params: minWidth, maxWidth, minHeight, maxHeight)
+     * "number" -> NumberValidator (Params: min, max)
+     * "date" -> DateValidator (Params: future, past, min, max)
+     * "required" -> RequiredValidator If specified it checks if a QVariant is null or a QString is empty
+     * "unique" -> UniqueValidator - Not done, checks if a value was already used
+     * "url" -> UrlValidator (Params: defaultSchemes) Checks for a valid URL(https://... or http://...)
+     * "pattern" -> PatternValidator You can define a param Name, but you only need to provide a Param value with the Pattern for the regular expression
+     * "length"-> LengthValidator (Params: min, max)
+     *
+     * You must override virtual QList<ValidationRule> validationRules() const; of Entity Class
+     * You can define a ValidationRule for example with:
+     * ValidationRule("length", {"firstName", "familyName"}, "min", 2);
+     * First is everytime the shortcut of the specific validator
+     * Second must be a single attribute or a list of attributes
+     * Then you can specify the params with values.
+     */
 
     QSharedPointer<Entity> p1 = QSharedPointer<Person>(new Person("Thomas", "B",
                                 Person::Gender::MALE, "", QString(), QString(), QDate(1971, 7, 13), 0));
