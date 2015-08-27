@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     qWarning() << "-----------------------------";
     qWarning() << "Create Contact, Address, Pupil and Group Tables";
     qWarning() << "-----------------------------";
-    QStringList inits = QStringList() << "Contact" << "Address" <<
+    QStringList inits = QStringList() << "Contact" << "Address" << "Person" <<
                         "Pupil" << "Group";
     /**
       * Instead of startup(version,qstringlist) you can call method createTable of EntityManager (e->create(sharedptr))
