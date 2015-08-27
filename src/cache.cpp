@@ -72,7 +72,7 @@ QSharedPointer<Entity> Cache::get(qint64 id, const QString &classname) {
     return QSharedPointer<Entity>();
 }
 
-QString Cache::generateKey(qint64 id, const QString &classname) {
+QString Cache::generateKey(qint64 id, const QString &classname) const {
     if (id > -1) {
         return QString::number(id).append("[").append(classname).append("]");
     }

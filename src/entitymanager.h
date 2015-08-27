@@ -54,13 +54,13 @@ class EntityManager : public QObject {
     QList<QSharedPointer<Entity>> findEntityByAttributes(const
                                QSharedPointer<Entity> &entity,
                                bool ignoreID = false);
+    qint64 findId(QSharedPointer<Entity> &entity);
     bool create(QList<QSharedPointer<Entity>> entities,
                 const bool persistRelations = true, const bool validate = true);
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
                 const bool checkDuplicate = false, const bool validate = true);
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-              const bool ignoreHasChanged = true);
-    qint64 findId(QSharedPointer<Entity> &entity);
+              const bool ignoreHasChanged = true, const bool validate = true);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
                const bool validate = true);
     bool remove(QSharedPointer<Entity> &entity);
@@ -209,6 +209,12 @@ class EntityManager : public QObject {
     }
 
   protected:
+    bool saveObject(QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects, const bool persistRelations=true,
+              const bool ignoreHasChanged=true, const bool validate=true);
+    bool mergeObject(QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects, bool withRelations,
+               const bool validate);
+    bool createObject(QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects,const bool persistRelations,
+                const bool checkDuplicate, const bool validate);
     template<class T> QList<QSharedPointer<T>> convertList(const
     QList<QSharedPointer<Entity>> &list) {
         QList<QSharedPointer<T>> newList = QList<QSharedPointer<T>>();
@@ -236,7 +242,7 @@ class EntityManager : public QObject {
     bool canPersistRelation(const Relation &relation, const RelationType &r,
                             const QVariant &var) const;
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                           QVariant &property);
+                           QVariant &property, QList<Entity*> &mergedObjects);
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -246,15 +252,15 @@ class EntityManager : public QObject {
             bool ignoreID = false);
     QSharedPointer<Entity> findById(const qint64 &id, QSharedPointer<Entity> &e,
                                     const bool refresh = false);
-    void savePrePersistedRelations(const QSharedPointer<Entity> &entity);
-    void savePostPersistedRelations(const QSharedPointer<Entity> &entity);
+    void savePrePersistedRelations(const QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects);
+    void savePostPersistedRelations(const QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects);
 
     QList<QSharedPointer<Entity>> saveRelationEntities(const
-                               QList<QSharedPointer<Entity>> &list, const Relation &r);
+                               QList<QSharedPointer<Entity>> &list, const Relation &r, QList<Entity*> &mergedObjects);
     void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
                                  QSqlQuery &q, const QSharedPointer<Entity> &entity,
                                  const QSharedPointer<Entity> &ptr, const Relation &r,
-                                 const QString &tblName);
+                                 const QString &tblName, QList<Entity*> &mergedObjects);
     bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
     void removeRelations(const QSharedPointer<Entity> &entity);
     void removeEntityList(QVariant &var);

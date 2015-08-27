@@ -231,8 +231,7 @@ QString Schema::getRawTable(QString name) {
 }
 
 bool Schema::containsTable(QString tblname) {
-    if (this->tables.size() !=
-            this->database->getDatabase().tables().size()) {
+    if (this->tables.size() != this->getTableNames().size()) {
         this->setTables(this->getTableSchemas());
     }
     return this->database->getDatabase().tables().contains(tblname);
@@ -334,7 +333,10 @@ QString Schema::combineScaleAndPrecision(int precision, int scale) const {
 }
 
 
-QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() const {
+QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() {
+    if (this->tables.size() != this->getTableNames().size()) {
+        this->setTables(this->getTableSchemas());
+    }
     return this->tables;
 }
 

@@ -61,7 +61,7 @@ class Cache {
     }
 
   protected:
-    QString generateKey(qint64 id, const QString &classname);
+    QString generateKey(qint64 id, const QString &classname) const;
   private:
     QHash<QString, QWeakPointer<Entity>> cache;
 };
