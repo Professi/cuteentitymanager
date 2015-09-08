@@ -51,6 +51,7 @@ class QueryBuilder {
     virtual bool createIndices(const QSharedPointer<Entity> &entity) const;
     virtual QString createTable(const QString &tableName,
                                 const QHash<QString, QString> &tableDefinition) const;
+    virtual bool createRelationTables(const QSharedPointer<Entity> &entity) const;
     virtual QString createTableQuery(const QString &tableName,
                                      const QHash<QString, QString> &tableDefinition) const;
     virtual QString renameTable(QString tableName, QString newName) const;

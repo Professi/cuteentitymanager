@@ -202,15 +202,29 @@ bool EntityManager::startup(QString version, QStringList toInitialize,
                 QString c = toInitialize.at(var);
                 auto entity = QSharedPointer<Entity>
                               (EntityInstanceFactory::createInstance(c));
-                ok = this->createTable(entity);
+                ok = this->createTable(entity, false);
                 entities.append(entity);
             } else {
+                qWarning() << "startup of version " << version << " failed";
+                qWarning() << "erroneous entity:" << (var == 0 ? "null, this should not happen!" : toInitialize.at(
+                        var - 1));
                 break;
             }
         }
-        if (createIndices) {
+        if (ok) {
+            for (int i = 0; i < entities.size(); ++i) {
+                ok = this->schema->getQueryBuilder()->createRelationTables(entities.at(i));
+                if (!ok) {
+                    break;
+                }
+            }
+        }
+        if (ok && createIndices) {
             for (int i = 0; i < entities.size(); ++i) {
                 ok = this->schema->getQueryBuilder()->createIndices(entities.at(i));
+                if (!ok) {
+                    break;
+                }
             }
         }
         if (ok) {

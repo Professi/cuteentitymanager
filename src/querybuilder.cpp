@@ -43,23 +43,34 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity,
         if (!rc) {
             QSqlQuery q = this->database->getQuery(this->createTable(tableName,
                                                    tableDefinition));
-            if (this->database->exec(q)) {
-                if (createRelationTables) {
-                    auto relTables = this->generateRelationTables(entity);
-                    auto i = relTables.constBegin();
-                    while (i != relTables.constEnd()) {
-                        auto query = this->database->getQuery(this->createTable(i.key(),
-                                                              i.value()));
-                        this->database->exec(query);
-                        ++i;
-                    }
-                }
-                this->schema->getTableSchema(tableName);
+            if (this->database->exec(q) && (!createRelationTables || (createRelationTables
+                                            && this->createRelationTables(entity)))) {
                 rc = true;
+            } else {
+                qWarning() << "Table " << entity->getTablename() << " could not be created.";
             }
+            this->schema->getTableSchema(tableName);
         }
     }
     return rc;
+}
+
+bool QueryBuilder::createRelationTables(const QSharedPointer<Entity> &entity)
+const {
+    bool ok = true;
+    auto relTables = this->generateRelationTables(entity);
+    auto i = relTables.constBegin();
+    while (i != relTables.constEnd()) {
+        auto query = this->database->getQuery(this->createTable(i.key(), i.value()));
+        if (!this->database->exec(query)) {
+            ok = false;
+            qWarning() << "Relational table for table " << entity->getTablename() <<
+                       " could not be created." << " Tablename:" << i.key();
+            break;
+        }
+        ++i;
+    }
+    return ok;
 }
 
 bool QueryBuilder::createIndices(const QSharedPointer<Entity> &entity) const {
