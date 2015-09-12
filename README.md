@@ -49,14 +49,14 @@ the ORM are established by the usage of Q_PROPERTY macros. It is
 possible to use inheritance. Of course, relations (ONE_TO_ONE, 
 MANY_TO_ONE, ONE_TO_MANY and MANY_TO_MANY) are also possible. To 
 simplify SELECT statements there is a Query API. Thus, it's possible to 
-implement a whole Application with database connection without using a 
+implement a whole application with database connection without using a 
 single bit of SQL. Of course, you should be aware of the "specifics" of 
 a relational database (notably in matters of relations). Currently, only 
 SQLite support is passably tested. Extensions for MySQL/PGSQL/MSSQL 
 should be possible quite smoothly.
 
 CuteEntityManager is definitely far from a proper (and tested) or even 
-finished state, but because of it's use for the creation of another 
+finished state, but because of its use for the creation of another 
 application, surely this state will successively improve. Criticism, 
 praise, improvement suggestions, pull requests and code reviews are 
 welcome at any time. You can reach me directly by mail under
