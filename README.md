@@ -1,6 +1,6 @@
 # CuteEntityManager for Qt
 ## German
-Mit dem CuteEntityManager ist es möglich Entities zu persistieren, zu 
+Mit dem CuteEntityManager ist es möglich, Entities zu persistieren, zu 
 mergen, zu finden und zu löschen. Die Funktionalität ist dem 
 EntityManager der JPA nachempfunden. Für eine andere Anwendung war ich 
 auf der Suche nach einem leicht zu benutzenden ORM. Entweder enthielten 
@@ -13,30 +13,29 @@ unterstützten Plattformen. Da ich hauptberuflich Java & PHP Entwickler
 bin, ist der CuteEntityManager dem o.g. EntityManager der JPA und zum 
 Teil dem PHP Yii Framework nachempfunden.
 
-Der CuteEntityManager basiert ausschließlich auf Qt/C++ Techniken. Der 
+Der CuteEntityManager basiert ausschließlich auf Qt/C++ Techniken. Die
 Properties für das ORM werden anhand von Q_PROPERTY Makros festgelegt. 
 Es ist möglich Vererbung zu nutzen. Relationen (ONE_TO_ONE, MANY_TO_ONE, 
 ONE_TO_MANY und MANY_TO_MANY) sind natürlich auch möglich. Um SELECT 
-Statements zu vereinfachen gibt es eine Query API. Man kann also ohne 
+Statements zu vereinfachen, gibt es eine Query API. Man kann also ohne 
 ein Stückchen SQL eine komplette Anwendung mit SQL-Datenbank Anbindung 
 implementieren. Man sollte sich natürlich über die "Besonderheiten" 
 einer relationalen Datenbank im Klaren sein (insbesondere eben bei 
 Relationen). Aktuell ist nur die SQLite Unterstützung einigermaßen 
-getestet. Erweiterungen für MySQL/PGSQL/MSSQL sollte relativ problemlos 
+getestet. Erweiterungen für MySQL/PGSQL/MSSQL sollten relativ problemlos 
 möglich sein.
 
-Der CuteEntityManager ist sicherlich weit davon entfernt in einem guten 
+Der CuteEntityManager ist sicherlich weit davon entfernt, in einem guten 
 (getesteten) bzw. fertigen Zustand zu sein, da er aber für die 
 Entwicklung einer anderen Anwendung genutzt wird, wird sich der Zustand 
 sicherlich fortlaufend verbessern. Kritik, Lob, Verbesserungsvorschläge, 
-Pull Requests, Code Reviews sind jederzeit Willkommen. Man kann mich auf 
+Pull Requests, Code Reviews sind jederzeit willkommen. Man kann mich auf 
 direktem Wege per Mail an c.ehringfeld[at]t-online.de erreichen.
 
 ## English
 With CuteEntityManager it is possible to persist, merge, find or delete 
-entities. It's funcionality is based on JPA's EntityManager. For a 
-different application I was in search of an easy-to-use ORM. Either 
-those particular libraries had additional dependencies, a smaller 
+entities. Its functionality is based on JPA's EntityManager. For a 
+different application I was in search of an easy-to-use ORM. Those particular libraries had either additional dependencies, a smaller 
 functional range, were too "complicated" to use (imho) or bound to 
 specific platforms.
 
