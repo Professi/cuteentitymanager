@@ -17,6 +17,7 @@
 #include "database.h"
 #include "logger.h"
 #include <QDir>
+#include "schema/mysqlschema.h"
 using namespace CuteEntityManager;
 
 Database::Database(QSqlDatabase database, bool loggerActivated, bool logQueries,
@@ -49,7 +50,7 @@ Database::Database(QString databaseType, QString connectionName,
     if (port != 0) {
         this->database.setPort(port);
     }
-    if(!databaseOptions.isEmpty()) {
+    if (!databaseOptions.isEmpty()) {
         this->database.setConnectOptions(databaseOptions);
     }
     this->init();
@@ -152,9 +153,9 @@ QSharedPointer<Schema> Database::getSchema(DatabaseType db,
     //    case PGSQL:
     //        return QSharedPointer<Schema>(new PgSqlSchema());
     //        break;
-    //    case MYSQL:
-    //        return QSharedPointer<Schema>(new MysqlSchema());
-    //        break;
+    case DatabaseType::MYSQL:
+        return QSharedPointer<Schema>(new MysqlSchema(database));
+        break;
     default:
         return QSharedPointer<Schema>(new SqliteSchema(database));
         break;

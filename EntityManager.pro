@@ -50,7 +50,8 @@ src/entity.h \
     src/validators/imagevalidator.h \
     src/validators/uniquevalidator.h \
     src/validators/patternvalidator.h \
-    src/validators/lengthvalidator.h
+    src/validators/lengthvalidator.h \
+    src/schema/mysqlquerybuilder.h
 
 SOURCES += \
 src/entity.cpp \
@@ -92,7 +93,8 @@ src/entity.cpp \
     src/validators/imagevalidator.cpp \
     src/validators/uniquevalidator.cpp \
     src/validators/patternvalidator.cpp \
-    src/validators/lengthvalidator.cpp
+    src/validators/lengthvalidator.cpp \
+    src/schema/mysqlquerybuilder.cpp
 
 CONFIG += c++14
 QMAKE_CXXFLAGS += -std=c++14
