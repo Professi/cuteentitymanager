@@ -36,7 +36,7 @@ QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
         this->typeMap->insert(TYPE_PK,
                               "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap->insert(TYPE_BIGPK,
-                              "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
+                              "bigint PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap->insert(TYPE_BOOLEAN, "boolean");
         this->typeMap->insert(TYPE_SMALLINT, "smallint");
         this->typeMap->insert(TYPE_INTEGER, "integer");
@@ -114,26 +114,6 @@ void SqliteSchema::findConstraints(const QSharedPointer<TableSchema> &ts) {
         }
     }
     ts->setRelations(foreignKeys);
-}
-
-bool SqliteSchema::findColumns(const QSharedPointer<TableSchema> &ts) {
-    QSqlQuery q = this->database->getQuery();
-    q.setForwardOnly(true);
-    q.exec("SELECT * FROM " + this->quoteSimpleTableName(ts->getName()) +
-           " LIMIT 0");
-    QHash<QString, QSharedPointer<QSqlField>> columns =
-            QHash<QString, QSharedPointer<QSqlField>>();
-    auto rec = q.record();
-    int count = rec.count();
-    if (count == 0) {
-        return false;
-    }
-    for (int var = 0; var < count; ++var) {
-        QSqlField f = rec.field(var);
-        columns.insert(f.name(), QSharedPointer<QSqlField>(new QSqlField(f)));
-    }
-    ts->setColumns(columns);
-    return true;
 }
 
 QSharedPointer<TableSchema> SqliteSchema::loadTableSchema(QString name) {

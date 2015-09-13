@@ -136,7 +136,7 @@ virtual QString combineScaleAndPrecision(int precision, int scale) const;
             QSharedPointer<TableSchema>
             &table) = 0;
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) = 0;
-    virtual bool findColumns(const QSharedPointer<TableSchema> &ts) = 0;
+    virtual bool findColumns(const QSharedPointer<TableSchema> &ts);
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name)  = 0;
     virtual void initAbstractDatabaseTypes();
     QSharedPointer<Database> database;

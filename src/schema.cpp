@@ -332,6 +332,26 @@ QString Schema::combineScaleAndPrecision(int precision, int scale) const {
     return length;
 }
 
+bool Schema::findColumns(const QSharedPointer<TableSchema> &ts) {
+    QSqlQuery q = this->database->getQuery();
+    q.setForwardOnly(true);
+    q.exec("SELECT * FROM " + this->quoteSimpleTableName(ts->getName()) +
+           " LIMIT 0");
+    QHash<QString, QSharedPointer<QSqlField>> columns =
+            QHash<QString, QSharedPointer<QSqlField>>();
+    auto rec = q.record();
+    int count = rec.count();
+    if (count == 0) {
+        return false;
+    }
+    for (int var = 0; var < count; ++var) {
+        QSqlField f = rec.field(var);
+        columns.insert(f.name(), QSharedPointer<QSqlField>(new QSqlField(f)));
+    }
+    ts->setColumns(columns);
+    return true;
+}
+
 
 QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() {
     if (this->tables.size() != this->getTableNames().size()) {

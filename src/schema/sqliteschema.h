@@ -30,7 +30,6 @@ class SqliteSchema : public Schema {
             QSharedPointer<TableSchema>
             &table) override;
     virtual void findConstraints(const QSharedPointer<TableSchema> &ts) override;
-    virtual bool findColumns(const QSharedPointer<TableSchema> &ts) override;
     virtual QSharedPointer<TableSchema> loadTableSchema(QString name) override;
 };
 }
