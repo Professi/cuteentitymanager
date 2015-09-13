@@ -39,7 +39,10 @@ c.ehringfeld[at]t-online.de.
 - query api (object-oriented method for building SQL queries)
 - Object-Relational Mapping (ORM)
 - Multiple instances
+(- every Database Entity must inherit from CuteEntityManager::Entity)
 
+Updated daily doxygen documentation:
+http://jenkins.danfai.de/jenkins/job/cuteentitymanager/doxygen/
 
 ## German
 Mit dem CuteEntityManager ist es möglich, Entities zu persistieren, zu 
