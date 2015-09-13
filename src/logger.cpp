@@ -20,6 +20,7 @@
 #include <QTextStream>
 #include <QDateTime>
 
+using namespace CuteEntityManager;
 Logger::Logger(QString path) {
     this->path = path;
 }

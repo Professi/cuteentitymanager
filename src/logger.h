@@ -20,7 +20,7 @@
 #include <QFile>
 #include <QSqlError>
 #include <QSqlQuery>
-
+namespace CuteEntityManager {
 class Logger {
   public:
     Logger(QString path = "");
@@ -39,5 +39,5 @@ class Logger {
   private:
     QString path;
 };
-
+}
 #endif // LOGGER_H
