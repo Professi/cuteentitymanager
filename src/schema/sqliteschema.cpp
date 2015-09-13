@@ -24,11 +24,9 @@ SqliteSchema::SqliteSchema(QSharedPointer<Database> database) : Schema(
         database, QSharedPointer<QueryBuilder>(new SqliteQueryBuilder(
                     QSharedPointer<Schema>
                     (this), database))) {
-
 }
 
 SqliteSchema::~SqliteSchema() {
-
 }
 
 QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
@@ -36,7 +34,7 @@ QSharedPointer<QHash<QString, QString>> SqliteSchema::getTypeMap() {
         this->typeMap->insert(TYPE_PK,
                               "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap->insert(TYPE_BIGPK,
-                              "bigint PRIMARY KEY AUTOINCREMENT NOT NULL");
+                              "integer PRIMARY KEY AUTOINCREMENT NOT NULL");
         this->typeMap->insert(TYPE_BOOLEAN, "boolean");
         this->typeMap->insert(TYPE_SMALLINT, "smallint");
         this->typeMap->insert(TYPE_INTEGER, "integer");

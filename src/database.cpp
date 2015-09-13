@@ -211,7 +211,7 @@ void Database::debugQuery(const QSqlQuery &query) const {
 
 bool Database::select(QSqlQuery &query) {
     query.setForwardOnly(true);
-    bool ok  = query.exec();
+    bool ok = query.exec();
     this->debugQuery(query);
     return ok;
 }
