@@ -66,24 +66,31 @@ QHash<QString, QStringList> MysqlSchema::findUniqueIndexes(
 }
 
 void MysqlSchema::findConstraints(const QSharedPointer<TableSchema> &ts) {
-    //    QString sql = "SHOW INDEX";
-    //        sql +=  " FROM " + this->quoteSimpleTableName(table->getFullName());
-    //        QSqlQuery q = this->database->getQuery();
-    //        q.setForwardOnly(true);
-    //        q.exec(sql);
+    QString sql =
+        "SELECT table_name, column_name,referenced_table_name,referenced_column_name";
+    sql +=  " FROM " + this->quoteTableName("information_schema.key_column_usage");
+    sql += "WHERE " + this->quoteColumnName("referenced_table_name") +
+           " is not null";
+    sql += " AND " + this->quoteColumnName("table_schema") + " = \"" +
+           this->getDatabase()->getDatabase().databaseName() + "\"";
+    sql += " AND " + this->quoteColumnName("table_name") + " = \"" + ts->getName() +
+           "\"";
+    QSqlQuery q = this->database->getQuery();
+    q.setForwardOnly(true);
+    q.exec(sql);
     auto foreignKeys = ts->getRelations();
-    //        while (q.next()) {
-    //            bool ok;
-    //            int id = q.value("id").toInt(&ok);
-    //            if (ok) {
-    //                auto rel = new QSqlRelation(q.value("table").toString(),
-    //                                            q.value("from").toString(),
-    //                                            q.value("to").toString());
-    //                auto ptr = QSharedPointer<QSqlRelation>(rel);
-    //                foreignKeys.insert(QString::number(id), ptr);
-    //            }
-    //        }
-
+    int id = 0;
+    while (q.next()) {
+        bool ok;
+        if (ok) {
+            auto rel = new QSqlRelation(q.value("referenced_table_name").toString(),
+                                        q.value("column_name").toString(),
+                                        q.value("referenced_column_name").toString());
+            auto ptr = QSharedPointer<QSqlRelation>(rel);
+            foreignKeys.insert(QString::number(id), ptr);
+        }
+        id++;
+    }
     ts->setRelations(foreignKeys);
 }
 
