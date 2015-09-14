@@ -138,13 +138,30 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations,
     return this->mergeObject(entity, merged, withRelations, validate);
 }
 
+/**
+ * @brief EntityManager::create
+ * Will persist an entity in the database. Before its persisted it has the id -1(invalid id). If database persisting was succesfull it has a valid id.
+ * @param entity
+ * @param persistRelations
+ * @param checkDuplicate
+ * @param validate
+ * @return
+ */
 bool EntityManager::create(QSharedPointer<Entity> &entity,
                            const bool persistRelations, const bool checkDuplicate, const bool validate) {
     auto merged = QList<Entity *>();
     return this->createObject(entity, merged, persistRelations,
                               checkDuplicate, validate);
 }
-
+/**
+ * @brief EntityManager::save
+ * If the entity has no valid ID, this method will call the create() method. Else it would call the merge method.
+ * @param entity
+ * @param persistRelations
+ * @param ignoreHasChanged
+ * @param validate
+ * @return bool
+ */
 bool EntityManager::save(QSharedPointer<Entity> &entity,
                          const bool persistRelations, const bool ignoreHasChanged, const bool validate) {
     auto merged = QList<Entity *>();
@@ -206,8 +223,9 @@ bool EntityManager::startup(QString version, QStringList toInitialize,
                 entities.append(entity);
             } else {
                 qWarning() << "startup of version " << version << " failed";
-                qWarning() << "erroneous entity:" << (var == 0 ? "null, this should not happen!" : toInitialize.at(
-                        var - 1));
+                qWarning() << "erroneous entity:" << (var == 0 ?
+                                                      "null, this should not happen!" : toInitialize.at(
+                                                              var - 1));
                 break;
             }
         }
@@ -242,6 +260,12 @@ bool EntityManager::executeQuery(const QString &query) {
     return this->db->exec(query);
 }
 
+/**
+ * @brief EntityManager::checkTable
+ * Checks if a table has been already created, if not it will create it
+ * @param entity
+ * @return
+ */
 bool EntityManager::checkTable(const QSharedPointer<Entity> &entity) {
     bool rc = true;
     if (!this->schema->containsTable(entity->getTablename())
@@ -264,6 +288,11 @@ QSharedPointer<Schema> EntityManager::getSchema() const {
     return schema;
 }
 
+/**
+ * @brief EntityManager::refresh
+ * fetches an entity again from the database
+ * @param entity
+ */
 void EntityManager::refresh(QSharedPointer<Entity> &entity) {
     entity = this->findById(entity->getProperty(
                                 entity->getPrimaryKey()).toLongLong(),
@@ -296,6 +325,14 @@ qint8 EntityManager::count(Query &query) {
     return rc;
 }
 
+/**
+ * @brief EntityManager::validate
+ * This validates an entity. Its uses the validationRules() method of the specified entity.
+ * If there are validation errors, this method will set these errors in the entity object.
+ * You can check them with entity->hasErrors(), entity->getErrors() or entity->getErrorsAsString()
+ * @param entity
+ * @return true if it has no validation errors, false if it has errors
+ */
 bool EntityManager::validate(QSharedPointer<Entity> &entity) {
     QList<ValidationRule> rules = entity->validationRules();
     QList<ErrorMsg> list = QList<ErrorMsg>();
@@ -588,6 +625,11 @@ bool EntityManager::isRelationPropertyValid(const QMetaProperty &prop,
     return propertyIsValid;
 }
 
+/**
+ * @brief EntityManager::generateObjectName
+ * Generates a object name with this scheme: em[anyNumber]
+ * @return
+ */
 QString EntityManager::generateObjectName() {
     int i = 0;
     QString name = "em[";
