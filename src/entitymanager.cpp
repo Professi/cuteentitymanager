@@ -503,11 +503,6 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
     }
 }
 
-bool EntityManager::canPersistRelation(const Relation &relation,
-                                       const RelationType &r, const QVariant &var) const {
-    return relation.getType() == r  && var.canConvert<QVariantList>();
-}
-
 /**
  * @brief EntityManager::savePrePersistedRelations
  * @param entity

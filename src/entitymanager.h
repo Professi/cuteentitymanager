@@ -291,8 +291,6 @@ class EntityManager : public QObject {
     QString createConnection();
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
     void checkRelation(const QVariant &entity, const Relation &r) const;
-    bool canPersistRelation(const Relation &relation, const RelationType &r,
-                            const QVariant &var) const;
     bool checkTable(const QSharedPointer<Entity> &entity);
     QSharedPointer<QueryInterpreter> queryInterpreter;
 
