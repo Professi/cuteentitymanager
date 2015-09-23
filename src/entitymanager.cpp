@@ -22,6 +22,7 @@
 #include "validators/validator.h"
 #include "validators/validatorrule.h"
 #include <QHash>
+
 using namespace CuteEntityManager;
 
 QStringList EntityManager::connectionNames = QStringList();
@@ -507,6 +508,12 @@ bool EntityManager::canPersistRelation(const Relation &relation,
     return relation.getType() == r  && var.canConvert<QVariantList>();
 }
 
+/**
+ * @brief EntityManager::savePrePersistedRelations
+ * @param entity
+ * @param mergedObjects
+ * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
+ */
 void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
         &entity, QList<Entity *> &mergedObjects) {
     auto relations = EntityHelper::getRelationProperties(entity.data());
@@ -515,6 +522,9 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
+#ifdef QT_DEBUG  //we only want this in debug mode, cause in production/release mode this check shouldn't needed
+            this->checkRelation(var, r);
+#endif
             if (r.getType() == RelationType::MANY_TO_ONE) {
                 auto e = EntityInstanceFactory::castQVariant(var);
                 if (this->shouldBeSaved(e, r)) {
@@ -538,6 +548,28 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
     }
 }
 
+
+void EntityManager::checkRelation(const QVariant &entity,
+                                  const Relation &r) const {
+    bool canConvert = entity.canConvert<QVariantList>();
+    bool many = r.getType() == RelationType::MANY_TO_MANY
+                || r.getType() == RelationType::ONE_TO_MANY;
+    if ((many && !canConvert) || (!many && canConvert)) {
+        throw new QString("Relation " + r.getPropertyName() +
+                          " has a wrong relation type.");
+    } else if (many && r.getType() == RelationType::ONE_TO_MANY
+               && r.getMappedBy().isEmpty()) {
+        throw new QString("Relation " + r.getPropertyName() +
+                          " needs a mappedBy attribute of the foreign class.");
+    }
+}
+
+/**
+ * @brief EntityManager::savePostPersistedRelations
+ * @param entity
+ * @param mergedObjects
+ * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
+ */
 void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         &entity, QList<Entity *> &mergedObjects) {
     auto relations = EntityHelper::getRelationProperties(entity.data());
@@ -546,9 +578,12 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
-            if (this->canPersistRelation(r, RelationType::MANY_TO_MANY, var)) {
+#ifdef QT_DEBUG  //we only want this in debug mode, cause in production/release mode this check shouldn't needed
+            this->checkRelation(var, r);
+#endif
+            if (r.getType() == RelationType::MANY_TO_MANY) {
                 this->persistManyToMany(entity, r, var, mergedObjects);
-            } else if (this->canPersistRelation(r, RelationType::ONE_TO_MANY, var)) {
+            } else if (r.getType() == RelationType::ONE_TO_MANY) {
                 QList<QSharedPointer<Entity>> list = EntityInstanceFactory::castQVariantList(
                         var);
                 if (!list.isEmpty()) {

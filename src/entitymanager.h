@@ -239,8 +239,6 @@ class EntityManager : public QObject {
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");
-    bool canPersistRelation(const Relation &relation, const RelationType &r,
-                            const QVariant &var) const;
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                            QVariant &property, QList<Entity*> &mergedObjects);
     QList<QHash<QString, QVariant> > findAllByAttributes(const
@@ -292,6 +290,9 @@ class EntityManager : public QObject {
     Cache cache;
     QString createConnection();
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
+    void checkRelation(const QVariant &entity, const Relation &r) const;
+    bool canPersistRelation(const Relation &relation, const RelationType &r,
+                            const QVariant &var) const;
     bool checkTable(const QSharedPointer<Entity> &entity);
     QSharedPointer<QueryInterpreter> queryInterpreter;
 
