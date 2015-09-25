@@ -1103,10 +1103,9 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
                                  bool ignoreID, const QString &primaryKey) const {
     QString rc = "";
     if (!m.isEmpty()) {
-        QHash<QString, QVariant>::const_iterator i = m.constBegin();
+        auto i = m.constBegin();
         while (i != m.constEnd()) {
-            if ((!ignoreID || (ignoreID && !(i.key() == primaryKey)))
-                    && !i.value().isNull()) {
+            if (!ignoreID || (ignoreID && i.key() != primaryKey)) {
                 if (!(rc == "")) {
                     rc += " " + conjunction + " ";
                 }
