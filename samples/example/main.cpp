@@ -2,9 +2,9 @@
 #include <QDir>
 #include <QDebug>
 #include <QThread>
-#include "../src/entity.h"
-#include "../src/entitymanager.h"
-#include "../src/relation.h"
+#include "entity.h"
+#include "entitymanager.h"
+#include "relation.h"
 #include "entityinstancefactory.h"
 #include "models/pupil.h"
 #include "models/address.h"

@@ -2,8 +2,8 @@
 #include <QDir>
 #include <QDebug>
 #include "artikel.h"
-#include "../../src/entitymanager.h"
-#include "../../src/entityinstancefactory.h"
+#include "entitymanager.h"
+#include "entityinstancefactory.h"
 
 
 using namespace CuteEntityManager;

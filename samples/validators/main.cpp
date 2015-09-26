@@ -3,8 +3,8 @@
 #include <QDebug>
 #include "person.h"
 #include "address.h"
-#include "../../src/entitymanager.h"
-#include "../../src/entityinstancefactory.h"
+#include "entitymanager.h"
+#include "entityinstancefactory.h"
 /**
   * create,remove und merge funktionieren
  */
