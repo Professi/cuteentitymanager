@@ -55,14 +55,20 @@ class EntityManager : public QObject {
                                QSharedPointer<Entity> &entity,
                                bool ignoreID = false);
     qint64 findId(QSharedPointer<Entity> &entity);
+    /**
+     * @todo should be an insert statement with many values
+     * @brief EntityManager::create
+     * @param entities
+     * @return
+     */
     bool create(QList<QSharedPointer<Entity>> entities,
-                const bool persistRelations = true, const bool validate = true);
+                const bool persistRelations = true, const bool validate = true, const bool relationsIgnoreHasChanged = false);
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-                const bool checkDuplicate = false, const bool validate = true);
+                const bool checkDuplicate = false, const bool validate = true, const bool relationsIgnoreHasChanged = false) ;
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-              const bool ignoreHasChanged = true, const bool validate = true);
+              const bool ignoreHasChanged = false, const bool validate = true, const bool relationsIgnoreHasChanged = false);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
-               const bool validate = true);
+               const bool validate = true, const bool relationsIgnoreHasChanged = false);
     bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
     bool createTable(const QSharedPointer<Entity> &entity,
@@ -78,9 +84,22 @@ class EntityManager : public QObject {
     QList<QHash<QString, QVariant> > selectByQuery(Query &query);
     QList<QHash<QString, QVariant> > selectBySql(const QString &sql);
     qint8 count(Query &query);
+    /**
+     * @brief EntityManager::validate
+     * This validates an entity. Its uses the validationRules() method of the specified entity.
+     * If there are validation errors, this method will set these errors in the entity object.
+     * You can check them with entity->hasErrors(), entity->getErrors() or entity->getErrorsAsString()
+     * @param entity
+     * @return true if it has no validation errors, false if it has errors
+     */
     bool validate(QSharedPointer<Entity> &entity);
+    /**
+     * @brief hasChanged
+     * @param entity
+     * @todo check manyToMany relations
+     * @return
+     */
     bool hasChanged(QSharedPointer<Entity> &entity);
-
 
   public:
     EntityManager(QSqlDatabase database, bool logQueries = false);
@@ -209,12 +228,17 @@ class EntityManager : public QObject {
     }
 
   protected:
-    bool saveObject(QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects, const bool persistRelations=true,
-              const bool ignoreHasChanged=true, const bool validate=true);
-    bool mergeObject(QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects, bool withRelations,
-               const bool validate);
-    bool createObject(QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects,const bool persistRelations,
-                const bool checkDuplicate, const bool validate);
+    bool saveObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
+                    const bool persistRelations = true,
+                    const bool ignoreHasChanged = false, const bool validate = true,
+                    const bool relationsIgnoreHasChanged = false);
+    bool mergeObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
+                     bool withRelations,
+                     const bool validate, const bool relationsIgnoreHasChanged = false);
+    bool createObject(QSharedPointer<Entity> &entity,
+                      QList<Entity *> &mergedObjects, const bool persistRelations,
+                      const bool checkDuplicate, const bool validate,
+                      const bool relationsIgnoreHasChanged = false);
     template<class T> QList<QSharedPointer<T>> convertList(const
     QList<QSharedPointer<Entity>> &list) {
         QList<QSharedPointer<T>> newList = QList<QSharedPointer<T>>();
@@ -240,7 +264,8 @@ class EntityManager : public QObject {
                   const QMetaProperty &property, const bool refresh = false,
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                           QVariant &property, QList<Entity*> &mergedObjects);
+                           QVariant &property, QList<Entity *> &mergedObjects,
+                           const bool ignoreHasChanged = false);
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -250,15 +275,38 @@ class EntityManager : public QObject {
             bool ignoreID = false);
     QSharedPointer<Entity> findById(const qint64 &id, QSharedPointer<Entity> &e,
                                     const bool refresh = false);
-    void savePrePersistedRelations(const QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects);
-    void savePostPersistedRelations(const QSharedPointer<Entity> &entity, QList<Entity*> &mergedObjects);
+    /**
+     * @brief EntityManager::savePrePersistedRelations
+     * @param entity
+     * @param mergedObjects
+     * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
+     */
+    void savePrePersistedRelations(const QSharedPointer<Entity> &entity,
+                                   QList<Entity *> &mergedObjects, bool ignoreHasChanged = false);
+    /**
+     * @brief EntityManager::savePostPersistedRelations
+     * @param entity
+     * @param mergedObjects
+     * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
+     */
+    void savePostPersistedRelations(const QSharedPointer<Entity> &entity,
+                                    QList<Entity *> &mergedObjects, bool ignoreHasChanged = false);
 
     QList<QSharedPointer<Entity>> saveRelationEntities(const
-                               QList<QSharedPointer<Entity>> &list, const Relation &r, QList<Entity*> &mergedObjects);
+                               QList<QSharedPointer<Entity>> &list, const Relation &r,
+                               QList<Entity *> &mergedObjects);
+    /**
+     * @brief EntityManager::persistManyToMany
+     * @param entity
+     * @param r
+     * @param property
+     * @param mergedObjects
+     * @todo compare old values with new values if nothing has changed don't persist them
+     */
     void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
                                  QSqlQuery &q, const QSharedPointer<Entity> &entity,
                                  const QSharedPointer<Entity> &ptr, const Relation &r,
-                                 const QString &tblName, QList<Entity*> &mergedObjects);
+                                 const QString &tblName, QList<Entity *> &mergedObjects);
     bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
     void removeRelations(const QSharedPointer<Entity> &entity);
     void removeEntityList(QVariant &var);
@@ -273,10 +321,19 @@ class EntityManager : public QObject {
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
                                           const char *classname, const bool refresh = false,
                                           const bool resolveRelations = true);
+    /**
+      @todo wait for Qt 5.5.1
+      @see https://codereview.qt-project.org/#/c/122232/
+      */
     void missingManyToManyTable(const QString &tblName,
                                 const QSharedPointer<Entity> &e, const Relation &r);
     bool isRelationPropertyValid(const QMetaProperty &prop, const Relation &r,
                                  const QSharedPointer<Entity> &e, const QSharedPointer<Entity> &relatedEntity);
+    /**
+     * @brief EntityManager::generateObjectName
+     * Generates a object name with this scheme: em[anyNumber]
+     * @return
+     */
     QString generateObjectName();
     void appendToInstanceList();
 
