@@ -43,6 +43,9 @@ c.ehringfeld[at]t-online.de.
 
 Updated daily doxygen documentation:
 http://jenkins.danfai.de/jenkins/job/cuteentitymanager/doxygen/
+Tutorial(wip):
+https://synlos.net/redmine/projects/entitymanager/wiki/Tutorial
+
 
 ## German
 Mit dem CuteEntityManager ist es möglich, Entities zu persistieren, zu 
