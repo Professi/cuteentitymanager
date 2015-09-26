@@ -11,10 +11,11 @@
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv)
-    CuteEntityManager::EntityManager *e = new
-    CuteEntityManager::EntityManager("QSQLITE", QDir::currentPath() + "/db.sqlite");
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Address>();
+    CuteEntityManager::EntityManager *e = new
+    CuteEntityManager::EntityManager("QSQLITE", QDir::currentPath() + "/db.sqlite");
+
     e->createTable("Person");
     e->createTable("Address");
     /**
@@ -46,8 +47,9 @@ int main(int argc, char *argv[]) {
 
     QSharedPointer<Entity> p1 = QSharedPointer<Person>(new Person("Thomas", "B",
                                 Person::Gender::MALE, "", QString(), QString(), QDate(), 0));
-    QSharedPointer<Entity> p2 = QSharedPointer<Person>(new Person("Teresa", "Conrad",
-                               Person::Gender::FEMALE, "", QString(), QString(), QDate(2016, 7, 13), 0));
+    QSharedPointer<Entity> p2 = QSharedPointer<Person>(new Person("Teresa",
+                                "Conrad",
+                                Person::Gender::FEMALE, "", QString(), QString(), QDate(2016, 7, 13), 0));
     QSharedPointer<Entity> p3 = QSharedPointer<Person>(new Person("Heinz", "Dunst",
                                 Person::Gender::MALE, "", QString(), QString(), QDate(1972, 7, 13), 0));
 

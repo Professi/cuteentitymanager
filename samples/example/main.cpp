@@ -20,16 +20,6 @@ int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv)
     QTime t;
     t.start();
-
-    CuteEntityManager::EntityManager *e = new
-//    CuteEntityManager::EntityManager("QSQLITE",
-//                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
-    CuteEntityManager::EntityManager("QSQLITE",
-                                     ":memory:", "", "", "", "", true, "foreign_keys = ON");
-    qDebug() << "EntityManagerObjectName:" << e->objectName();
-    SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
-            QDir::currentPath());
-    qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");
     /**
      * @brief EntityInstanceFactory::registerClass<EntityClass>
      * You must register every EntityClass, cause Qt is not creating all meta object informations for entity manager
@@ -39,6 +29,16 @@ int main(int argc, char *argv[]) {
     EntityInstanceFactory::registerClass<Pupil>();
     EntityInstanceFactory::registerClass<Contact>();
     EntityInstanceFactory::registerClass<Address>();
+    CuteEntityManager::EntityManager *e = new
+//    CuteEntityManager::EntityManager("QSQLITE",
+//                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
+    CuteEntityManager::EntityManager("QSQLITE",
+                                     ":memory:", "", "", "", "", true, "foreign_keys = ON");
+    qDebug() << "EntityManagerObjectName:" << e->objectName();
+    SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
+            QDir::currentPath());
+    qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");
+
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
     qWarning() << "-----------------------------";
