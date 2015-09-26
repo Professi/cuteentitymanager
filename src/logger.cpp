@@ -39,19 +39,15 @@ void Logger::lastError(const QSqlQuery &q, bool logQuery) {
         log.seek(log.size());
         QTextStream stream(&log);
         const QString errorMsg = this->generateLogMsg(q.lastError());
-        if (!errorMsg.isEmpty()) {
-            qWarning() << errorMsg;
-            stream << errorMsg;
-        }
         if (logQuery || !errorMsg.isEmpty()) {
-            const QString query = this->generateLogMsg(q);
-            if (!query.isEmpty()) {
-                if (errorMsg.isEmpty()) {
-                    qDebug() << query;
-                } else {
-                    qWarning() << query;
-                }
-                stream << query;
+            QString msg = "{" + QString("\"time\":\"") +
+                          QDateTime::currentDateTime().toString(Qt::ISODate) + QString("\"") + errorMsg;
+            msg += this->generateLogMsg(q) + "}";
+            stream << msg;
+            if (errorMsg.isEmpty()) {
+                qDebug() << msg.replace("\"", "'");
+            } else {
+                qWarning() << msg.replace("\"", "'");
             }
         }
         stream << "\n";
@@ -75,16 +71,22 @@ void Logger::lastError(const QSqlError &e) {
 }
 
 QString Logger::generateLogMsg(const QSqlQuery &q, bool withValues) const {
-    QString r = "<" + q.executedQuery() + ">";
+    QString r = ", \"query\":\"" + q.executedQuery() + "\"";
     if (withValues) {
         QMap<QString, QVariant> m = q.boundValues();
-        QMap<QString, QVariant>::iterator i;
         if (!m.isEmpty()) {
-            r += "Values: ";
-            for (i = m.begin(); i != m.end(); ++i) {
-                r += "{" + i.key() + "=" + i.value().toString() + "}";
+            r += ", \"values\": {";
+            bool first = true;
+            for (auto i = m.begin(); i != m.end(); ++i) {
+                if (first) {
+                    first = false;
+                }  else {
+                    r += ", ";
+                }
+                r += "\"" + i.key().mid(1) + "\":\"" + i.value().toString() + "\"";
             }
         }
+        r += "}";
     }
     return r;
 }
@@ -103,9 +105,7 @@ void Logger::setPath(const QString &value) {
 QString Logger::generateLogMsg(const QSqlError &e) const {
     QString r = "";
     if (e.isValid()) {
-        r = "ErrorUTC:" +
-            QDateTime::currentDateTime().toString("yyyy-MM-dd|hh:MM:ss") + "|" +
-            e.driverText() + "|" + e.databaseText().toLatin1();
+        r = ",\"error\":\"" + e.text() + "\",\"code\":\"" + e.number() + "\"";
     }
     return r;
 }
