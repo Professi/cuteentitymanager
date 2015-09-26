@@ -39,14 +39,13 @@ void Logger::lastError(const QSqlQuery &q, bool logQuery) {
             QString msg = "{" + QString("\"time\":\"") +
                           QDateTime::currentDateTime().toString(Qt::ISODate) + QString("\"") + errorMsg;
             msg += this->generateLogMsg(q) + "}";
-        this->logMsg(msg);
+            this->logMsg(msg);
             if (errorMsg.isEmpty()) {
                 qDebug() << msg.replace("\"", "'");
             } else {
                 qWarning() << msg.replace("\"", "'");
             }
         }
-
     }
 }
 
@@ -55,7 +54,6 @@ void Logger::lastError(const QSqlError &e) {
         this->logMsg(this->generateLogMsg(e));
     }
 }
-
 
 void Logger::logMsg(const QString &value) {
     QFile log(this->getPath());
