@@ -31,6 +31,7 @@ class Logger {
     void lastError(const QSqlQuery &q, bool logQuery = false);
     QString getPath();
     void setPath(const QString &value);
+    void logMsg(const QString &value);
 
   protected:
     QString generateLogMsg(const QSqlError &e) const;

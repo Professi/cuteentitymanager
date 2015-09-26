@@ -21,6 +21,7 @@
 #include "validators/validatorfactory.h"
 #include "validators/validator.h"
 #include "validators/validatorrule.h"
+#include "entityinspector.h"
 #include <QHash>
 
 using namespace CuteEntityManager;
@@ -180,24 +181,25 @@ bool EntityManager::save(QSharedPointer<Entity> &entity,
 }
 
 EntityManager::EntityManager(QSqlDatabase database,
-                             bool logQueries) : QObject() {
+                             bool logQueries, const bool inspectEntities) : QObject() {
     auto db = new Database(database, true, logQueries);
     this->db = QSharedPointer<Database>(db);
-    this->init();
+    this->init(inspectEntities);
 }
 
 EntityManager::EntityManager(const QString &databaseType, QString databasename ,
                              QString hostname, QString username, QString password, QString port,
-                             bool logQueries, QString databaseOptions) : QObject() {
+                             bool logQueries, QString databaseOptions,
+                             const bool inspectEntities) : QObject() {
     auto db = new Database(databaseType, this->createConnection(), hostname,
                            databasename, username,
                            password,
                            port.toInt(), true, logQueries, true, databaseOptions);
     this->db = QSharedPointer<Database>(db);
-    this->init();
+    this->init(inspectEntities);
 }
 
-void EntityManager::init() {
+void EntityManager::init(bool inspect) {
     auto schema = Database::getSchema(Database::getDatabaseType(
                                           this->db->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);
@@ -205,6 +207,13 @@ void EntityManager::init() {
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
                                  this->schema->getQueryBuilder()));
     this->appendToInstanceList();
+#ifdef QT_DEBUG
+    inspect = true;
+#endif
+    if (inspect) {
+        EntityInspector inspector = EntityInspector();
+        inspector.checkRegisteredEntities();
+    }
 }
 
 EntityManager::~EntityManager() {
@@ -512,9 +521,6 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
-#ifdef QT_DEBUG  //we only want this in debug mode, cause in production/release mode this check shouldn't needed
-            this->checkRelation(var, r);
-#endif
             if (r.getType() == RelationType::MANY_TO_ONE) {
                 auto e = EntityInstanceFactory::castQVariant(var);
                 if (this->shouldBeSaved(e, r)) {
@@ -538,22 +544,6 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
     }
 }
 
-
-void EntityManager::checkRelation(const QVariant &entity,
-                                  const Relation &r) const {
-    bool canConvert = entity.canConvert<QVariantList>();
-    bool many = r.getType() == RelationType::MANY_TO_MANY
-                || r.getType() == RelationType::ONE_TO_MANY;
-    if ((many && !canConvert) || (!many && canConvert)) {
-        throw new QString("Relation " + r.getPropertyName() +
-                          " has a wrong relation type.");
-    } else if (many && r.getType() == RelationType::ONE_TO_MANY
-               && r.getMappedBy().isEmpty()) {
-        throw new QString("Relation " + r.getPropertyName() +
-                          " needs a mappedBy attribute of the foreign class.");
-    }
-}
-
 void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         &entity, QList<Entity *> &mergedObjects, bool ignoreHasChanged) {
     auto relations = EntityHelper::getRelationProperties(entity.data());
@@ -562,9 +552,6 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
-#ifdef QT_DEBUG  //we only want this in debug mode, cause in production/release mode this check shouldn't needed
-            this->checkRelation(var, r);
-#endif
             if (r.getType() == RelationType::MANY_TO_MANY) {
                 this->persistManyToMany(entity, r, var, mergedObjects, ignoreHasChanged);
             } else if (r.getType() == RelationType::ONE_TO_MANY) {
@@ -613,14 +600,13 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
                                   builder->generateManyToManyColumnName(ptr));
     q.bindValue(0, entity->getProperty(entity->getPrimaryKey()));
     auto prop = EntityHelper::mappedProperty(r, ptr);
-    bool propertyIsValid = this->isRelationPropertyValid(prop, r, entity, ptr);
     QSharedPointer<Entity> item;
     for (int var = 0; var < saved.size(); ++var) {
         item = list.at(var);
         if (item->getProperty(item->getPrimaryKey()).toLongLong() > -1) {
             q.bindValue(1, item->getProperty(ptr->getPrimaryKey()));
             bool ok = this->db->exec(q);
-            if (ok && propertyIsValid) {
+            if (ok) {
                 EntityHelper::addEntityToListProperty(item, entity, prop);
             }
         }
@@ -628,20 +614,6 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity> >
     if (!this->db->commitTransaction()) {
         this->db->rollbackTransaction();
     }
-}
-
-
-bool EntityManager::isRelationPropertyValid(const QMetaProperty &prop,
-        const Relation &r, const QSharedPointer<Entity> &e,
-        const QSharedPointer<Entity> &relatedEntity) {
-    bool propertyIsValid = prop.isValid() && prop.isReadable() && prop.isWritable();
-    if (!propertyIsValid) {
-        qWarning() << "Relation is incomplete:" << r.getPropertyName();
-        qWarning() << "Involved entities: " << EntityHelper::getClassName(
-                       e.data()) <<
-                   "(MainEntitiy) and "  << EntityHelper::getClassName(relatedEntity.data());
-    }
-    return propertyIsValid;
 }
 
 QString EntityManager::generateObjectName() {

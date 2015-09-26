@@ -34,40 +34,39 @@ QString Logger::defaultPath() const {
 
 void Logger::lastError(const QSqlQuery &q, bool logQuery) {
     if (logQuery || q.lastError().isValid()) {
-        QFile log(this->getPath());
-        log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-        log.seek(log.size());
-        QTextStream stream(&log);
         const QString errorMsg = this->generateLogMsg(q.lastError());
         if (logQuery || !errorMsg.isEmpty()) {
             QString msg = "{" + QString("\"time\":\"") +
                           QDateTime::currentDateTime().toString(Qt::ISODate) + QString("\"") + errorMsg;
             msg += this->generateLogMsg(q) + "}";
-            stream << msg;
+        this->logMsg(msg);
             if (errorMsg.isEmpty()) {
                 qDebug() << msg.replace("\"", "'");
             } else {
                 qWarning() << msg.replace("\"", "'");
             }
         }
-        stream << "\n";
-        stream.flush();
-        log.close();
+
     }
 }
 
 void Logger::lastError(const QSqlError &e) {
     if (e.isValid()) {
-        QFile log(this->getPath());
-        log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-        log.seek(log.size());
-        QTextStream stream(&log);
-        qDebug() << this->generateLogMsg(e);
-        stream << this->generateLogMsg(e);
-        stream << "\n";
-        stream.flush();
-        log.close();
+        this->logMsg(this->generateLogMsg(e));
     }
+}
+
+
+void Logger::logMsg(const QString &value) {
+    QFile log(this->getPath());
+    log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+    log.seek(log.size());
+    QTextStream stream(&log);
+    stream.setCodec("UTF-8");
+    stream << value;
+    stream << "\n";
+    stream.flush();
+    log.close();
 }
 
 QString Logger::generateLogMsg(const QSqlQuery &q, bool withValues) const {

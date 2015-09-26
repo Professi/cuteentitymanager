@@ -31,7 +31,7 @@
 namespace CuteEntityManager {
 
 /**
- * You mustn't name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager
+ * You must not name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager
  * @brief The Entity class
  */
 class Entity : public QObject {
@@ -65,7 +65,7 @@ class Entity : public QObject {
     QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
 
-protected:
+  protected:
     explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
     QList<ErrorMsg> errors;

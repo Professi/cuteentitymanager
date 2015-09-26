@@ -62,11 +62,14 @@ class EntityManager : public QObject {
      * @return
      */
     bool create(QList<QSharedPointer<Entity>> entities,
-                const bool persistRelations = true, const bool validate = true, const bool relationsIgnoreHasChanged = false);
+                const bool persistRelations = true, const bool validate = true,
+                const bool relationsIgnoreHasChanged = false);
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-                const bool checkDuplicate = false, const bool validate = true, const bool relationsIgnoreHasChanged = false) ;
+                const bool checkDuplicate = false, const bool validate = true,
+                const bool relationsIgnoreHasChanged = false) ;
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-              const bool ignoreHasChanged = false, const bool validate = true, const bool relationsIgnoreHasChanged = false);
+              const bool ignoreHasChanged = false, const bool validate = true,
+              const bool relationsIgnoreHasChanged = false);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
                const bool validate = true, const bool relationsIgnoreHasChanged = false);
     bool remove(QSharedPointer<Entity> &entity);
@@ -102,12 +105,12 @@ class EntityManager : public QObject {
     bool hasChanged(QSharedPointer<Entity> &entity);
 
   public:
-    EntityManager(QSqlDatabase database, bool logQueries = false);
+    EntityManager(QSqlDatabase database, bool logQueries = false, const bool inspectEntities = false);
     EntityManager(const QString &databaseType, QString databasename = "" ,
                   QString hostname = "",
                   QString username = "",
                   QString password = "", QString port = "", bool logQueries = false,
-                  QString databaseOptions = "");
+                  QString databaseOptions = "", const bool inspectEntities = false);
     virtual ~EntityManager();
     static QStringList getConnectionNames();
     static void removeConnectionName(const QString &name);
@@ -248,7 +251,7 @@ class EntityManager : public QObject {
         return newList;
     }
 
-    void init();
+    void init(bool inspect);
     QList<QHash<QString, QVariant> > findAll(const QSharedPointer<Entity> &e);
     void resolveRelations(const QSharedPointer<Entity> &entity,
                           const QHash<QString, QVariant> &map, const bool refresh = false);
@@ -327,8 +330,6 @@ class EntityManager : public QObject {
       */
     void missingManyToManyTable(const QString &tblName,
                                 const QSharedPointer<Entity> &e, const Relation &r);
-    bool isRelationPropertyValid(const QMetaProperty &prop, const Relation &r,
-                                 const QSharedPointer<Entity> &e, const QSharedPointer<Entity> &relatedEntity);
     /**
      * @brief EntityManager::generateObjectName
      * Generates a object name with this scheme: em[anyNumber]
@@ -347,7 +348,6 @@ class EntityManager : public QObject {
     Cache cache;
     QString createConnection();
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
-    void checkRelation(const QVariant &entity, const Relation &r) const;
     bool checkTable(const QSharedPointer<Entity> &entity);
     QSharedPointer<QueryInterpreter> queryInterpreter;
 

@@ -391,7 +391,7 @@ const {
         auto m = o->property(var);
         if ((!superMetaObjectPropertyMap.contains(QString(m.name()))
                 || entity->getInheritanceStrategy() == InheritanceStrategy::PER_CLASS_TABLE)
-                && m.name() != QString("objectName") && m.isReadable()
+                && m.name() != QString("objectName")
                 && !entity->getTransientAttributes().contains(m.name())) {
             if (m.isEnumType()) {
                 map.insert(m.name(), this->schema->getTypeMap()->value(
@@ -1394,8 +1394,6 @@ QString QueryBuilder::where(const QSharedPointer<Entity> &entity,
                             QString conjunction,
                             bool ignoreID) const {
     return this->where(EntityHelper::getEntityAttributes(
-                           EntityHelper::getMetaProperties(
-                               entity.data()),
-                           entity),
-                       conjunction, ignoreID, entity->getPrimaryKey());
+                           EntityHelper::getMetaProperties(entity.data()), entity), conjunction, ignoreID,
+                       entity->getPrimaryKey());
 }

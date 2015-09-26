@@ -139,3 +139,12 @@ QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
     QVariant &entity) {
     return *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
 }
+
+QStringList EntityInstanceFactory::getRegisteredClasses() {
+    QStringList registered = QStringList();
+    for (auto i = EntityInstanceFactory::instance.constBegin();
+            i != EntityInstanceFactory::instance.constEnd(); ++i) {
+        registered.append(i.key());
+    }
+    return registered;
+}
