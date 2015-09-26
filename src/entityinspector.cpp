@@ -114,7 +114,6 @@ void EntityInspector::checkMetaProperties(QHash<QString, QMetaProperty>
     }
 }
 
-
 bool EntityInspector::verifyRelations(Entity *&entity, QString &msg) {
     bool ok = true;
     auto metaProperties = EntityHelper::getMetaProperties(entity);
@@ -122,8 +121,10 @@ bool EntityInspector::verifyRelations(Entity *&entity, QString &msg) {
     QString iMsg = "";
     this->checkMetaProperties(metaProperties, iMsg, ok, relations);
     for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
+        this->checkRelationTypos(i.key(), i.value(), iMsg, ok);
         if (!metaProperties.contains(i.key())) {
-            iMsg += "For relation " + i.key() + " is no property.";
+            iMsg += "For relation " + i.key() + " no property exists.";
+            ok = false;
         } else {
             auto metaProperty = metaProperties.value(i.key());
             if (!QString(metaProperty.typeName()).contains("QSharedPointer")) {
@@ -169,7 +170,6 @@ void EntityInspector::verifyTransientAttributes(Entity *&entity, QString &msg) {
         qWarning() << iMsg;
         msg += iMsg;
     }
-
 }
 
 bool EntityInspector::checkRelation(const QVariant &entity,
@@ -200,6 +200,16 @@ bool EntityInspector::checkRelation(const QVariant &entity,
         return false;
     }
     return true;
+}
+
+void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
+        QString &msg, bool &ok) {
+    if (name != r.getPropertyName()) {
+        ok = false;
+        msg += "Relation " + name + " has a typo.\n";
+        msg += "Name " + name + "and relation name " + r.getPropertyName() +
+               " are not equal.\n";
+    }
 }
 
 bool EntityInspector::checkPrimaryKey(Entity *&entity, QString &msg) {

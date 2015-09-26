@@ -41,6 +41,7 @@ class EntityInspector {
     void verifyTransientAttributes(Entity *&entity, QString &msg);
     bool checkRelation(const QVariant &entity, const Relation &r, QString &msg,
                        const QMetaProperty &property) const;
+    void checkRelationTypos(const QString &name, const Relation &r, QString &msg, bool &ok);
     bool checkPrimaryKey(Entity *&entity, QString &msg);
     void verifyBlobAttributes(Entity *&entity, QString &msg);
     void checkMetaProperties(QHash<QString, QMetaProperty> &metaProperties,
