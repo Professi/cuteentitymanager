@@ -30,15 +30,14 @@ int main(int argc, char *argv[]) {
     EntityInstanceFactory::registerClass<Contact>();
     EntityInstanceFactory::registerClass<Address>();
     CuteEntityManager::EntityManager *e = new
-//    CuteEntityManager::EntityManager("QSQLITE",
-//                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
     CuteEntityManager::EntityManager("QSQLITE",
-                                     ":memory:", "", "", "", "", true, "foreign_keys = ON");
-    qDebug() << "EntityManagerObjectName:" << e->objectName();
-    SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
-            QDir::currentPath());
-    qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");
-
+                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
+//    CuteEntityManager::EntityManager("QSQLITE",
+//                                     ":memory:", "", "", "", "", true, "foreign_keys = ON");
+//    SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
+//            QDir::currentPath());
+//    qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");
+qDebug() << "EntityManagerObjectName:" << e->objectName();
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
     qWarning() << "-----------------------------";
@@ -140,7 +139,7 @@ int main(int argc, char *argv[]) {
     qWarning() << "-----------------------------";
     e->remove(entityGroupFindPtr);
 
-    sqliteproc->sqliteDBMemFile(true, "db.sqlite");
+    //sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
     delete sqliteproc;
     return 0;
