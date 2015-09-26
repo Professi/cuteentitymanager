@@ -82,6 +82,11 @@ class EntityManager : public QObject {
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
+    /**
+     * @brief EntityManager::refresh
+     * fetches an entity again from the database
+     * @param entity
+     */
     void refresh(QSharedPointer<Entity> &entity);
     void setSchema(const QSharedPointer<Schema> &value);
     QList<QHash<QString, QVariant> > selectByQuery(Query &query);
@@ -348,6 +353,12 @@ class EntityManager : public QObject {
     Cache cache;
     QString createConnection();
     QList<QHash<QString, QVariant> > convertQueryResult(QSqlQuery &q);
+    /**
+     * @brief EntityManager::checkTable
+     * Checks if a table has been already created, if not it will create it
+     * @param entity
+     * @return
+     */
     bool checkTable(const QSharedPointer<Entity> &entity);
     QSharedPointer<QueryInterpreter> queryInterpreter;
 

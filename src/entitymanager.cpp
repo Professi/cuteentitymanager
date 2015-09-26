@@ -279,12 +279,6 @@ bool EntityManager::executeQuery(const QString &query) {
     return this->db->exec(query);
 }
 
-/**
- * @brief EntityManager::checkTable
- * Checks if a table has been already created, if not it will create it
- * @param entity
- * @return
- */
 bool EntityManager::checkTable(const QSharedPointer<Entity> &entity) {
     bool rc = true;
     if (!this->schema->containsTable(entity->getTablename())
@@ -307,11 +301,6 @@ QSharedPointer<Schema> EntityManager::getSchema() const {
     return schema;
 }
 
-/**
- * @brief EntityManager::refresh
- * fetches an entity again from the database
- * @param entity
- */
 void EntityManager::refresh(QSharedPointer<Entity> &entity) {
     entity = this->findById(entity->getProperty(
                                 entity->getPrimaryKey()).toLongLong(),

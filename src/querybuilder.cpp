@@ -438,6 +438,9 @@ QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(
         const QSharedPointer<Entity> &entity)
 const {
     auto relations = QHash<QString, QHash<QString, QString>>();
+//    QHash<QString, Relation> m = (entity->getInheritanceStrategy() ==
+//                                  InheritanceStrategy::PER_CLASS_TABLE ? entity->getRelations() :
+//                                  EntityHelper::getNonInheritedRelations(entity.data()));
     QHash<QString, Relation> m = entity->getRelations();
     auto props = EntityHelper::getMetaProperties(entity.data());
     for (auto i = m.begin(); i != m.end(); ++i) {
@@ -506,12 +509,6 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     return type;
 }
 
-/**
- * @brief QueryBuilder::find
- * @param id
- * @param tableName
- * @return
- */
 QSqlQuery QueryBuilder::find(const qint64 &id, const QString &tableName) const {
     QString pk = "id";
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
@@ -559,13 +556,6 @@ QSqlQuery QueryBuilder::findAll(const QSharedPointer<Entity> &entity,
                                         entity) + this->limit(limit, offset) + ";");
 }
 
-/**
- * @brief QueryBuilder::findByAttributes
- * @param m
- * @param tableName
- * @param ignoreID
- * @return
- */
 QSqlQuery QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
         const QString &tableName,
         const bool &ignoreID, const qint64 limit, const qint64 offset) const {
