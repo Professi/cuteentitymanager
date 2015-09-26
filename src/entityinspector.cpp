@@ -48,7 +48,7 @@ bool EntityInspector::checkRegisteredEntities() {
             qWarning() << msg;
             ok = false;
         } else {
-            msg = "Entity class " + classes.at(i) + " seems ok!\n";
+            msg = "Entity class " + classes.at(i) + " seems ok.\n";
             qInfo() << msg;
         }
         this->logger->logMsg(msg);
@@ -62,7 +62,7 @@ bool EntityInspector::checkRegisteredEntities() {
 
 bool EntityInspector::checkEntity(QString name) {
     QString msg = "--------------------\n";
-    msg += "Checking " + name + " now!\n";
+    msg += "Checking " + name + " now.\n";
     qDebug() << msg;
     auto entity = this->instantiateEntity(name, msg);
     bool ok = true;
@@ -81,10 +81,10 @@ Entity *EntityInspector::instantiateEntity(const QString name, QString &msg) {
     auto entity = EntityInstanceFactory::createInstance(name);
     QString internMsg = "";
     if (entity) {
-        internMsg = name + " is instanceable!";
+        internMsg = name + " is instantiable.";
         qInfo() << internMsg;
     } else {
-        internMsg = name + " is NOT instanceable!";
+        internMsg = name + " is NOT instantiable!";
         qCritical() << internMsg;
     }
     msg += internMsg + "\n";
@@ -123,18 +123,20 @@ bool EntityInspector::verifyRelations(Entity *&entity, QString &msg) {
     for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
         this->checkRelationTypos(i.key(), i.value(), iMsg, ok);
         if (!metaProperties.contains(i.key())) {
-            iMsg += "For relation " + i.key() + " no property exists.";
+            iMsg += "For relation " + i.key() + " no property exists!";
             ok = false;
         } else {
             auto metaProperty = metaProperties.value(i.key());
             if (!QString(metaProperty.typeName()).contains("QSharedPointer")) {
                 iMsg += "Property " + QString(metaProperty.name()) +
-                        " must be a type like QList<QSharedPointer<T>> or simply QSharedPointer<T>";
+                        " must be a type like QList<QSharedPointer<T>> or simply QSharedPointer<T>.";
             } else {
                 auto var = metaProperty.read(entity);
                 bool rel = this->checkRelation(var, i.value(), msg, metaProperty);
                 if (!rel) {
                     ok = false;
+                } else {
+                    this->checkRelationMappings(metaProperty, i.value(), msg, ok);
                 }
             }
         }
@@ -209,6 +211,52 @@ void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
         msg += "Relation " + name + " has a typo.\n";
         msg += "Name " + name + "and relation name " + r.getPropertyName() +
                " are not equal.\n";
+    }
+}
+
+void EntityInspector::checkRelationMappings(QMetaProperty &property,
+        const Relation &r, QString &msg, bool &ok) {
+    QString foreignEntityName = EntityInstanceFactory::extractEntityType(
+                                    property.typeName());
+    auto foreignInstance = EntityInstanceFactory::createInstance(foreignEntityName);
+    if (foreignInstance) {
+        auto foreignRelations = EntityHelper::getRelationProperties(foreignInstance);
+        int foundMappedBy = 0;
+        bool foundForeignMappedRelation = false;
+        for (auto i = foreignRelations.constBegin(); i != foreignRelations.constEnd();
+                ++i) {
+            if (r.getMappedBy().isEmpty()
+                    && i.key().getPropertyName() == r.getPropertyName()) {
+                ++foundMappedBy;
+            } else if (!r.getMappedBy().isEmpty()
+                       && r.getMappedBy() == i.key().getPropertyName()) {
+                foundForeignMappedRelation = true;
+                break;
+            }
+        }
+        if (r.getMappedBy().isEmpty()) {
+            if (foundMappedBy == 0) {
+                msg += "Optional: The relation " + r.getPropertyName() +
+                       " is not mapped in foreign class " + foreignEntityName +
+                       ". You could map it.\n";
+            } else if (foundMappedBy > 1) {
+                msg += "The relation " + r.getPropertyName() + " is mapped several times (" +
+                       QString::number(foundMappedBy) + ") by foreign class " + foreignEntityName +
+                       ". You should map it only once!\n";
+                ok = false;
+            }
+        } else if (!foundForeignMappedRelation) {
+            msg += "Relation " + r.getPropertyName() + " with mappedBy attribute " +
+                   r.getMappedBy() + " has no mapped relation in " + foreignEntityName +
+                   " class!\n";
+            ok = false;
+        }
+    } else {
+        msg += "Can't create object for property/relation " + r.getPropertyName() +
+               "!\n";
+        msg += "Classname: " + foreignEntityName + "\n";
+        msg += "Is the class registered?\n";
+        ok = false;
     }
 }
 

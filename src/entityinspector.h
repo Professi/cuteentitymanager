@@ -26,7 +26,7 @@ namespace CuteEntityManager {
 
 /**
  * @brief The EntityInspector class
- * @todo verify Mappings
+ * This class can check entities for errors.
  */
 class EntityInspector {
   public:
@@ -41,7 +41,10 @@ class EntityInspector {
     void verifyTransientAttributes(Entity *&entity, QString &msg);
     bool checkRelation(const QVariant &entity, const Relation &r, QString &msg,
                        const QMetaProperty &property) const;
-    void checkRelationTypos(const QString &name, const Relation &r, QString &msg, bool &ok);
+    void checkRelationTypos(const QString &name, const Relation &r, QString &msg,
+                            bool &ok);
+    void checkRelationMappings(QMetaProperty &property, const Relation &r,
+                               QString &msg, bool &ok);
     bool checkPrimaryKey(Entity *&entity, QString &msg);
     void verifyBlobAttributes(Entity *&entity, QString &msg);
     void checkMetaProperties(QHash<QString, QMetaProperty> &metaProperties,
