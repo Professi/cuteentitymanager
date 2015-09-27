@@ -1,0 +1,37 @@
+#
+# GitLab CI configuration for QOwnNotes
+# https://ci.gitlab.com/lint
+#
+# you need a runner for OS X
+# https://gitlab.com/gitlab-org/gitlab-ci-multi-runner
+#
+# execute: gitlab-ci-multi-runner run
+#
+# set the GITHUB_ACCESS_TOKEN with your GitHub securitry token for release deployment
+#
+
+before_script:
+    - PATH="/Applications/Qt/5.4/clang_64/bin:$PATH"
+    - QTDIR="/Applications/Qt/5.4/clang_64"
+    # http://doc.gitlab.com/ci/variables/README.html
+    #- echo "#define BUILD ""$CI_BUILD_ID" > build_number.h
+    - qmake -project
+    - qmake QOwnNotes.pro -r -spec macx-clang CONFIG+=x86_64
+    - make
+    - make check
+
+build_job:
+  type: build
+  script:
+    - echo do some testing...
+  only:
+    - develop
+    - master
+
+deployment_job:
+  type: deploy
+  script:
+
+
+  only:
+    - master
