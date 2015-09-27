@@ -488,7 +488,7 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     }
     QRegularExpression reg = QRegularExpression(
                                  QRegularExpression::escape("/^(\\w+)\\((.+?)\\)(.*)$/"));
-    //reg.optimize();
+    reg.optimize();
     QRegularExpressionMatchIterator i = reg.globalMatch(type, 0,
                                         QRegularExpression::PartialPreferFirstMatch);
     short s = 0;
