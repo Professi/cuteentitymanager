@@ -98,23 +98,13 @@ src/entity.cpp \
     src/schema/mysqlquerybuilder.cpp \
     src/entityinspector.cpp
 
-
 LIBS += -lsqlite3
-CONFIG += c++11
-QMAKE_CXXFLAGS += -std=c++11 -Wall
-
+CONFIG += c++14
 
 unix {
-linux-g++ {
-    system( g++ --version | grep -e "\<5.[0-9]" ) {
-        CONFIG += c++14
-        QMAKE_CXXFLAGS += -std=c++14
-        QMAKE_CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override
-        }
-    }
     target.path = /usr/lib
     INSTALLS += target
-    QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
+    QMAKE_CXXFLAGS += -Wall -Wextra -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wmaybe-uninitialized -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
 }
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT

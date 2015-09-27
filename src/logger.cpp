@@ -18,6 +18,7 @@
 #include <QDebug>
 #include <QTextStream>
 #include <QDateTime>
+#include <QtGlobal>
 
 using namespace CuteEntityManager;
 
@@ -110,12 +111,21 @@ void Logger::outputToConsole(const MsgType &type, const QString &msg) const {
     case MsgType::DEBUG:
         qDebug() << msg;
         break;
+#if QT_VERSION >= 0x050500
     case MsgType::INFO:
         qInfo() << msg;
         break;
     case MsgType::WARNING:
         qWarning() << msg;
         break;
+#else
+    case MsgType::INFO:
+        qDebug() << msg;
+        break;
+    case MsgType::WARNING:
+        qDebug() << msg;
+        break;
+#endif
     case MsgType::CRITICAL:
         qCritical() << msg;
         break;
