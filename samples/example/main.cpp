@@ -141,6 +141,6 @@ qDebug() << "EntityManagerObjectName:" << e->objectName();
 
     //sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
-    delete sqliteproc;
+//    delete sqliteproc;
     return 0;
 }
