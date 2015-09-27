@@ -100,12 +100,14 @@ src/entity.cpp \
 
 LIBS += -lsqlite3
 CONFIG += c++14
-QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
+QMAKE_CXXFLAGS += -Wall -Wextra -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
 
 unix {
     target.path = /usr/lib
     INSTALLS += target
-    QMAKE_CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override
+    #linux-g++5 {
+    #QMAKE_CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wmaybe-uninitialized
+    #}
 }
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
