@@ -20,12 +20,12 @@
 #include "schema/mysqlschema.h"
 using namespace CuteEntityManager;
 
-Database::Database(QSqlDatabase database, bool loggerActivated, bool logQueries,
+Database::Database(QSqlDatabase database, bool logQueries,
                    bool logErrors, MsgType type) {
     this->database = database;
     this->init();
     this->connectionName = this->database.connectionName();
-    this->initLogger(loggerActivated, logQueries, logErrors, type);
+    this->initLogger(logQueries, logErrors, type);
 }
 
 Database::Database(QString databaseType, QString connectionName,
@@ -54,7 +54,11 @@ Database::Database(QString databaseType, QString connectionName,
         this->database.setConnectOptions(databaseOptions);
     }
     this->init();
-    this->initLogger(loggerActivated, logQueries, logErrors, type);
+    this->initLogger(logQueries, logErrors, type);
+}
+
+Logger *Database::getLogger() const {
+    return logger;
 }
 
 void Database::init() {
@@ -63,14 +67,12 @@ void Database::init() {
                                     QSqlDriver::Transactions);
 }
 
-void Database::initLogger(bool activated, bool logQueries, bool logErrors,
+void Database::initLogger(bool logQueries, bool logErrors,
                           MsgType type) {
     this->logQueries = logQueries;
     this->logErrors = logErrors;
-    if (activated) {
-        this->logger = new Logger(QDir::currentPath() + "/db" + this->connectionName +
-                                  ".log", type);
-    }
+    this->logger = new Logger(QDir::currentPath() + "/db" + this->connectionName +
+                              ".log", type);
 }
 
 Database::~Database() {
@@ -131,7 +133,7 @@ bool Database::commitTransaction() {
 }
 
 bool Database::rollbackTransaction() {
-    qWarning() << "Transaction rolled back!" << this->database.lastError().text();
+    this->logger->logMsg("Transaction rolled back!" + this->database.lastError().text(),MsgType::WARNING);
     return supportTransactions && this->database.rollback();
 }
 

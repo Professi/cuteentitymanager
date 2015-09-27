@@ -54,14 +54,17 @@ void Logger::lastError(const QSqlError &e) {
 
 void Logger::logMsg(const QString &value, const MsgType type) {
     if (!value.isEmpty() && this->shouldBeLogged(type)) {
-        this->outputToConsole(type, value);
+        QString msg = value;
         QFile log(this->getPath());
         log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
         log.seek(log.size());
         QTextStream stream(&log);
         stream.setCodec("UTF-8");
-        stream << value;
-        stream << "\n";
+        if (value.size() - 1 != value.lastIndexOf("\n")) {
+            msg.append("\n");
+        }
+        stream << msg;
+        this->outputToConsole(type, msg.replace("\"", "'"));
         stream.flush();
         log.close();
     }

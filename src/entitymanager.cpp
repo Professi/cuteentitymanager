@@ -15,6 +15,8 @@
  */
 
 #include <QVariantList>
+#include <QHash>
+#include <QDir>
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
@@ -22,7 +24,6 @@
 #include "validators/validator.h"
 #include "validators/validatorrule.h"
 #include "entityinspector.h"
-#include <QHash>
 
 using namespace CuteEntityManager;
 
@@ -34,6 +35,51 @@ QHash<QString, EntityManager *> EntityManager::instances =
 QStringList EntityManager::getConnectionNames() {
     return EntityManager::connectionNames;
 }
+
+EntityManager::EntityManager(QSqlDatabase database, bool logQueries,
+                             const bool inspectEntities,
+                             MsgType logActions) : QObject() {
+    auto db = new Database(database, true, logQueries, logActions);
+    this->db = QSharedPointer<Database>(db);
+    this->init(inspectEntities, logActions);
+}
+
+void EntityManager::init(bool inspect, const MsgType msgType) {
+    auto schema = Database::getSchema(Database::getDatabaseType(
+                                          this->db->getDatabase().driverName()), this->db);
+    this->schema = QSharedPointer<Schema>(schema);
+    this->schema->setTables(this->schema->getTableSchemas());
+    this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
+                                 this->schema->getQueryBuilder()));
+    this->appendToInstanceList();
+    if (inspect) {
+        EntityInspector inspector = EntityInspector(msgType);
+        inspector.checkRegisteredEntities();
+    }
+    QString loggerFile = "em" + this->objectName() + ".log";
+    loggerFile.replace("[", "");
+    loggerFile.replace("]", "");
+    this->logger = QSharedPointer<Logger>(new Logger(QDir::currentPath() + "/" +
+                                          loggerFile, msgType));
+}
+
+EntityManager::EntityManager(const QString &databaseType, QString databasename,
+                             QString hostname, QString username, QString password, QString port,
+                             bool logQueries, QString databaseOptions, const bool inspectEntities,
+                             CuteEntityManager::MsgType logActions) : QObject() {
+    auto db = new Database(databaseType, this->createConnection(), hostname,
+                           databasename, username,
+                           password,
+                           port.toInt(), true, logQueries, true, databaseOptions, logActions);
+    this->db = QSharedPointer<Database>(db);
+    this->init(inspectEntities, logActions);
+}
+
+EntityManager::~EntityManager() {
+    EntityManager::removeConnectionName(this->db->getConnectionName());
+    EntityManager::instances.remove(this->objectName());
+}
+
 
 QSharedPointer<QueryBuilder> EntityManager::getQueryBuilder() const {
     return this->schema->getQueryBuilder();
@@ -111,8 +157,8 @@ bool EntityManager::createObject(QSharedPointer<Entity> &entity,
                 }
                 rc = this->db->exec(query);
                 if (!rc) {
-                    qWarning() << "class is erroneous:" <<  EntityHelper::getClassname(
-                                   entity.data());
+                    this->logger->logMsg("class is erroneous:" +  EntityHelper::getClassName(
+                                             entity.data()), MsgType::WARNING);
                     break;
                 }
                 if (first) {
@@ -147,15 +193,6 @@ bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations,
                              relationsIgnoreHasChanged);
 }
 
-/**
- * @brief EntityManager::create
- * Will persist an entity in the database. Before its persisted it has the id -1(invalid id). If database persisting was succesfull it has a valid id.
- * @param entity
- * @param persistRelations
- * @param checkDuplicate
- * @param validate
- * @return
- */
 bool EntityManager::create(QSharedPointer<Entity> &entity,
                            const bool persistRelations, const bool checkDuplicate, const bool validate,
                            const bool relationsIgnoreHasChanged) {
@@ -163,60 +200,13 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
     return this->createObject(entity, merged, persistRelations,
                               checkDuplicate, validate, relationsIgnoreHasChanged);
 }
-/**
- * @brief EntityManager::save
- * If the entity has no valid ID, this method will call the create() method. Else it would call the merge method.
- * @param entity
- * @param persistRelations
- * @param ignoreHasChanged
- * @param validate
- * @return bool
- */
+
 bool EntityManager::save(QSharedPointer<Entity> &entity,
                          const bool persistRelations, const bool ignoreHasChanged, const bool validate,
                          const bool relationsIgnoreHasChanged) {
     auto merged = QList<Entity *>();
     return this->saveObject(entity, merged, persistRelations,
                             ignoreHasChanged, validate, relationsIgnoreHasChanged);
-}
-
-EntityManager::EntityManager(QSqlDatabase database, bool logQueries,
-                             const bool inspectEntities,
-                             MsgType logActions) : QObject() {
-    auto db = new Database(database, true, logQueries, true, logActions);
-    this->db = QSharedPointer<Database>(db);
-    this->init(inspectEntities,logActions);
-}
-
-void EntityManager::init(bool inspect,const MsgType msgType) {
-    auto schema = Database::getSchema(Database::getDatabaseType(
-                                          this->db->getDatabase().driverName()), this->db);
-    this->schema = QSharedPointer<Schema>(schema);
-    this->schema->setTables(this->schema->getTableSchemas());
-    this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
-                                 this->schema->getQueryBuilder()));
-    this->appendToInstanceList();
-    if (inspect) {
-        EntityInspector inspector = EntityInspector(msgType);
-        inspector.checkRegisteredEntities();
-    }
-}
-
-EntityManager::EntityManager(const QString &databaseType, QString databasename,
-                             QString hostname, QString username, QString password, QString port,
-                             bool logQueries, QString databaseOptions, const bool inspectEntities,
-                             CuteEntityManager::MsgType logActions) : QObject() {
-    auto db = new Database(databaseType, this->createConnection(), hostname,
-                           databasename, username,
-                           password,
-                           port.toInt(), true, logQueries, true, databaseOptions, logActions);
-    this->db = QSharedPointer<Database>(db);
-    this->init(inspectEntities,logActions);
-}
-
-EntityManager::~EntityManager() {
-    EntityManager::removeConnectionName(this->db->getConnectionName());
-    EntityManager::instances.remove(this->objectName());
 }
 
 bool EntityManager::startup(QString version, QStringList toInitialize,
@@ -239,10 +229,10 @@ bool EntityManager::startup(QString version, QStringList toInitialize,
                 ok = this->createTable(entity, false);
                 entities.append(entity);
             } else {
-                qWarning() << "startup of version " << version << " failed";
-                qWarning() << "erroneous entity:" << (var == 0 ?
-                                                      "null, this should not happen!" : toInitialize.at(
-                                                              var - 1));
+                this->logger->logMsg("startup of version " + version + " failed",
+                                     MsgType::CRITICAL);
+                this->logger->logMsg( "erroneous entity:" + (var == 0 ?
+                                      "null, this should not happen!" : toInitialize.at(var - 1)), MsgType::CRITICAL);
                 break;
             }
         }
@@ -796,14 +786,12 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
     }
 }
 
-
 void EntityManager::missingManyToManyTable(const QString &tblName,
         const QSharedPointer<Entity> &e, const Relation &r) {
-    qWarning() << "MANY_TO_MANY Table " << tblName << " is missing";
-    qWarning() << "Entity " << EntityHelper::getClassName(e.data()) <<
-               " is affected";
-    qWarning() << "Relation of property: " << r.getPropertyName();
-    //qDebug() << "RelationType:" << r.getType() << " MappedBy:" << r.getMappedBy();
+    this->logger->logMsg("MANY_TO_MANY Table " + tblName + " is missing.\n" +
+                         "Entity " + EntityHelper::getClassName(e.data()) +
+                         " is affected.\n" + "Relation of property: " + r.getPropertyName(),
+                         MsgType::CRITICAL);
 }
 
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,

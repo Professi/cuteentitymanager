@@ -20,6 +20,7 @@
 #include <QRegularExpression>
 #include "entityinstancefactory.h"
 #include "entityhelper.h"
+#include "logger.h"
 
 using namespace CuteEntityManager;
 
@@ -47,7 +48,8 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity,
                                             && this->createRelationTables(entity)))) {
                 rc = true;
             } else {
-                qWarning() << "Table " << entity->getTablename() << " could not be created.";
+                this->database->getLogger()->logMsg("Table " + entity->getTablename() +
+                                                    " could not be created.", MsgType::WARNING);
             }
             this->schema->getTableSchema(tableName);
         }
@@ -64,8 +66,9 @@ const {
         auto query = this->database->getQuery(this->createTable(i.key(), i.value()));
         if (!this->database->exec(query)) {
             ok = false;
-            qWarning() << "Relational table for table " << entity->getTablename() <<
-                       " could not be created." << " Tablename:" << i.key();
+            this->database->getLogger()->logMsg("Relational table for table " +
+                                                entity->getTablename() +
+                                                " could not be created." + " Tablename:" + i.key(), MsgType::WARNING);
             break;
         }
         ++i;
@@ -911,7 +914,7 @@ QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity>
     if (entity) {
         return this->generateColumnNameID(entity->getTablename());
     }
-    qWarning() << "Entity is empty!";
+    this->database->getLogger()->logMsg("Entity is empty!", MsgType::WARNING);
     return "";
 }
 
@@ -988,7 +991,8 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
                             this->saveAttributes(entity, this->processProperties(e, usedProperties),
                                                  this->processRelations(e, usedRelations)), e->getPrimaryKey()));
             } else {
-                qWarning() << "Instance of " << metaObj->className() << " could not be created";
+                this->database->getLogger()->logMsg("Instance of " + QString(metaObj->className()) +
+                                                    " could not be created", MsgType::CRITICAL);
                 break;
             }
         }

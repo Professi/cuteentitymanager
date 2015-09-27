@@ -72,9 +72,27 @@ class EntityManager : public QObject {
     bool create(QList<QSharedPointer<Entity>> entities,
                 const bool persistRelations = true, const bool validate = true,
                 const bool relationsIgnoreHasChanged = false);
+    /**
+     * @brief EntityManager::create
+     * Will persist an entity in the database. Before its persisted it has the id -1(invalid id). If database persisting was succesfull it has a valid id.
+     * @param entity
+     * @param persistRelations
+     * @param checkDuplicate
+     * @param validate
+     * @return
+     */
     bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
                 const bool checkDuplicate = false, const bool validate = true,
                 const bool relationsIgnoreHasChanged = false) ;
+    /**
+     * @brief EntityManager::save
+     * If the entity has no valid ID, this method will call the create() method. Else it would call the merge method.
+     * @param entity
+     * @param persistRelations
+     * @param ignoreHasChanged
+     * @param validate
+     * @return bool
+     */
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
               const bool ignoreHasChanged = false, const bool validate = true,
               const bool relationsIgnoreHasChanged = false);
@@ -340,10 +358,6 @@ class EntityManager : public QObject {
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant> > maps,
                                           const char *classname, const bool refresh = false,
                                           const bool resolveRelations = true);
-    /**
-      @todo wait for Qt 5.5.1
-      @see https://codereview.qt-project.org/#/c/122232/
-      */
     void missingManyToManyTable(const QString &tblName,
                                 const QSharedPointer<Entity> &e, const Relation &r);
     /**
@@ -357,6 +371,7 @@ class EntityManager : public QObject {
   private:
     static QStringList connectionNames;
     static QHash<QString, EntityManager *> instances;
+    QSharedPointer<Logger> logger;
     QString id;
     QSharedPointer<Schema> schema;
     static void setConnectionNames(QStringList list);

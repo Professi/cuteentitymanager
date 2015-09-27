@@ -40,20 +40,20 @@ class Database {
     bool supportTransactions;
     Logger *logger = nullptr;
     void init();
-    void initLogger(bool activated, bool logQueries, bool logErrors, MsgType type);
+    void initLogger(bool logQueries, bool logErrors, MsgType type);
     bool logQueries;
     bool logErrors;
 
   public:
-    Database(QSqlDatabase database, bool loggerActivated = true,
-             bool logQueries = false, bool logErrors = true,MsgType type= DEFAULTMSGTYPE);
+    Database(QSqlDatabase database, bool logQueries = false, bool logErrors = true, MsgType type = DEFAULTMSGTYPE);
     ~Database();
     Database(QString databaseType, QString connectionName = QString(""),
              QString hostname = QString(""),
              QString databasename = QString("") ,
              QString username = QString(""), QString password = QString(""),
              qint64 port = 0, bool loggerActivated = true, bool logQueries = false,
-             bool logErrors = true, QString databaseOptions = "",MsgType type= DEFAULTMSGTYPE);
+             bool logErrors = true, QString databaseOptions = "",
+             MsgType type = DEFAULTMSGTYPE);
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();
@@ -69,10 +69,12 @@ class Database {
     QSqlQuery select(const QString &query);
     void startTransaction();
     bool commitTransaction();
+    void logMsg(const QString &value);
     bool rollbackTransaction();
     static DatabaseType getDatabaseType(QString s);
     static QSharedPointer<Schema> getSchema(DatabaseType db,
                                             QSharedPointer<Database> database);
+    Logger *getLogger() const;
 };
 }
 #endif // DATABASE_H

@@ -29,6 +29,7 @@ namespace CuteEntityManager {
 class Schema;
 class Entity;
 class Database;
+class Logger;
 enum DbForeignKeyCascade {
     RESTRICT,
     CASCADE,
