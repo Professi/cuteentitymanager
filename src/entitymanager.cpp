@@ -56,7 +56,7 @@ void EntityManager::init(bool inspect, const MsgType msgType) {
         EntityInspector inspector = EntityInspector(msgType);
         inspector.checkRegisteredEntities();
     }
-    QString loggerFile = "em" + this->objectName() + ".log";
+    QString loggerFile = this->objectName() + ".log";
     loggerFile.replace("[", "");
     loggerFile.replace("]", "");
     this->logger = QSharedPointer<Logger>(new Logger(QDir::currentPath() + "/" +

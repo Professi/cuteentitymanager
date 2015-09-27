@@ -441,9 +441,9 @@ QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(
         const QSharedPointer<Entity> &entity)
 const {
     auto relations = QHash<QString, QHash<QString, QString>>();
-//    QHash<QString, Relation> m = (entity->getInheritanceStrategy() ==
-//                                  InheritanceStrategy::PER_CLASS_TABLE ? entity->getRelations() :
-//                                  EntityHelper::getNonInheritedRelations(entity.data()));
+    //QHash<QString, Relation> m = (entity->getInheritanceStrategy() ==
+    //                              InheritanceStrategy::PER_CLASS_TABLE ? entity->getRelations() :
+    //                              EntityHelper::getNonInheritedRelations(entity.data()));
     QHash<QString, Relation> m = entity->getRelations();
     auto props = EntityHelper::getMetaProperties(entity.data());
     for (auto i = m.begin(); i != m.end(); ++i) {

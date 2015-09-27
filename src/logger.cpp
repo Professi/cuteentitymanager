@@ -64,7 +64,7 @@ void Logger::logMsg(const QString &value, const MsgType type) {
             msg.append("\n");
         }
         stream << msg;
-        this->outputToConsole(type, msg.replace("\"", "'"));
+        this->outputToConsole(type, msg.replace("\"", "'").replace("\n", ""));
         stream.flush();
         log.close();
     }
