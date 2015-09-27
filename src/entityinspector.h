@@ -30,26 +30,26 @@ namespace CuteEntityManager {
  */
 class EntityInspector {
   public:
-    EntityInspector();
+    EntityInspector(const MsgType msgType = MsgType::DEBUG);
     ~EntityInspector();
     bool checkRegisteredEntities();
     bool checkEntity(QString name);
 
   private:
-    Entity *instantiateEntity(const QString name, QString &msg);
-    bool verifyRelations(Entity *&entity, QString &msg);
-    void verifyTransientAttributes(Entity *&entity, QString &msg);
-    bool checkRelation(const QVariant &entity, const Relation &r, QString &msg,
+    Entity *instantiateEntity(const QString name);
+    bool verifyRelations(Entity *&entity);
+    void verifyTransientAttributes(Entity *&entity);
+    bool checkRelation(const QVariant &entity, const Relation &r,
                        const QMetaProperty &property) const;
-    void checkRelationTypos(const QString &name, const Relation &r, QString &msg,
+    void checkRelationTypos(const QString &name, const Relation &r,
                             bool &ok);
     void checkRelationMappings(QMetaProperty &property, const Relation &r,
-                               QString &msg, bool &ok);
-    bool checkPrimaryKey(Entity *&entity, QString &msg);
-    void verifyBlobAttributes(Entity *&entity, QString &msg);
+                               bool &ok);
+    bool checkPrimaryKey(Entity *&entity);
+    void verifyBlobAttributes(Entity *&entity);
     void checkMetaProperties(QHash<QString, QMetaProperty> &metaProperties,
-                             QString &msg, bool &ok, QHash<QString, Relation> &relations);
-    void initLogger();
+                             bool &ok, QHash<QString, Relation> &relations);
+    void initLogger(const MsgType msgType);
     Logger *logger = nullptr;
 };
 }

@@ -19,8 +19,8 @@
 #include <QDateTime>
 using namespace CuteEntityManager;
 
-EntityInspector::EntityInspector() {
-    this->initLogger();
+EntityInspector::EntityInspector(const MsgType msgType) {
+    this->initLogger(msgType);
 }
 
 EntityInspector::~EntityInspector() {
@@ -34,8 +34,7 @@ bool EntityInspector::checkRegisteredEntities() {
     QStringList classes = EntityInstanceFactory::getRegisteredClasses();
     QString msg = QDateTime::currentDateTime().toString(Qt::ISODate) +
                   " - Start checking entities\n";
-    qInfo() << msg;
-    this->logger->logMsg(msg);
+    this->logger->logMsg(msg, MsgType::INFO);
     bool ok = true;
     for (int i = 0; i < classes.size(); ++i) {
         bool r = this->checkEntity(classes.at(i));
@@ -45,56 +44,53 @@ bool EntityInspector::checkRegisteredEntities() {
             msg += classes.at(i) + " is erroneous!";
             msg += "\n";
             msg += "###############################\n";
-            qWarning() << msg;
+            this->logger->logMsg(msg, MsgType::CRITICAL);
             ok = false;
         } else {
             msg = "Entity class " + classes.at(i) + " seems ok.\n";
-            qInfo() << msg;
+            this->logger->logMsg(msg, MsgType::INFO);
         }
-        this->logger->logMsg(msg);
     }
     msg = QDateTime::currentDateTime().toString(Qt::ISODate) +
           " - End checking entities\n";
-    qInfo() << msg;
-    this->logger->logMsg(msg);
+    this->logger->logMsg(msg, MsgType::INFO);
     return ok;
 }
 
 bool EntityInspector::checkEntity(QString name) {
     QString msg = "--------------------\n";
     msg += "Checking " + name + " now.\n";
-    qDebug() << msg;
-    auto entity = this->instantiateEntity(name, msg);
+    this->logger->logMsg(msg, MsgType::DEBUG);
+    auto entity = this->instantiateEntity(name);
     bool ok = true;
     if (entity) {
-        bool relations = this->verifyRelations(entity, msg);
-        bool pk = this->checkPrimaryKey(entity, msg);
-        this->verifyBlobAttributes(entity, msg);
-        this->verifyTransientAttributes(entity, msg);
+        bool relations = this->verifyRelations(entity);
+        bool pk = this->checkPrimaryKey(entity);
+        this->verifyBlobAttributes(entity);
+        this->verifyTransientAttributes(entity);
         ok = pk && relations;
         delete entity;
         entity = nullptr;
     }
-    this->logger->logMsg(msg);
     return ok;
 }
 
-Entity *EntityInspector::instantiateEntity(const QString name, QString &msg) {
+Entity *EntityInspector::instantiateEntity(const QString name) {
     auto entity = EntityInstanceFactory::createInstance(name);
-    QString internMsg = "";
+    QString msg = "";
     if (entity) {
-        internMsg = name + " is instantiable.";
-        qInfo() << internMsg;
+        msg = name + " is instantiable.";
+        this->logger->logMsg(msg, MsgType::INFO);
     } else {
-        internMsg = name + " is NOT instantiable!";
-        qCritical() << internMsg;
+        msg = name + " is NOT instantiable!";
+        this->logger->logMsg(msg, MsgType::CRITICAL);
     }
-    msg += internMsg + "\n";
     return entity;
 }
 
 void EntityInspector::checkMetaProperties(QHash<QString, QMetaProperty>
-        &metaProperties, QString &msg, bool &ok, QHash<QString, Relation> &relations) {
+        &metaProperties, bool &ok, QHash<QString, Relation> &relations) {
+    QString msg = "";
     for (auto i = metaProperties.constBegin(); i != metaProperties.constEnd();
             ++i) {
         QString typeName = QString(i.value().typeName());
@@ -114,110 +110,108 @@ void EntityInspector::checkMetaProperties(QHash<QString, QMetaProperty>
             msg += i.key() + " must use QSharedPointer.\n";
         }
     }
+    this->logger->logMsg(msg, MsgType::CRITICAL);
 }
 
-bool EntityInspector::verifyRelations(Entity *&entity, QString &msg) {
+bool EntityInspector::verifyRelations(Entity *&entity) {
     bool ok = true;
     auto metaProperties = EntityHelper::getMetaProperties(entity);
     auto relations = entity->getRelations();
-    QString iMsg = "";
-    this->checkMetaProperties(metaProperties, iMsg, ok, relations);
+    QString msg = "";
+    this->checkMetaProperties(metaProperties, ok, relations);
     for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
-        this->checkRelationTypos(i.key(), i.value(), iMsg, ok);
+        this->checkRelationTypos(i.key(), i.value(), ok);
         if (!metaProperties.contains(i.key())) {
-            iMsg += "For relation " + i.key() + " no property exists!";
+            msg += "For relation " + i.key() + " no property exists!";
             ok = false;
         } else {
             auto metaProperty = metaProperties.value(i.key());
             if (!QString(metaProperty.typeName()).contains("QSharedPointer")) {
-                iMsg += "Property " + QString(metaProperty.name()) +
-                        " must be a type like QList<QSharedPointer<T>> or simply QSharedPointer<T>.";
+                msg += "Property " + QString(metaProperty.name()) +
+                       " must be a type like QList<QSharedPointer<T>> or simply QSharedPointer<T>.";
             } else {
                 auto var = metaProperty.read(entity);
-                bool rel = this->checkRelation(var, i.value(), msg, metaProperty);
+                bool rel = this->checkRelation(var, i.value(), metaProperty);
                 if (!rel) {
                     ok = false;
                 } else {
-                    this->checkRelationMappings(metaProperty, i.value(), msg, ok);
+                    this->checkRelationMappings(metaProperty, i.value(), ok);
                 }
             }
         }
     }
-    if (!iMsg.isEmpty()) {
-        qCritical() << iMsg;
-        msg += iMsg;
+    if (!msg.isEmpty()) {
+        this->logger->logMsg(msg, MsgType::CRITICAL);
     }
     return ok;
 }
 
-void EntityInspector::verifyTransientAttributes(Entity *&entity, QString &msg) {
+void EntityInspector::verifyTransientAttributes(Entity *&entity) {
     auto metaProperties = EntityHelper::getMetaProperties(entity);
     auto relations = entity->getRelations();
     auto transientAttributes = entity->getTransientAttributes();
     auto blobs = entity->getBLOBColumns();
-    QString iMsg = "";
+    QString msg = "";
     for (int i = 0; i < transientAttributes.size(); ++i) {
         QString attr = transientAttributes.at(i);
         if (!metaProperties.contains(attr)) {
-            iMsg += "No transient attribute called " + attr + ".\n";
+            msg += "No transient attribute called " + attr + ".\n";
         }
         if (relations.contains(transientAttributes.at(i))) {
-            iMsg += "A transient attribute should not be declared as relation: " +
-                    attr + ".\n";
+            msg += "A transient attribute should not be declared as relation: " +
+                   attr + ".\n";
         }
         if (blobs.contains(attr)) {
-            iMsg += "A transient attribute should not be declared as blob column: " + attr +
-                    ".\n";
+            msg += "A transient attribute should not be declared as blob column: " + attr +
+                   ".\n";
         }
     }
-    if (!iMsg.isEmpty()) {
-        qWarning() << iMsg;
-        msg += iMsg;
+    if (!msg.isEmpty()) {
+        this->logger->logMsg(msg, MsgType::WARNING);
     }
 }
 
 bool EntityInspector::checkRelation(const QVariant &entity,
-                                    const Relation &r, QString &msg, const QMetaProperty &property) const {
-    QString iMsg = "";
+                                    const Relation &r, const QMetaProperty &property) const {
+    QString msg = "";
     bool many = r.getType() == RelationType::MANY_TO_MANY
                 || r.getType() == RelationType::ONE_TO_MANY;
     QString propType = QString(property.type());
     bool canConvertList = entity.canConvert<QVariantList>() || (many
                           && propType.contains("QList"));
     if ((many && !canConvertList)) {
-        iMsg = "Relation type of " + r.getPropertyName() +
-               " must be MANY_TO_MANY or ONE_TO_MANY.\n";
-        iMsg += "Or you can change the attribute type to QSharedPointer<T>.\n";
+        msg = "Relation type of " + r.getPropertyName() +
+              " must be MANY_TO_MANY or ONE_TO_MANY.\n";
+        msg += "Or you can change the attribute type to QSharedPointer<T>.\n";
     } else if ((!many && canConvertList)) {
-        iMsg = "Relation type of " + r.getPropertyName() +
-               " must be MANY_TO_ONE or ONE_TO_ONE.\n";
-        iMsg += "Or you can change the attribute type to QList<QSharedPointer<T>>.\n";
+        msg = "Relation type of " + r.getPropertyName() +
+              " must be MANY_TO_ONE or ONE_TO_ONE.\n";
+        msg += "Or you can change the attribute type to QList<QSharedPointer<T>>.\n";
     }
     if (many && r.getType() == RelationType::ONE_TO_MANY
             && r.getMappedBy().isEmpty()) {
-        iMsg += "Relation " + r.getPropertyName() +
-                " needs a mappedBy attribute of the foreign class.\n";
+        msg += "Relation " + r.getPropertyName() +
+               " needs a mappedBy attribute of the foreign class.\n";
     }
-    if (!iMsg.isEmpty()) {
-        msg += iMsg;
-        qCritical() << iMsg;
+    if (!msg.isEmpty()) {
+        this->logger->logMsg(msg, MsgType::CRITICAL);
         return false;
     }
     return true;
 }
 
 void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
-        QString &msg, bool &ok) {
+        bool &ok) {
     if (name != r.getPropertyName()) {
         ok = false;
-        msg += "Relation " + name + " has a typo.\n";
-        msg += "Name " + name + "and relation name " + r.getPropertyName() +
-               " are not equal.\n";
+        this->logger->logMsg("Relation " + name + " has a typo.\n" + "Name " + name +
+                             "and relation name " + r.getPropertyName() +
+                             " are not equal.\n", MsgType::WARNING);
     }
 }
 
 void EntityInspector::checkRelationMappings(QMetaProperty &property,
-        const Relation &r, QString &msg, bool &ok) {
+        const Relation &r, bool &ok) {
     QString foreignEntityName = EntityInstanceFactory::extractEntityType(
                                     property.typeName());
     auto foreignInstance = EntityInstanceFactory::createInstance(foreignEntityName);
@@ -238,61 +232,60 @@ void EntityInspector::checkRelationMappings(QMetaProperty &property,
         }
         if (r.getMappedBy().isEmpty()) {
             if (foundMappedBy == 0) {
-                msg += "Optional: The relation " + r.getPropertyName() +
-                       " is not mapped in foreign class " + foreignEntityName +
-                       ". You could map it.\n";
+                this->logger->logMsg("Optional: The relation " + r.getPropertyName() +
+                                     " is not mapped in foreign class " + foreignEntityName +
+                                     ". You could map it.\n", MsgType::INFO);
             } else if (foundMappedBy > 1) {
-                msg += "The relation " + r.getPropertyName() + " is mapped several times (" +
-                       QString::number(foundMappedBy) + ") by foreign class " + foreignEntityName +
-                       ". You should map it only once!\n";
+                this->logger->logMsg("The relation " + r.getPropertyName() +
+                                     " is mapped several times (" +
+                                     QString::number(foundMappedBy) + ") by foreign class " + foreignEntityName +
+                                     ". You should map it only once!\n", MsgType::WARNING);
                 ok = false;
             }
         } else if (!foundForeignMappedRelation) {
-            msg += "Relation " + r.getPropertyName() + " with mappedBy attribute " +
-                   r.getMappedBy() + " has no mapped relation in " + foreignEntityName +
-                   " class!\n";
+            this->logger->logMsg("Relation " + r.getPropertyName() +
+                                 " with mappedBy attribute " +
+                                 r.getMappedBy() + " has no mapped relation in " + foreignEntityName +
+                                 " class!\n", MsgType::CRITICAL);
             ok = false;
         }
         delete foreignInstance;
         foreignInstance = nullptr;
     } else {
-        msg += "Can't create object for property/relation " + r.getPropertyName() +
-               "!\n";
-        msg += "Classname: " + foreignEntityName + "\n";
-        msg += "Is the class registered?\n";
+        this->logger->logMsg("Can't create object for property/relation " +
+                             r.getPropertyName() +
+                             "\n" + "Classname: " + foreignEntityName + "\n" + "Is the class registered?\n",
+                             MsgType::CRITICAL);
         ok = false;
     }
 }
 
-bool EntityInspector::checkPrimaryKey(Entity *&entity, QString &msg) {
+bool EntityInspector::checkPrimaryKey(Entity *&entity) {
     QString pk = entity->getPrimaryKey();
     auto metaprops = EntityHelper::getMetaProperties(entity);
-    QString iMsg = "";
     bool ok = true;
     if (!metaprops.contains(pk)) {
         ok = false;
-        iMsg = "Property " + pk +
-               " for primary key not exists. Please check your getPrimaryKey() method!\n";
+        this->logger->logMsg("Property " + pk +
+                             " for primary key not exists. Please check your getPrimaryKey() method!\n",
+                             MsgType::CRITICAL);
     }
-    qCritical() << iMsg;
-    msg += iMsg;
     return ok;
 }
 
-void EntityInspector::verifyBlobAttributes(Entity *&entity, QString &msg) {
+void EntityInspector::verifyBlobAttributes(Entity *&entity) {
     auto metaprops = EntityHelper::getMetaProperties(entity);
     auto blobs = entity->getBLOBColumns();
-    QString iMsg = "";
+    QString msg = "";
     for (int i = 0; i < blobs.size(); ++i) {
         QString name = blobs.at(i);
         if (!metaprops.contains(name)) {
-            iMsg += "For blob column " + name + " no property exists.\n";
+            msg += "For blob column " + name + " no property exists.\n";
         }
     }
-    qWarning() << iMsg;
-    msg += iMsg;
+    this->logger->logMsg(msg, MsgType::WARNING);
 }
 
-void EntityInspector::initLogger() {
-    this->logger = new Logger(QDir::currentPath() + "/entity.log");
+void EntityInspector::initLogger(const MsgType msgType) {
+    this->logger = new Logger(QDir::currentPath() + "/entity.log", msgType);
 }

@@ -21,9 +21,18 @@
 #include <QSqlError>
 #include <QSqlQuery>
 namespace CuteEntityManager {
+
+enum class MsgType { DEBUG, INFO, WARNING, CRITICAL, FATAL};
+
 class Logger {
+#ifdef QT_DEBUG
+#define DEFAULTMSGTYPE MsgType::DEBUG
+#else
+#define DEFAULTMSGTYPE MsgType::CRITICAL
+#endif
+
   public:
-    Logger(QString path = "");
+    Logger(QString path = "", MsgType min = DEFAULTMSGTYPE);
     ~Logger();
     QString defaultPath() const;
 
@@ -31,14 +40,21 @@ class Logger {
     void lastError(const QSqlQuery &q, bool logQuery = false);
     QString getPath();
     void setPath(const QString &value);
-    void logMsg(const QString &value);
+    void logMsg(const QString &value, const MsgType type = MsgType::DEBUG);
+
+    MsgType getMinimum() const;
+    void setMinimum(const MsgType &value);
 
   protected:
     QString generateLogMsg(const QSqlError &e) const;
     QString generateLogMsg(const QSqlQuery &q, bool withValues = true) const;
+    bool shouldBeLogged(const MsgType &type) const;
+    void outputToConsole(const MsgType &type, const QString &msg) const;
+
 
   private:
     QString path;
+    MsgType minimum;
 };
 }
 #endif // LOGGER_H

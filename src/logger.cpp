@@ -20,8 +20,10 @@
 #include <QDateTime>
 
 using namespace CuteEntityManager;
-Logger::Logger(QString path) {
+
+Logger::Logger(QString path, MsgType min) {
     this->path = path;
+    this->minimum = min;
 }
 
 Logger::~Logger() {
@@ -38,32 +40,30 @@ void Logger::lastError(const QSqlQuery &q, bool logQuery) {
             QString msg = "{" + QString("\"time\":\"") +
                           QDateTime::currentDateTime().toString(Qt::ISODate) + QString("\"") + errorMsg;
             msg += this->generateLogMsg(q) + "}";
-            this->logMsg(msg);
-            if (errorMsg.isEmpty()) {
-                qDebug() << msg.replace("\"", "'");
-            } else {
-                qWarning() << msg.replace("\"", "'");
-            }
+            this->logMsg(msg, errorMsg.isEmpty() ? MsgType::DEBUG : MsgType::WARNING);
         }
     }
 }
 
 void Logger::lastError(const QSqlError &e) {
     if (e.isValid()) {
-        this->logMsg(this->generateLogMsg(e));
+        this->logMsg(this->generateLogMsg(e), MsgType::WARNING);
     }
 }
 
-void Logger::logMsg(const QString &value) {
-    QFile log(this->getPath());
-    log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
-    log.seek(log.size());
-    QTextStream stream(&log);
-    stream.setCodec("UTF-8");
-    stream << value;
-    stream << "\n";
-    stream.flush();
-    log.close();
+void Logger::logMsg(const QString &value, const MsgType type) {
+    if (!value.isEmpty() && this->shouldBeLogged(type)) {
+        this->outputToConsole(type, value);
+        QFile log(this->getPath());
+        log.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Append);
+        log.seek(log.size());
+        QTextStream stream(&log);
+        stream.setCodec("UTF-8");
+        stream << value;
+        stream << "\n";
+        stream.flush();
+        log.close();
+    }
 }
 
 QString Logger::generateLogMsg(const QSqlQuery &q, bool withValues) const {
@@ -85,6 +85,52 @@ QString Logger::generateLogMsg(const QSqlQuery &q, bool withValues) const {
         r += "}";
     }
     return r;
+}
+
+bool Logger::shouldBeLogged(const MsgType &type) const {
+    switch (type) {
+    case MsgType::DEBUG:
+        return this->minimum == MsgType::DEBUG;
+    case MsgType::INFO:
+        return this->minimum == MsgType::DEBUG || this->minimum == MsgType::INFO;
+    case MsgType::WARNING:
+        return this->minimum == MsgType::DEBUG || this->minimum == MsgType::INFO
+               || this->minimum == MsgType::WARNING;
+    case MsgType::CRITICAL:
+        return this->minimum == MsgType::DEBUG || this->minimum == MsgType::INFO
+               || this->minimum == MsgType::WARNING || this->minimum == MsgType::CRITICAL;
+    default:
+        return true;
+        break;
+    }
+}
+
+void Logger::outputToConsole(const MsgType &type, const QString &msg) const {
+    switch (type) {
+    case MsgType::DEBUG:
+        qDebug() << msg;
+        break;
+    case MsgType::INFO:
+        qInfo() << msg;
+        break;
+    case MsgType::WARNING:
+        qWarning() << msg;
+        break;
+    case MsgType::CRITICAL:
+        qCritical() << msg;
+        break;
+    case MsgType::FATAL:
+        qFatal(msg.toUtf8().constData());
+        break;
+    }
+}
+
+MsgType Logger::getMinimum() const {
+    return minimum;
+}
+
+void Logger::setMinimum(const MsgType &value) {
+    minimum = value;
 }
 
 QString Logger::getPath() {

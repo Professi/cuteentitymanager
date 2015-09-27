@@ -28,6 +28,11 @@
 #include "enums/databasetype.h"
 #include "logger.h"
 namespace CuteEntityManager {
+#ifdef QT_DEBUG
+#define DEFAULTMSGTYPE MsgType::DEBUG
+#else
+#define DEFAULTMSGTYPE MsgType::CRITICAL
+#endif
 class Database {
   private:
     QSqlDatabase database;
@@ -35,20 +40,20 @@ class Database {
     bool supportTransactions;
     Logger *logger = nullptr;
     void init();
-    void initLogger(bool activated, bool logQueries, bool logErrors);
+    void initLogger(bool activated, bool logQueries, bool logErrors, MsgType type);
     bool logQueries;
     bool logErrors;
 
   public:
     Database(QSqlDatabase database, bool loggerActivated = true,
-             bool logQueries = false, bool logErrors = true);
+             bool logQueries = false, bool logErrors = true,MsgType type= DEFAULTMSGTYPE);
     ~Database();
     Database(QString databaseType, QString connectionName = QString(""),
              QString hostname = QString(""),
              QString databasename = QString("") ,
              QString username = QString(""), QString password = QString(""),
              qint64 port = 0, bool loggerActivated = true, bool logQueries = false,
-             bool logErrors = true, QString databaseOptions = "");
+             bool logErrors = true, QString databaseOptions = "",MsgType type= DEFAULTMSGTYPE);
     QSqlDatabase getDatabase();
     QString getConnectionName();
     QSqlQuery getQuery();

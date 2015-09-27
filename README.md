@@ -46,6 +46,11 @@ http://jenkins.danfai.de/jenkins/job/cuteentitymanager/doxygen/
 Tutorial(wip):
 https://synlos.net/redmine/projects/entitymanager/wiki/Tutorial
 
+### Minimum requirements
+
+- GCC 4.8 or clang 3.3
+- >= Qt 5.4
+- any platform supported by Qt
 
 ## German
 Mit dem CuteEntityManager ist es möglich, Entities zu persistieren, zu 

@@ -35,6 +35,14 @@
 #include "querybuilder.h"
 #include "validators/errormsg.h"
 namespace CuteEntityManager {
+#ifdef QT_DEBUG
+#define DEFAULTMSGTYPE MsgType::DEBUG
+#define INSPECTENTITIES true
+#else
+#define DEFAULTMSGTYPE MsgType::CRITICAL
+#define INSPECTENTITIES false
+#endif
+
 
 class Logger;
 class QueryInterpreter;
@@ -110,12 +118,15 @@ class EntityManager : public QObject {
     bool hasChanged(QSharedPointer<Entity> &entity);
 
   public:
-    EntityManager(QSqlDatabase database, bool logQueries = false, const bool inspectEntities = false);
+    EntityManager(QSqlDatabase database, bool logQueries = false,
+                  const bool inspectEntities = INSPECTENTITIES,
+                  MsgType logActions = DEFAULTMSGTYPE);
     EntityManager(const QString &databaseType, QString databasename = "" ,
                   QString hostname = "",
                   QString username = "",
                   QString password = "", QString port = "", bool logQueries = false,
-                  QString databaseOptions = "", const bool inspectEntities = false);
+                  QString databaseOptions = "", const bool inspectEntities = INSPECTENTITIES,
+                  MsgType logActions = DEFAULTMSGTYPE);
     virtual ~EntityManager();
     static QStringList getConnectionNames();
     static void removeConnectionName(const QString &name);
@@ -256,7 +267,7 @@ class EntityManager : public QObject {
         return newList;
     }
 
-    void init(bool inspect);
+    void init(bool inspect, const MsgType msgType);
     QList<QHash<QString, QVariant> > findAll(const QSharedPointer<Entity> &e);
     void resolveRelations(const QSharedPointer<Entity> &entity,
                           const QHash<QString, QVariant> &map, const bool refresh = false);

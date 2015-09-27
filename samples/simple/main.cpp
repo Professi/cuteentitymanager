@@ -20,5 +20,12 @@ int main(int argc, char *argv[]) {
                                 "Müsli"));
     auto ep = a.objectCast<CuteEntityManager::Entity>();
     qDebug() << e->create(ep, true, true);
+    int i = 0;
+
+    while(false); {
+        i++;
+    }
+    qDebug()  << i;
+
     return 0;
 }

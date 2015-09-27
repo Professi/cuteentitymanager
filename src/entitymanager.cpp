@@ -180,26 +180,15 @@ bool EntityManager::save(QSharedPointer<Entity> &entity,
                             ignoreHasChanged, validate, relationsIgnoreHasChanged);
 }
 
-EntityManager::EntityManager(QSqlDatabase database,
-                             bool logQueries, const bool inspectEntities) : QObject() {
-    auto db = new Database(database, true, logQueries);
+EntityManager::EntityManager(QSqlDatabase database, bool logQueries,
+                             const bool inspectEntities,
+                             MsgType logActions) : QObject() {
+    auto db = new Database(database, true, logQueries, true, logActions);
     this->db = QSharedPointer<Database>(db);
-    this->init(inspectEntities);
+    this->init(inspectEntities,logActions);
 }
 
-EntityManager::EntityManager(const QString &databaseType, QString databasename ,
-                             QString hostname, QString username, QString password, QString port,
-                             bool logQueries, QString databaseOptions,
-                             const bool inspectEntities) : QObject() {
-    auto db = new Database(databaseType, this->createConnection(), hostname,
-                           databasename, username,
-                           password,
-                           port.toInt(), true, logQueries, true, databaseOptions);
-    this->db = QSharedPointer<Database>(db);
-    this->init(inspectEntities);
-}
-
-void EntityManager::init(bool inspect) {
+void EntityManager::init(bool inspect,const MsgType msgType) {
     auto schema = Database::getSchema(Database::getDatabaseType(
                                           this->db->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);
@@ -207,13 +196,22 @@ void EntityManager::init(bool inspect) {
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
                                  this->schema->getQueryBuilder()));
     this->appendToInstanceList();
-#ifdef QT_DEBUG
-    inspect = true;
-#endif
     if (inspect) {
-        EntityInspector inspector = EntityInspector();
+        EntityInspector inspector = EntityInspector(msgType);
         inspector.checkRegisteredEntities();
     }
+}
+
+EntityManager::EntityManager(const QString &databaseType, QString databasename,
+                             QString hostname, QString username, QString password, QString port,
+                             bool logQueries, QString databaseOptions, const bool inspectEntities,
+                             CuteEntityManager::MsgType logActions) : QObject() {
+    auto db = new Database(databaseType, this->createConnection(), hostname,
+                           databasename, username,
+                           password,
+                           port.toInt(), true, logQueries, true, databaseOptions, logActions);
+    this->db = QSharedPointer<Database>(db);
+    this->init(inspectEntities,logActions);
 }
 
 EntityManager::~EntityManager() {

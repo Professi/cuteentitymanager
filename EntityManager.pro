@@ -114,3 +114,8 @@ win32-g++ {
 
 #QMAKE_CXXFLAGS +=  -Winit-self
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
+
+DISTFILES += \
+    README.md \
+    LICENSE \
+    Doxyfile

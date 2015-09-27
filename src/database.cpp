@@ -21,18 +21,18 @@
 using namespace CuteEntityManager;
 
 Database::Database(QSqlDatabase database, bool loggerActivated, bool logQueries,
-                   bool logErrors) {
+                   bool logErrors, MsgType type) {
     this->database = database;
     this->init();
     this->connectionName = this->database.connectionName();
-    this->initLogger(loggerActivated, logQueries, logErrors);
+    this->initLogger(loggerActivated, logQueries, logErrors, type);
 }
 
 Database::Database(QString databaseType, QString connectionName,
                    QString hostname,
                    QString databasename,
                    QString username, QString password, qint64 port, bool loggerActivated,
-                   bool logQueries, bool logErrors, QString databaseOptions) {
+                   bool logQueries, bool logErrors, QString databaseOptions, MsgType type) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
     if (!hostname.isEmpty()) {
@@ -54,7 +54,7 @@ Database::Database(QString databaseType, QString connectionName,
         this->database.setConnectOptions(databaseOptions);
     }
     this->init();
-    this->initLogger(loggerActivated, logQueries, logErrors);
+    this->initLogger(loggerActivated, logQueries, logErrors, type);
 }
 
 void Database::init() {
@@ -63,12 +63,13 @@ void Database::init() {
                                     QSqlDriver::Transactions);
 }
 
-void Database::initLogger(bool activated, bool logQueries, bool logErrors) {
+void Database::initLogger(bool activated, bool logQueries, bool logErrors,
+                          MsgType type) {
     this->logQueries = logQueries;
     this->logErrors = logErrors;
     if (activated) {
         this->logger = new Logger(QDir::currentPath() + "/db" + this->connectionName +
-                                  ".log");
+                                  ".log", type);
     }
 }
 
