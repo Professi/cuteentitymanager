@@ -72,6 +72,8 @@ bool EntityInspector::checkEntity(QString name) {
         this->verifyBlobAttributes(entity, msg);
         this->verifyTransientAttributes(entity, msg);
         ok = pk && relations;
+        delete entity;
+        entity = nullptr;
     }
     this->logger->logMsg(msg);
     return ok;
@@ -251,6 +253,8 @@ void EntityInspector::checkRelationMappings(QMetaProperty &property,
                    " class!\n";
             ok = false;
         }
+        delete foreignInstance;
+        foreignInstance = nullptr;
     } else {
         msg += "Can't create object for property/relation " + r.getPropertyName() +
                "!\n";
