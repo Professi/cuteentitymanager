@@ -16,7 +16,7 @@ before_script:
     # http://doc.gitlab.com/ci/variables/README.html
     #- echo "#define BUILD ""$CI_BUILD_ID" > build_number.h
     - qmake -project
-    - qmake CuteEntityManager.pro -r -spec macx-clang CONFIG+=x86_64
+    - qmake EntityManager.pro -r -spec macx-clang CONFIG+=x86_64
     - make
     - make check
 
