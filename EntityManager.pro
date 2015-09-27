@@ -1,3 +1,9 @@
+include (EntityManager.pri)
+
+CONFIG += $$EM_LIBRARY_TYPE
+VERSION = $$EM_VERSION
+
+
 QT       += core
 QT       += sql
 #if you need Image Validation you must compile with += gui
@@ -7,21 +13,19 @@ QT       -= gui
 TARGET = CuteEntityManager
 TEMPLATE = lib
 
-DEFINES += CUTE_ENTITY_MANAGER_LIBRARY
-
 HEADERS += \
 src/entity.h \
     src/entitymanager.h \
     src/database.h \
     src/enums/databasetype.h \
     src/schema.h \
+    src/schema/sqlitequerybuilder.h \
     src/schema/sqliteschema.h \
     src/tableschema.h \
     src/schema/pgsqlschema.h \
     src/schema/mysqlschema.h \
     src/databasemigration.h \
     src/querybuilder.h \
-    src/schema/sqlitequerybuilder.h \
     src/relation.h \
     src/entityinstancefactory.h \
     src/cache.h \
@@ -32,7 +36,6 @@ src/entity.h \
     src/queryinterpreter.h \
     src/expression.h \
     src/orderby.h \
-    src/sqlitebackupprocessor.h \
     src/validators/validator.h \
     src/validators/param.h \
     src/validators/errormsg.h \
@@ -76,7 +79,6 @@ src/entity.cpp \
     src/queryinterpreter.cpp \
     src/expression.cpp \
     src/orderby.cpp \
-    src/sqlitebackupprocessor.cpp \
     src/validators/validator.cpp \
     src/validators/param.cpp \
     src/validators/errormsg.cpp \
@@ -97,22 +99,37 @@ src/entity.cpp \
     src/validators/lengthvalidator.cpp \
     src/schema/mysqlquerybuilder.cpp \
     src/entityinspector.cpp
+    
+!win32 { # looks bad.
+    HEADERS += \
+    src/sqlitebackupprocessor.h
+    SOURCES += \
+        src/sqlitebackupprocessor.cpp
+} else {
+    DESTDIR = $$OUT_PWD
+}
+    
 
 LIBS += -lsqlite3
 CONFIG += c++14
 QMAKE_CXXFLAGS += -Wall -Wextra -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O
+headers.path = $$PREFIX/include/cuteEntityManager
+headers.files = $$HEADERS
+target.path = $$PREFIX/$$LIBDIR
+INSTALLS += headers target
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
+#unix {
+    #target.path = /usr/lib
+    #INSTALLS += target
     #linux-g++5 {
     #QMAKE_CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wmaybe-uninitialized
     #}
-}
+#}
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
 DISTFILES += \
     README.md \
     LICENSE \
+    AUTHORS \
     Doxyfile

@@ -70,7 +70,7 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename,
     auto db = new Database(databaseType, this->createConnection(), hostname,
                            databasename, username,
                            password,
-                           port.toInt(), true, logQueries, true, databaseOptions, logActions);
+                           port.toInt(), true, logQueries, databaseOptions, logActions);
     this->db = QSharedPointer<Database>(db);
     this->init(inspectEntities, logActions);
 }

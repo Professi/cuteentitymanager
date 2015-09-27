@@ -991,7 +991,8 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
                             this->saveAttributes(entity, this->processProperties(e, usedProperties),
                                                  this->processRelations(e, usedRelations)), e->getPrimaryKey()));
             } else {
-                this->database->getLogger()->logMsg("Instance of " + QString(metaObj->className()) +
+                this->database->getLogger()->logMsg("Instance of " + QString(
+                                                        metaObj->className()) +
                                                     " could not be created", MsgType::CRITICAL);
                 break;
             }

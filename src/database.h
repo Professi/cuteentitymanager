@@ -51,7 +51,7 @@ class Database {
              QString hostname = QString(""),
              QString databasename = QString("") ,
              QString username = QString(""), QString password = QString(""),
-             qint64 port = 0, bool loggerActivated = true, bool logQueries = false,
+             qint64 port = 0, bool logQueries = false,
              bool logErrors = true, QString databaseOptions = "",
              MsgType type = DEFAULTMSGTYPE);
     QSqlDatabase getDatabase();

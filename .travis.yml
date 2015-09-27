@@ -28,7 +28,6 @@ install:
 script:
   - /opt/qt54/bin/qt54-env.sh 
   - echo "#define BUILD ""$TRAVIS_BUILD_NUMBER" > build_number.h
-  - /opt/qt54/bin/qmake -project
   - /opt/qt54/bin/qmake EntityManager.pro -r "CONFIG+=release"
   - make
   - make check

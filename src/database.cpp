@@ -31,7 +31,7 @@ Database::Database(QSqlDatabase database, bool logQueries,
 Database::Database(QString databaseType, QString connectionName,
                    QString hostname,
                    QString databasename,
-                   QString username, QString password, qint64 port, bool loggerActivated,
+                   QString username, QString password, qint64 port,
                    bool logQueries, bool logErrors, QString databaseOptions, MsgType type) {
     this->database = QSqlDatabase::addDatabase(databaseType, connectionName);
     this->connectionName = connectionName;
