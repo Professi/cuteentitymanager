@@ -9,7 +9,7 @@ install:
 
 build_script:
   # using a header file without MemoryBarrier, that causes the build to fail
-  - qmake EntityManager.pro "CONFIG+=release"
+  - qmake EntityManager.pro
 #  - qmake QOwnNotes.pro -r -spec win32-g++ "CONFIG+=debug"
   - mingw32-make -j8
   # creating the release path

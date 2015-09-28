@@ -28,10 +28,8 @@ build_job:
     - develop
     - master
 
-deployment_job:
-  type: deploy
-  script:
-
-
-  only:
-    - master
+#deployment_job:
+#  type: deploy
+#  script:
+#  only:
+#    - master
