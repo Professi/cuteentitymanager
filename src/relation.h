@@ -23,12 +23,12 @@ enum class RelationType {
     ONE_TO_MANY = 1, //@OneToMany(cascade=ALL, mappedBy="customer") e.g. QList<QSharedPointer<Person>>
     MANY_TO_ONE = 2, //e.g. QSharedPointer<Person>
     //1-n  Entity foreign key in same table
-    MANY_TO_MANY = 3, //e.g. QList<QSharedPointer<Person>> - realized with seperated database table
+    MANY_TO_MANY = 3 //e.g. QList<QSharedPointer<Person>> - realized with seperated database table
 };
 
 enum class InheritanceStrategy {
     PER_CLASS_TABLE,
-    JOINED_TABLE,
+    JOINED_TABLE
 };
 
 enum class CascadeType {
@@ -36,7 +36,7 @@ enum class CascadeType {
     MERGE,
     PERSIST,
     REFRESH,
-    REMOVE,
+    REMOVE
 };
 
 class Relation {
