@@ -1,9 +1,9 @@
-EM_VERSION=0.1alpha
+EM_VERSION=0.1
 isEmpty(EM_LIBRARY_TYPE) {
     android {
         EM_LIBRARY_TYPE = staticlib
     } else {
-        EM_LIBRARY_TYPE = shared
+        EM_LIBRARY_TYPE = dll
     }
 }
 
