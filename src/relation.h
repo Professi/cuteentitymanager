@@ -51,7 +51,7 @@ class Relation {
      */
     explicit Relation(QString propertyName, RelationType type,
                       QString mappedBy = QString(),
-                      QList<CascadeType> cascadeType = {CascadeType::MERGE, CascadeType::PERSIST, CascadeType::REFRESH});
+                      QList<CascadeType> cascadeType = QList<CascadeType>{CascadeType::MERGE, CascadeType::PERSIST, CascadeType::REFRESH});
     ~Relation();
     RelationType getType() const;
     void setType(const RelationType &value);

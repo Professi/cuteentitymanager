@@ -7,6 +7,8 @@ QT       -= gui
 
 TARGET = CuteEntityManager
 TEMPLATE = lib
+CONFIG += $$EM_LIBRARY_TYPE
+VERSION = $$EM_VERSION
 
 HEADERS += \
 src/entity.h \
@@ -109,13 +111,6 @@ QMAKE_CXXFLAGS += -Wall -Wextra -Wunsafe-loop-optimizations -pedantic -Wfloat-eq
 #headers.files = $$HEADERS
 #target.path = $$PREFIX/$$LIBDIR
 #INSTALLS += target
-
-unix {
-    QMAKE_CXXFLAGS += -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code
-    #linux-g++5 {
-    #QMAKE_CXXFLAGS += -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wmaybe-uninitialized
-    #}
-}
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
 
