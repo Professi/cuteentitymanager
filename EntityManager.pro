@@ -7,8 +7,6 @@ QT       -= gui
 
 TARGET = CuteEntityManager
 TEMPLATE = lib
-CONFIG += $$EM_LIBRARY_TYPE
-VERSION = $$EM_VERSION
 
 HEADERS += \
 src/entity.h \
@@ -103,16 +101,14 @@ src/entity.cpp \
     SOURCES += \
         src/sqlitebackupprocessor.cpp
     LIBS += -lsqlite3
-} else {
-    DESTDIR = $$OUT_PWD
 }
     
 CONFIG += c++14
-QMAKE_CXXFLAGS += -Wall -Wextra
-headers.path = $$PREFIX/include/cuteEntityManager
-headers.files = $$HEADERS
-target.path = $$PREFIX/$$LIBDIR
-INSTALLS += headers target
+QMAKE_CXXFLAGS += -Wall -Wextra -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code
+#headers.path = $$PREFIX/include/cuteEntityManager
+#headers.files = $$HEADERS
+#target.path = $$PREFIX/$$LIBDIR
+#INSTALLS += target
 
 unix {
     QMAKE_CXXFLAGS += -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code

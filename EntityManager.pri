@@ -3,7 +3,7 @@ isEmpty(EM_LIBRARY_TYPE) {
     android {
         EM_LIBRARY_TYPE = staticlib
     } else {
-        EM_LIBRARY_TYPE = dll
+        EM_LIBRARY_TYPE = shared
     }
 }
 
