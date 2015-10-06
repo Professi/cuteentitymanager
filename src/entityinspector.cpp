@@ -96,15 +96,16 @@ void EntityInspector::checkMetaProperties(QHash<QString, QMetaProperty>
         QString typeName = QString(i.value().typeName());
         if (!i.value().isWritable()) {
             ok = false;
-            msg += "Property " + i.key() + " is not writable!\n”";
+            msg += "Property " + i.key() + " is not writable!\n";
         }
         if (!i.value().isReadable()) {
             ok = false;
-            msg += "Property " + i.key() + " is not readable!\n”";
+            msg += "Property " + i.key() + " is not readable!\n";
         }
         if (typeName.contains("QSharedPointer") && !relations.contains(i.key())) {
             ok = false;
-            msg += "For attribute " + i.key() + " is no relation defined!\n";
+            msg += "No relation defined for attribute " + i.key() + "!\n";
+
         } else if (typeName.contains("QPointer")) {
             ok = false;
             msg += i.key() + " must use QSharedPointer.\n";

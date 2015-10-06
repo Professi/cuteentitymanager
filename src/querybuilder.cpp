@@ -1097,17 +1097,13 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
                                  const QString &conjunction,
                                  bool ignoreID, const QString &primaryKey) const {
     QString rc = "";
-    if (!m.isEmpty()) {
-        auto i = m.constBegin();
-        while (i != m.constEnd()) {
+    for (auto i = m.constBegin(); i != m.constEnd(); ++i) {
             if (!ignoreID || (ignoreID && i.key() != primaryKey)) {
-                if (!(rc == "")) {
+                if (!rc.isEmpty()) {
                     rc += " " + conjunction + " ";
                 }
-                rc += this->schema->quoteColumnName(i.key()) + "=" + this->placeHolder(i.key());
+                rc += this->schema->quoteColumnName(i.key()) + (i.value().isNull() ? " is null":"=" + this->placeHolder(i.key()));
             }
-            ++i;
-        }
     }
     return rc;
 }
