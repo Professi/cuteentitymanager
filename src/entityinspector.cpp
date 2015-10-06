@@ -181,12 +181,10 @@ bool EntityInspector::checkRelation(const QVariant &entity,
                           && propType.contains("QList"));
     if ((many && !canConvertList)) {
         msg = "Relation type of " + r.getPropertyName() +
-              " must be MANY_TO_MANY or ONE_TO_MANY.\n";
-        msg += "Or you can change the attribute type to QSharedPointer<T>.\n";
+              " must be MANY_TO_MANY or ONE_TO_MANY.\n Or you can change the attribute type to QSharedPointer<T>.\n";
     } else if ((!many && canConvertList)) {
         msg = "Relation type of " + r.getPropertyName() +
-              " must be MANY_TO_ONE or ONE_TO_ONE.\n";
-        msg += "Or you can change the attribute type to QList<QSharedPointer<T>>.\n";
+              " must be MANY_TO_ONE or ONE_TO_ONE.\n Or you can change the attribute type to QList<QSharedPointer<T>>.\n";
     }
     if (many && r.getType() == RelationType::ONE_TO_MANY
             && r.getMappedBy().isEmpty()) {
@@ -221,8 +219,11 @@ void EntityInspector::checkRelationMappings(QMetaProperty &property,
         bool foundForeignMappedRelation = false;
         for (auto i = foreignRelations.constBegin(); i != foreignRelations.constEnd();
                 ++i) {
+            /**
+              * @todo compare classes of properties
+              **/
             if (r.getMappedBy().isEmpty()
-                    && i.key().getPropertyName() == r.getPropertyName()) {
+                    && i.key().getMappedBy() == r.getPropertyName()) {
                 ++foundMappedBy;
             } else if (!r.getMappedBy().isEmpty()
                        && r.getMappedBy() == i.key().getPropertyName()) {
