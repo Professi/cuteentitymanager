@@ -18,7 +18,6 @@
 #include <QString>
 #include <QHash>
 #include <QMetaProperty>
-#include <QPair>
 namespace CuteEntityManager {
 
 class Relation;

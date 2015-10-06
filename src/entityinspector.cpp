@@ -250,6 +250,7 @@ void EntityInspector::checkRelationMappings(QMetaProperty &property,
                                      QString::number(foundMappedBy) + ") by foreign class " + foreignEntityName +
                                      ". You should map it only once!\n",
                                      MsgType::WARNING);
+                ok = false;
             }
         } else if (!foundForeignMappedRelation) {
             this->logger->logMsg("Relation " + r.getPropertyName() +

@@ -128,7 +128,7 @@ class Schema {
     virtual QString buildDefaultString(QString def) const;
     virtual QString buildCheckString(QString check) const;
     virtual QString lengthToString(int length) const;
-virtual QString combineScaleAndPrecision(int precision, int scale) const;
+    virtual QString combineScaleAndPrecision(int precision, int scale) const;
 
 
     virtual QStringList findTableNames(QString schema = "") = 0;
