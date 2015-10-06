@@ -136,7 +136,7 @@ bool EntityInspector::verifyRelations(Entity *&entity) {
                 if (!rel) {
                     ok = false;
                 } else {
-                    this->checkRelationMappings(metaProperty, i.value(), ok);
+                    this->checkRelationMappings(metaProperty, i.value(), ok,entity);
                 }
             }
         }
@@ -210,7 +210,7 @@ void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
 }
 
 void EntityInspector::checkRelationMappings(QMetaProperty &property,
-        const Relation &r, bool &ok) {
+        const Relation &r, bool &ok, Entity *&entity) {
     QString foreignEntityName = EntityInstanceFactory::extractEntityType(
                                     property.typeName());
     auto foreignInstance = EntityInstanceFactory::createInstance(foreignEntityName);
@@ -218,14 +218,21 @@ void EntityInspector::checkRelationMappings(QMetaProperty &property,
         auto foreignRelations = EntityHelper::getRelationProperties(foreignInstance);
         int foundMappedBy = 0;
         bool foundForeignMappedRelation = false;
+        auto superClasses = EntityHelper::superClasses(entity,true);
+        QStringList classNames = QStringList {EntityHelper::getClassName(entity)};
+        for (int s = 0; s < superClasses.size(); ++s) {
+           classNames.append(superClasses.at(s)->className());
+        }
         for (auto i = foreignRelations.constBegin(); i != foreignRelations.constEnd();
                 ++i) {
-            /**
-              * @todo compare classes of properties
-              **/
             if (r.getMappedBy().isEmpty()
                     && i.key().getMappedBy() == r.getPropertyName()) {
-                ++foundMappedBy;
+                for (int x = 0; x < classNames.size(); ++x) {
+                    if(QString(i.value().typeName()).contains(classNames.at(x))) {
+                        ++foundMappedBy;
+                        break;
+                    }
+                }
             } else if (!r.getMappedBy().isEmpty()
                        && r.getMappedBy() == i.key().getPropertyName()) {
                 foundForeignMappedRelation = true;
@@ -241,8 +248,8 @@ void EntityInspector::checkRelationMappings(QMetaProperty &property,
                 this->logger->logMsg("The relation " + r.getPropertyName() +
                                      " is mapped several times (" +
                                      QString::number(foundMappedBy) + ") by foreign class " + foreignEntityName +
-                                     ". You should map it only once!\n", MsgType::WARNING);
-                ok = false;
+                                     ". You should map it only once!\n",
+                                     MsgType::WARNING);
             }
         } else if (!foundForeignMappedRelation) {
             this->logger->logMsg("Relation " + r.getPropertyName() +

@@ -44,7 +44,7 @@ class EntityInspector {
     void checkRelationTypos(const QString &name, const Relation &r,
                             bool &ok);
     void checkRelationMappings(QMetaProperty &property, const Relation &r,
-                               bool &ok);
+                               bool &ok, Entity *&entity);
     bool checkPrimaryKey(Entity *&entity);
     void verifyBlobAttributes(Entity *&entity);
     void checkMetaProperties(QHash<QString, QMetaProperty> &metaProperties,

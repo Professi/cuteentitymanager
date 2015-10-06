@@ -1,5 +1,7 @@
 # CuteEntityManager for Qt
 
+[![Build status](https://ci.appveyor.com/api/projects/status/upd727lxpxvvxo2v/branch/master?svg=true)](https://ci.appveyor.com/project/Professi/cuteentitymanager/branch/master)
+
 ## English
 With CuteEntityManager it is possible to persist, merge, find or delete 
 entities. Its functionality is based on JPA's EntityManager. For a 
