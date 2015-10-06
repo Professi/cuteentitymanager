@@ -4,30 +4,29 @@ os:
   - linux
 #  - osx
 
-#env:
-
+env:
+  - CONFIG=Release
+  - CONFIG=Debug
 
 install:
-        #- lsb_release -a
-    #  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-    sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
+      sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
       && sudo apt-add-repository -y ppa:beineri/opt-qt541
       && sudo apt-get -qq update
-      && sudo apt-get -qq install g++-4.9 libc6-i386 qt54base qt54tools qt54svg qt54webkit qt54script
-      && export CXX="g++-4.9"
-      && export CC="gcc-4.9"
+      && sudo apt-get -qq install gcc-5 libc6-i386 qt54tools qt54svg qt54webkit
+      && export CXX="g++-5"
+      && export CC="gcc-5"
       ;
-      #    else
-      #   brew update
-      #&& brew install qt5
-      #&& brew install qt5-qmake
-      #&& chmod -R 755 /usr/local/opt/qt5/*
-      #;
-      #fi
+    else
+         brew update
+      && brew unlink cmake
+      && brew install cmake
+      && brew install qt5
+      && chmod -R 755 /usr/local/opt/qt5/*
+      ;
+    fi
 
 script:
-  - /opt/qt54/bin/qt54-env.sh 
-    #  - echo "#define BUILD ""$TRAVIS_BUILD_NUMBER" > build_number.h
-  - /opt/qt54/bin/qmake EntityManager.pro -r "CONFIG+=release"
-  - make
-  - make check
+  -    qmake
+    && make -j 3
+    && make check
