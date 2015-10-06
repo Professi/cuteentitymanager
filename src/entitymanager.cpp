@@ -525,8 +525,8 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
 void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
         &entity, QList<Entity *> &mergedObjects, bool ignoreHasChanged) {
     auto relations = EntityHelper::getRelationProperties(entity.data());
-    auto iterator = relations.constBegin();
-    while (iterator != relations.constEnd()) {
+    for (auto iterator = relations.constBegin(); iterator != relations.constEnd();
+            ++iterator) {
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
         if (!var.isNull()) {
@@ -540,24 +540,24 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
                     for (int var = 0; var < list.size(); ++var) {
                         auto e = list.at(var);
                         if (this->shouldBeSaved(e, r)) {
-                            this->saveObject(e, mergedObjects, true, ignoreHasChanged);
                             if (fkProp.isValid()) {
-                                EntityHelper::addEntityToListProperty(e, entity, fkProp);
+                                EntityHelper::setProperty(e, entity, fkProp);
                             }
+                            this->saveObject(e, mergedObjects, true, ignoreHasChanged);
                         }
                     }
                 }
             } else if (r.getType() == RelationType::ONE_TO_ONE
                        && !r.getMappedBy().isEmpty()) {
                 auto e =  EntityInstanceFactory::castQVariant(var);
-                this->saveObject(e, mergedObjects, true, ignoreHasChanged);
                 auto fkProp = EntityHelper::mappedProperty(r, e);
                 if (fkProp.isValid()) {
-                    EntityHelper::addEntityToListProperty(e, entity, fkProp);
+                    EntityHelper::setProperty(e, entity, fkProp);
                 }
+                this->saveObject(e, mergedObjects, true, ignoreHasChanged);
+
             }
         }
-        ++iterator;
     }
 }
 

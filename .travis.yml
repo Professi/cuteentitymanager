@@ -16,6 +16,7 @@ install:
       && sudo apt-get -qq install gcc-5 libc6-i386 qt54tools qt54svg qt54webkit
       && export CXX="g++-5"
       && export CC="gcc-5"
+      && export QMAKE=/usr/lib/x86_64-linux-gnu/qt5/bin/qmake
       ;
     else
          brew update
@@ -27,6 +28,6 @@ install:
     fi
 
 script:
-  -    qmake
+  -  QMAKE
     && make -j 3
     && make check
