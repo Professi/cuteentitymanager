@@ -984,8 +984,7 @@ QList<QueryBuilder::ClassAttributes> QueryBuilder::inheritedAttributes(
         QSharedPointer<Entity> e;
         for (int var = classes.size() - 1; var >= 0; --var) {
             auto metaObj = classes.at(var);
-            e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
-                                           metaObj));
+            e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(metaObj));
             if (e) {
                 list.append(QueryBuilder::ClassAttributes(e->getTablename(),
                             this->saveAttributes(entity, this->processProperties(e, usedProperties),
@@ -1098,12 +1097,13 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
                                  bool ignoreID, const QString &primaryKey) const {
     QString rc = "";
     for (auto i = m.constBegin(); i != m.constEnd(); ++i) {
-            if (!ignoreID || (ignoreID && i.key() != primaryKey)) {
-                if (!rc.isEmpty()) {
-                    rc += " " + conjunction + " ";
-                }
-                rc += this->schema->quoteColumnName(i.key()) + (i.value().isNull() ? " is null":"=" + this->placeHolder(i.key()));
+        if (!ignoreID || (ignoreID && i.key() != primaryKey)) {
+            if (!rc.isEmpty()) {
+                rc += " " + conjunction + " ";
             }
+            rc += this->schema->quoteColumnName(i.key()) + (i.value().isNull() ? " is null"
+                    : "=" + this->placeHolder(i.key()));
+        }
     }
     return rc;
 }

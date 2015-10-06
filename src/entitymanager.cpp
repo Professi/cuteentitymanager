@@ -45,6 +45,7 @@ EntityManager::EntityManager(QSqlDatabase database, bool logQueries,
 }
 
 void EntityManager::init(bool inspect, const MsgType msgType) {
+    EntityInstanceFactory::registerClass<DatabaseMigration>();
     auto schema = Database::getSchema(Database::getDatabaseType(
                                           this->db->getDatabase().driverName()), this->db);
     this->schema = QSharedPointer<Schema>(schema);

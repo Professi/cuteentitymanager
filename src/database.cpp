@@ -133,7 +133,8 @@ bool Database::commitTransaction() {
 }
 
 bool Database::rollbackTransaction() {
-    this->logger->logMsg("Transaction rolled back!" + this->database.lastError().text(),MsgType::WARNING);
+    this->logger->logMsg("Transaction rolled back!" +
+                         this->database.lastError().text(), MsgType::WARNING);
     return supportTransactions && this->database.rollback();
 }
 
