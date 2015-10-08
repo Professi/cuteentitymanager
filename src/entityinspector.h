@@ -49,6 +49,14 @@ class EntityInspector {
     void verifyBlobAttributes(Entity *&entity);
     void checkMetaProperties(QHash<QString, QMetaProperty> &metaProperties,
                              bool &ok, QHash<QString, Relation> &relations);
+    void checkNotMappedByAttributes(int foundMappedBy, bool &ok,
+                                    const QString &propertyName, const QString &foreignEntity);
+    void checkRelationTypes(const Relation &r, const Relation &foreign, bool &ok);
+    void logRelationTypeErrorMsg(const QString &type, const Relation &r,
+                                 const Relation &foreign);
+    void analyzeForeignRelations(const Relation &r, const Entity *const entity,
+                                 const Entity *const foreignInstance, bool &ok, int &foundMappedBy,
+                                 bool &foundForeignMappedRelation, bool &bothSidedMappedBy);
     void initLogger(const MsgType msgType);
     Logger *logger = nullptr;
 };

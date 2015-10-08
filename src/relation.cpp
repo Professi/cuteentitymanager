@@ -49,6 +49,25 @@ RelationType Relation::getType() const {
     return type;
 }
 
+QString Relation::getTypeAsString() const {
+    QString r = "";
+    switch (this->type) {
+    case RelationType::ONE_TO_MANY:
+        r = "ONE_TO_MANY";
+        break;
+    case RelationType::MANY_TO_MANY:
+        r = "MANY_TO_MANY";
+        break;
+    case RelationType:: MANY_TO_ONE:
+        r = "MANY_TO_ONE";
+        break;
+    case RelationType::ONE_TO_ONE:
+        r = "ONE_TO_ONE";
+        break;
+    }
+    return r;
+}
+
 void Relation::setType(const RelationType &value) {
     type = value;
 }

@@ -136,7 +136,7 @@ bool EntityInspector::verifyRelations(Entity *&entity) {
                 if (!rel) {
                     ok = false;
                 } else {
-                    this->checkRelationMappings(metaProperty, i.value(), ok,entity);
+                    this->checkRelationMappings(metaProperty, i.value(), ok, entity);
                 }
             }
         }
@@ -209,53 +209,105 @@ void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
     }
 }
 
+void EntityInspector::checkNotMappedByAttributes(int foundMappedBy, bool &ok,
+        const QString &propertyName, const QString &foreignEntity) {
+    if (foundMappedBy == 0) {
+        this->logger->logMsg("Optional: The relation " + propertyName +
+                             " is not mapped in foreign class " + foreignEntity +
+                             ". You could map it.\n", MsgType::INFO);
+    } else if (foundMappedBy > 1) {
+        this->logger->logMsg("The relation " + propertyName +
+                             " is mapped several times (" +
+                             QString::number(foundMappedBy) + ") by foreign class " + foreignEntity +
+                             ". You should map it only once!\n",
+                             MsgType::WARNING);
+        ok = false;
+    }
+}
+
+void EntityInspector::checkRelationTypes(const Relation &r,
+        const Relation &foreign, bool &ok) {
+    if (r.getType() == RelationType::ONE_TO_ONE
+            && foreign.getType() != RelationType::ONE_TO_ONE) {
+        ok = false;
+        this->logRelationTypeErrorMsg("ONE_TO_ONE", r, foreign);
+
+    } else if (r.getType() == RelationType::MANY_TO_MANY
+               && foreign.getType() != RelationType::MANY_TO_MANY) {
+        this->logRelationTypeErrorMsg("MANY_TO_MANY", r, foreign);
+        ok = false;
+    } else if (r.getType() == RelationType::MANY_TO_ONE
+               && foreign.getType() != RelationType::ONE_TO_MANY) {
+        this->logRelationTypeErrorMsg("ONE_TO_MANY", r, foreign);
+        ok = false;
+    }
+}
+
+void EntityInspector::logRelationTypeErrorMsg(const QString &type,
+        const Relation &r, const Relation &foreign) {
+    this->logger->logMsg("Relation type of foreign relation " +
+                         foreign.getPropertyName() +
+                         " must be of type " + type + "! Foreign property name is called " +
+                         r.getPropertyName() + ".",
+                         MsgType::CRITICAL);
+}
+
+void EntityInspector::analyzeForeignRelations(const Relation &r,
+        const Entity *const entity, const Entity *const foreignInstance, bool &ok,
+        int &foundMappedBy, bool &foundForeignMappedRelation, bool &bothSidedMappedBy) {
+    auto foreignRelations = EntityHelper::getRelationProperties(foreignInstance);
+    auto superClasses = EntityHelper::superClasses(entity, true);
+    QStringList classNames = QStringList {EntityHelper::getClassName(entity)};
+    for (int s = 0; s < superClasses.size(); ++s) {
+        classNames.append(superClasses.at(s)->className());
+    }
+    for (auto i = foreignRelations.constBegin(); i != foreignRelations.constEnd();
+            ++i) {
+        if (r.getMappedBy().isEmpty()
+                && i.key().getMappedBy() == r.getPropertyName()) {
+            for (int x = 0; x < classNames.size(); ++x) {
+                if (QString(i.value().typeName()).contains(classNames.at(x))) {
+                    ++foundMappedBy;
+                    this->checkRelationTypes(r, i.key(), ok);
+                    break;
+                }
+            }
+        } else if (!r.getMappedBy().isEmpty()
+                   && r.getMappedBy() == i.key().getPropertyName()) {
+            foundForeignMappedRelation = true;
+            this->checkRelationTypes(r, i.key(), ok);
+            if (r.getPropertyName() == i.key().getMappedBy()) {
+                bothSidedMappedBy = true;
+            }
+            break;
+        }
+    }
+}
+
+
 void EntityInspector::checkRelationMappings(QMetaProperty &property,
         const Relation &r, bool &ok, Entity *&entity) {
     QString foreignEntityName = EntityInstanceFactory::extractEntityType(
                                     property.typeName());
     auto foreignInstance = EntityInstanceFactory::createInstance(foreignEntityName);
     if (foreignInstance) {
-        auto foreignRelations = EntityHelper::getRelationProperties(foreignInstance);
         int foundMappedBy = 0;
-        bool foundForeignMappedRelation = false;
-        auto superClasses = EntityHelper::superClasses(entity,true);
-        QStringList classNames = QStringList {EntityHelper::getClassName(entity)};
-        for (int s = 0; s < superClasses.size(); ++s) {
-           classNames.append(superClasses.at(s)->className());
-        }
-        for (auto i = foreignRelations.constBegin(); i != foreignRelations.constEnd();
-                ++i) {
-            if (r.getMappedBy().isEmpty()
-                    && i.key().getMappedBy() == r.getPropertyName()) {
-                for (int x = 0; x < classNames.size(); ++x) {
-                    if(QString(i.value().typeName()).contains(classNames.at(x))) {
-                        ++foundMappedBy;
-                        break;
-                    }
-                }
-            } else if (!r.getMappedBy().isEmpty()
-                       && r.getMappedBy() == i.key().getPropertyName()) {
-                foundForeignMappedRelation = true;
-                break;
-            }
-        }
+        bool foundForeignMappedRelation = false, bothSidedMappedBy = false;
+        this->analyzeForeignRelations(r, entity, foreignInstance, ok, foundMappedBy,
+                                      foundForeignMappedRelation, bothSidedMappedBy);
         if (r.getMappedBy().isEmpty()) {
-            if (foundMappedBy == 0) {
-                this->logger->logMsg("Optional: The relation " + r.getPropertyName() +
-                                     " is not mapped in foreign class " + foreignEntityName +
-                                     ". You could map it.\n", MsgType::INFO);
-            } else if (foundMappedBy > 1) {
-                this->logger->logMsg("The relation " + r.getPropertyName() +
-                                     " is mapped several times (" +
-                                     QString::number(foundMappedBy) + ") by foreign class " + foreignEntityName +
-                                     ". You should map it only once!\n",
-                                     MsgType::WARNING);
-                ok = false;
-            }
+            this->checkNotMappedByAttributes(foundMappedBy, ok, r.getPropertyName(),
+                                             foreignEntityName);
         } else if (!foundForeignMappedRelation) {
             this->logger->logMsg("Relation " + r.getPropertyName() +
                                  " with mappedBy attribute " +
                                  r.getMappedBy() + " has no mapped relation in " + foreignEntityName +
+                                 " class!\n", MsgType::CRITICAL);
+            ok = false;
+        } else if (bothSidedMappedBy) {
+            this->logger->logMsg("Relation " + r.getPropertyName() +
+                                 " with mappedBy attribute " +
+                                 r.getMappedBy() + " is also mappedBy in " + foreignEntityName +
                                  " class!\n", MsgType::CRITICAL);
             ok = false;
         }
