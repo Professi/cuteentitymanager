@@ -62,12 +62,12 @@ QString QueryInterpreter::buildSelect(Query &q,
                                       const QList<Expression> &columns,
                                       const bool &distinct, const QString &selectOption) const {
     QString sqlSelect = distinct ? ("SELECT " + this->builder->distinct()) :
-                        "SELECT";
+                        "SELECT ";
     if (!selectOption.isEmpty()) {
-        sqlSelect += this->builder->getSeparator() + selectOption;
+        sqlSelect += this->builder->getSeparator() + selectOption + " ";
     }
     if (columns.isEmpty()) {
-        return sqlSelect + " *";
+        return sqlSelect + "*";
     }
     bool first = true;
     for (int i = 0; i < columns.size(); ++i) {

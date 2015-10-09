@@ -37,6 +37,7 @@ class EntityHelper {
         const Entity *entity);
     static const QHash<QString, QMetaProperty> getMetaProperties(
         const QMetaObject *object);
+    static const QHash<QString, QMetaProperty> getNonInheritedMetaProperties(const Entity *entity);
     static const QHash<QString, QMetaProperty> getInheritedMetaProperties(
         const Entity *entity);
     static const QHash<Relation, QMetaProperty> getRelationProperties(

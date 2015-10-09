@@ -629,18 +629,18 @@ QSqlQuery QueryBuilder::findId(const QSharedPointer<Entity> &entity) const {
     return q;
 }
 
-QSqlQuery QueryBuilder::count(const QSharedPointer<Entity> &entity,
-                              bool ignoreID) const {
-    QHash<QString, QVariant> values = EntityHelper::getEntityAttributes(
-                                          EntityHelper::getMetaProperties(entity.data()),
-                                          entity);
-    QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
-            entity->getTablename()),
-                                           QStringList(this->countFunction())) + this->where(
-                                                   values, this->andKeyword(), ignoreID));
-    this->bindValues(values, q, ignoreID);
-    return q;
-}
+//QSqlQuery QueryBuilder::count(const QSharedPointer<Entity> &entity,
+//                              bool ignoreID) const {
+//    QHash<QString, QVariant> values = EntityHelper::getEntityAttributes(
+//                                          EntityHelper::getMetaProperties(entity.data()),
+//                                          entity);
+//    QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
+//            entity->getTablename()),
+//                                           QStringList(this->countFunction())) + this->where(
+//                                                   values, this->andKeyword(), ignoreID));
+//    this->bindValues(values, q, ignoreID);
+//    return q;
+//}
 
 QSqlQuery QueryBuilder::count(const QString &tableName) const {
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(

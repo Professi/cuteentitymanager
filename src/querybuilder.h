@@ -209,7 +209,7 @@ class QueryBuilder {
                       qint64 offset = 0);
     QList<QSqlQuery> remove(const QSharedPointer<Entity> &entity) const;
     QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
-    QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
+    //QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
     QSqlQuery count(const QString &tableName) const;
     QList<QSqlQuery> merge(const QSharedPointer<Entity> &entity) const;
     QList<QSqlQuery> create(const QSharedPointer<Entity> &entity) const;
@@ -267,7 +267,7 @@ class QueryBuilder {
                   const QString &conjunction,
                   bool ignoreID = false, const QString &primaryKey = "id",
                   bool withKeyword = true) const;
-    QString attributes(const QHash<QString, QVariant> &m, bool select=true,
+    QString attributes(const QHash<QString, QVariant> &m, bool select = true,
                        const QString &conjunction = ",",
                        bool ignoreID = false, const QString &primaryKey = "id") const;
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity,

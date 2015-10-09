@@ -71,7 +71,8 @@ class EntityManager : public QObject {
      */
     bool create(QList<QSharedPointer<Entity>> entities,
                 const bool persistRelations = true, const bool validate = true,
-                const bool relationsIgnoreHasChanged = false);
+                const bool relationsIgnoreHasChanged = false,
+                const bool checkDuplicate = false);
     /**
      * @brief EntityManager::create
      * Will persist an entity in the database. Before its persisted it has the id -1(invalid id). If database persisting was succesfull it has a valid id.
@@ -96,6 +97,10 @@ class EntityManager : public QObject {
     bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
               const bool ignoreHasChanged = false, const bool validate = true,
               const bool relationsIgnoreHasChanged = false);
+    bool save(QList<QSharedPointer<Entity>> &entities,
+              const bool persistRelations = true,
+              const bool ignoreHasChanged = false, const bool validate = true,
+              const bool relationsIgnoreHasChanged = false);
     bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
                const bool validate = true, const bool relationsIgnoreHasChanged = false);
     bool remove(QSharedPointer<Entity> &entity);
@@ -103,7 +108,8 @@ class EntityManager : public QObject {
     bool createTable(const QSharedPointer<Entity> &entity,
                      bool createRelationTables = true);
     bool createTable(QString className, bool createRelationTables = true);
-    quint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true);
+    quint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
+                 bool followInheritance = false);
     quint8 count(const QString &tableName);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
@@ -302,7 +308,7 @@ class EntityManager : public QObject {
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                            QVariant &property, QList<Entity *> &mergedObjects,
-                           const bool ignoreHasChanged = false);
+                           const bool ignoreHasChanged = false, const bool newItem = false);
     QList<QHash<QString, QVariant> > findAllByAttributes(const
             QSharedPointer<Entity> &entity,
             bool ignoreID = false);
@@ -327,7 +333,8 @@ class EntityManager : public QObject {
      * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
      */
     void savePostPersistedRelations(const QSharedPointer<Entity> &entity,
-                                    QList<Entity *> &mergedObjects, bool ignoreHasChanged = false);
+                                    QList<Entity *> &mergedObjects, bool ignoreHasChanged = false,
+                                    bool newItem = false);
 
     QList<QSharedPointer<Entity>> saveRelationEntities(const
                                QList<QSharedPointer<Entity>> &list, const Relation &r,

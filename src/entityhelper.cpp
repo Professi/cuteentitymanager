@@ -102,20 +102,43 @@ const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
     return h;
 }
 
+const QHash<QString, QMetaProperty> EntityHelper::getNonInheritedMetaProperties(
+    const Entity *entity) {
+    auto props = EntityHelper::getMetaProperties(entity);
+    auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
+    if (superObject) {
+        auto superProps = EntityHelper::getMetaProperties(superObject);
+        for (auto iterator = superProps.constBegin(); iterator != superProps.constEnd();
+                ++iterator) {
+            if (props.contains(iterator.key())) {
+                props.remove(iterator.key());
+            }
+        }
+        delete superObject;
+        superObject = nullptr;
+    }
+    return props;
+}
+
 const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(
     const Entity *entity) {
-    auto classes = EntityHelper::superClasses(entity);
+    auto props = EntityHelper::getMetaProperties(entity);
+    auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
     auto wholeProperties = QHash<QString, QMetaProperty>();
-    for (int var = classes.size() - 1; var >= 0; --var) {
-        auto metaObject = classes.at(var);
-        auto properties = EntityHelper::getMetaProperties(metaObject);
-        auto iterator = properties.constBegin();
-        while (iterator != properties.constEnd()) {
-            wholeProperties.insert(iterator.key(), iterator.value());
-            ++iterator;
+    if (superObject) {
+        auto superProps = EntityHelper::getMetaProperties(superObject);
+        auto iterator = superProps.constBegin();
+        for (auto i = props.constBegin(); i != props.constEnd(); ++i) {
+            if (!superProps.contains(iterator.key())) {
+                wholeProperties.insert(iterator.key(), iterator.value());
+            }
         }
+        delete superObject;
+        superObject = nullptr;
     }
     return wholeProperties;
+
+
 }
 
 const QHash<Relation, QMetaProperty> EntityHelper::getRelationProperties(
