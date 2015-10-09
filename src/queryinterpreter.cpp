@@ -61,10 +61,10 @@ QSqlQuery QueryInterpreter::build(Query &q) {
 QString QueryInterpreter::buildSelect(Query &q,
                                       const QList<Expression> &columns,
                                       const bool &distinct, const QString &selectOption) const {
-    QString sqlSelect = distinct ? ("SELECT " + this->builder->distinct()) :
+    QString sqlSelect = distinct ? ("SELECT " + this->builder->distinct() + " ") :
                         "SELECT ";
     if (!selectOption.isEmpty()) {
-        sqlSelect += this->builder->getSeparator() + selectOption + " ";
+        sqlSelect += selectOption + " ";
     }
     if (columns.isEmpty()) {
         return sqlSelect + "*";
