@@ -209,7 +209,6 @@ class QueryBuilder {
                       qint64 offset = 0);
     QList<QSqlQuery> remove(const QSharedPointer<Entity> &entity) const;
     QSqlQuery findId(const QSharedPointer<Entity> &entity) const;
-    //QSqlQuery count(const QSharedPointer<Entity> &entity, bool ignoreID) const;
     QSqlQuery count(const QString &tableName) const;
     QList<QSqlQuery> merge(const QSharedPointer<Entity> &entity) const;
     QList<QSqlQuery> create(const QSharedPointer<Entity> &entity) const;
