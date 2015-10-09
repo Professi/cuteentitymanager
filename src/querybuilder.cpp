@@ -703,7 +703,8 @@ QSqlQuery QueryBuilder::update(const QString &tableName,
     QVariant pk = attributes.value(primaryKey);
     attributes.remove(primaryKey);
     QSqlQuery q = this->database->getQuery("UPDATE " + this->schema->quoteTableName(
-            tableName) + " SET " + this->attributes(attributes) + " " + this->whereKeyword()
+            tableName) + " SET " + this->attributes(attributes,
+                                           false) + " " + this->whereKeyword()
                                            + " " +
                                            this->schema->quoteColumnName(primaryKey) + " = " + this->placeHolder(
                                                    primaryKey) + ";");
@@ -1088,11 +1089,11 @@ QString QueryBuilder::where(const QHash<QString, QVariant> &m,
     if (m.size() == 0 || (ignoreID && m.contains(primaryKey) && m.size() == 1)) {
         return "";
     }
-    return (withKeyword ? " WHERE " : "") + this->attributes(m, conjunction,
+    return (withKeyword ? " WHERE " : "") + this->attributes(m, true, conjunction,
             ignoreID, primaryKey);
 }
 
-QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
+QString QueryBuilder::attributes(const QHash<QString, QVariant> &m, bool select,
                                  const QString &conjunction,
                                  bool ignoreID, const QString &primaryKey) const {
     QString rc = "";
@@ -1101,7 +1102,8 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m,
             if (!rc.isEmpty()) {
                 rc += " " + conjunction + " ";
             }
-            rc += this->schema->quoteColumnName(i.key()) + (i.value().isNull() ? " is null"
+            rc += this->schema->quoteColumnName(i.key()) + (i.value().isNull()
+                    && select ? " is null"
                     : "=" + this->placeHolder(i.key()));
         }
     }

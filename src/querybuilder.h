@@ -267,7 +267,7 @@ class QueryBuilder {
                   const QString &conjunction,
                   bool ignoreID = false, const QString &primaryKey = "id",
                   bool withKeyword = true) const;
-    QString attributes(const QHash<QString, QVariant> &m,
+    QString attributes(const QHash<QString, QVariant> &m, bool select=true,
                        const QString &conjunction = ",",
                        bool ignoreID = false, const QString &primaryKey = "id") const;
     QHash<QString, QVariant> saveAttributes(const QSharedPointer<Entity> &entity,
