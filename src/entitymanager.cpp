@@ -202,7 +202,7 @@ bool EntityManager::create(QSharedPointer<Entity> &entity,
                               checkDuplicate, validate, relationsIgnoreHasChanged);
 }
 
-bool EntityManager::create(QList<QSharedPointer<Entity> > entities,
+bool EntityManager::create(QList<QSharedPointer<Entity> > &entities,
                            const bool persistRelations, const bool validate,
                            const bool relationsIgnoreHasChanged, const bool checkDuplicate) {
     bool ok = true;
@@ -232,8 +232,8 @@ bool EntityManager::save(QList<QSharedPointer<Entity> > &entities,
                          const bool persistRelations, const bool ignoreHasChanged, const bool validate,
                          const bool relationsIgnoreHasChanged) {
     bool ok = true;
+    auto merged = QList<Entity *>();
     foreach (QSharedPointer<Entity> entity, entities) {
-        auto merged = QList<Entity *>();
         ok = this->saveObject(entity, merged, persistRelations,
                               ignoreHasChanged, validate, relationsIgnoreHasChanged);
         if (!ok) {

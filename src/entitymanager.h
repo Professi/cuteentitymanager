@@ -69,7 +69,7 @@ class EntityManager : public QObject {
      * @param entities
      * @return
      */
-    bool create(QList<QSharedPointer<Entity>> entities,
+    bool create(QList<QSharedPointer<Entity>> &entities,
                 const bool persistRelations = true, const bool validate = true,
                 const bool relationsIgnoreHasChanged = false,
                 const bool checkDuplicate = false);
@@ -270,6 +270,25 @@ class EntityManager : public QObject {
         return false;
     }
 
+    template<class T> QList<QSharedPointer<T>> convertList(const
+    QList<QSharedPointer<Entity>> &list) {
+        QList<QSharedPointer<T>> newList = QList<QSharedPointer<T>>();
+        for (int i = 0; i < list.size(); ++i) {
+            newList.append(list.at(i).objectCast<T>());
+        }
+        return newList;
+    }
+
+    template<class T> QList<QSharedPointer<Entity>> convertToEntityList(
+    const QList<QSharedPointer<T>> &list) {
+        QList<QSharedPointer<Entity>> newList = QList<QSharedPointer<Entity>>();
+        for (int i = 0; i < list.size(); ++i) {
+            QSharedPointer<T> entity = list.at(i);
+            newList.append(entity);
+        }
+        return newList;
+    }
+
   protected:
     bool saveObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
                     const bool persistRelations = true,
@@ -282,15 +301,6 @@ class EntityManager : public QObject {
                       QList<Entity *> &mergedObjects, const bool persistRelations,
                       const bool checkDuplicate, const bool validate,
                       const bool relationsIgnoreHasChanged = false);
-    template<class T> QList<QSharedPointer<T>> convertList(const
-    QList<QSharedPointer<Entity>> &list) {
-        QList<QSharedPointer<T>> newList = QList<QSharedPointer<T>>();
-        for (int i = 0; i < list.size(); ++i) {
-            newList.append(list.at(i).objectCast<T>());
-        }
-        return newList;
-    }
-
     void init(bool inspect, const MsgType msgType);
     QList<QHash<QString, QVariant> > findAll(const QSharedPointer<Entity> &e);
     void resolveRelations(const QSharedPointer<Entity> &entity,
