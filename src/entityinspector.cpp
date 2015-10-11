@@ -80,7 +80,7 @@ Entity *EntityInspector::instantiateEntity(const QString name) {
     QString msg = "";
     if (entity) {
         msg = name + " is instantiable.";
-        this->logger->logMsg(msg, MsgType::INFO);
+        this->logger->logMsg(msg, MsgType::DEBUG);
     } else {
         msg = name + " is NOT instantiable!";
         this->logger->logMsg(msg, MsgType::CRITICAL);

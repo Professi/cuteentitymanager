@@ -5,6 +5,7 @@ QT       -= gui
 #TARGET = EntityManager
 CONFIG   += console
 CONFIG   -= app_bundle
+CONFIG += c++14
 
 TEMPLATE = app
 
@@ -27,7 +28,6 @@ SOURCES += \
 
 unix:!macx:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug -lCuteEntityManager
 else:unix:!macx:CONFIG(release, release|debug): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/ -lCuteEntityManager
-CONFIG += c++14
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/release/ -lCuteEntityManager
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug/debug/ -lCuteEntityManager

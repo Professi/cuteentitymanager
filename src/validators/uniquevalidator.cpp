@@ -1,5 +1,5 @@
 #include "uniquevalidator.h"
-#include "src/entitymanager.h"
+#include "entitymanager.h"
 using namespace CuteEntityManager;
 UniqueValidator::UniqueValidator() : Validator() {
 }

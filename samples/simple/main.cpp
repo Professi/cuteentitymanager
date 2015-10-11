@@ -26,6 +26,5 @@ int main(int argc, char *argv[]) {
         i++;
     }
     qDebug()  << i;
-
     return 0;
 }

@@ -2,6 +2,7 @@
 
 Person::Person(QObject *parent): Entity(parent) {
 }
+
 Person::Person(QString firstName, QString familyName, Gender gender,
                QString customPictureFileName, QString namePrefix, QString nickName,
                QDate birthday, QObject *parent): Entity(parent) {
@@ -108,14 +109,6 @@ void Person::setGroups(const QList<QSharedPointer<Group> > &value) {
     groups = value;
 }
 
-void Person::addContact(Contact *contact) {
-    this->contacts.append(QSharedPointer<Contact>(contact));
-}
-
-void Person::addAddress(Address *address) {
-    this->addresses.append(QSharedPointer<Address>(address));
-}
-
 QList<QSharedPointer<Group> > Person::getMaintainedGroups() const {
     return maintainedGroups;
 }
@@ -145,12 +138,13 @@ void Group::setName(const QString &value) {
 }
 
 QSharedPointer<Person> Group::getLeader() const {
-    return mainTeacher;
+    return leader;
 }
 
 void Group::setLeader(const QSharedPointer<Person> &value) {
-    mainTeacher = value;
+    leader = value;
 }
+
 QList<QSharedPointer<Person> > Group::getPersons() const {
     return persons;
 }
