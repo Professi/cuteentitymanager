@@ -6,7 +6,7 @@
 #include <QList>
 #include <QObject>
 #include <QDebug>
-#include "../../entitymanager/src/entity.h"
+#include "entity.h"
 
 using namespace CuteEntityManager;
 class Group;
@@ -21,7 +21,8 @@ class Person: public Entity {
     Q_PROPERTY(QDate birthday READ getBirthday WRITE setBirthday)
     Q_PROPERTY(Gender gender READ getGender WRITE setGender)
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
-    Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ getMaintainedGroups WRITE setMaintainedGroups)
+    Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
+               getMaintainedGroups WRITE setMaintainedGroups)
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
@@ -68,7 +69,7 @@ class Person: public Entity {
     QList<QSharedPointer<Group> > getMaintainedGroups() const;
     void setMaintainedGroups(const QList<QSharedPointer<Group> > &value);
 
-protected:
+  protected:
     QString firstName;
     QString familyName;
     QString namePrefix;
@@ -80,7 +81,6 @@ protected:
     QList <QSharedPointer<Group>> maintainedGroups;
 };
 
-class Person;
 class Relation;
 class Group: public CuteEntityManager::Entity {
     Q_OBJECT
@@ -107,6 +107,24 @@ class Group: public CuteEntityManager::Entity {
     QList<QSharedPointer<Person>> persons;
     QSharedPointer<Person> leader;
     QString name;
+};
+
+class Article : public CuteEntityManager::Entity {
+    Q_OBJECT
+    Q_PROPERTY(double price READ getPrice WRITE setPrice)
+    Q_PROPERTY(QString name READ getName WRITE setName)
+  private:
+    double price;
+    QString name;
+
+  public:
+    virtual ~Article();
+    Q_INVOKABLE Article();
+    Article(double price, QString name);
+    double getPrice() const;
+    void setPrice(double value);
+    QString getName() const;
+    void setName(const QString &value);
 };
 
 #endif // MODELS_H

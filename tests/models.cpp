@@ -154,5 +154,35 @@ void Group::setPersons(const QList<QSharedPointer<Person> > &value) {
 }
 
 
+double Article::getPrice() const
+{
+    return price;
+}
 
+void Article::setPrice(double value)
+{
+    price = value;
+}
 
+QString Article::getName() const
+{
+    return name;
+}
+
+void Article::setName(const QString &value)
+{
+    name = value;
+}
+
+Article::~Article() {
+
+}
+
+Article::Article() {
+    this->price = 0.0;
+}
+
+Article::Article(double price, QString name) {
+    this->price = price;
+    this->name = name;
+}
