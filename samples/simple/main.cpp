@@ -14,9 +14,9 @@ int main(int argc, char *argv[]) {
     CuteEntityManager::EntityManager("QSQLITE", QDir::currentPath() + "/db.sqlite"));
     QStringList inits = QStringList() << "Artikel";
     e->startup("0.1", inits);
-//    QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0,
-//                                "Müsli"));
-//    auto ep = a.objectCast<CuteEntityManager::Entity>();
-//    qDebug() << e->create(ep, true, true);
+    QSharedPointer<Artikel> a = QSharedPointer<Artikel>(new Artikel(20.0,
+                                "Müsli"));
+    auto ep = a.objectCast<CuteEntityManager::Entity>();
+    qDebug() << e->create(ep, true, true);
     return 0;
 }
