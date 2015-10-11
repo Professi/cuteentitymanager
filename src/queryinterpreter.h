@@ -27,7 +27,7 @@ class OrderBy;
 class Expression;
 class QueryInterpreter {
   public:
-    QueryInterpreter(QSharedPointer<QueryBuilder> builder);
+    QueryInterpreter(QueryBuilder *builder);
     QSqlQuery build(Query &q);
 
   protected:
@@ -45,7 +45,7 @@ class QueryInterpreter {
     QString buildCondition(Query &q, const QList<Expression> &conditions) const;
 
   private:
-    QSharedPointer<QueryBuilder> builder;
+    QueryBuilder *builder;
 
 };
 

@@ -2,9 +2,10 @@
 #include "../schema.h"
 
 CuteEntityManager::MysqlQueryBuilder::MysqlQueryBuilder(
-    QSharedPointer<CuteEntityManager::Schema> schema,
-    QSharedPointer<CuteEntityManager::Database> database) : QueryBuilder(schema,
-                database) {
+    CuteEntityManager::Schema *schema,
+    QSharedPointer<CuteEntityManager::Database> database)  :
+    CuteEntityManager::QueryBuilder(schema,
+                                    database) {
 
 }
 

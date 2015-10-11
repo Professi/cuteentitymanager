@@ -1,5 +1,3 @@
-include(EntityManager.pri)
-
 TEMPLATE = subdirs
 
 SUBDIRS = src

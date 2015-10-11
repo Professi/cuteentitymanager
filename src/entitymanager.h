@@ -120,7 +120,6 @@ class EntityManager : public QObject {
      * @param entity
      */
     void refresh(QSharedPointer<Entity> &entity);
-    void setSchema(const QSharedPointer<Schema> &value);
     QList<QHash<QString, QVariant> > selectByQuery(Query &query);
     QList<QHash<QString, QVariant> > selectBySql(const QString &sql);
     qint8 count(Query &query);

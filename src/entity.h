@@ -16,15 +16,10 @@
 
 #ifndef ENTITY_H
 #define ENTITY_H
-#include <QtGlobal>
-#include <QMap>
 #include <QObject>
-#include <QMetaProperty>
+#include <QSharedPointer>
 #include "relation.h"
 #include <QStringList>
-#include <QSharedPointer>
-#include <QStack>
-#include <QQueue>
 #include "entityinstancefactory.h"
 #include "validators/validatorrule.h"
 #include "validators/errormsg.h"

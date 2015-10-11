@@ -39,19 +39,17 @@ QStringList EntityManager::getConnectionNames() {
 EntityManager::EntityManager(QSqlDatabase database, bool logQueries,
                              const bool inspectEntities,
                              MsgType logActions) : QObject() {
-    auto db = new Database(database, true, logQueries, logActions);
-    this->db = QSharedPointer<Database>(db);
+    this->db = QSharedPointer<Database>(new Database(database, true, logQueries, logActions));
     this->init(inspectEntities, logActions);
 }
 
 void EntityManager::init(bool inspect, const MsgType msgType) {
     EntityInstanceFactory::registerClass<DatabaseMigration>();
-    auto schema = Database::getSchema(Database::getDatabaseType(
-                                          this->db->getDatabase().driverName()), this->db);
-    this->schema = QSharedPointer<Schema>(schema);
+    this->schema = QSharedPointer<Schema>(Database::getSchema(Database::getDatabaseType(
+                                          this->db->getDatabase().driverName()), this->db));
     this->schema->setTables(this->schema->getTableSchemas());
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
-                                 this->schema->getQueryBuilder()));
+                                 this->schema->getQueryBuilder().data()));
     this->appendToInstanceList();
     if (inspect) {
         EntityInspector inspector = EntityInspector(msgType);
@@ -68,11 +66,10 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename,
                              QString hostname, QString username, QString password, QString port,
                              bool logQueries, QString databaseOptions, const bool inspectEntities,
                              CuteEntityManager::MsgType logActions) : QObject() {
-    auto db = new Database(databaseType, this->createConnection(), hostname,
-                           databasename, username,
-                           password,
-                           port.toInt(), true, logQueries, databaseOptions, logActions);
-    this->db = QSharedPointer<Database>(db);
+    this->db = QSharedPointer<Database>(new Database(databaseType, this->createConnection(), hostname,
+                                                     databasename, username,
+                                                     password,
+                                                     port.toInt(), true, logQueries, databaseOptions, logActions));
     this->init(inspectEntities, logActions);
 }
 
@@ -331,10 +328,6 @@ void EntityManager::refresh(QSharedPointer<Entity> &entity) {
     entity = this->findById(entity->getProperty(
                                 entity->getPrimaryKey()).toLongLong(),
                             EntityHelper::getClassName(entity.data()));
-}
-
-void EntityManager::setSchema(const QSharedPointer<Schema> &value) {
-    schema = value;
 }
 
 QList<QHash<QString, QVariant> > EntityManager::selectByQuery(Query &query) {

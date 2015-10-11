@@ -5,10 +5,8 @@ namespace CuteEntityManager {
 class MysqlQueryBuilder : public QueryBuilder
 {
 public:
-    MysqlQueryBuilder(QSharedPointer<Schema> schema,
+    MysqlQueryBuilder(Schema *schema,
                        QSharedPointer<Database> database);
-
-
     QString renameColumn(QString tableName, QString oldName,
                                  QString newName) const override;
     QString createIndex(QString name, QString tableName,

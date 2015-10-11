@@ -72,7 +72,7 @@ class Database {
     void logMsg(const QString &value);
     bool rollbackTransaction();
     static DatabaseType getDatabaseType(QString s);
-    static QSharedPointer<Schema> getSchema(DatabaseType db,
+    static Schema *getSchema(DatabaseType db,
                                             QSharedPointer<Database> database);
     Logger *getLogger() const;
 };

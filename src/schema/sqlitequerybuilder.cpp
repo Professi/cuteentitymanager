@@ -16,9 +16,7 @@
 #include "sqlitequerybuilder.h"
 #include "../schema.h"
 
-CuteEntityManager::SqliteQueryBuilder::SqliteQueryBuilder(
-    QSharedPointer<CuteEntityManager::Schema>
-    schema,
+CuteEntityManager::SqliteQueryBuilder::SqliteQueryBuilder(Schema *schema,
     QSharedPointer<CuteEntityManager::Database> database) : QueryBuilder(schema,
                 database) {
 

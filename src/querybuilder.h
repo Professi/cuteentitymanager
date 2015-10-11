@@ -45,7 +45,7 @@ class QueryBuilder {
     friend class EntityManager;
     friend class QueryInterpreter;
   public:
-    QueryBuilder(QSharedPointer<Schema> schema, QSharedPointer<Database> database);
+    QueryBuilder(Schema *schema, QSharedPointer<Database> &database);
     virtual ~QueryBuilder();
     virtual bool createTable(const QSharedPointer<Entity> &entity,
                              bool createRelationTables = true) const;
@@ -86,9 +86,6 @@ class QueryBuilder {
     virtual QString createForeignKeyManyToMany(const QString &tableName,
             const QSharedPointer<Entity> &entity, const QString &update,
             const QString &remove) const;
-
-    QSharedPointer<Schema> getSchema() const;
-    void setSchema(const QSharedPointer<Schema> &value);
 
     QSharedPointer<Database> getDatabase() const;
     void setDatabase(const QSharedPointer<Database> &value);
@@ -310,8 +307,9 @@ class QueryBuilder {
     virtual Expression appendCondition(QString ph1, QString ph2, QVariant val1,
                                        QVariant val2, QString condition) const;
     QString entityClassname() const;
+    Schema *getSchema() const;
     QString separator;
-    QSharedPointer<Schema> schema;
+    Schema *schema;
     QSharedPointer<Database> database;
 };
 }

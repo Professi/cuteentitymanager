@@ -24,8 +24,8 @@
 
 using namespace CuteEntityManager;
 
-QueryBuilder::QueryBuilder(QSharedPointer<Schema> schema,
-                           QSharedPointer<Database> database) {
+QueryBuilder::QueryBuilder(Schema *schema,
+                           QSharedPointer<Database> &database) {
     this->schema = schema;
     this->database = database;
     this->separator = " ";
@@ -866,6 +866,10 @@ QString QueryBuilder::entityClassname() const {
     return QString("CuteEntityManager::Entity");
 }
 
+Schema *QueryBuilder::getSchema() const {
+    return schema;
+}
+
 QStringList QueryBuilder::quoteTableNames(const QStringList &tables) {
     QStringList r = QStringList();
     for (int i = 0; i < tables.size(); ++i) {
@@ -1095,14 +1099,6 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m, bool select,
         }
     }
     return rc;
-}
-
-QSharedPointer<Schema> QueryBuilder::getSchema() const {
-    return schema;
-}
-
-void QueryBuilder::setSchema(const QSharedPointer<Schema> &value) {
-    schema = value;
 }
 
 QueryBuilder::ClassAttributes::ClassAttributes(const QString name,

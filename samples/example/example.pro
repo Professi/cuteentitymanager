@@ -1,13 +1,8 @@
-QT       += core
-QT       += sql
+include(../samples.pri)
+TEMPLATE = app
 QT       -= gui
-
-#TARGET = EntityManager
 CONFIG   += console
 CONFIG   -= app_bundle
-CONFIG += c++14
-
-TEMPLATE = app
 
 HEADERS += \
     models/person.h \
@@ -25,18 +20,3 @@ SOURCES += \
     models/address.cpp \
     models/contact.cpp \
     models/faker/createfakemodeldata.cpp
-
-unix:!macx:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug -lCuteEntityManager
-else:unix:!macx:CONFIG(release, release|debug): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/ -lCuteEntityManager
-
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Release/release/ -lCuteEntityManager
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../build-EntityManager-Desktop-Debug/debug/ -lCuteEntityManager
-
-INCLUDEPATH += $$PWD/../../src
-DEPENDPATH += $$PWD/../../src
-
-unix {
-QMAKE_CXXFLAGS += -Wall -Wextra -Wmaybe-uninitialized -Wsuggest-final-types -Wsuggest-final-methods -Wsuggest-override -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code -O -Winit-self
-}
-
-CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT

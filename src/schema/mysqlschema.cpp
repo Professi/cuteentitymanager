@@ -6,10 +6,7 @@
 using namespace CuteEntityManager;
 
 MysqlSchema::MysqlSchema(QSharedPointer<Database> database) : Schema(
-        database, QSharedPointer<QueryBuilder>(new MysqlQueryBuilder(
-                    QSharedPointer<Schema>
-                    (this), database))) {
-
+        database, QSharedPointer<QueryBuilder>(new MysqlQueryBuilder(this, database))) {
 }
 
 QSharedPointer<QHash<QString, QString> > MysqlSchema::getTypeMap() {

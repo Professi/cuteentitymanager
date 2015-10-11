@@ -83,6 +83,7 @@ Database::~Database() {
     if (this->database.isOpen()) {
         this->database.close();
     }
+    this->database = QSqlDatabase();
     QSqlDatabase::removeDatabase(this->connectionName);
 }
 
@@ -148,20 +149,20 @@ DatabaseType Database::getDatabaseType(QString s) {
     }
 }
 
-QSharedPointer<Schema> Database::getSchema(DatabaseType db,
-        QSharedPointer<Database> database) {
+Schema *Database::getSchema(DatabaseType db,
+                            QSharedPointer<Database> database) {
     switch (db) {
     case DatabaseType::SQLITE:
-        return QSharedPointer<Schema>(new SqliteSchema(database));;
+        return new SqliteSchema(database);
         break;
     //    case PGSQL:
     //        return QSharedPointer<Schema>(new PgSqlSchema());
     //        break;
     case DatabaseType::MYSQL:
-        return QSharedPointer<Schema>(new MysqlSchema(database));
+        return new MysqlSchema(database);
         break;
     default:
-        return QSharedPointer<Schema>(new SqliteSchema(database));
+        return new SqliteSchema(database);
         break;
     }
 }

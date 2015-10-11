@@ -21,9 +21,7 @@
 using namespace CuteEntityManager;
 
 SqliteSchema::SqliteSchema(QSharedPointer<Database> database) : Schema(
-        database, QSharedPointer<QueryBuilder>(new SqliteQueryBuilder(
-                    QSharedPointer<Schema>
-                    (this), database))) {
+        database, QSharedPointer<QueryBuilder>(new SqliteQueryBuilder(this, database))) {
 }
 
 SqliteSchema::~SqliteSchema() {

@@ -24,7 +24,7 @@
 using namespace CuteEntityManager;
 
 
-QueryInterpreter::QueryInterpreter(QSharedPointer<QueryBuilder> builder) {
+QueryInterpreter::QueryInterpreter(QueryBuilder *builder) {
     this->builder = builder;
 }
 
