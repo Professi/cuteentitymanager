@@ -17,34 +17,36 @@
     You should have received a copy of the GNU General Public License
     along with OpenTeacherTool.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "artikel.h"
+#include "article.h"
 
-double Artikel::getPreis() const {
-    return preis;
-}
-
-void Artikel::setPreis(double value) {
-    preis = value;
-}
-
-QString Artikel::getName() const {
+QString Article::getName() const {
     return name;
 }
 
-void Artikel::setName(const QString &value) {
+void Article::setName(const QString &value) {
     name = value;
 }
 
-Artikel::~Artikel() {
+Article::~Article() {
 
 }
 
-Artikel::Artikel() : Entity() {
-    this->preis = 0.0;
+Article::Article() : Entity() {
+    this->price = 0.0;
     this->name = "";
 }
 
-Artikel::Artikel(double preis, QString name) : Entity() {
-    this->preis = preis;
+Article::Article(double preis, QString name) : Entity() {
+    this->price = preis;
     this->name = name;
+}
+
+double Article::getPrice() const
+{
+    return price;
+}
+
+void Article::setPrice(double value)
+{
+    price = value;
 }

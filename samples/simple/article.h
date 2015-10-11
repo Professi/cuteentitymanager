@@ -18,27 +18,25 @@
     along with OpenTeacherTool.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARTIKEL_H
-#define ARTIKEL_H
-#include "../../src/entity.h"
-#include <QHash>
-#include <QVariant>
+#ifndef ARTICLE_H
+#define ARTICLE_H
+#include "entity.h"
 
-class Artikel : public CuteEntityManager::Entity {
+class Article : public CuteEntityManager::Entity {
     Q_OBJECT
-    Q_PROPERTY(double preis READ getPreis WRITE setPreis)
+    Q_PROPERTY(double price READ getPrice WRITE setPrice)
     Q_PROPERTY(QString name READ getName WRITE setName)
   private:
-    double preis;
+    double price;
     QString name;
 
   public:
-    virtual ~Artikel();
-    Q_INVOKABLE Artikel();
-    Artikel(double preis, QString name);
-    double getPreis() const;
-    void setPreis(double value);
+    virtual ~Article();
+    Q_INVOKABLE Article();
+    Article(double price, QString name);
     QString getName() const;
     void setName(const QString &value);
+    double getPrice() const;
+    void setPrice(double value);
 };
 #endif // ARTIKEL_H

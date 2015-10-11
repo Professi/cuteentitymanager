@@ -26,9 +26,9 @@ class Person: public Entity {
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
-    Q_ENUM(Gender)
+    Q_ENUM(Gender);
     enum class NameOrder {FIRST_FAMILY_NAME_ORDER, FAMILY_FIRST_NAME_ORDER};
-    Q_ENUM(NameOrder)
+    Q_ENUM(NameOrder);
     Q_INVOKABLE explicit Person(QObject *parent = 0);
     Person(QString firstName, QString familyName,
            Gender gender = Gender::UNKNOWNGENDER,

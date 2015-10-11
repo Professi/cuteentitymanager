@@ -15,8 +15,8 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 HEADERS += \
-    artikel.h
+    article.h
 
 SOURCES += \
     main.cpp \
-    artikel.cpp
+    article.cpp
