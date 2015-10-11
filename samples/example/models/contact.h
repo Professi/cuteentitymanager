@@ -20,7 +20,6 @@ class Contact: public CuteEntityManager::Entity {
 
   public:
     enum Category {EMAIL, MOBILE, LANDLINE, MESSENGER, EXTRA} ;
-    Q_ENUM(Category)
     Q_INVOKABLE Contact() {}
     Contact(QString label, Category category, QString content);
     const QHash<QString, CuteEntityManager::Relation> getRelations() const

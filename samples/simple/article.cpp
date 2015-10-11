@@ -28,7 +28,6 @@ void Article::setName(const QString &value) {
 }
 
 Article::~Article() {
-
 }
 
 Article::Article() : Entity() {
@@ -41,12 +40,10 @@ Article::Article(double preis, QString name) : Entity() {
     this->name = name;
 }
 
-double Article::getPrice() const
-{
+double Article::getPrice() const {
     return price;
 }
 
-void Article::setPrice(double value)
-{
+void Article::setPrice(double value) {
     price = value;
 }

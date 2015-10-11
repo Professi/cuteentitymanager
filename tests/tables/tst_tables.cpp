@@ -32,10 +32,10 @@ void Tables::initTestCase() {
 }
 
 void Tables::cleanupTestCase() {
-//    if (this->e) {
-//        delete this->e;
-//        this->e = nullptr;
-//    }
+    if (this->e) {
+        delete this->e;
+        this->e = nullptr;
+    }
 }
 
 void Tables::testStartup() {
