@@ -133,7 +133,6 @@ qDebug() << "EntityManagerObjectName:" << e->objectName();
     qWarning() << groupFindPtr->toString();
     QSharedPointer<Entity> entityGroupFindPtr = groupFindPtr.objectCast<Entity>();
     e->save(entityGroupFindPtr, true);
-
     qWarning() << "-----------------------------";
     qWarning() << "Remove Group";
     qWarning() << "-----------------------------";

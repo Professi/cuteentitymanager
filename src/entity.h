@@ -18,9 +18,8 @@
 #define ENTITY_H
 #include <QObject>
 #include <QSharedPointer>
-#include "relation.h"
 #include <QStringList>
-#include "entityinstancefactory.h"
+#include "relation.h"
 #include "validators/validatorrule.h"
 #include "validators/errormsg.h"
 namespace CuteEntityManager {
@@ -29,15 +28,24 @@ namespace CuteEntityManager {
  * You must not name any persisted property objectName, because its pre used by Qt and will be ignored by Entity Manager
  * @brief The Entity class
  */
+class ValidationRule;
+class ErrorMsg;
 class Entity : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 id READ getId WRITE setId NOTIFY idChanged)
 
-  signals:
+signals:
     void idChanged();
 
-  public:
+public:
     virtual QString toString() const;
+    /**
+     * @brief copy
+     * depends on Q_PROPERTIES
+     * Copies them with exceptions of primary key(mostly "id") and objectName
+     * @return
+     */
+    virtual Entity* copy() const;
     virtual ~Entity();
     virtual QList<ValidationRule> validationRules() const;
     virtual QString getTablename() const;
@@ -60,7 +68,7 @@ class Entity : public QObject {
     QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
 
-  protected:
+protected:
     explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
     QList<ErrorMsg> errors;

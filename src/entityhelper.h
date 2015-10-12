@@ -42,6 +42,8 @@ class EntityHelper {
         const Entity *entity);
     static const QHash<Relation, QMetaProperty> getRelationProperties(
         const Entity *entity);
+    static Entity* copyObject(const Entity*entity);
+
 
     static const char *getClassname(const Entity *entity);
     static const QString getClassName(const Entity *entity);

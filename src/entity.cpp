@@ -50,6 +50,10 @@ QString Entity::toString() const {
     return r;
 }
 
+Entity *Entity::copy() const {
+    return EntityHelper::copyObject(this);
+}
+
 QString Entity::slimToString() const {
     QString r = "";
     r.append(EntityHelper::getClassName(this));
