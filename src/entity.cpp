@@ -50,7 +50,7 @@ QString Entity::toString() const {
     return r;
 }
 
-Entity *Entity::copy() const {
+Entity* Entity::copy() const {
     return EntityHelper::copyObject(this);
 }
 

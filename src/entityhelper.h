@@ -18,6 +18,9 @@
 #include <QString>
 #include <QHash>
 #include <QMetaProperty>
+#include "entity.h"
+#include "entityinstancefactory.h"
+#include "entity.h"
 namespace CuteEntityManager {
 
 class Relation;
@@ -42,7 +45,7 @@ class EntityHelper {
         const Entity *entity);
     static const QHash<Relation, QMetaProperty> getRelationProperties(
         const Entity *entity);
-    static Entity* copyObject(const Entity*entity);
+    static Entity* copyObject(const Entity *entity);
 
 
     static const char *getClassname(const Entity *entity);

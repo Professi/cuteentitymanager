@@ -34,10 +34,10 @@ class Entity : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 id READ getId WRITE setId NOTIFY idChanged)
 
-signals:
+  signals:
     void idChanged();
 
-public:
+  public:
     virtual QString toString() const;
     /**
      * @brief copy
@@ -68,7 +68,7 @@ public:
     QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
 
-protected:
+  protected:
     explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
     QList<ErrorMsg> errors;
