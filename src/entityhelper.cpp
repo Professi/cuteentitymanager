@@ -160,8 +160,7 @@ Entity* EntityHelper::copyObject(const Entity *entity) {
     if(newInstance) {
         for (int i = 0; i < metaObject->propertyCount(); ++i) {
             auto property = metaObject->property(i);
-            QString name = property.name();
-            if(property.isValid() && name != QString("objectName") && name !=entity->getPrimaryKey()) {
+            if(property.isValid() && property.name() != entity->getPrimaryKey()) {
                 property.write(newInstance,property.read(entity));
             }
         }

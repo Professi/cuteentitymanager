@@ -200,14 +200,12 @@ QString QueryBuilder::createTableQuery(const QString &tableName,
         if (first) {
             first = false;
         } else {
-            s.append(", ");
+            s += ", ";
         }
-        s.append(this->schema->quoteColumnName(i.key())).append(" " +
-                this->getColumnType(
-                    i.value()));
+        s+= this->schema->quoteColumnName(i.key()) + " " + this->getColumnType(i.value());
         ++i;
     }
-    s.append(");");
+    s += ");";
     return s;
 }
 
@@ -525,19 +523,19 @@ QString QueryBuilder::selectBase(const QStringList &tables,
                                  const QStringList &columns) const {
     QString r = "SELECT ";
     if (columns.isEmpty()) {
-        r.append("*");
+        r += "*";
     } else {
         for (int var = 0; var < columns.size(); ++var) {
             if (var != 0) {
-                r.append(" ");
+                r += " ";
             }
-            r.append(this->schema->quoteColumnName(columns.at(var)));
+            r += this->schema->quoteColumnName(columns.at(var));
         }
     }
-    r.append(" FROM");
+    r += " " + this->fromKeyword();
     for (int var = 0; var < tables.size(); ++var) {
-        r.append(" ");
-        r.append(this->schema->quoteTableName(tables.at(var)));
+        r += " ";
+        r += this->schema->quoteTableName(tables.at(var));
     }
     return r;
 }

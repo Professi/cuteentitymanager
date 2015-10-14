@@ -25,7 +25,6 @@
 namespace CuteEntityManager {
 class Condition;
 class OrderBy;
-class Entity;
 enum class Direction;
 class Query {
   public:
