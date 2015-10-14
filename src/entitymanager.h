@@ -218,7 +218,7 @@ class EntityManager : public QObject {
                 QHash<QString, QString>(), quint64 limit = 0, quint64 offset = 0,
     bool joinBaseClasses = false, const bool resolveRelations = true) {
         QSharedPointer<Entity> e = QSharedPointer<Entity>
-                                   (EntityInstanceFactory::createInstance<T *>());
+                                   (EntityInstanceFactory::createInstance<T*>());
         if (e) {
             Query query = Query(QStringList(e->getTablename()));
             if (joinBaseClasses) {

@@ -547,7 +547,7 @@ QSqlQuery QueryBuilder::find(const qint64 &id,
     QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
             entity->getTablename())) + this->joinSuperClasses(
                     entity) + " WHERE " + this->schema->quoteColumnName(entity->getTablename() + "."
-                                           + pk) + "= " + this->placeHolder(pk) + this->limit(1, offset));
+                                           + pk) + this->equalOperator() + " " + this->placeHolder(pk) + this->limit(1, offset));
     this->bindValue(pk, id, q);
     return q;
 }
@@ -719,7 +719,7 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
     sql += " " + this->whereKeyword() + " ";
     sql += this->schema->quoteColumnName(
                attribute);
-    sql += " = " + this->placeHolder(pk) + ";";
+    sql += " " + this->equalOperator()+" " + this->placeHolder(pk) + ";";
     q.prepare(sql);
     this->bindValue(pk, id, q);
     return q;
@@ -731,7 +731,7 @@ QSqlQuery QueryBuilder::manyToManyDelete(const QString &tableName,
     QString pkCol = "id";
     QString sql = "DELETE FROM " + this->schema->quoteTableName(
                       tableName) + " WHERE " + this->schema->quoteColumnName(
-                      attribute) + "=" + this->placeHolder(pkCol);
+                      attribute) + this->equalOperator() + this->placeHolder(pkCol);
     q.prepare(sql);
     this->bindValue(pkCol, id, q);
     return q;
@@ -811,6 +811,26 @@ QString QueryBuilder::whereKeyword() const {
 
 QString QueryBuilder::countKeyword() const {
     return "COUNT";
+}
+
+QString QueryBuilder::notEqualOperator() const {
+    return "!=";
+}
+
+QString QueryBuilder::equalOperator() const {
+    return "=";
+}
+
+QString QueryBuilder::fromKeyword() const {
+    return "FROM";
+}
+
+QString QueryBuilder::isNullKeywords() const {
+    return "IS NULL";
+}
+
+QString QueryBuilder::isNotNullKeywords() const {
+    return "IS NOT NULL";
 }
 
 Expression QueryBuilder::inFunction(QString column,
@@ -1084,6 +1104,14 @@ QString QueryBuilder::where(const QHash<QString, QVariant> &m,
             ignoreID, primaryKey);
 }
 
+QString QueryBuilder::where(const QString &key, const QVariant &var, bool withKeyword, bool select, bool notEqual) const {
+    QString r = (withKeyword ? " WHERE " : "");
+    r += this->schema->quoteColumnName(key) + (var.isNull() && select
+            ? (" " +(notEqual ? this->isNotNullKeywords(): this->isNullKeywords()))
+            : (notEqual ? this->notEqualOperator() : this->equalOperator() ) + this->placeHolder(key));
+    return r;
+}
+
 QString QueryBuilder::attributes(const QHash<QString, QVariant> &m, bool select,
                                  const QString &conjunction,
                                  bool ignoreID, const QString &primaryKey) const {
@@ -1093,9 +1121,7 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m, bool select,
             if (!rc.isEmpty()) {
                 rc += " " + conjunction + " ";
             }
-            rc += this->schema->quoteColumnName(i.key()) + (i.value().isNull()
-                    && select ? " is null"
-                    : "=" + this->placeHolder(i.key()));
+            rc += this->where(i.key(), i.value(), false, select);
         }
     }
     return rc;
@@ -1170,12 +1196,11 @@ Expression QueryBuilder::arbitraryOperator(QString op, QString column,
 }
 
 Expression QueryBuilder::isNull(QString column) const {
-    return Expression(this->schema->quoteColumnName(column) + " IS NULL");
+    return Expression(this->schema->quoteColumnName(column) + this->isNullKeywords());
 }
 
 Expression QueryBuilder::isNotNull(QString column) const {
-    return Expression(this->schema->quoteColumnName(column) + " IS " +
-                      this->notKeyword() + " NULL");
+    return Expression(this->schema->quoteColumnName(column) + this->isNotNullKeywords());
 }
 
 Expression QueryBuilder::plainOr() const {
@@ -1295,6 +1320,18 @@ Expression QueryBuilder::where(QString condition,
     return exp;
 }
 
+Expression QueryBuilder::equal(QString &key, QVariant &value) {
+    Expression exp = Expression(this->where(key, value, false, true, false));
+    exp.appendParam(key,value);
+    return exp;
+}
+
+Expression QueryBuilder::notEqual(QString &key, QVariant &value) {
+    Expression exp = Expression(this->where(key, value, false, true, true));
+    exp.appendParam(key,value);
+    return exp;
+}
+
 Expression QueryBuilder::between(QString column, QVariant firstValue,
                                  QVariant secondValue) const {
     QString firstPh = column + "_bet1";
@@ -1348,7 +1385,7 @@ Expression QueryBuilder::orOperator(
                 condition += " " + this->orKeyword() + " ";
             }
             condition += this->schema->quoteColumnName(i.key()) + (like ? " " +
-                         this->likeKeyword() + " " : "=") +
+                         this->likeKeyword() + " " : this->equalOperator()) +
                          this->placeHolder(i.key());
             exp.appendParam(i.key(), i.value());
         }

@@ -118,6 +118,8 @@ class QueryBuilder {
                      QString conjunction = QStringLiteral("AND")) const;
     Expression where(QString condition,
                      QHash<QString, QVariant> values = QHash<QString, QVariant>()) const;
+    Expression equal(QString &key, QVariant &value);
+    Expression notEqual(QString &key, QVariant &value);
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
     Expression between(QString column, QVariant firstValue,
                        QVariant secondValue) const;
@@ -263,6 +265,7 @@ class QueryBuilder {
                   const QString &conjunction,
                   bool ignoreID = false, const QString &primaryKey = "id",
                   bool withKeyword = true) const;
+    QString where(const QString &key, const QVariant &var, bool withKeyword, bool select=true, bool notEqual=false) const;
     QString attributes(const QHash<QString, QVariant> &m, bool select = true,
                        const QString &conjunction = ",",
                        bool ignoreID = false, const QString &primaryKey = "id") const;
@@ -296,6 +299,11 @@ class QueryBuilder {
     virtual QString inKeyword() const;
     virtual QString whereKeyword() const;
     virtual QString countKeyword() const;
+    virtual QString notEqualOperator() const;
+    virtual QString equalOperator() const;
+    virtual QString fromKeyword() const;
+    virtual QString isNullKeywords() const;
+    virtual QString isNotNullKeywords() const;
     virtual Expression inFunction(QString column, QList<QVariant> values,
                                   bool notOp = false) const;
     virtual QString between(QString colName, QString valName1, QString valName2,

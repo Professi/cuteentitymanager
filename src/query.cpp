@@ -15,6 +15,7 @@
  */
 
 #include "query.h"
+#include "entity.h"
 using namespace CuteEntityManager;
 Query::Query() {
 }
@@ -51,7 +52,6 @@ Query::Query(QString from, Expression where, Join join,
     this->groupBy.append(groupBy);
     this->distinct = distinct;
     this->having = having;
-
 }
 
 void Query::appendWhere(const QString &condition) {

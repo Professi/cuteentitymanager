@@ -25,6 +25,7 @@
 namespace CuteEntityManager {
 class Condition;
 class OrderBy;
+class Entity;
 enum class Direction;
 class Query {
   public:
@@ -112,10 +113,16 @@ class Query {
     quint64 offset = 0;
 };
 
+/**
+ * @brief The JokerPosition enum
+ * FRONT -> e.g. "%foo"
+ * BEHIND -> e.g. "foo%"
+ * BOTH -> e.g. "%foo%"
+ */
 enum class JokerPosition {
-    FRONT, // e.g. "%foo"
-    BEHIND, // e.g. "foo%"
-    BOTH, // e.g. "%foo%"
+    FRONT,
+    BEHIND,
+    BOTH,
     NONE
 };
 
