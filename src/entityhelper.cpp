@@ -137,8 +137,6 @@ const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(
         superObject = nullptr;
     }
     return wholeProperties;
-
-
 }
 
 const QHash<Relation, QMetaProperty> EntityHelper::getRelationProperties(
@@ -161,7 +159,7 @@ Entity* EntityHelper::copyObject(const Entity *entity) {
         for (int i = 0; i < metaObject->propertyCount(); ++i) {
             auto property = metaObject->property(i);
             if(property.isValid() && property.name() != entity->getPrimaryKey()) {
-                property.write(newInstance,property.read(entity));
+                property.write(newInstance, property.read(entity));
             }
         }
     }
@@ -177,7 +175,7 @@ const QString EntityHelper::getClassName(const Entity *entity) {
 }
 
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
-                                   QList<QSharedPointer<Entity> > &list,
+                                   QList<QSharedPointer<Entity>> &list,
                                    const QMetaProperty &property)  {
     QVariant var;
     var.setValue<QList<QSharedPointer<Entity>>>(list);

@@ -54,7 +54,7 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
             if(!e) {
                 e = qobject_cast<Entity *>(metaObject->newInstance());
                 qDebug() << "Backup method for dynamic object creation was called. Maybe the class " +
-                         metaObject->className()+"isn't registered?";
+                         QString(metaObject->className()) + " isn't registered?";
             }
         } else {
             void *newObj = QMetaType::create(metaTypeId);

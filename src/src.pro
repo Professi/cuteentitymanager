@@ -106,10 +106,10 @@ entity.cpp \
 }
     
 CONFIG += c++14
-QMAKE_CXXFLAGS += -Wall -Wextra -Wunsafe-loop-optimizations -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code
-#headers.path = $$PREFIX/include/cuteEntityManager
-#headers.files = $$HEADERS
-#target.path = $$PREFIX/$$LIBDIR
-#INSTALLS += target
+QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code
+headers.path = $$PREFIX/include/cuteEntityManager
+headers.files = $$HEADERS
+target.path = $$PREFIX/$$LIBDIR
+INSTALLS += target headers
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT

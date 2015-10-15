@@ -12,10 +12,6 @@ EM_LIB = -lCuteEntityManager
 contains(EM_LIBRARY_TYPE,staticlib) {
     DEFINES += CUTE_ENTITY_MANAGER_LIBRARY_STATIC
 } else {
-    # Windows needs the major library version
-    win32 {
-        EM_LIB = -lCuteEntityManager0
-    }
     DEFINES += CUTE_ENTITY_MANAGER_LIBRARY_SHARED
 }
 
