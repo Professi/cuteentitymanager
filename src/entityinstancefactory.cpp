@@ -50,7 +50,12 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
     if (metaTypeId != QMetaType::UnknownType) {
         auto metaObject = QMetaType::metaObjectForType(metaTypeId);
         if (metaObject) {
-            e = qobject_cast<Entity *>(metaObject->newInstance());
+            e = qobject_cast<Entity *>(EntityInstanceFactory::createObject(metaObject->className()));
+            if(!e) {
+                e = qobject_cast<Entity *>(metaObject->newInstance());
+                qDebug() << "Backup method for dynamic object creation was called. Maybe the class " +
+                         metaObject->className()+"isn't registered?";
+            }
         } else {
             void *newObj = QMetaType::create(metaTypeId);
             if (newObj) {
@@ -135,8 +140,8 @@ Entity *EntityInstanceFactory::createInstance(const QMetaObject *object) {
     }
 }
 
-QList<QSharedPointer<Entity> > EntityInstanceFactory::castQVariantList(
-    QVariant &list) {
+QList<QSharedPointer<Entity>> EntityInstanceFactory::castQVariantList(
+QVariant &list) {
     return *reinterpret_cast<QList<QSharedPointer<Entity>>*>(list.data());
 }
 
