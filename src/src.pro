@@ -52,7 +52,8 @@ entity.h \
     validators/patternvalidator.h \
     validators/lengthvalidator.h \
     schema/mysqlquerybuilder.h \
-    entityinspector.h
+    entityinspector.h \
+    sqlitebackupprocessor.h
 
 SOURCES += \
 entity.cpp \
@@ -95,14 +96,14 @@ entity.cpp \
     validators/patternvalidator.cpp \
     validators/lengthvalidator.cpp \
     schema/mysqlquerybuilder.cpp \
-    entityinspector.cpp
-    
-!win32 { # looks bad.
-    HEADERS += \
-    sqlitebackupprocessor.h
-    SOURCES += \
-        sqlitebackupprocessor.cpp
-    LIBS += -lsqlite3
+    entityinspector.cpp \
+    sqlitebackupprocessor.cpp
+
+!system-sqlite:!contains(LIBS, .*sqlite3.*) {
+    include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
+} else {
+    LIBS += $$QT_LFLAGS_SQLITE
+    QMAKE_CXXFLAGS *= $$QT_CFLAGS_SQLITE
 }
     
 CONFIG += c++14
