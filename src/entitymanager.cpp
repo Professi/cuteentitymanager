@@ -380,10 +380,10 @@ bool EntityManager::hasChanged(QSharedPointer<Entity> &entity) {
                     this->schema->getQueryBuilder()->columnNameIDAppendix();
                 QString relKey = i.key();
                 QVariant v = entity->getProperty(relKey.remove(relKey.size() - appendix.size(),
-                                                 appendix.size()));
-                if (!v.isNull()) {
-                    auto entity = EntityInstanceFactory::castQVariant(v);
-                    if (entity->getProperty(entity->getPrimaryKey()) != i.value()) {
+                                                               appendix.size()));
+                if (v.isValid() && !v.isNull()) {
+                    auto e = EntityInstanceFactory::castQVariant(v);
+                    if (e->getProperty(entity->getPrimaryKey()) != i.value()) {
                         changed = true;
                         break;
                     }
