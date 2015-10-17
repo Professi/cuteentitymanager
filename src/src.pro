@@ -99,11 +99,10 @@ entity.cpp \
     entityinspector.cpp \
     sqlitebackupprocessor.cpp
 
-!system-sqlite:!contains(LIBS, .*sqlite3.*) {
+win32:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
 } else {
-    LIBS += $$QT_LFLAGS_SQLITE
-    QMAKE_CXXFLAGS *= $$QT_CFLAGS_SQLITE
+    LIBS += -lsqlite3
 }
     
 CONFIG += c++14
