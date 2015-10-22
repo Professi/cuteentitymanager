@@ -362,7 +362,7 @@ bool EntityManager::validate(QSharedPointer<Entity> &entity) {
 
 bool EntityManager::hasChanged(QSharedPointer<Entity> &entity) {
     bool changed = true;
-    if (entity->getId() > -1) {
+    if (entity && entity->getId() > -1) {
         changed = false;
         auto listmap = this->findByPk(entity->getId(), entity);
         auto relations = entity->getRelations();
@@ -381,9 +381,9 @@ bool EntityManager::hasChanged(QSharedPointer<Entity> &entity) {
                 QString relKey = i.key();
                 QVariant v = entity->getProperty(relKey.remove(relKey.size() - appendix.size(),
                                                  appendix.size()));
-                if (!v.isNull()) {
-                    auto entity = EntityInstanceFactory::castQVariant(v);
-                    if (entity->getProperty(entity->getPrimaryKey()) != i.value()) {
+                if (v.isValid() && !v.isNull()) {
+                    auto e = EntityInstanceFactory::castQVariant(v);
+                    if (e && e->getProperty(e->getPrimaryKey()) != i.value()) {
                         changed = true;
                         break;
                     }
