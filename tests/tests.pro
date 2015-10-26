@@ -1,3 +1,5 @@
 TEMPLATE = subdirs
 SUBDIRS += \
-    tables
+    em \
+    querybuilder \
+    validators

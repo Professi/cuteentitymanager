@@ -101,19 +101,19 @@ void Person::setCustomPictureFileName(const QString &value) {
     customPictureFileName = value;
 }
 
-QList<QSharedPointer<Group> > Person::getGroups() const {
+QList<QSharedPointer<Group>> Person::getGroups() const {
     return groups;
 }
 
-void Person::setGroups(const QList<QSharedPointer<Group> > &value) {
+void Person::setGroups(const QList<QSharedPointer<Group>> &value) {
     groups = value;
 }
 
-QList<QSharedPointer<Group> > Person::getMaintainedGroups() const {
+QList<QSharedPointer<Group>> Person::getMaintainedGroups() const {
     return maintainedGroups;
 }
 
-void Person::setMaintainedGroups(const QList<QSharedPointer<Group> > &value) {
+void Person::setMaintainedGroups(const QList<QSharedPointer<Group>> &value) {
     maintainedGroups = value;
 }
 
@@ -145,37 +145,40 @@ void Group::setLeader(const QSharedPointer<Person> &value) {
     leader = value;
 }
 
-QList<QSharedPointer<Person> > Group::getPersons() const {
+QList<QSharedPointer<Person>> Group::getPersons() const {
     return persons;
 }
 
-void Group::setPersons(const QList<QSharedPointer<Person> > &value) {
+void Group::addPerson(const QSharedPointer<Person> &value) {
+    this->persons.append(value);
+}
+
+void Group::setPersons(const QList<QSharedPointer<Person>> &value) {
     persons = value;
 }
 
+void Group::removePerson(const QSharedPointer<Person> &value) {
+    this->persons.removeOne(value);
+}
 
-double Article::getPrice() const
-{
+
+double Article::getPrice() const {
     return price;
 }
 
-void Article::setPrice(double value)
-{
+void Article::setPrice(double value) {
     price = value;
 }
 
-QString Article::getName() const
-{
+QString Article::getName() const {
     return name;
 }
 
-void Article::setName(const QString &value)
-{
+void Article::setName(const QString &value) {
     name = value;
 }
 
 Article::~Article() {
-
 }
 
 Article::Article() {
@@ -185,4 +188,13 @@ Article::Article() {
 Article::Article(double price, QString name) {
     this->price = price;
     this->name = name;
+}
+
+QList<CuteEntityManager::ValidationRule> Person::validationRules() const {
+    QList<CuteEntityManager::ValidationRule> rules =
+        QList<CuteEntityManager::ValidationRule>();
+    rules.append(ValidationRule("length", {"firstName", "familyName"}, "min", 2));
+    QList<Param> params = {Param("past"), Param("min", QDate(1970, 1, 1))};
+    rules.append(ValidationRule("date", "birthday", params));
+    return rules;
 }

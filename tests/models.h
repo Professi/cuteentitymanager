@@ -11,6 +11,7 @@
 using namespace CuteEntityManager;
 class Group;
 class Person: public Entity {
+
     Q_OBJECT
     Q_PROPERTY(QString firstName READ getFirstName WRITE setFirstName)
     Q_PROPERTY(QString familyName READ getFamilyName WRITE setFamilyName)
@@ -26,6 +27,7 @@ class Person: public Entity {
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
+    Q_ENUM(Gender)
     enum class NameOrder {FIRST_FAMILY_NAME_ORDER, FAMILY_FIRST_NAME_ORDER};
     Q_INVOKABLE explicit Person(QObject *parent = 0);
     Person(QString firstName, QString familyName,
@@ -61,11 +63,12 @@ class Person: public Entity {
     QString getCustomPictureFileName() const;
     void setCustomPictureFileName(const QString &value);
 
-    QList<QSharedPointer<Group> > getGroups() const;
-    void setGroups(const QList<QSharedPointer<Group> > &value);
+    QList<QSharedPointer<Group>> getGroups() const;
+    void setGroups(const QList<QSharedPointer<Group>> &value);
 
-    QList<QSharedPointer<Group> > getMaintainedGroups() const;
-    void setMaintainedGroups(const QList<QSharedPointer<Group> > &value);
+    QList<QSharedPointer<Group>> getMaintainedGroups() const;
+    void setMaintainedGroups(const QList<QSharedPointer<Group>> &value);
+    virtual QList<ValidationRule> validationRules() const override;
 
   protected:
     QString firstName;
@@ -98,8 +101,10 @@ class Group: public CuteEntityManager::Entity {
     QSharedPointer<Person> getLeader() const;
     void setLeader(const QSharedPointer<Person> &value);
 
-    QList<QSharedPointer<Person> > getPersons() const;
-    void setPersons(const QList<QSharedPointer<Person> > &value);
+    QList<QSharedPointer<Person>> getPersons() const;
+    void addPerson(const QSharedPointer<Person> &value);
+    void setPersons(const QList<QSharedPointer<Person>> &value);
+    void removePerson(const QSharedPointer<Person> &value);
 
   protected:
     QList<QSharedPointer<Person>> persons;
