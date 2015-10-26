@@ -510,23 +510,27 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
     while (iterator != relations.constEnd()) {
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
-        if (r.getType() == RelationType::MANY_TO_ONE) {
-            auto e = EntityInstanceFactory::castQVariant(var);
-            if (this->shouldBeSaved(e, r)) {
-                this->saveObject(e, mergedObjects, true, ignoreHasChanged);
-                auto fkProp = EntityHelper::mappedProperty(r, e);
-                if (e && fkProp.isValid()) {
-                    EntityHelper::addEntityToListProperty(e, entity, fkProp);
+        if(!var.isNull() && var.data()) {
+            if (r.getType() == RelationType::MANY_TO_ONE) {
+                auto e = EntityInstanceFactory::castQVariant(var);
+                if (e && this->shouldBeSaved(e, r)) {
+                    this->saveObject(e, mergedObjects, true, ignoreHasChanged);
+                    auto fkProp = EntityHelper::mappedProperty(r, e);
+                    if (fkProp.isValid()) {
+                        EntityHelper::addEntityToListProperty(e, entity, fkProp);
+                    }
+                }
+            } else if (r.getType() == RelationType::ONE_TO_ONE
+                       && r.getMappedBy().isEmpty()) {
+                auto e =  EntityInstanceFactory::castQVariant(var);
+                if(e) {
+                    this->saveObject(e, mergedObjects, true, ignoreHasChanged);
+                    auto prop = EntityHelper::mappedProperty(r, e);
+                    EntityHelper::setProperty(e, entity, prop);
                 }
             }
-        } else if (r.getType() == RelationType::ONE_TO_ONE
-                   && r.getMappedBy().isEmpty()) {
-            auto e =  EntityInstanceFactory::castQVariant(var);
-            this->saveObject(e, mergedObjects, true, ignoreHasChanged);
-            auto prop = EntityHelper::mappedProperty(r, e);
-            EntityHelper::setProperty(e, entity, prop);
+            ++iterator;
         }
-        ++iterator;
     }
 }
 
@@ -546,7 +550,7 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
                 auto fkProp = EntityHelper::mappedProperty(r, list.at(0));
                 for (int var = 0; var < list.size(); ++var) {
                     auto e = list.at(var);
-                    if (this->shouldBeSaved(e, r) && e) {
+                    if (e && this->shouldBeSaved(e, r)) {
                         EntityHelper::setProperty(e, entity, fkProp);
                         this->saveObject(e, mergedObjects, true, ignoreHasChanged);
                     }
@@ -636,11 +640,11 @@ EntityManager *EntityManager::getInstance(QString name) {
 
 bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
                                   const Relation &r) {
-    return r.getCascadeType().contains(CascadeType::ALL)
-           || ((!entity || entity->getProperty(entity->getPrimaryKey()) > -1)
+    return entity && (r.getCascadeType().contains(CascadeType::ALL)
+           || (entity->getProperty(entity->getPrimaryKey()) > -1
                && r.getCascadeType().contains(CascadeType::MERGE))
-           || ((!entity || entity->getProperty(entity->getPrimaryKey()) <= -1)
-               && r.getCascadeType().contains(CascadeType::PERSIST));
+           || (entity->getProperty(entity->getPrimaryKey()) <= -1
+               && r.getCascadeType().contains(CascadeType::PERSIST)));
 }
 
 void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
