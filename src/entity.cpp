@@ -86,7 +86,6 @@ void Entity::setErrors(const QList<ErrorMsg> &value) {
 }
 
 Entity::~Entity() {
-
 }
 
 QList<ValidationRule> Entity::validationRules() const {
@@ -95,6 +94,10 @@ QList<ValidationRule> Entity::validationRules() const {
 
 QString Entity::getTablename() const {
     return QString(this->metaObject()->className()).toLower();
+}
+
+QString Entity::getClassname() const {
+    return EntityHelper::getClassName(this);
 }
 
 const QHash<QString, Relation> Entity::getRelations() const {

@@ -108,6 +108,7 @@ class EntityManager : public QObject {
     bool createTable(const QSharedPointer<Entity> &entity,
                      bool createRelationTables = true);
     bool createTable(QString className, bool createRelationTables = true);
+    bool removeTable(QString className);
     quint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
                  bool followInheritance = false);
     quint8 count(const QString &tableName);
@@ -360,6 +361,8 @@ class EntityManager : public QObject {
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
                                    const char *classname, const bool refresh = false,
+                                   const bool resolveRelations = true);
+    void convert(const QHash<QString, QVariant> &map, QSharedPointer<Entity> &entity, const bool refresh = false,
                                    const bool resolveRelations = true);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant>> maps,
                                           const char *classname, const bool refresh = false,

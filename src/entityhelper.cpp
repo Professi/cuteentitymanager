@@ -203,10 +203,20 @@ void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
             auto e = list.at(i);
             if (e->getId() == remove->getId()) {
                 list.removeAt(i);
-                EntityHelper::setListProperty(entity, list, property);
                 break;
             }
         }
+        EntityHelper::setListProperty(entity, list, property);
+    }
+}
+
+void EntityHelper::clearEntityListProperty(const QSharedPointer<Entity> &entity,
+        const QMetaProperty &property) {
+    QVariant var = property.read(entity.data());
+    if (var.canConvert<QList<QVariant>>()) {
+        auto list = EntityInstanceFactory::castQVariantList(var);
+        list.clear();
+        EntityHelper::setListProperty(entity, list, property);
     }
 }
 

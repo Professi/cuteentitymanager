@@ -69,11 +69,11 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
 Entity *EntityInstanceFactory::createInstance(const char *className,
         const QHash<QString, QVariant> &attributes) {
     Entity *e = EntityInstanceFactory::createInstance(className);
-    e = EntityInstanceFactory::setAttributes(e, attributes);
+    EntityInstanceFactory::setAttributes(e, attributes);
     return e;
 }
 
-Entity *EntityInstanceFactory::setAttributes(Entity *&e,
+void EntityInstanceFactory::setAttributes(Entity *&e,
         const QHash<QString, QVariant> &attributes,
         QHash<QString, QMetaProperty> metaprops) {
     if (e) {
@@ -95,16 +95,13 @@ Entity *EntityInstanceFactory::setAttributes(Entity *&e,
             ++iterator;
         }
     }
-    return e;
 }
 
-Entity *EntityInstanceFactory::setAttributes(Entity *&e,
+void EntityInstanceFactory::setAttributes(Entity *&e,
         const QHash<QString, QVariant> &attributes) {
     if (!attributes.isEmpty()) {
         auto metaprops = EntityHelper::getMetaProperties(e);
-        return EntityInstanceFactory::setAttributes(e, attributes, metaprops);
-    } else {
-        return e;
+        EntityInstanceFactory::setAttributes(e, attributes, metaprops);
     }
 }
 
@@ -147,7 +144,11 @@ QVariant &list) {
 
 QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
     QVariant &entity) {
-    return *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
+    if(!entity.isNull() && entity.data()) {
+        return *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
+    } else {
+        return QSharedPointer<Entity>();
+    }
 }
 
 QStringList EntityInstanceFactory::getRegisteredClasses() {

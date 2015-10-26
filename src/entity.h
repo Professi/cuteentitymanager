@@ -49,6 +49,7 @@ class Entity : public QObject {
     virtual ~Entity();
     virtual QList<ValidationRule> validationRules() const;
     virtual QString getTablename() const;
+    virtual QString getClassname() const;
     virtual const QHash<QString, Relation> getRelations() const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;

@@ -89,7 +89,7 @@ bool EntityManager::saveObject(QSharedPointer<Entity> &entity,
                                const bool ignoreHasChanged, const bool validate,
                                const bool relationsIgnoreHasChanged) {
     bool merged =  mergedObjects.contains(entity.data());
-    if (!merged && (ignoreHasChanged || this->hasChanged(entity))) {
+    if (entity && !merged && (ignoreHasChanged || this->hasChanged(entity))) {
         if (entity->getProperty(entity->getPrimaryKey()).toLongLong() > -1) {
             return this->mergeObject(entity, mergedObjects, persistRelations, validate,
                                      relationsIgnoreHasChanged);
@@ -105,7 +105,7 @@ bool EntityManager::mergeObject(QSharedPointer<Entity> &entity,
                                 QList<Entity *> &mergedObjects, bool withRelations, const bool validate,
                                 const bool relationsIgnoreHasChanged) {
     bool ok = true;
-    if (!mergedObjects.contains(entity.data())) {
+    if (entity && !mergedObjects.contains(entity.data())) {
         mergedObjects.append(entity.data());
         ok = false;
         if (entity->getId() > -1 && (!validate || this->validate(entity))) {
@@ -134,7 +134,7 @@ bool EntityManager::createObject(QSharedPointer<Entity> &entity,
                                  const bool checkDuplicate, const bool validate,
                                  const bool relationsIgnoreHasChanged) {
     bool rc = true;
-    if (!mergedObjects.contains(entity.data())) {
+    if (entity && !mergedObjects.contains(entity.data())) {
         mergedObjects.append(entity.data());
         rc = false;
         if (this->checkTable(entity) && (!validate || this->validate(entity))
@@ -231,7 +231,6 @@ bool EntityManager::save(QList<QSharedPointer<Entity>> &entities,
             break;
             /**
               * @todo error handling
-              *
               */
         }
     }
@@ -319,9 +318,10 @@ QSharedPointer<Schema> EntityManager::getSchema() const {
 }
 
 void EntityManager::refresh(QSharedPointer<Entity> &entity) {
-    entity = this->findById(entity->getProperty(
-                                entity->getPrimaryKey()).toLongLong(),
-                            EntityHelper::getClassName(entity.data()));
+    if(entity) {
+        auto map  = this->findByPk(entity->getId(), entity);
+        this->convert(map, entity, true);
+    }
 }
 
 QList<QHash<QString, QVariant>> EntityManager::selectByQuery(Query &query) {
@@ -428,7 +428,6 @@ QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
     QSharedPointer<Entity> r;
     if (e && (refresh
               || !(r = this->cache.get(id, EntityHelper::getClassname(e.data()))))) {
-        e->setId(id);
         auto map  = this->findByPk(id, e);
         r = this->convert(map, EntityHelper::getClassname(e.data()), refresh);
     }
@@ -511,23 +510,21 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
     while (iterator != relations.constEnd()) {
         const Relation r = iterator.key();
         auto var = iterator.value().read(entity.data());
-        if (var.data()) {
-            if (r.getType() == RelationType::MANY_TO_ONE) {
-                auto e = EntityInstanceFactory::castQVariant(var);
-                if (this->shouldBeSaved(e, r)) {
-                    this->saveObject(e, mergedObjects, true, ignoreHasChanged);
-                    auto fkProp = EntityHelper::mappedProperty(r, e);
-                    if (fkProp.isValid()) {
-                        EntityHelper::addEntityToListProperty(e, entity, fkProp);
-                    }
-                }
-            } else if (r.getType() == RelationType::ONE_TO_ONE
-                       && r.getMappedBy().isEmpty()) {
-                auto e =  EntityInstanceFactory::castQVariant(var);
+        if (r.getType() == RelationType::MANY_TO_ONE) {
+            auto e = EntityInstanceFactory::castQVariant(var);
+            if (this->shouldBeSaved(e, r)) {
                 this->saveObject(e, mergedObjects, true, ignoreHasChanged);
-                auto prop = EntityHelper::mappedProperty(r, e);
-                EntityHelper::setProperty(e, entity, prop);
+                auto fkProp = EntityHelper::mappedProperty(r, e);
+                if (e && fkProp.isValid()) {
+                    EntityHelper::addEntityToListProperty(e, entity, fkProp);
+                }
             }
+        } else if (r.getType() == RelationType::ONE_TO_ONE
+                   && r.getMappedBy().isEmpty()) {
+            auto e =  EntityInstanceFactory::castQVariant(var);
+            this->saveObject(e, mergedObjects, true, ignoreHasChanged);
+            auto prop = EntityHelper::mappedProperty(r, e);
+            EntityHelper::setProperty(e, entity, prop);
         }
         ++iterator;
     }
@@ -539,31 +536,29 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
     for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
         const Relation r = i.key();
         auto var = i.value().read(entity.data());
-        if (!var.isNull() && var.data()) {
-            if (r.getType() == RelationType::MANY_TO_MANY) {
-                this->persistManyToMany(entity, r, var, mergedObjects, ignoreHasChanged,
-                                        newItem);
-            } else if (r.getType() == RelationType::ONE_TO_MANY) {
-                QList<QSharedPointer<Entity>> list = EntityInstanceFactory::castQVariantList(
-                        var);
-                if (!list.isEmpty()) {
-                    auto fkProp = EntityHelper::mappedProperty(r, list.at(0));
-                    for (int var = 0; var < list.size(); ++var) {
-                        auto e = list.at(var);
-                        if (this->shouldBeSaved(e, r)) {
-                            EntityHelper::setProperty(e, entity, fkProp);
-                            this->saveObject(e, mergedObjects, true, ignoreHasChanged);
-                        }
+        if (r.getType() == RelationType::MANY_TO_MANY) {
+            this->persistManyToMany(entity, r, var, mergedObjects, ignoreHasChanged,
+                                    newItem);
+        } else if (r.getType() == RelationType::ONE_TO_MANY) {
+            QList<QSharedPointer<Entity>> list = EntityInstanceFactory::castQVariantList(
+                    var);
+            if (!list.isEmpty()) {
+                auto fkProp = EntityHelper::mappedProperty(r, list.at(0));
+                for (int var = 0; var < list.size(); ++var) {
+                    auto e = list.at(var);
+                    if (this->shouldBeSaved(e, r) && e) {
+                        EntityHelper::setProperty(e, entity, fkProp);
+                        this->saveObject(e, mergedObjects, true, ignoreHasChanged);
                     }
                 }
-            } else if (r.getType() == RelationType::ONE_TO_ONE
-                       && !r.getMappedBy().isEmpty()) {
-                auto e =  EntityInstanceFactory::castQVariant(var);
-                if(e) {
-                    auto fkProp = EntityHelper::mappedProperty(r, e);
-                    EntityHelper::setProperty(e, entity, fkProp);
-                    this->saveObject(e, mergedObjects, true, ignoreHasChanged);
-                }
+            }
+        } else if (r.getType() == RelationType::ONE_TO_ONE
+                   && !r.getMappedBy().isEmpty()) {
+            auto e =  EntityInstanceFactory::castQVariant(var);
+            if(e) {
+                auto fkProp = EntityHelper::mappedProperty(r, e);
+                EntityHelper::setProperty(e, entity, fkProp);
+                this->saveObject(e, mergedObjects, true, ignoreHasChanged);
             }
         }
     }
@@ -641,11 +636,11 @@ EntityManager *EntityManager::getInstance(QString name) {
 
 bool EntityManager::shouldBeSaved(QSharedPointer<Entity> &entity,
                                   const Relation &r) {
-    return entity && (r.getCascadeType().contains(CascadeType::ALL)
-                      || (entity->getProperty(entity->getPrimaryKey()) > -1
-                          && r.getCascadeType().contains(CascadeType::MERGE))
-                      || (entity->getProperty(entity->getPrimaryKey()) <= -1
-                          && r.getCascadeType().contains(CascadeType::PERSIST)));
+    return r.getCascadeType().contains(CascadeType::ALL)
+           || ((!entity || entity->getProperty(entity->getPrimaryKey()) > -1)
+               && r.getCascadeType().contains(CascadeType::MERGE))
+           || ((!entity || entity->getProperty(entity->getPrimaryKey()) <= -1)
+               && r.getCascadeType().contains(CascadeType::PERSIST));
 }
 
 void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
@@ -776,29 +771,30 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
                                       const Relation &r, QVariant &property, QList<Entity *> &mergedObjects,
                                       const bool ignoreHasChanged, const bool newItem) {
     auto list = property.value<QList<QVariant>>();
-    if (!list.isEmpty() && list.at(0).data()) {
-        auto var = list.at(0);
-        auto ptr = EntityInstanceFactory::castQVariant(var);
-        auto builder = this->schema->getQueryBuilder();
-        QString tblName = builder->generateManyToManyTableName(entity, ptr, r);
-        if (this->schema->containsTable(tblName)) {
-            bool ok = newItem;
-            QSqlQuery q;
-            if (!newItem) {
-                q = builder->manyToManyDelete(
-                        tblName, builder->generateManyToManyColumnName(entity),
-                        entity->getProperty(entity->getPrimaryKey()).toLongLong());
-                ok = this->db->exec(q);
-            } else {
-                q = builder->getQuery();
-            }
-            if (ok) {
-                auto nList = EntityInstanceFactory::castQVariantList(property);
-                this->persistMappedByRelation(nList, q, entity, ptr, r, tblName, mergedObjects);
-            }
+    auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
+                                          EntityInstanceFactory::extractEntityType(QString(property.typeName()))));
+    auto builder = this->schema->getQueryBuilder();
+    QString tblName = builder->generateManyToManyTableName(entity, ptr, r);
+    if (this->schema->containsTable(tblName)) {
+        bool ok = newItem;
+        QSqlQuery q;
+        if (!newItem) {
+            /**
+              * @todo diff and remove entity from relational object when association is deleted
+              */
+            q = builder->manyToManyDelete(
+                    tblName, builder->generateManyToManyColumnName(entity),
+                    entity->getProperty(entity->getPrimaryKey()).toLongLong());
+            ok = this->db->exec(q);
         } else {
-            this->missingManyToManyTable(tblName, entity, r);
+            q = builder->getQuery();
         }
+        if (ok && !list.isEmpty() && list.at(0).data()) {
+            auto nList = EntityInstanceFactory::castQVariantList(property);
+            this->persistMappedByRelation(nList, q, entity, ptr, r, tblName, mergedObjects);
+        }
+    } else {
+        this->missingManyToManyTable(tblName, entity, r);
     }
 }
 
@@ -816,6 +812,7 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                                           (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
                                                   QString(property.typeName()))));
     auto builder = this->schema->getQueryBuilder();
+    EntityHelper::clearEntityListProperty(entity, property);
     if (secEntityPtr) {
         QString tblName = builder->generateManyToManyTableName(entity, secEntityPtr,
                           relation);
@@ -981,6 +978,10 @@ bool EntityManager::createTable(QString className, bool createRelationTables) {
     return this->schema->getQueryBuilder()->createTable(e, createRelationTables);
 }
 
+bool EntityManager::removeTable(QString className) {
+    return this->executeQuery(this->schema->getQueryBuilder()->dropTable(className));
+}
+
 quint8 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
                             bool followInheritance) {
     Query q = Query();
@@ -1037,6 +1038,16 @@ QSharedPointer<Entity> EntityManager::convert(const QHash<QString, QVariant>
         this->resolveRelations(ptr, map, refresh);
     }
     return ptr;
+}
+
+void EntityManager::convert(const QHash<QString, QVariant> &map,
+                            QSharedPointer<Entity> &entity, const bool refresh, const bool resolveRelations) {
+    this->cache.insert(entity);
+    auto data = entity.data();
+    EntityInstanceFactory::setAttributes(data, map);
+    if (resolveRelations) {
+        this->resolveRelations(entity, map, refresh);
+    }
 }
 
 QList<QSharedPointer<Entity>> EntityManager::convert(
