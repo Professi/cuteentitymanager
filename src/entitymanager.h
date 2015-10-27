@@ -362,8 +362,9 @@ class EntityManager : public QObject {
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
                                    const char *classname, const bool refresh = false,
                                    const bool resolveRelations = true);
-    void convert(const QHash<QString, QVariant> &map, QSharedPointer<Entity> &entity, const bool refresh = false,
-                                   const bool resolveRelations = true);
+    void convert(const QHash<QString, QVariant> &map, QSharedPointer<Entity> &entity,
+                 const bool refresh = false,
+                 const bool resolveRelations = true);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant>> maps,
                                           const char *classname, const bool refresh = false,
                                           const bool resolveRelations = true);

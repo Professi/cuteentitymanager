@@ -132,9 +132,8 @@ Entity *EntityInstanceFactory::createInstance(const QMetaObject *object) {
     auto o = object->newInstance();
     if(o) {
         return qobject_cast<Entity *>(o);
-    } else {
-        return EntityInstanceFactory::createInstance(object->className());
     }
+    return EntityInstanceFactory::createInstance(object->className());
 }
 
 QList<QSharedPointer<Entity>> EntityInstanceFactory::castQVariantList(
