@@ -73,7 +73,7 @@ class Entity : public QObject {
     explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
     QList<ErrorMsg> errors;
-    qint64 id;
+    qint64 id = -1;
 };
 }
 #endif // ENTITY_H

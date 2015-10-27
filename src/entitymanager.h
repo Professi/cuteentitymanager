@@ -366,8 +366,7 @@ class EntityManager : public QObject {
                  const bool refresh = false,
                  const bool resolveRelations = true);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant>> maps,
-                                          const char *classname, const bool refresh = false,
-                                          const bool resolveRelations = true);
+                                          const char *classname, const bool refresh = false, const bool resolveRelations = true);
     void missingManyToManyTable(const QString &tblName,
                                 const QSharedPointer<Entity> &e, const Relation &r);
     /**

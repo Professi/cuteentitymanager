@@ -185,12 +185,11 @@ void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
 void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
         &entity, QSharedPointer<Entity> add, const QMetaProperty &property) {
     QVariant var = property.read(entity.data());
-    if (!var.isNull() && var.canConvert<QList<QVariant>>()) {
-        auto list = EntityInstanceFactory::castQVariantList(var);
-        if (!list.contains(add)) {
-            list.append(add);
-            EntityHelper::setListProperty(entity, list, property);
-        }
+    QList<QSharedPointer<Entity>> list = (!var.isNull() && var.data() &&
+                                          var.canConvert<QList<QVariant>>() ? EntityInstanceFactory::castQVariantList(                                              var) : QList<QSharedPointer<Entity>>());
+    if (!list.contains(add)) {
+        list.append(add);
+        EntityHelper::setListProperty(entity, list, property);
     }
 }
 
