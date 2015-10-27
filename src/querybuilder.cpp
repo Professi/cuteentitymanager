@@ -44,8 +44,7 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity,
         if (!rc) {
             QSqlQuery q = this->database->getQuery(this->createTable(tableName,
                                                    tableDefinition));
-            if (this->database->exec(q) && (!createRelationTables || (createRelationTables
-                                            && this->createRelationTables(entity)))) {
+            if (this->database->exec(q) && (!createRelationTables || this->createRelationTables(entity))) {
                 rc = true;
             } else {
                 this->database->getLogger()->logMsg("Table " + entity->getTablename() +
@@ -1075,7 +1074,7 @@ void QueryBuilder::bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
                               bool ignoreID, const QString &primaryKey) const {
     QHash<QString, QVariant>::const_iterator i = h.constBegin();
     while (i != h.constEnd()) {
-        if ((!ignoreID || (ignoreID && !(i.key() == primaryKey)))
+        if ((!ignoreID || !(i.key() == primaryKey))
                 && !i.value().isNull()) {
             this->bindValue(i.key(), i.value(), q);
         }
@@ -1115,7 +1114,7 @@ QString QueryBuilder::attributes(const QHash<QString, QVariant> &m, bool select,
                                  bool ignoreID, const QString &primaryKey) const {
     QString rc = "";
     for (auto i = m.constBegin(); i != m.constEnd(); ++i) {
-        if (!ignoreID || (ignoreID && i.key() != primaryKey)) {
+        if (!ignoreID || i.key() != primaryKey) {
             if (!rc.isEmpty()) {
                 rc += " " + conjunction + " ";
             }
@@ -1284,10 +1283,9 @@ QString QueryBuilder::joinSuperClasses(const QSharedPointer<Entity> &entity)
 const {
     auto classes = EntityHelper::superClasses(entity.data(), true);
     QString joined = "";
-    Entity *e = nullptr;
     for (int var = 0; var < classes.size(); ++var) {
         auto metaObject = classes.at(var);
-        e = EntityInstanceFactory::createInstance(metaObject->className());
+        Entity *e = EntityInstanceFactory::createInstance(metaObject->className());
         if (e) {
             joined.append(" ");
             joined.append(this->leftJoin(e->getTablename(), entity->getTablename(),

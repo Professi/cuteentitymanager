@@ -450,7 +450,7 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
                                 property.typeName());
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>();
         if (refresh || !(this->cache.contains(convertedId, className)
-                         && (ptr = this->cache.get(convertedId, className)) && ptr)) {
+                         && (ptr = this->cache.get(convertedId, className)))) {
             ptr = this->findById(convertedId, className);
         }
         EntityHelper::setProperty(entity, ptr, property);
@@ -828,7 +828,7 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
             QSharedPointer<Entity> e;
             for (int var = 0; var < listMap.size(); ++var) {
                 auto id = listMap.at(var).value(builder->generateManyToManyColumnName(secEntityPtr));
-                if ((!refresh && this->cache.contains(id.toLongLong(), secClassName) && (e = this->cache.get(id.toLongLong(), secClassName))) || !e) {
+                if (refresh || !(this->cache.contains(id.toLongLong(), secClassName) && (e = this->cache.get(id.toLongLong(), secClassName)))) {
                     e = this->findById(id.toLongLong(), secClassName);
                 }
                 if (e) {

@@ -29,7 +29,7 @@ enum class Direction {
 class OrderBy {
   public:
     OrderBy();
-    OrderBy(QString column, Direction direction = Direction::DEFAULT);
+    explicit OrderBy(QString column, Direction direction = Direction::DEFAULT);
     OrderBy(Expression direction);
     QString getColumn() const;
     void setColumn(const QString &value);

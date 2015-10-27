@@ -30,7 +30,7 @@ namespace CuteEntityManager {
  */
 class EntityInspector {
   public:
-    EntityInspector(const MsgType msgType = MsgType::DEBUG);
+    explicit EntityInspector(const MsgType msgType = MsgType::DEBUG);
     ~EntityInspector();
     bool checkRegisteredEntities();
     bool checkEntity(QString name);
