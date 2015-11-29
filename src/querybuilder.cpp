@@ -44,7 +44,8 @@ bool QueryBuilder::createTable(const QSharedPointer<Entity> &entity,
         if (!rc) {
             QSqlQuery q = this->database->getQuery(this->createTable(tableName,
                                                    tableDefinition));
-            if (this->database->exec(q) && (!createRelationTables || this->createRelationTables(entity))) {
+            if (this->database->exec(q) && (!createRelationTables ||
+                                            this->createRelationTables(entity))) {
                 rc = true;
             } else {
                 this->database->getLogger()->logMsg("Table " + entity->getTablename() +
@@ -136,7 +137,6 @@ void QueryBuilder::createRelationFK(QStringList &queries,
                                                QStringList(this->generateColumnNameID(relation.getPropertyName())),
                                                ptr->getTablename(),
                                                QStringList(ptr->getPrimaryKey()), remove, update));
-
         } else if (relation.getType() == RelationType::MANY_TO_MANY) {
             QString tableName = this->generateManyToManyTableName(entity, ptr, relation);
             queries.append(this->createForeignKeyManyToMany(tableName, entity, update,
@@ -201,7 +201,7 @@ QString QueryBuilder::createTableQuery(const QString &tableName,
         } else {
             s += ", ";
         }
-        s+= this->schema->quoteColumnName(i.key()) + " " + this->getColumnType(i.value());
+        s += this->schema->quoteColumnName(i.key()) + " " + this->getColumnType(i.value());
         ++i;
     }
     s += ");";
@@ -435,13 +435,12 @@ QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
 }
 
 QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(
-        const QSharedPointer<Entity> &entity)
-const {
+const QSharedPointer<Entity> &entity) const {
     auto relations = QHash<QString, QHash<QString, QString>>();
-    //QHash<QString, Relation> m = (entity->getInheritanceStrategy() ==
-    //                              InheritanceStrategy::PER_CLASS_TABLE ? entity->getRelations() :
-    //                              EntityHelper::getNonInheritedRelations(entity.data()));
-    QHash<QString, Relation> m = entity->getRelations();
+    QHash<QString, Relation> m = (entity->getInheritanceStrategy() ==
+                                  InheritanceStrategy::PER_CLASS_TABLE ? entity->getRelations() :
+                                  EntityHelper::getNonInheritedRelations(entity.data()));
+    //QHash<QString, Relation> m = entity->getRelations();
     auto props = EntityHelper::getMetaProperties(entity.data());
     for (auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();
@@ -716,7 +715,7 @@ QSqlQuery QueryBuilder::manyToMany(const QString &tableName,
     sql += " " + this->whereKeyword() + " ";
     sql += this->schema->quoteColumnName(
                attribute);
-    sql += " " + this->equalOperator()+" " + this->placeHolder(pk) + ";";
+    sql += " " + this->equalOperator() + " " + this->placeHolder(pk) + ";";
     q.prepare(sql);
     this->bindValue(pk, id, q);
     return q;
@@ -960,7 +959,6 @@ QHash<QString, QMetaProperty> QueryBuilder::processProperties(
         } else {
             usedProperties.insert(i.key(), i.value());
         }
-
     }
     return properties;
 }
@@ -1101,11 +1099,13 @@ QString QueryBuilder::where(const QHash<QString, QVariant> &m,
             ignoreID, primaryKey);
 }
 
-QString QueryBuilder::where(const QString &key, const QVariant &var, bool withKeyword, bool select, bool notEqual) const {
+QString QueryBuilder::where(const QString &key, const QVariant &var, bool withKeyword,
+                            bool select, bool notEqual) const {
     QString r = (withKeyword ? " WHERE " : "");
     r += this->schema->quoteColumnName(key) + (var.isNull() && select
-            ? (" " +(notEqual ? this->isNotNullKeywords(): this->isNullKeywords()))
-            : (notEqual ? this->notEqualOperator() : this->equalOperator() ) + this->placeHolder(key));
+            ? (" " + (notEqual ? this->isNotNullKeywords() : this->isNullKeywords()))
+            : (notEqual ? this->notEqualOperator() : this->equalOperator() ) + this->placeHolder(
+                key));
     return r;
 }
 
@@ -1318,13 +1318,13 @@ Expression QueryBuilder::where(QString condition,
 
 Expression QueryBuilder::equal(QString &key, QVariant &value) {
     Expression exp = Expression(this->where(key, value, false, true, false));
-    exp.appendParam(key,value);
+    exp.appendParam(key, value);
     return exp;
 }
 
 Expression QueryBuilder::notEqual(QString &key, QVariant &value) {
     Expression exp = Expression(this->where(key, value, false, true, true));
-    exp.appendParam(key,value);
+    exp.appendParam(key, value);
     return exp;
 }
 
