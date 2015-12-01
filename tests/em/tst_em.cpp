@@ -22,6 +22,7 @@ class Em : public QObject {
     void testValidate();
     void testRelations();
     void testRelationTableCreation();
+    void testInheritedRelations();
 
   private:
     CuteEntityManager::EntityManager *e;
@@ -69,8 +70,7 @@ void Em::testBasics() {
     QHash<QString, QVariant> attrs = QHash<QString, QVariant>();
     attrs.insert("price", 20);
     attrs.insert("name", "NewTestItem");
-    QSharedPointer<Article> article2 = this->e->findEntityByAttributes<Article>
-                                       (attrs);
+    QSharedPointer<Article> article2 = this->e->findEntityByAttributes<Article>(attrs);
     QVERIFY(article2);
     entity = article2.objectCast<Entity>();
     QVERIFY(this->e->remove(entity));
@@ -81,6 +81,9 @@ void Em::init() {
     QStringList inits = QStringList() << "Person" << "Group" << "Article";
     QVERIFY2(this->e->startup("emTestA", inits), "Failure");
     auto tableNames = this->e->getSchema()->getTableNames();
+    /**
+     * @todo test columns
+     */
     QVERIFY(tableNames.contains("article"));
     QVERIFY(tableNames.contains("person"));
     QVERIFY(tableNames.contains("group"));
@@ -108,18 +111,39 @@ void Em::cleanup() {
 
 void Em::testRelationTableCreation() {
     this->createRelationTables();
-    auto tableNames = this->e->getSchema()->getTableNames();
-    QVERIFY(tableNames.contains("workergroup"));
-    QVERIFY(tableNames.contains("employee"));
-    QVERIFY(tableNames.contains("workergroup_workers"));
-    QVERIFY(!tableNames.contains("group_employee"));
-    QVERIFY(!tableNames.contains("employee_workergroups"));
-    QVERIFY(!tableNames.contains("employee_groups"));
-    QVERIFY(tableNames.contains("cuteentitymanager::databasemigration"));
+    auto tables = this->e->getSchema()->getTables();
+    /**
+     * @todo test columns
+     */
+    QVERIFY(tables.contains("workergroup"));
+    QVERIFY(tables.contains("employee"));
+    QVERIFY(tables.contains("workergroup_workers"));
+    QVERIFY(!tables.contains("group_employee"));
+    QVERIFY(!tables.contains("employee_workergroups"));
+    QVERIFY(!tables.contains("employee_groups"));
+    QVERIFY(tables.contains("cuteentitymanager::databasemigration"));
     auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
     QCOMPARE(migrations.size(), 2);
     QCOMPARE(migrations.at(1)->getVersion(), QString("emTestB"));
     this->deleteRelationTables();
+}
+
+void Em::testInheritedRelations() {
+    QSharedPointer<Employee> e1 = QSharedPointer<Employee>(new Employee(42, "Fenja", "Sey.",
+                                  Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 1, 1), "Psychology"));
+    QSharedPointer<Employee> e2 = QSharedPointer<Employee>(new Employee(11, "Janine",
+                                  "Musterfrau",
+                                  Person::Gender::FEMALE, "janine.jpeg", "", "", QDate(2000, 1, 1), "Health", true));
+    QSharedPointer<WorkerGroup> wg = QSharedPointer<WorkerGroup>(new
+                                     WorkerGroup("Taskforce P&H", 42));
+    wg->addWorker(e1);
+    wg->addWorker(e2);
+    auto entityWorkerGroup = wg.objectCast<Entity>();
+    QVERIFY(this->e->create(entityWorkerGroup));
+    QSharedPointer<Group> g = QSharedPointer<Group>(new Group("EmployeeGroup"));
+    g->setPersons({e1, e2});
+    auto entityGroup = g.objectCast<Entity>();
+    QVERIFY(this->e->create(entityGroup));
 }
 
 void Em::createRelationTables() {
@@ -183,8 +207,7 @@ void Em::testRelations() {
                                 Person::Gender::FEMALE, "janine.jpeg", "", "", QDate(2000, 1, 1)));
     QSharedPointer<Person> p3 = QSharedPointer<Person>(new Person("Fenja", "Sey.",
                                 Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 1, 1)));
-    QSharedPointer<Group> g = QSharedPointer<Group>(new Group());
-    g->setName("TestGroup");
+    QSharedPointer<Group> g = QSharedPointer<Group>(new Group("TestGroup"));
     g->setLeader(p1);
     g->setPersons({p1});
     auto gEnt = g.objectCast<Entity>();

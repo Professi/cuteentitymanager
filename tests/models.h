@@ -90,6 +90,17 @@ class Employee : public Person {
     Q_PROPERTY(bool manager READ isManager WRITE setManager)
   public:
     Employee() : Person() { }
+    Employee(quint64 persNumber, QString firstName, QString familyName,
+             Gender gender = Gender::UNKNOWNGENDER,
+             QString customPictureFileName = QString(), QString namePrefix = QString(),
+             QString nickName = QString(), QDate birthday = QDate(), QString department = QString(),
+             bool manager = false, QObject *parent = 0) : Person(firstName, familyName, gender,
+                         customPictureFileName, namePrefix, nickName, birthday, parent) {
+        this->department = department;
+        this->manager = manager;
+        this->persNumber = persNumber;
+    }
+
     virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const
     override;
     QString getDepartment() const;
@@ -100,6 +111,7 @@ class Employee : public Person {
 
     quint64 getPersNumber() const;
     void setPersNumber(const quint64 &value);
+
 
   private:
     QString department;
@@ -117,6 +129,11 @@ class WorkerGroup : public Entity {
                setWorkers)
   public:
     WorkerGroup() : Entity() { }
+    WorkerGroup(QString name, quint32 efficiency, bool active=true) : Entity() {
+        this->name = name;
+        this->efficiency = efficiency;
+        this->active = active;
+    }
     virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const
     override;
     QString getName() const;
@@ -130,6 +147,7 @@ class WorkerGroup : public Entity {
 
     QList<QSharedPointer<Employee>> getWorkers() const;
     void setWorkers(const QList<QSharedPointer<Employee>> &value);
+    void addWorker(const QSharedPointer<Employee> &value);
 
   private:
     QString name;
@@ -151,7 +169,9 @@ class Group: public CuteEntityManager::Entity {
   public:
     Q_INVOKABLE Group();
     const QHash<QString, CuteEntityManager::Relation> getRelations() const override;
-
+    Group(QString name) : Entity() {
+        this->name = name;
+    }
     QString getName() const;
     void setName(const QString &value);
     QSharedPointer<Person> getLeader() const;

@@ -265,3 +265,8 @@ QList<QSharedPointer<Employee>> WorkerGroup::getWorkers() const {
 void WorkerGroup::setWorkers(const QList<QSharedPointer<Employee>> &value) {
     workers = value;
 }
+
+void WorkerGroup::addWorker(const QSharedPointer<Employee> &value)
+{
+    this->workers.append(value);
+}
