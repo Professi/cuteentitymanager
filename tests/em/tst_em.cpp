@@ -25,6 +25,8 @@ class Em : public QObject {
 
   private:
     CuteEntityManager::EntityManager *e;
+    void createRelationTables();
+    void deleteRelationTables();
 };
 
 Em::Em() {
@@ -105,8 +107,7 @@ void Em::cleanup() {
 }
 
 void Em::testRelationTableCreation() {
-    QStringList relationTables = QStringList() << "Employee" << "WorkerGroup";
-    QVERIFY2(this->e->startup("emTestB", relationTables), "Failure");
+    this->createRelationTables();
     auto tableNames = this->e->getSchema()->getTableNames();
     QVERIFY(tableNames.contains("workergroup"));
     QVERIFY(tableNames.contains("employee"));
@@ -118,6 +119,15 @@ void Em::testRelationTableCreation() {
     auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
     QCOMPARE(migrations.size(), 2);
     QCOMPARE(migrations.at(1)->getVersion(), QString("emTestB"));
+    this->deleteRelationTables();
+}
+
+void Em::createRelationTables() {
+    QStringList relationTables = QStringList() << "Employee" << "WorkerGroup";
+    QVERIFY2(this->e->startup("emTestB", relationTables), "Failure");
+}
+
+void Em::deleteRelationTables() {
     auto qb = this->e->getQueryBuilder();
     QVERIFY(this->e->executeQuery(qb->dropTable("workergroup_workers")));
     QVERIFY(this->e->executeQuery(qb->dropTable("employee")));
