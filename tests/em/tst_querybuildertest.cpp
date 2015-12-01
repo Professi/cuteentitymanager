@@ -39,6 +39,6 @@ void QuerybuilderTest::testCase1()
     QVERIFY2(true, "Failure");
 }
 
-QTEST_APPLESS_MAIN(QuerybuilderTest)
+//QTEST_APPLESS_MAIN(QuerybuilderTest)
 
 #include "tst_querybuildertest.moc"

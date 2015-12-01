@@ -29,12 +29,10 @@ const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(
     auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
     if (superObject) {
         auto superRelations = superObject->getRelations();
-        auto iterator = superRelations.constBegin();
-        while (iterator != relations.constEnd()) {
-            if (relations.contains(iterator.key())) {
-                relations.remove(iterator.key());
+        for (auto i = superRelations.constBegin(); i != superRelations.constEnd(); ++i) {
+            if (relations.contains(i.key())) {
+                relations.remove(i.key());
             }
-            ++iterator;
         }
         delete superObject;
         superObject = nullptr;
@@ -186,7 +184,8 @@ void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
         &entity, QSharedPointer<Entity> add, const QMetaProperty &property) {
     QVariant var = property.read(entity.data());
     QList<QSharedPointer<Entity>> list = (!var.isNull() && var.data() &&
-                                          var.canConvert<QList<QVariant>>() ? EntityInstanceFactory::castQVariantList(                                              var) : QList<QSharedPointer<Entity>>());
+                                          var.canConvert<QList<QVariant>>() ? EntityInstanceFactory::castQVariantList(
+                                                  var) : QList<QSharedPointer<Entity>>());
     if (!list.contains(add)) {
         list.append(add);
         EntityHelper::setListProperty(entity, list, property);

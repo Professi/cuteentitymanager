@@ -10,6 +10,7 @@
 
 using namespace CuteEntityManager;
 class Group;
+class Relation;
 class Person: public Entity {
 
     Q_OBJECT
@@ -82,7 +83,63 @@ class Person: public Entity {
     QList <QSharedPointer<Group>> maintainedGroups;
 };
 
-class Relation;
+class Employee : public Person {
+    Q_OBJECT
+    Q_PROPERTY(QString department READ getDepartment WRITE setDepartment)
+    Q_PROPERTY(quint64 persNumber READ getPersNumber WRITE setPersNumber)
+    Q_PROPERTY(bool manager READ isManager WRITE setManager)
+  public:
+    Employee() : Person() { }
+    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const
+    override;
+    QString getDepartment() const;
+    void setDepartment(const QString &value);
+
+    bool isManager() const;
+    void setManager(bool value);
+
+    quint64 getPersNumber() const;
+    void setPersNumber(const quint64 &value);
+
+  private:
+    QString department;
+    quint64 persNumber;
+    bool manager = false;
+};
+
+
+class WorkerGroup : public Entity {
+    Q_OBJECT
+    Q_PROPERTY(QString name READ getName WRITE setName)
+    Q_PROPERTY(quint32 efficiency READ getEfficiency WRITE setEfficiency)
+    Q_PROPERTY(bool active READ isActive WRITE setActive)
+    Q_PROPERTY(QList<QSharedPointer<Employee>> workers READ getWorkers WRITE
+               setWorkers)
+  public:
+    WorkerGroup() : Entity() { }
+    virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const
+    override;
+    QString getName() const;
+    void setName(const QString &value);
+
+    quint32 getEfficiency() const;
+    void setEfficiency(const quint32 &value);
+
+    bool isActive() const;
+    void setActive(bool value);
+
+    QList<QSharedPointer<Employee>> getWorkers() const;
+    void setWorkers(const QList<QSharedPointer<Employee>> &value);
+
+  private:
+    QString name;
+    quint32 efficiency;
+    bool active = true;
+    QList<QSharedPointer<Employee>> workers;
+};
+
+
+
 class Group: public CuteEntityManager::Entity {
     Q_OBJECT
     Q_PROPERTY(QList<QSharedPointer<Person>> persons READ getPersons WRITE
@@ -97,10 +154,8 @@ class Group: public CuteEntityManager::Entity {
 
     QString getName() const;
     void setName(const QString &value);
-
     QSharedPointer<Person> getLeader() const;
     void setLeader(const QSharedPointer<Person> &value);
-
     QList<QSharedPointer<Person>> getPersons() const;
     void addPerson(const QSharedPointer<Person> &value);
     void setPersons(const QList<QSharedPointer<Person>> &value);

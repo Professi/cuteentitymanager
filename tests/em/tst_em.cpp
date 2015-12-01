@@ -21,6 +21,7 @@ class Em : public QObject {
     void testHasChanged();
     void testValidate();
     void testRelations();
+    void testRelationTableCreation();
 
   private:
     CuteEntityManager::EntityManager *e;
@@ -33,6 +34,8 @@ void Em::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
     this->e = new CuteEntityManager::EntityManager("QSQLITE",
             ":memory:", "", "", "", "", true, "foreign_keys = ON");
 }
@@ -74,21 +77,22 @@ void Em::testBasics() {
 
 void Em::init() {
     QStringList inits = QStringList() << "Person" << "Group" << "Article";
-    QVERIFY2(this->e->startup("test0.1", inits), "Failure");
+    QVERIFY2(this->e->startup("emTestA", inits), "Failure");
     auto tableNames = this->e->getSchema()->getTableNames();
     QVERIFY(tableNames.contains("article"));
     QVERIFY(tableNames.contains("person"));
     QVERIFY(tableNames.contains("group"));
-    QVERIFY(tableNames.contains("group_persons"));
+    QVERIFY(tableNames.contains("person_groups"));
+    QVERIFY(!tableNames.contains("group_persons"));
     QVERIFY(tableNames.contains("cuteentitymanager::databasemigration"));
     auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
     QCOMPARE(migrations.size(), 1);
-    QCOMPARE(migrations.at(0)->getVersion(), QString("test0.1"));
+    QCOMPARE(migrations.at(0)->getVersion(), QString("emTestA"));
 }
 
 void Em::cleanup() {
     auto qb = this->e->getQueryBuilder();
-    QVERIFY(this->e->executeQuery(qb->dropTable("group_persons")));
+    QVERIFY(this->e->executeQuery(qb->dropTable("person_groups")));
     QVERIFY(this->e->executeQuery(qb->dropTable("group")));
     QVERIFY(this->e->executeQuery(qb->dropTable("person")));
     QVERIFY(this->e->executeQuery(qb->dropTable("article")));
@@ -96,13 +100,33 @@ void Em::cleanup() {
     QVERIFY(!tableNames.contains("person"));
     QVERIFY(!tableNames.contains("group"));
     QVERIFY(!tableNames.contains("article"));
-    QVERIFY(!tableNames.contains("group_persons"));
+    QVERIFY(!tableNames.contains("person_groups"));
     QVERIFY(this->e->removeAll("cuteentitymanager::databasemigration"));
 }
 
+void Em::testRelationTableCreation() {
+    QStringList relationTables = QStringList() << "Employee" << "WorkerGroup";
+    QVERIFY2(this->e->startup("emTestB", relationTables), "Failure");
+    auto tableNames = this->e->getSchema()->getTableNames();
+    QVERIFY(tableNames.contains("workergroup"));
+    QVERIFY(tableNames.contains("employee"));
+    QVERIFY(tableNames.contains("workergroup_workers"));
+    QVERIFY(!tableNames.contains("group_employee"));
+    QVERIFY(!tableNames.contains("employee_workergroups"));
+    QVERIFY(!tableNames.contains("employee_groups"));
+    QVERIFY(tableNames.contains("cuteentitymanager::databasemigration"));
+    auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
+    QCOMPARE(migrations.size(), 2);
+    QCOMPARE(migrations.at(1)->getVersion(), QString("emTestB"));
+    auto qb = this->e->getQueryBuilder();
+    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup_workers")));
+    QVERIFY(this->e->executeQuery(qb->dropTable("employee")));
+    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup")));
+}
+
 void Em::testFindById() {
-    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Max", "Mustermann",
-                               Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
+    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "De",
+                               Person::Gender::MALE, "patrick.jpeg", "", "Pat", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->create(ent));
     auto id = p->getId();
@@ -111,8 +135,8 @@ void Em::testFindById() {
 }
 
 void Em::testFindId() {
-    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Max", "Mustermann",
-                               Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
+    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Essi", "Sa",
+                               Person::Gender::MALE, "essi.jpeg", "", "Essi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->create(ent));
     auto entity = QSharedPointer<Entity>(p->copy());
@@ -121,19 +145,19 @@ void Em::testFindId() {
 }
 
 void Em::testHasChanged() {
-    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Max", "Mustermann",
+    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Jelena", "Fl",
                                Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->create(ent));
-    p->setFirstName("Charlotte");
+    p->setFirstName("Laura");
     p->setFamilyName("Musterfrau");
     p->setBirthday(QDate(200, 1, 2));
     QVERIFY(this->e->hasChanged(ent));
 }
 
 void Em::testValidate() {
-    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Max", "Mustermann",
-                               Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
+    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "Pe",
+                               Person::Gender::MALE, "patrick2.jpeg", "", "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->validate(ent));
     p->setFirstName("M");
@@ -143,12 +167,12 @@ void Em::testValidate() {
 }
 
 void Em::testRelations() {
-    QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Max", "Mustermann",
-                                Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
-    QSharedPointer<Person> p2 = QSharedPointer<Person>(new Person("Marie", "Musterfrau",
-                                Person::Gender::FEMALE, "max.jpeg", "", "", QDate(2000, 1, 1)));
-    QSharedPointer<Person> p3 = QSharedPointer<Person>(new Person("Fenja", "Musterfrau",
-                                Person::Gender::FEMALE, "max.jpeg", "", "Fenni", QDate(2000, 1, 1)));
+    QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Lucien", "We",
+                                Person::Gender::MALE, "lucien.jpeg", "", "Luc", QDate(2000, 1, 1)));
+    QSharedPointer<Person> p2 = QSharedPointer<Person>(new Person("Janine", "Musterfrau",
+                                Person::Gender::FEMALE, "janine.jpeg", "", "", QDate(2000, 1, 1)));
+    QSharedPointer<Person> p3 = QSharedPointer<Person>(new Person("Fenja", "Sey.",
+                                Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 1, 1)));
     QSharedPointer<Group> g = QSharedPointer<Group>(new Group());
     g->setName("TestGroup");
     g->setLeader(p1);

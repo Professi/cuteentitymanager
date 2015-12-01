@@ -18,8 +18,7 @@ Person::Person(QString firstName, QString familyName, Gender gender,
 const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
     hash.insert("groups", CuteEntityManager::Relation("groups",
-                RelationType::MANY_TO_MANY,
-                QString("persons")));
+                RelationType::MANY_TO_MANY));
     hash.insert("maintainedGroups", CuteEntityManager::Relation("maintainedGroups",
                 RelationType::ONE_TO_MANY,
                 QString("leader")));
@@ -123,7 +122,7 @@ Group::Group() : Entity() {
 const QHash<QString, CuteEntityManager::Relation> Group::getRelations() const {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
     hash.insert("persons", CuteEntityManager::Relation("persons",
-                RelationType::MANY_TO_MANY));
+                RelationType::MANY_TO_MANY, QString("groups")));
     hash.insert("leader", CuteEntityManager::Relation("leader",
                 RelationType::MANY_TO_ONE));
     return hash;
@@ -197,4 +196,72 @@ QList<CuteEntityManager::ValidationRule> Person::validationRules() const {
     QList<Param> params = {Param("past"), Param("min", QDate(1970, 1, 1))};
     rules.append(ValidationRule("date", "birthday", params));
     return rules;
+}
+
+const QHash<QString, CuteEntityManager::Relation> Employee::getRelations() const {
+    auto relations = Person::getRelations();
+    return relations;
+}
+
+QString Employee::getDepartment() const {
+    return department;
+}
+
+void Employee::setDepartment(const QString &value) {
+    department = value;
+}
+
+bool Employee::isManager() const {
+    return manager;
+}
+
+void Employee::setManager(bool value) {
+    manager = value;
+}
+
+quint64 Employee::getPersNumber() const {
+    return persNumber;
+}
+
+void Employee::setPersNumber(const quint64 &value) {
+    persNumber = value;
+}
+
+const QHash<QString, CuteEntityManager::Relation> WorkerGroup::getRelations() const {
+    auto hash = QHash<QString, CuteEntityManager::Relation>();
+    hash.insert("workers", CuteEntityManager::Relation("workers",
+                RelationType::MANY_TO_MANY));
+    return hash;
+}
+
+QString WorkerGroup::getName() const {
+    return name;
+}
+
+void WorkerGroup::setName(const QString &value) {
+    name = value;
+}
+
+quint32 WorkerGroup::getEfficiency() const {
+    return efficiency;
+}
+
+void WorkerGroup::setEfficiency(const quint32 &value) {
+    efficiency = value;
+}
+
+bool WorkerGroup::isActive() const {
+    return active;
+}
+
+void WorkerGroup::setActive(bool value) {
+    active = value;
+}
+
+QList<QSharedPointer<Employee>> WorkerGroup::getWorkers() const {
+    return workers;
+}
+
+void WorkerGroup::setWorkers(const QList<QSharedPointer<Employee>> &value) {
+    workers = value;
 }

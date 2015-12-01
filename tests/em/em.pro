@@ -17,6 +17,7 @@ TEMPLATE = app
 
 
 SOURCES += tst_em.cpp \
+    tst_querybuildertest.cpp \
     ../models.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
