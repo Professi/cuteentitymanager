@@ -440,7 +440,6 @@ const QSharedPointer<Entity> &entity) const {
     QHash<QString, Relation> m = (entity->getInheritanceStrategy() ==
                                   InheritanceStrategy::PER_CLASS_TABLE ? entity->getRelations() :
                                   EntityHelper::getNonInheritedRelations(entity.data()));
-    //QHash<QString, Relation> m = entity->getRelations();
     auto props = EntityHelper::getMetaProperties(entity.data());
     for (auto i = m.begin(); i != m.end(); ++i) {
         Relation r = i.value();

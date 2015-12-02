@@ -103,7 +103,7 @@ void Em::testDatabaseMigrationTable() {
         QCOMPARE(columns.size(), 3);
         this->containsColumn(columns, "id", QVariant::Int, tblName, true);
         this->containsColumn(columns, "version", QVariant::String);
-        this->containsColumn(columns, "applyTime");
+        this->containsColumn(columns, "applyTime", QVariant::String);
     }
 }
 
@@ -130,7 +130,7 @@ void Em::testTableCreation() {
         this->containsColumn(columns, "firstName", QVariant::String);
         this->containsColumn(columns, "familyName", QVariant::String);
         this->containsColumn(columns, "customPictureFileName", QVariant::String);
-        this->containsColumn(columns, "birthday");
+        this->containsColumn(columns, "birthday", QVariant::String);
         this->containsColumn(columns, "nickName", QVariant::String);
         this->containsColumn(columns, "gender", QVariant::Int);
     }
@@ -142,7 +142,7 @@ void Em::testTableCreation() {
         QCOMPARE(columns.size(), 3);
         this->containsColumn(columns, "id", QVariant::Int, "group", true);
         this->containsColumn(columns, "name", QVariant::String);
-        this->containsColumn(columns, "leader_id");
+        this->containsColumn(columns, "leader_id", QVariant::Int);
     }
     bool containsPersonGroups = tables.contains("person_groups");
     QVERIFY(containsPersonGroups);
@@ -151,8 +151,8 @@ void Em::testTableCreation() {
         auto columns = schema->getColumns();
         QCOMPARE(columns.size(), 3);
         this->containsColumn(columns, "id", QVariant::Int, "person_groups", true);
-        this->containsColumn(columns, "person_id");
-        this->containsColumn(columns, "group_id");
+        this->containsColumn(columns, "person_id", QVariant::Int);
+        this->containsColumn(columns, "group_id", QVariant::Int);
     }
     QVERIFY(!tables.contains("group_persons"));
 }
@@ -163,6 +163,7 @@ void Em::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QStr
     QVERIFY(containsColumn);
     if(containsColumn) {
         auto column = columns.value(name);
+        qDebug() << name << column->type() << type;
         if(type != QVariant::UserType) {
             QCOMPARE(column->type(), type);
         }
@@ -192,11 +193,18 @@ void Em::cleanup() {
 void Em::testRelationTableCreation() {
     this->createRelationTables();
     auto tables = this->e->getSchema()->getTables();
-    /**
-     * @todo test columns
-     */
     QVERIFY(tables.contains("workergroup"));
-    QVERIFY(tables.contains("employee"));
+    bool containsEmployee = tables.contains("employee");
+    QVERIFY(containsEmployee);
+    if(containsEmployee) {
+        auto schema = tables.value("employee");
+        auto columns = schema->getColumns();
+        QCOMPARE(columns.size(), 4);
+        this->containsColumn(columns, "id", QVariant::Int, "employee", true);
+        this->containsColumn(columns, "persNumber", QVariant::String);
+        this->containsColumn(columns, "manager", QVariant::Int);
+        this->containsColumn(columns, "department", QVariant::String);
+    }
     QVERIFY(tables.contains("workergroup_workers"));
     QVERIFY(!tables.contains("group_employee"));
     QVERIFY(!tables.contains("employee_workergroups"));
@@ -225,6 +233,9 @@ void Em::testInheritedRelations() {
         g->setPersons({e1, e2});
         auto entityGroup = g.objectCast<Entity>();
         QVERIFY(this->e->create(entityGroup));
+        g->setName("Taskforce 0008");
+        QVERIFY(this->e->merge(entityGroup));
+        QVERIFY(this->e->remove(entityGroup));
     } catch(QString e) {
         QFAIL(e.toUtf8().constData());
     }
