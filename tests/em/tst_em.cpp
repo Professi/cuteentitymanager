@@ -1,5 +1,6 @@
 #include <QString>
 #include <QtTest>
+#include <QSqlIndex>
 #include "entitymanager.h"
 #include "databasemigration.h"
 #include "../models.h"
@@ -28,6 +29,8 @@ class Em : public QObject {
     CuteEntityManager::EntityManager *e;
     void createRelationTables();
     void deleteRelationTables();
+    void containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QString name,
+                        QVariant::Type type = QVariant::UserType, QString tableName = "", bool pk = false);
 };
 
 Em::Em() {
@@ -80,19 +83,64 @@ void Em::testBasics() {
 void Em::init() {
     QStringList inits = QStringList() << "Person" << "Group" << "Article";
     QVERIFY2(this->e->startup("emTestA", inits), "Failure");
-    auto tableNames = this->e->getSchema()->getTableNames();
-    /**
-     * @todo test columns
-     */
-    QVERIFY(tableNames.contains("article"));
-    QVERIFY(tableNames.contains("person"));
-    QVERIFY(tableNames.contains("group"));
-    QVERIFY(tableNames.contains("person_groups"));
-    QVERIFY(!tableNames.contains("group_persons"));
-    QVERIFY(tableNames.contains("cuteentitymanager::databasemigration"));
+    auto tables = this->e->getSchema()->getTables();
+    bool containsArticle = tables.contains("article");
+    QVERIFY(containsArticle);
+    if(containsArticle) {
+        auto schema = tables.value("article");
+        auto columns = schema->getColumns();
+        QCOMPARE(columns.size(), 3);
+        this->containsColumn(columns, "id", QVariant::Int, "article", true);
+        this->containsColumn(columns, "name", QVariant::String);
+        this->containsColumn(columns, "price", QVariant::Double);
+    }
+    bool containsPerson = tables.contains("person");
+    QVERIFY(containsPerson);
+    if(containsPerson) {
+        auto schema = tables.value("person");
+        auto columns = schema->getColumns();
+        QCOMPARE(columns.size(), 8);
+        this->containsColumn(columns, "id", QVariant::Int, "person", true);
+        this->containsColumn(columns, "namePrefix", QVariant::String);
+        this->containsColumn(columns, "firstName", QVariant::String);
+        this->containsColumn(columns, "familyName", QVariant::String);
+        this->containsColumn(columns, "customPictureFileName", QVariant::String);
+        this->containsColumn(columns, "birthday");
+        this->containsColumn(columns, "nickName", QVariant::String);
+        this->containsColumn(columns, "gender", QVariant::Int);
+    }
+    bool containsGroup = tables.contains("group");
+    QVERIFY(containsGroup);
+    if(containsGroup) {
+        auto schema = tables.value("group");
+        auto columns = schema->getColumns();
+        QCOMPARE(columns.size(), 3);
+        this->containsColumn(columns, "id", QVariant::Int, "group", true);
+        this->containsColumn(columns, "name", QVariant::String);
+        this->containsColumn(columns, "leader_id");
+    }
+    QVERIFY(tables.contains("person_groups"));
+    QVERIFY(!tables.contains("group_persons"));
+    QVERIFY(tables.contains("cuteentitymanager::databasemigration"));
     auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
     QCOMPARE(migrations.size(), 1);
     QCOMPARE(migrations.at(0)->getVersion(), QString("emTestA"));
+}
+
+
+void Em::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QString name,
+                        QVariant::Type type, QString tableName, bool pk) {
+    bool containsColumn = columns.contains(name);
+    QVERIFY(containsColumn);
+    if(containsColumn) {
+        auto column = columns.value(name);
+        if(type != QVariant::UserType) {
+            QCOMPARE(column->type(), type);
+        }
+        if(pk) {
+            QCOMPARE(this->e->getDb()->getDatabase().primaryIndex(tableName).fieldName(0), name);
+        }
+    }
 }
 
 void Em::cleanup() {
@@ -139,11 +187,15 @@ void Em::testInheritedRelations() {
     wg->addWorker(e1);
     wg->addWorker(e2);
     auto entityWorkerGroup = wg.objectCast<Entity>();
-    QVERIFY(this->e->create(entityWorkerGroup));
-    QSharedPointer<Group> g = QSharedPointer<Group>(new Group("EmployeeGroup"));
-    g->setPersons({e1, e2});
-    auto entityGroup = g.objectCast<Entity>();
-    QVERIFY(this->e->create(entityGroup));
+    try {
+        QVERIFY(this->e->create(entityWorkerGroup));
+        QSharedPointer<Group> g = QSharedPointer<Group>(new Group("EmployeeGroup"));
+        g->setPersons({e1, e2});
+        auto entityGroup = g.objectCast<Entity>();
+        QVERIFY(this->e->create(entityGroup));
+    } catch(QString e) {
+        QFAIL(e.toUtf8().constData());
+    }
 }
 
 void Em::createRelationTables() {

@@ -803,10 +803,14 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
 
 void EntityManager::missingManyToManyTable(const QString &tblName,
         const QSharedPointer<Entity> &e, const Relation &r) {
-    this->logger->logMsg("MANY_TO_MANY Table " + tblName + " is missing.\n" +
-                         "Entity " + EntityHelper::getClassName(e.data()) +
-                         " is affected.\n" + "Relation of property: " + r.getPropertyName(),
-                         MsgType::CRITICAL);
+    QString text = "MANY_TO_MANY Table " + tblName + " is missing.\n" +
+                   "Entity " + EntityHelper::getClassName(e.data()) +
+                   " is affected.\n" + "Relation of property: " + r.getPropertyName();
+#ifdef QT_DEBUG
+    throw QString(text);
+#else
+    this->logger->logMsg(text, MsgType::CRITICAL);
+#endif
 }
 
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
@@ -828,7 +832,8 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
             QSharedPointer<Entity> e;
             for (int var = 0; var < listMap.size(); ++var) {
                 auto id = listMap.at(var).value(builder->generateManyToManyColumnName(secEntityPtr));
-                if (refresh || !(this->cache.contains(id.toLongLong(), secClassName) && (e = this->cache.get(id.toLongLong(), secClassName)))) {
+                if (refresh || !(this->cache.contains(id.toLongLong(), secClassName) &&
+                                 (e = this->cache.get(id.toLongLong(), secClassName)))) {
                     e = this->findById(id.toLongLong(), secClassName);
                 }
                 if (e) {
