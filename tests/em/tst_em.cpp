@@ -157,6 +157,7 @@ void Em::testTableCreation() {
     QVERIFY(!tables.contains("group_persons"));
 }
 
+
 void Em::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QString name,
                         QVariant::Type type, QString tableName, bool pk) {
     bool containsColumn = columns.contains(name);
