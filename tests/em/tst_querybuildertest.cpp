@@ -90,12 +90,16 @@ void QuerybuilderTest::testFindByAttributes() {
 
 void QuerybuilderTest::testFindByAttributesManyToOneRelation() {
     QHash<QString, QVariant> attributes;
-    QSharedPointer<Person> person = QSharedPointer<Person>();
-    //@todo fetch person
-    attributes["leader"] = QVariant(person);
+    attributes["firstName"] = QString("Lucien");
+    attributes["familyName"] = QString("We");
+    QSharedPointer<Person> p = e->findEntityByAttributes<Person>(attributes, true);
+    QVERFIY(p);
+    attributes.clear();
+    attributes["leader"] = p;
     QSharedPointer<Group> group = e->findEntityByAttributes<Group>
                                   (attributes, true);
     QVERIFY(group);
+    QCOMPARE(group->getName(),QString("Group Psy"));
 }
 
 void QuerybuilderTest::testFindByAttributesManyToOneRelationAttribute() {
