@@ -1,44 +1,6 @@
-#include <QString>
-#include <QtTest>
-#include <QSqlIndex>
-#include "entitymanager.h"
-#include "databasemigration.h"
-#include "../models.h"
-class Em : public QObject {
-    Q_OBJECT
+#include "tst_em.h"
 
-  public:
-    Em();
-
-  private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
-    void testCheckDuplicates();
-    void testBasics();
-    void init();
-    void cleanup();
-    void testFindById();
-    void testFindId();
-    void testHasChanged();
-    void testValidate();
-    void testRelations();
-    void testRelationTableCreation();
-    void testInheritedRelations();
-    void testDatabaseMigrationTable();
-    void testTableCreation();
-
-  private:
-    CuteEntityManager::EntityManager *e;
-    void createRelationTables();
-    void deleteRelationTables();
-    void containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QString name,
-                        QVariant::Type type = QVariant::UserType, QString tableName = "", bool pk = false);
-};
-
-Em::Em() {
-}
-
-void Em::initTestCase() {
+void EmTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
@@ -48,14 +10,14 @@ void Em::initTestCase() {
             ":memory:", "", "", "", "", true, "foreign_keys = ON");
 }
 
-void Em::cleanupTestCase() {
+void EmTest::cleanupTestCase() {
     if (this->e) {
         delete this->e;
         this->e = nullptr;
     }
 }
 
-void Em::testCheckDuplicates() {
+void EmTest::testCheckDuplicates() {
     QSharedPointer<Article> article = QSharedPointer<Article>(new Article(10,
                                       QString("TestItem")));
     QSharedPointer<Entity> entity = article.objectCast<Entity>();
@@ -64,9 +26,7 @@ void Em::testCheckDuplicates() {
     QVERIFY(!this->e->create(copy, true, true));
 }
 
-
-
-void Em::testBasics() {
+void EmTest::testBasics() {
     QSharedPointer<Article> article = QSharedPointer<Article>(new Article(10,
                                       QString("TestItem")));
     QSharedPointer<Entity> entity = article.objectCast<Entity>();
@@ -84,7 +44,7 @@ void Em::testBasics() {
     QCOMPARE(this->e->count("article"), (quint8)0);
 }
 
-void Em::init() {
+void EmTest::init() {
     QStringList inits = QStringList() << "Person" << "Group" << "Article";
     QVERIFY2(this->e->startup("emTestA", inits), "Failure");
     auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
@@ -92,7 +52,7 @@ void Em::init() {
     QCOMPARE(migrations.at(0)->getVersion(), QString("emTestA"));
 }
 
-void Em::testDatabaseMigrationTable() {
+void EmTest::testDatabaseMigrationTable() {
     auto tables = this->e->getSchema()->getTables();
     QString tblName = "cuteentitymanager::databasemigration";
     bool containsMigration = tables.contains(tblName);
@@ -107,7 +67,7 @@ void Em::testDatabaseMigrationTable() {
     }
 }
 
-void Em::testTableCreation() {
+void EmTest::testTableCreation() {
     auto tables = this->e->getSchema()->getTables();
     bool containsArticle = tables.contains("article");
     QVERIFY(containsArticle);
@@ -158,8 +118,9 @@ void Em::testTableCreation() {
 }
 
 
-void Em::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QString name,
-                        QVariant::Type type, QString tableName, bool pk) {
+void EmTest::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns,
+                            QString name,
+                            QVariant::Type type, QString tableName, bool pk) {
     bool containsColumn = columns.contains(name);
     QVERIFY(containsColumn);
     if(containsColumn) {
@@ -177,7 +138,7 @@ void Em::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns, QStr
 }
 
 
-void Em::cleanup() {
+void EmTest::cleanup() {
     auto qb = this->e->getQueryBuilder();
     QVERIFY(this->e->executeQuery(qb->dropTable("person_groups")));
     QVERIFY(this->e->executeQuery(qb->dropTable("group")));
@@ -191,7 +152,7 @@ void Em::cleanup() {
     QVERIFY(this->e->removeAll("cuteentitymanager::databasemigration"));
 }
 
-void Em::testRelationTableCreation() {
+void EmTest::testRelationTableCreation() {
     this->createRelationTables();
     auto tables = this->e->getSchema()->getTables();
     QVERIFY(tables.contains("workergroup"));
@@ -217,7 +178,7 @@ void Em::testRelationTableCreation() {
     this->deleteRelationTables();
 }
 
-void Em::testInheritedRelations() {
+void EmTest::testInheritedRelations() {
     QSharedPointer<Employee> e1 = QSharedPointer<Employee>(new Employee(42, "Fenja", "S.",
                                   Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 10, 10), "Psychology"));
     QSharedPointer<Employee> e2 = QSharedPointer<Employee>(new Employee(11, "Janine",
@@ -242,12 +203,12 @@ void Em::testInheritedRelations() {
     }
 }
 
-void Em::createRelationTables() {
+void EmTest::createRelationTables() {
     QStringList relationTables = QStringList() << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("emTestB", relationTables), "Failure");
 }
 
-void Em::deleteRelationTables() {
+void EmTest::deleteRelationTables() {
     auto qb = this->e->getQueryBuilder();
     QVERIFY(this->e->executeQuery(qb->dropTable("workergroup_workers")));
     QVERIFY(this->e->executeQuery(qb->dropTable("employee")));
@@ -266,7 +227,7 @@ void Em::deleteRelationTables() {
     QCOMPARE(migrations.size(), 1);
 }
 
-void Em::testFindById() {
+void EmTest::testFindById() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "De",
                                Person::Gender::MALE, "patrick.jpeg", "", "Pat", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
@@ -276,7 +237,7 @@ void Em::testFindById() {
     QVERIFY(this->e->findById(id, p->getClassname()));
 }
 
-void Em::testFindId() {
+void EmTest::testFindId() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Essi", "Sa",
                                Person::Gender::MALE, "essi.jpeg", "", "Essi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
@@ -286,7 +247,7 @@ void Em::testFindId() {
     QVERIFY(foundId  > -1 && foundId == ent->getId());
 }
 
-void Em::testHasChanged() {
+void EmTest::testHasChanged() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Jelena", "Fl",
                                Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
@@ -297,7 +258,7 @@ void Em::testHasChanged() {
     QVERIFY(this->e->hasChanged(ent));
 }
 
-void Em::testValidate() {
+void EmTest::testValidate() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "Pe",
                                Person::Gender::MALE, "patrick2.jpeg", "", "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
@@ -308,7 +269,7 @@ void Em::testValidate() {
     QVERIFY(!this->e->validate(ent) && ent->getErrors().size() == 2);
 }
 
-void Em::testRelations() {
+void EmTest::testRelations() {
     QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Lucien", "We",
                                 Person::Gender::MALE, "lucien.jpeg", "", "Luc", QDate(2000, 1, 1)));
     QSharedPointer<Person> p2 = QSharedPointer<Person>(new Person("Janine", "Musterfrau",
@@ -342,7 +303,3 @@ void Em::testRelations() {
     this->e->refresh(entityFp);
     QVERIFY(firstPerson->getGroups().size() == 0 && g->getPersons().size() == 1);
 }
-
-QTEST_APPLESS_MAIN(Em)
-
-#include "tst_em.moc"

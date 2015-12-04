@@ -39,6 +39,4 @@ void ValidatorsTest::testCase1()
     QVERIFY2(true, "Failure");
 }
 
-QTEST_APPLESS_MAIN(ValidatorsTest)
-
 #include "tst_validatorstest.moc"

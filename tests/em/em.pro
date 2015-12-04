@@ -17,9 +17,12 @@ TEMPLATE = app
 
 
 SOURCES += tst_em.cpp \
-    tst_querybuildertest.cpp \
-    ../models.cpp
+    ../models.cpp \
+    main.cpp \
+    tst_querybuilder.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
 
 HEADERS += \
-    ../models.h
+    ../models.h \
+    tst_em.h \
+    tst_querybuilder.h

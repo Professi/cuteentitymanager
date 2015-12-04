@@ -1,32 +1,4 @@
-#include <QString>
-#include <QtTest>
-#include "entitymanager.h"
-#include "databasemigration.h"
-#include "../models.h"
-
-class QuerybuilderTest : public QObject {
-    Q_OBJECT
-
-  public:
-    QuerybuilderTest();
-
-  private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
-    void testFindByAttributes();
-    void testFindByAttributesManyToOneRelation();
-    void testFindByAttributesManyToOneRelationAttribute();
-    void testFindByAttributesManyToManyRelation();
-    void testFindByAttributesManyToManyRelationAttribute();
-    void testFindByAttributesInheritance();
-    void testQueryBuilder();
-    void testQueryBuilderInheritance();
-  private:
-    CuteEntityManager::EntityManager *e;
-};
-
-QuerybuilderTest::QuerybuilderTest() {
-}
+#include "tst_querybuilder.h"
 
 void QuerybuilderTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
@@ -51,8 +23,8 @@ void QuerybuilderTest::initTestCase() {
     QSharedPointer<Group> g2 = QSharedPointer<Group>(new Group("Group Health"));
     g->setLeader(p1);
     g->setPersons({p1, p2, p4});
-    g->setLeader(p3);
-    g->setPersons({p3});
+    g2->setLeader(p3);
+    g2->setPersons({p3});
     QSharedPointer<WorkerGroup> wg = QSharedPointer<WorkerGroup>(new
                                      WorkerGroup("Taskforce P&H", 50));
     wg->addWorker(p2);
@@ -60,9 +32,13 @@ void QuerybuilderTest::initTestCase() {
     auto gEnt = g.objectCast<Entity>();
     auto g2Ent = g2.objectCast<Entity>();
     auto wgEnt = wg.objectCast<Entity>();
-    QVERIFY(this->e->save(gEnt));
-    QVERIFY(this->e->save(wgEnt));
-    QVERIFY(this->e->save(g2Ent));
+    try {
+        QVERIFY(this->e->save(gEnt));
+        QVERIFY(this->e->save(wgEnt));
+        QVERIFY(this->e->save(g2Ent));
+    } catch(QString s) {
+        QFAIL(s.toUtf8().constData());
+    }
 }
 
 void QuerybuilderTest::cleanupTestCase() {
@@ -93,13 +69,13 @@ void QuerybuilderTest::testFindByAttributesManyToOneRelation() {
     attributes["firstName"] = QString("Lucien");
     attributes["familyName"] = QString("We");
     QSharedPointer<Person> p = e->findEntityByAttributes<Person>(attributes, true);
-    QVERFIY(p);
+    QVERIFY(p);
     attributes.clear();
-    attributes["leader"] = p;
+    attributes["leader"] = QVariant(p);
     QSharedPointer<Group> group = e->findEntityByAttributes<Group>
                                   (attributes, true);
     QVERIFY(group);
-    QCOMPARE(group->getName(),QString("Group Psy"));
+    QCOMPARE(group->getName(), QString("Group Psy"));
 }
 
 void QuerybuilderTest::testFindByAttributesManyToOneRelationAttribute() {
@@ -112,22 +88,48 @@ void QuerybuilderTest::testFindByAttributesManyToOneRelationAttribute() {
 
 void QuerybuilderTest::testFindByAttributesManyToManyRelation() {
     QHash<QString, QVariant> attributes;
+    attributes["persNumber"] = 42;
+    QSharedPointer<Person> p = e->findEntityByAttributes<Person>(attributes, true);
+    QVERIFY(p);
+    QCOMPARE(p->getNickName(), QString("Lotta"));
+    attributes.clear();
+    attributes["persons"] = QVariant(p);
+    QSharedPointer<Group> group = e->findEntityByAttributes<Group>
+                                  (attributes, true);
+    QVERIFY(group);
+    QCOMPARE(group->getName(), QString("Group Health"));
+}
+
+void QuerybuilderTest::testFindByAttributesManyToManyRelationWithList() {
+    QHash<QString, QVariant> attributes;
     QList<QSharedPointer<Person>> persons = QList<QSharedPointer<Person>>();
-//    attributes["persons"] = QVariant(persons);
-//    QSharedPointer<Group> group = e->findEntityByAttributes<Group>
-//                                  (attributes, true);
-// QVERIFY(group);
+    attributes["firstName"] = QString("Lucien");
+    QSharedPointer<Person> p1 = e->findEntityByAttributes<Person>(attributes, true);
+    QVERIFY(p1);
+    QCOMPARE(p1->getFamilyName(), QString("We"));
+    persons.append(p1);
+    attributes["firstName"] = QString("Janine");
+    QSharedPointer<Person> p2 = e->findEntityByAttributes<Person>(attributes, true);
+    QVERIFY(p2);
+    QCOMPARE(p2->getFamilyName(), QString("Musterfrau"));
+    persons.append(p2);
+    attributes.clear();
+    QVariant var;
+    var.setValue<QList<QSharedPointer<Person>>>(persons);
+    attributes["persons"] = var;
+    QSharedPointer<Group> group = e->findEntityByAttributes<Group>
+                                  (attributes, true);
+    QVERIFY(group);
+    QCOMPARE(group->getName(), QString("Group Psy"));
 }
 
 void QuerybuilderTest::testFindByAttributesManyToManyRelationAttribute() {
     QHash<QString, QVariant> attributes;
-    attributes["persons.firstName"] = QString("Fenja");
+    attributes["persons.firstName"] = QString("Janine");
     QSharedPointer<Group> group = e->findEntityByAttributes<Group>
                                   (attributes, true);
     QVERIFY(group);
-}
-
-void QuerybuilderTest::testFindByAttributesInheritance() {
+    QCOMPARE(group->getName(), QString("Group Psy"));
 }
 
 void QuerybuilderTest::testQueryBuilder() {
@@ -143,12 +145,3 @@ void QuerybuilderTest::testQueryBuilder() {
 //    q.setLimit(10);
     //    QList<QSharedPointer<Pupil>> list = e->find<Pupil>(q, true);
 }
-
-void QuerybuilderTest::testQueryBuilderInheritance() {
-}
-
-
-QTESTCASE_H
-//QTEST_APPLESS_MAIN(QuerybuilderTest)
-
-#include "tst_querybuildertest.moc"

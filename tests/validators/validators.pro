@@ -15,5 +15,6 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += tst_validatorstest.cpp
+SOURCES += tst_validatorstest.cpp \
+    main.cpp
 DEFINES += SRCDIR=\\\"$$PWD/\\\"
