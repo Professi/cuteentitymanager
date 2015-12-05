@@ -111,13 +111,13 @@ Expression Query::whereCondition(const QSharedPointer<QueryBuilder> &qb,
     return qb->where(condition, values);
 }
 
-Expression Query::equal(const QSharedPointer<QueryBuilder> &qb, QString &key,
-                        QVariant &value) const {
+Expression Query::equal(const QSharedPointer<QueryBuilder> &qb, QString key,
+                        QVariant value) const {
     return qb->equal(key, value);
 }
 
-Expression Query::notEqual(const QSharedPointer<QueryBuilder> &qb, QString &key,
-                           QVariant &value) const {
+Expression Query::notEqual(const QSharedPointer<QueryBuilder> &qb, QString key,
+                           QVariant value) const {
     return qb->notEqual(key, value);
 }
 

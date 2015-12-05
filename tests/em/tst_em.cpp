@@ -7,7 +7,7 @@ void EmTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
     this->e = new CuteEntityManager::EntityManager("QSQLITE",
-            ":memory:", "", "", "", "", true, "foreign_keys = ON",false);
+            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
 }
 
 void EmTest::cleanupTestCase() {

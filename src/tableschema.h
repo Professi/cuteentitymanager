@@ -30,6 +30,7 @@ class TableSchema {
     TableSchema();
     virtual ~TableSchema();
     virtual QSharedPointer<QSqlField> const getColumn(QString name) const;
+    virtual bool containsColumn(QString name) const;
     virtual const QStringList getColumnNames();
 
     QString getSchemaName() const;

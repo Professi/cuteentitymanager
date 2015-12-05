@@ -32,6 +32,10 @@ const QSharedPointer<QSqlField> TableSchema::getColumn(QString name) const {
     return QSharedPointer<QSqlField>();
 }
 
+bool TableSchema::containsColumn(QString name) const {
+    return this->columns.contains(name);
+}
+
 const QStringList TableSchema::getColumnNames() {
     QStringList l;
     auto columns = this->getColumns();
@@ -77,21 +81,21 @@ void TableSchema::setSequenceName(const QString &value) {
     sequenceName = value;
 }
 
-QHash<QString, QSharedPointer<QSqlField> > TableSchema::getColumns() const {
+QHash<QString, QSharedPointer<QSqlField>> TableSchema::getColumns() const {
     return columns;
 }
 
-void TableSchema::setColumns(const QHash<QString, QSharedPointer<QSqlField> >
+void TableSchema::setColumns(const QHash<QString, QSharedPointer<QSqlField>>
                              &value) {
     columns = value;
 }
-QHash<QString, QSharedPointer<QSqlRelation> > TableSchema::getRelations()
+QHash<QString, QSharedPointer<QSqlRelation>> TableSchema::getRelations()
 const {
     return relations;
 }
 
 void TableSchema::setRelations(
-    const QHash<QString, QSharedPointer<QSqlRelation> > &value) {
+    const QHash<QString, QSharedPointer<QSqlRelation>> &value) {
     relations = value;
 }
 

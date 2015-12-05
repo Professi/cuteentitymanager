@@ -124,9 +124,9 @@ class Query {
                      QString conjunction = QStringLiteral("AND")) const;
     Expression whereCondition(const QSharedPointer<QueryBuilder> &qb, QString condition,
                      QHash<QString, QVariant> values = QHash<QString, QVariant>()) const;
-    Expression equal(const QSharedPointer<QueryBuilder> &qb, QString &key, QVariant &value) const;
-    Expression notEqual(const QSharedPointer<QueryBuilder> &qb, QString &key,
-                        QVariant &value) const;
+    Expression equal(const QSharedPointer<QueryBuilder> &qb, QString key, QVariant value) const;
+    Expression notEqual(const QSharedPointer<QueryBuilder> &qb, QString key,
+                        QVariant value) const;
     Expression between(const QSharedPointer<QueryBuilder> &qb, QString column,
                        QVariant firstValue,
                        QVariant secondValue) const;

@@ -86,7 +86,6 @@ QString Schema::doubleColumn(int precision, bool notNull, QString defaultValue,
 
 QString Schema::decimal(int precision, int scale, bool notNull,
                         QString defaultValue, bool unique, QString checkConstraint) const {
-
     return this->buildColumnSchema(TYPE_DECIMAL,
                                    this->combineScaleAndPrecision(precision, scale), notNull, defaultValue,
                                    unique, checkConstraint);
@@ -194,8 +193,8 @@ QString Schema::quoteSimpleColumnName(QString name) {
     return name.indexOf("`") != -1 || name == "*" ? name : ("`" + name + "`");
 }
 
-QHash<QString, QSharedPointer<TableSchema> > Schema::getTableSchemas(
-    QString schema, bool refresh) {
+QHash<QString, QSharedPointer<TableSchema>> Schema::getTableSchemas(
+QString schema, bool refresh) {
     QStringList names = this->getTableNames();
     for (int i = 0; i < names.size(); ++i) {
         QString name = names.at(i);
@@ -237,6 +236,14 @@ bool Schema::containsTable(QString tblname) {
     return this->database->getDatabase().tables().contains(tblname);
 }
 
+bool Schema::containsColumn(QString tblName, QString colName) {
+    bool r = false;
+    if(this->containsTable(tblName)) {
+        r = this->tables.value(tblName)->containsColumn(colName);
+    }
+    return r;
+}
+
 QSharedPointer<TableSchema> Schema::getTableSchema(QString name, bool refresh) {
     if (this->tables.contains(name) && !refresh) {
         return this->tables.value(name);
@@ -260,11 +267,11 @@ QSharedPointer<QueryBuilder> Schema::getQueryBuilder() const {
     return queryBuilder;
 }
 
-QSharedPointer<QHash<QString, QString> > Schema::getAbstractTypeMap() const {
+QSharedPointer<QHash<QString, QString>> Schema::getAbstractTypeMap() const {
     return abstractTypeMap;
 }
 
-void Schema::setAbstractTypeMap(const QSharedPointer<QHash<QString, QString> >
+void Schema::setAbstractTypeMap(const QSharedPointer<QHash<QString, QString>>
                                 &value) {
     abstractTypeMap = value;
 }
@@ -353,14 +360,14 @@ bool Schema::findColumns(const QSharedPointer<TableSchema> &ts) {
 }
 
 
-QHash<QString, QSharedPointer<TableSchema> > Schema::getTables() {
+QHash<QString, QSharedPointer<TableSchema>> Schema::getTables() {
     if (this->tables.size() != this->getTableNames().size()) {
         this->setTables(this->getTableSchemas());
     }
     return this->tables;
 }
 
-void Schema::setTables(const QHash<QString, QSharedPointer<TableSchema> >
+void Schema::setTables(const QHash<QString, QSharedPointer<TableSchema>>
                        &value) {
     tables = value;
 }

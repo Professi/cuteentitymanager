@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
 //    SqliteBackupProcessor *sqliteproc = new SqliteBackupProcessor(e->getDb(),
 //            QDir::currentPath());
 //    qWarning() << "DB Loaded:" << sqliteproc->sqliteDBMemFile(false, "db.sqlite");
-qDebug() << "EntityManagerObjectName:" << e->objectName();
+    qDebug() << "EntityManagerObjectName:" << e->objectName();
     QThread *entityManager = new QThread();
     e->moveToThread(entityManager);
     qWarning() << "-----------------------------";
@@ -76,11 +76,9 @@ qDebug() << "EntityManagerObjectName:" << e->objectName();
     QSharedPointer<Group> groupFindPtr = groups.at(0);
     qWarning() << "Group:" << groupFindPtr->toString();
     qWarning() << "MainTeacher:" << groupFindPtr->getMainTeacher()->toString();
-
     qWarning() << "-----------------------------";
     qWarning() << "Find Person By Id Version 1";
     qWarning() << "-----------------------------";
-
     QSharedPointer<Entity> personFindPtr = e->findById(1, QString("Person"));
     qDebug() << "HASCHANGED:" << e->hasChanged(personFindPtr);
     e->refresh(personFindPtr);
@@ -89,21 +87,17 @@ qDebug() << "EntityManagerObjectName:" << e->objectName();
     qWarning() << "-----------------------------";
     qWarning() << "Find Person By Id Version 2";
     qWarning() << "-----------------------------";
-
     QSharedPointer<Person> foundMainTeacher = e->findById<Person>(1);
     qWarning() << "FoundMainTeacher:" << foundMainTeacher->toString();
-
     qWarning() << "-----------------------------";
     qWarning() << "Find Pupil with Query Class";
     qWarning() << "-----------------------------";
-
     Query q = Query();
     q.appendWhere(e->getQueryBuilder()->like(QString("firstname"), QString("Tim"),
                   JokerPosition::BEHIND));
     q.appendWhere(e->getQueryBuilder()->andOperator());
     q.appendWhere(e->getQueryBuilder()->arbitraryOperator("<", "birthday",
                   QDate(2000, 10, 10)));
-    //q.appendJoin(Join("person", "pupil.id = person.id"));
     q.setDistinct(true);
     q.appendOrderBy(OrderBy(QString("birthday"), Direction::SORT_DESC));
     q.setLimit(10);
@@ -120,7 +114,6 @@ qDebug() << "EntityManagerObjectName:" << e->objectName();
     qWarning() << "-----------------------------";
     qWarning() << "Find Pupil by Attributes";
     qWarning() << "-----------------------------";
-
     QHash<QString, QVariant> attributes;
     attributes["familyName"] = QString("Dunst");
     QSharedPointer<Pupil> pupil = e->findEntityByAttributes<Pupil>
@@ -137,7 +130,6 @@ qDebug() << "EntityManagerObjectName:" << e->objectName();
     qWarning() << "Remove Group";
     qWarning() << "-----------------------------";
     e->remove(entityGroupFindPtr);
-
     //sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
 //    delete sqliteproc;

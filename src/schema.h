@@ -106,6 +106,7 @@ class Schema {
     virtual void refresh();
     virtual QString getRawTable(QString name);
     virtual bool containsTable(QString tblname);
+    virtual bool containsColumn(QString tblName, QString colName);
 
     QHash<QString, QSharedPointer<TableSchema> > getTables();
     void setTables(const QHash<QString, QSharedPointer<TableSchema> > &value);

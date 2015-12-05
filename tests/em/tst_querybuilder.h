@@ -19,6 +19,15 @@ class QuerybuilderTest : public QObject {
     void testFindByAttributesManyToManyRelationWithList();
     void testFindByAttributesManyToManyRelationAttribute();
     void testQueryBuilder();
+    void testQueryBuilderEntityInheritance();
+    void testQueryBuilderEntityInheritanceWithoutJoin();
+    void testQueryBuilderArbitraryOperator();
+    void testQueryBuilderJoins();
+    void testQueryBuilderManyToOneRelation();
+    void testQueryBuilderManyToOneRelationAttribute();
+    void testQueryBuilderManyToManyRelation();
+    void testQueryBuilderManyToManyRelationAttribute();
+
   private:
     CuteEntityManager::EntityManager *e;
 };

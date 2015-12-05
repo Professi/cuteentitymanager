@@ -34,18 +34,10 @@ namespace CuteEntityManager {
 #define DEFAULTMSGTYPE MsgType::CRITICAL
 #endif
 class Database {
-  private:
-    QSqlDatabase database;
-    QString connectionName;
-    bool supportTransactions;
-    Logger *logger = nullptr;
-    void init();
-    void initLogger(bool logQueries, bool logErrors, MsgType type);
-    bool logQueries;
-    bool logErrors;
 
   public:
-    Database(QSqlDatabase database, bool logQueries = false, bool logErrors = true, MsgType type = DEFAULTMSGTYPE);
+    Database(QSqlDatabase database, bool logQueries = false, bool logErrors = true,
+             MsgType type = DEFAULTMSGTYPE);
     ~Database();
     Database(QString databaseType, QString connectionName = QString(""),
              QString hostname = QString(""),
@@ -73,8 +65,17 @@ class Database {
     bool rollbackTransaction();
     static DatabaseType getDatabaseType(QString s);
     static Schema *getSchema(DatabaseType db,
-                                            QSharedPointer<Database> database);
+                             QSharedPointer<Database> database);
     Logger *getLogger() const;
+  private:
+    QSqlDatabase database;
+    QString connectionName;
+    bool supportTransactions;
+    Logger *logger = nullptr;
+    void init();
+    void initLogger(bool logQueries, bool logErrors, MsgType type);
+    bool logQueries;
+    bool logErrors;
 };
 }
 #endif // DATABASE_H

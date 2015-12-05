@@ -1288,8 +1288,6 @@ const {
     return joined;
 }
 
-//QHash<QString, QVariant> values
-
 Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
                                QString conjunction) const {
     Expression exp = Expression(this->where(conditions, conjunction, false, "id",
