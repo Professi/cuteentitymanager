@@ -1246,14 +1246,6 @@ Expression QueryBuilder::like(QHash<QString, QVariant> conditions,
     return exp;
 }
 
-Expression QueryBuilder::where(QString column, QVariant value) {
-    QString placeholder = column + "_where";
-    Expression exp = Expression(this->schema->quoteColumnName(column) + "=" +
-                                this->placeHolder(placeholder));
-    exp.appendParam(placeholder, value);
-    return exp;
-}
-
 Join QueryBuilder::joinClasses(const QSharedPointer<Entity> &mainEntity,
                                const QSharedPointer<Entity> &foreignEntity, const QString &joinType) const {
     Join j = Join(foreignEntity->getTablename(),
@@ -1296,6 +1288,8 @@ const {
     return joined;
 }
 
+//QHash<QString, QVariant> values
+
 Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
                                QString conjunction) const {
     Expression exp = Expression(this->where(conditions, conjunction, false, "id",
@@ -1306,11 +1300,19 @@ Expression QueryBuilder::where(QHash<QString, QVariant> conditions,
     return exp;
 }
 
-Expression QueryBuilder::where(QString condition,
-                               QHash<QString, QVariant> values) const {
-    Expression exp = Expression(condition);
-    for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
-        exp.appendParam(i.key(), i.value());
+Expression QueryBuilder::where(QString c, QVariant value) {
+    Expression exp;
+    if(value.type() == QVariant::Hash) {
+        auto values = value.toHash();
+        exp = Expression(c);
+        for (auto i = values.constBegin(); i != values.constEnd(); ++i) {
+            exp.appendParam(i.key(), i.value());
+        }
+    } else {
+        QString placeholder = c + "_where";
+        exp = Expression(this->schema->quoteColumnName(c) + "=" +
+                         this->placeHolder(placeholder));
+        exp.appendParam(placeholder, value);
     }
     return exp;
 }

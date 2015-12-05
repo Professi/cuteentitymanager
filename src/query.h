@@ -25,6 +25,20 @@
 namespace CuteEntityManager {
 class Condition;
 class OrderBy;
+class QueryBuilder;
+class Entity;
+/**
+ * @brief The JokerPosition enum
+ * FRONT -> e.g. "%foo"
+ * BEHIND -> e.g. "foo%"
+ * BOTH -> e.g. "%foo%"
+ */
+enum class JokerPosition {
+    FRONT,
+    BEHIND,
+    BOTH,
+    NONE
+};
 enum class Direction;
 class Query {
   public:
@@ -97,6 +111,61 @@ class Query {
     QList<Expression> getHaving() const;
     void setHaving(const QList<Expression> &value);
 
+
+    Expression whereCondition(const QSharedPointer<QueryBuilder> &qb, QString column, QVariant value) const;
+    Join joinClasses(const QSharedPointer<QueryBuilder> &qb,
+                     const QSharedPointer<Entity> &mainEntity,
+                     const QSharedPointer<Entity> &foreignEntity,
+                     const QString &joinType = QStringLiteral("LEFT JOIN"))const;
+    QList<Join> joinBaseClasses(const QSharedPointer<QueryBuilder> &qb,
+                                const QSharedPointer<Entity> &entity);
+    Expression whereCondition(const QSharedPointer<QueryBuilder> &qb,
+                     QHash<QString, QVariant> conditions,
+                     QString conjunction = QStringLiteral("AND")) const;
+    Expression whereCondition(const QSharedPointer<QueryBuilder> &qb, QString condition,
+                     QHash<QString, QVariant> values = QHash<QString, QVariant>()) const;
+    Expression equal(const QSharedPointer<QueryBuilder> &qb, QString &key, QVariant &value) const;
+    Expression notEqual(const QSharedPointer<QueryBuilder> &qb, QString &key,
+                        QVariant &value) const;
+    Expression between(const QSharedPointer<QueryBuilder> &qb, QString column,
+                       QVariant firstValue,
+                       QVariant secondValue) const;
+    Expression notBetween(const QSharedPointer<QueryBuilder> &qb, QString column,
+                          QVariant firstValue,
+                          QVariant secondValue) const;
+    Expression in(const QSharedPointer<QueryBuilder> &qb, QString column,
+                  QList<QVariant> values) const;
+    Expression notIn(const QSharedPointer<QueryBuilder> &qb, QString column,
+                     QList<QVariant> values) const;
+    Expression notOperator(const QSharedPointer<QueryBuilder> &qb, QString op, QString column,
+                           QVariant value) const;
+    Expression orOperator(const QSharedPointer<QueryBuilder> &qb,
+                          QHash<QString, QVariant> conditions,
+                          bool like = false) const;
+    Expression orOperator(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression norOperator(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression andOperator(const QSharedPointer<QueryBuilder> &qb,
+                           QHash<QString, QVariant> conditions) const;
+    Expression andOperator(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression nandOperator(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression arbitraryOperator(const QSharedPointer<QueryBuilder> &qb, QString op,
+                                 QString column,
+                                 QVariant value) const;
+    Expression isNull(const QSharedPointer<QueryBuilder> &qb, QString column) const;
+    Expression isNotNull(const QSharedPointer<QueryBuilder> &qb, QString column) const;
+
+    Expression plainOr(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression plainNor(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression plainAnd(const QSharedPointer<QueryBuilder> &qb)
+    const;
+    Expression plainNand(const QSharedPointer<QueryBuilder> &qb) const;
+    Expression like(const QSharedPointer<QueryBuilder> &qb, QString column, QVariant value,
+                    JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
+    Expression like(const QSharedPointer<QueryBuilder> &qb,
+                    QHash<QString, QVariant> conditions,
+                    QString conjunction = QStringLiteral("AND"),
+                    JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
+
   private:
     QList<Expression> select;
     QString selectOption = QStringLiteral("");
@@ -111,21 +180,6 @@ class Query {
     quint64 limit = 0;
     quint64 offset = 0;
 };
-
-/**
- * @brief The JokerPosition enum
- * FRONT -> e.g. "%foo"
- * BEHIND -> e.g. "foo%"
- * BOTH -> e.g. "%foo%"
- */
-enum class JokerPosition {
-    FRONT,
-    BEHIND,
-    BOTH,
-    NONE
-};
-
-
 }
 
 #endif // QUERY_H

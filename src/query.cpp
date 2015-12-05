@@ -15,6 +15,8 @@
  */
 
 #include "query.h"
+#include "entity.h"
+#include "querybuilder.h"
 using namespace CuteEntityManager;
 Query::Query() {
 }
@@ -81,6 +83,134 @@ QList<Expression> Query::getHaving() const {
 
 void Query::setHaving(const QList<Expression> &value) {
     having = value;
+}
+
+Expression Query::whereCondition(const QSharedPointer<QueryBuilder> &qb, QString column,
+                                 QVariant value) const {
+    return qb->where(column, value);
+}
+
+Join Query::joinClasses(const QSharedPointer<QueryBuilder> &qb,
+                        const QSharedPointer<Entity> &mainEntity, const QSharedPointer<Entity> &foreignEntity,
+                        const QString &joinType) const {
+    return qb->joinClasses(mainEntity, foreignEntity, joinType);
+}
+
+QList<Join> Query::joinBaseClasses(const QSharedPointer<QueryBuilder> &qb,
+                                   const QSharedPointer<Entity> &entity) {
+    return qb->joinBaseClasses(entity);
+}
+
+Expression Query::whereCondition(const QSharedPointer<QueryBuilder> &qb,
+                                 QHash<QString, QVariant> conditions, QString conjunction) const {
+    return qb->where(conditions, conjunction);
+}
+
+Expression Query::whereCondition(const QSharedPointer<QueryBuilder> &qb,
+                                 QString condition, QHash<QString, QVariant> values) const {
+    return qb->where(condition, values);
+}
+
+Expression Query::equal(const QSharedPointer<QueryBuilder> &qb, QString &key,
+                        QVariant &value) const {
+    return qb->equal(key, value);
+}
+
+Expression Query::notEqual(const QSharedPointer<QueryBuilder> &qb, QString &key,
+                           QVariant &value) const {
+    return qb->notEqual(key, value);
+}
+
+Expression Query::between(const QSharedPointer<QueryBuilder> &qb, QString column,
+                          QVariant firstValue, QVariant secondValue) const {
+    return qb->between(column, firstValue, secondValue);
+}
+
+Expression Query::notBetween(const QSharedPointer<QueryBuilder> &qb, QString column,
+                             QVariant firstValue, QVariant secondValue) const {
+    return qb->notBetween(column, firstValue, secondValue);
+}
+
+Expression Query::in(const QSharedPointer<QueryBuilder> &qb, QString column,
+                     QList<QVariant> values) const {
+    return qb->in(column, values);
+}
+
+Expression Query::notIn(const QSharedPointer<QueryBuilder> &qb, QString column,
+                        QList<QVariant> values) const {
+    return qb->notIn(column, values);
+}
+
+Expression Query::notOperator(const QSharedPointer<QueryBuilder> &qb, QString op,
+                              QString column, QVariant value) const {
+    return qb->notOperator(op, column, value);
+}
+
+Expression Query::orOperator(const QSharedPointer<QueryBuilder> &qb,
+                             QHash<QString, QVariant> conditions, bool like) const {
+    return qb->orOperator(conditions, like);
+}
+
+Expression Query::orOperator(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->orOperator();
+}
+
+Expression Query::norOperator(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->norOperator();
+}
+
+Expression Query::andOperator(const QSharedPointer<QueryBuilder> &qb,
+                              QHash<QString, QVariant> conditions) const {
+    return qb->andOperator(conditions);
+}
+
+Expression Query::andOperator(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->andOperator();
+}
+
+Expression Query::nandOperator(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->nandOperator();
+}
+
+Expression Query::arbitraryOperator(const QSharedPointer<QueryBuilder> &qb, QString op,
+                                    QString column, QVariant value) const {
+    return qb->arbitraryOperator(op, column, value);
+}
+
+Expression Query::isNull(const QSharedPointer<QueryBuilder> &qb, QString column) const {
+    return qb->isNull(column);
+}
+
+Expression Query::isNotNull(const QSharedPointer<QueryBuilder> &qb,
+                            QString column) const {
+    return qb->isNotNull(column);
+}
+
+Expression Query::plainOr(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->plainOr();
+}
+
+Expression Query::plainNor(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->plainNor();
+}
+
+Expression Query::plainAnd(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->plainAnd();
+}
+
+Expression Query::plainNand(const QSharedPointer<QueryBuilder> &qb) const {
+    return qb->plainNand();
+}
+
+Expression Query::like(const QSharedPointer<QueryBuilder> &qb, QString column,
+                       QVariant value, JokerPosition jp, QChar wildcard) {
+    return qb->like(column, value, jp, wildcard);
+}
+
+Expression Query::like(const QSharedPointer<QueryBuilder> &qb,
+                       QHash<QString, QVariant> conditions, QString conjunction, JokerPosition jp,
+                       QChar wildcard) {
+    return qb->like(conditions, conjunction, jp, wildcard);
 }
 
 QString Query::getSelectOption() const {

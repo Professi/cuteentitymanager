@@ -103,7 +103,13 @@ class QueryBuilder {
     void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
                     bool ignoreID = false, const QString &primaryKey = QStringLiteral("id")) const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
-    Expression where(QString column, QVariant value);
+    /**
+     * @brief where
+     * @param c if value is a single value than c is the column name if value is a QHash<QString, QVariant> than its a condition
+     * @param value
+     * @return
+     */
+    Expression where(QString c, QVariant value);
     Join joinClasses(const QSharedPointer<Entity> &mainEntity,
                      const QSharedPointer<Entity> &foreignEntity,
                      const QString &joinType = QStringLiteral("LEFT JOIN"))const;
@@ -116,8 +122,6 @@ class QueryBuilder {
      */
     Expression where(QHash<QString, QVariant> conditions,
                      QString conjunction = QStringLiteral("AND")) const;
-    Expression where(QString condition,
-                     QHash<QString, QVariant> values = QHash<QString, QVariant>()) const;
     Expression equal(QString &key, QVariant &value);
     Expression notEqual(QString &key, QVariant &value);
     //void where(Query &query,QHash<QString, QList<QVariant>> conditions, QString concat="AND");
@@ -263,9 +267,10 @@ class QueryBuilder {
                   bool ignoreID = false) const;
     QString where(const QHash<QString, QVariant> &m,
                   const QString &conjunction,
-                  bool ignoreID = false, const QString &primaryKey = "id",
+                  bool ignoreID, const QString &primaryKey = "id",
                   bool withKeyword = true) const;
-    QString where(const QString &key, const QVariant &var, bool withKeyword, bool select=true, bool notEqual=false) const;
+    QString where(const QString &key, const QVariant &var, bool withKeyword,
+                  bool select = true, bool notEqual = false) const;
     QString attributes(const QHash<QString, QVariant> &m, bool select = true,
                        const QString &conjunction = ",",
                        bool ignoreID = false, const QString &primaryKey = "id") const;
