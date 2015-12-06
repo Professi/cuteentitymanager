@@ -91,7 +91,6 @@ bool SqliteBackupProcessor::sqliteDBMemFile(bool save, QString fileName) {
             sqlite3_backup *pBackup;  /* Backup object used to copy data */
             sqlite3 *pTo;             /* Database to copy to (pFile or pInMemory) */
             sqlite3 *pFrom;           /* Database to copy from (pFile or pInMemory) */
-
             /* Open the database file identified by zFilename. Exit early if this fails
             ** for any reason. */
             rc = sqlite3_open( zFilename, &pFile );

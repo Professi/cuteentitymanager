@@ -258,8 +258,7 @@ class QueryBuilder {
             const QSharedPointer<Entity> &entity) const;
     QString generateManyToManyTableName(const QSharedPointer<Entity> &firstEntity,
                                         const QSharedPointer<Entity> &secondEntity, const Relation &r) const;
-    QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity)
-    const;
+    QString generateManyToManyColumnName(const QSharedPointer<Entity> &entity, QString attribute) const;
     QString buildCreateQuery(QHash<QString, QVariant>::const_iterator i,
                              QHash<QString, QVariant>::const_iterator end,
                              QString &p1, QString &p2) const;

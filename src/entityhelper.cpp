@@ -164,6 +164,28 @@ Entity* EntityHelper::copyObject(const Entity *entity) {
     return newInstance;
 }
 
+Entity *EntityHelper::getBaseClassObject(const QSharedPointer<Entity> &entity,
+        QString attributeName) {
+    auto superObject = EntityInstanceFactory::createInstance(entity->metaObject());
+    auto objectBefore = superObject;
+    bool first = true;
+    while(superObject) {
+        auto props = EntityHelper::getMetaProperties(superObject);
+        if(!props.contains(attributeName) ||
+                superObject->getInheritanceStrategy() == InheritanceStrategy::PER_CLASS_TABLE) {
+            break;
+        } else if(!first){
+            delete objectBefore;
+            objectBefore = nullptr;
+        } else {
+            first = false;
+        }
+        objectBefore = superObject;
+        superObject = EntityInstanceFactory::newSuperClassInstance(superObject);
+    }
+    return objectBefore;
+}
+
 const char *EntityHelper::getClassname(const Entity *entity) {
     return entity->metaObject()->className();
 }

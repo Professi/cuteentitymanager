@@ -150,7 +150,7 @@ void QueryBuilder::createRelationFK(QStringList &queries,
 QString QueryBuilder::createForeignKeyManyToMany(const QString &tableName,
         const QSharedPointer<Entity> &entity, const QString &update,
         const QString &remove) const {
-    QString fkColumn = this->generateManyToManyColumnName(entity);
+    QString fkColumn = this->generateManyToManyColumnName(entity, "id");
     QString indexName = this->generateIndexName(fkColumn,
                         tableName, fkColumn,
                         entity->getTablename(), true);
@@ -427,11 +427,16 @@ const {
 QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
         &firstEntity,
         const QSharedPointer<Entity> &secondEntity, const Relation &r) const {
-    if (r.getMappedBy().isEmpty()) {
-        return firstEntity->getTablename() + "_" + r.getPropertyName();
-    } else {
-        return secondEntity->getTablename() + "_" + r.getMappedBy();
+    auto ptr = firstEntity;
+    QString attributeName = r.getPropertyName();
+    if (!r.getMappedBy().isEmpty()) {
+        ptr = secondEntity;
+        attributeName = r.getMappedBy();
     }
+    auto obj = EntityHelper::getBaseClassObject(ptr, attributeName);
+    QString tblName = obj->getTablename() + "_" + attributeName;
+    delete obj;
+    return tblName;
 }
 
 QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(
@@ -446,13 +451,13 @@ const QSharedPointer<Entity> &entity) const {
         if (r.getType() == RelationType::MANY_TO_MANY && r.getMappedBy().isEmpty()) {
             QHash<QString, QString> h = QHash<QString, QString>();
             h.insert(entity->getPrimaryKey(), this->schema->TYPE_BIGPK);
-            h.insert(this->generateManyToManyColumnName(entity),
+            h.insert(this->generateManyToManyColumnName(entity, r.getPropertyName()),
                      this->schema->TYPE_BIGINT);
             auto meta = props.value(r.getPropertyName());
             QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                          (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
                                                  QMetaType::typeName(meta.userType()))));
-            h.insert(this->generateManyToManyColumnName(ptr),
+            h.insert(this->generateManyToManyColumnName(ptr, r.getMappedBy()),
                      this->schema->TYPE_BIGINT);
             relations.insert(this->generateManyToManyTableName(entity, ptr, r), h);
         }
@@ -917,9 +922,12 @@ QString QueryBuilder::limit(const quint64 &limit, const quint64 &offset,
 }
 
 QString QueryBuilder::generateManyToManyColumnName(const QSharedPointer<Entity>
-        &entity) const {
+        &entity, QString attribute) const {
     if (entity) {
-        return this->generateColumnNameID(entity->getTablename());
+        auto obj = EntityHelper::getBaseClassObject(entity, attribute);
+        QString tblName = obj->getTablename();
+        delete obj;
+        return this->generateColumnNameID(tblName);
     }
     this->database->getLogger()->logMsg("Entity is empty!", MsgType::WARNING);
     return "";

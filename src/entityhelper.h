@@ -40,13 +40,14 @@ class EntityHelper {
         const Entity *entity);
     static const QHash<QString, QMetaProperty> getMetaProperties(
         const QMetaObject *object);
-    static const QHash<QString, QMetaProperty> getNonInheritedMetaProperties(const Entity *entity);
+    static const QHash<QString, QMetaProperty> getNonInheritedMetaProperties(
+        const Entity *entity);
     static const QHash<QString, QMetaProperty> getInheritedMetaProperties(
         const Entity *entity);
     static const QHash<Relation, QMetaProperty> getRelationProperties(
         const Entity *entity);
     static Entity* copyObject(const Entity *entity);
-
+    static Entity* getBaseClassObject(const QSharedPointer<Entity> &entity, QString attributeName);
 
     static const char *getClassname(const Entity *entity);
     static const QString getClassName(const Entity *entity);
@@ -54,7 +55,8 @@ class EntityHelper {
                                         QSharedPointer<Entity> add, const QMetaProperty &property);
     static void removeEntityFromListProperty(const QSharedPointer<Entity> &entity,
             QSharedPointer<Entity> remove, const QMetaProperty &property);
-    static void clearEntityListProperty(const QSharedPointer<Entity> &entity, const QMetaProperty &property);
+    static void clearEntityListProperty(const QSharedPointer<Entity> &entity,
+                                        const QMetaProperty &property);
     static void setListProperty(const QSharedPointer<Entity> &entity,
                                 QList<QSharedPointer<Entity>> &list,
                                 const QMetaProperty &property);
@@ -67,8 +69,7 @@ class EntityHelper {
     static QMetaProperty mappedProperty(const Relation &r,
                                         const QSharedPointer<Entity> &foreignEntity);
     static QHash<QString, QVariant> getEntityAttributes(const
-            QHash<QString, QMetaProperty>
-            &props,
+            QHash<QString, QMetaProperty> &props,
             const QSharedPointer<Entity> &entity);
 };
 }
