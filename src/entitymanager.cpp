@@ -20,6 +20,7 @@
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
+#include "attributeresolver.h"
 #include "validators/validatorfactory.h"
 #include "validators/validator.h"
 #include "validators/validatorrule.h"
@@ -50,6 +51,8 @@ void EntityManager::init(bool inspect, const MsgType msgType) {
     this->schema->setTables(this->schema->getTableSchemas());
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
                                  this->schema->getQueryBuilder().data()));
+    this->ar = QSharedPointer<AttributeResolver>(new AttributeResolver(
+                   this->schema->getQueryBuilder()));
     this->appendToInstanceList();
     if (inspect) {
         EntityInspector inspector = EntityInspector(msgType);
@@ -77,6 +80,7 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename,
 EntityManager::~EntityManager() {
     EntityManager::removeConnectionName(this->db->getConnectionName());
     EntityManager::instances.remove(this->objectName());
+    this->ar = QSharedPointer<AttributeResolver>(nullptr);
 }
 
 

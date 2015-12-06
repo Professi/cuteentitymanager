@@ -44,7 +44,7 @@ namespace CuteEntityManager {
 #define INSPECTENTITIES false
 #endif
 
-
+class AttributeResolver;
 class Logger;
 class QueryInterpreter;
 class EntityManager : public QObject {
@@ -382,6 +382,7 @@ protected:
     static QStringList connectionNames;
     static QHash<QString, EntityManager *> instances;
     QSharedPointer<Logger> logger;
+    QSharedPointer<AttributeResolver> ar;
     QString id;
     QSharedPointer<Schema> schema;
     static void setConnectionNames(QStringList list);

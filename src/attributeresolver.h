@@ -24,7 +24,8 @@ class AttributeResolver {
                                          const Relation &r, const QSharedPointer<Entity> &target);
     Attribute* resolveNonRelatedAttribute(const QSharedPointer<Entity> &e,
                                           const QString &attr);
-    const QMetaObject *resolveInheritance(const QSharedPointer<Entity> &e,Attribute *&attribute);
+    const QMetaObject *resolveInheritance(const QSharedPointer<Entity> &e,
+                                          Attribute *&attribute);
     void addAttribute(const QString &className, Attribute *&attr);
     Attribute* resolveExplicitAttribute(const QSharedPointer<Entity> &classObj,
                                         const QString &attribute, QSharedPointer<Entity> related = QSharedPointer<Entity>());
