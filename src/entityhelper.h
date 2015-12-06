@@ -47,8 +47,8 @@ class EntityHelper {
     static const QHash<Relation, QMetaProperty> getRelationProperties(
         const Entity *entity);
     static Entity* copyObject(const Entity *entity);
-    static Entity* getBaseClassObject(const QSharedPointer<Entity> &entity, QString attributeName);
-
+    static Entity* getBaseClassObject(const QSharedPointer<Entity> &entity,
+                                      QString attributeName);
     static const char *getClassname(const Entity *entity);
     static const QString getClassName(const Entity *entity);
     static void addEntityToListProperty(const QSharedPointer<Entity> &entity,

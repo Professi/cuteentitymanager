@@ -96,10 +96,10 @@ void QuerybuilderTest::testFindByAttributesManyToOneRelationAttribute() {
 
 void QuerybuilderTest::testFindByAttributesManyToManyRelation() {
     QHash<QString, QVariant> attributes;
-    attributes["persNumber"] = 42;
+    attributes["firstName"] = "Kristina";
     QSharedPointer<Person> p = e->findEntityByAttributes<Person>(attributes, true);
     QVERIFY(p);
-    QCOMPARE(p->getNickName(), QString("Lotta"));
+    QCOMPARE(p->getFamilyName(), QString("Zero"));
     attributes.clear();
     attributes["persons"] = QVariant(p);
     QSharedPointer<Group> group = e->findEntityByAttributes<Group>
@@ -185,18 +185,21 @@ void QuerybuilderTest::testQueryBuilderArbitraryOperator() {
     q.setLimit(10);
     QList<QSharedPointer<Person>> list = e->find<Person>(q, true);
     QCOMPARE(list.size(), 2);
-    QCOMPARE(list.at(0)->getFirstName(), QString("Janine"));
-    QCOMPARE(list.at(1)->getFirstName(), QString("Lucien"));
+    QCOMPARE(list.at(0)->getFirstName(), QString("Fenja"));
+    QCOMPARE(list.at(0)->getFamilyName(), QString("Sey."));
+    QCOMPARE(list.at(1)->getFirstName(), QString("Fenja"));
+    QCOMPARE(list.at(1)->getFamilyName(), QString("Neu"));
 }
 
 void QuerybuilderTest::testQueryBuilderJoins() {
     auto qb = e->getQueryBuilder();
     Query q = Query();
-    q.appendWhere(q.equal(qb, "firstName", "Kristina"));
+    q.appendWhere(q.equal(qb, "firstName", "Milan"));
     q.appendJoin(Join("person", "person.id = employee.id"));
     QList<QSharedPointer<Employee>> list = e->find<Employee>(q, false);
     QCOMPARE(list.size(), 1);
-    QCOMPARE(list.at(0)->getFirstName(), QString("Kristina"));
+    QCOMPARE(list.at(0)->getFirstName(), QString("Milan"));
+    QCOMPARE(list.at(0)->getFamilyName(), QString("Mes."));
 }
 
 void QuerybuilderTest::testQueryBuilderManyToOneRelation() {
