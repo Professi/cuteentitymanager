@@ -54,7 +54,8 @@ entity.h \
     schema/mysqlquerybuilder.h \
     entityinspector.h \
     sqlitebackupprocessor.h \
-    attribute.h
+    attribute.h \
+    attributeresolver.h
 
 SOURCES += \
 entity.cpp \
@@ -99,7 +100,8 @@ entity.cpp \
     schema/mysqlquerybuilder.cpp \
     entityinspector.cpp \
     sqlitebackupprocessor.cpp \
-    attribute.cpp
+    attribute.cpp \
+    attributeresolver.cpp
 
 win32:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)

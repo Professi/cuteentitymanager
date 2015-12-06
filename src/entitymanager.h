@@ -34,6 +34,7 @@
 #include "cache.h"
 #include "querybuilder.h"
 #include "validators/errormsg.h"
+#include "attribute.h"
 namespace CuteEntityManager {
 #ifdef QT_DEBUG
 #define DEFAULTMSGTYPE MsgType::DEBUG
@@ -279,7 +280,7 @@ class EntityManager : public QObject {
         return newList;
     }
 
-  protected:
+protected:
     bool saveObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
                     const bool persistRelations = true,
                     const bool ignoreHasChanged = false, const bool validate = true,

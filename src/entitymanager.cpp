@@ -580,8 +580,8 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity>>
     this->db->startTransaction();
     auto builder = this->schema->getQueryBuilder();
     q = builder->manyToManyInsert(tblName,
-                                  builder->generateManyToManyColumnName(entity,r.getPropertyName()),
-                                  builder->generateManyToManyColumnName(ptr,r.getMappedBy()));
+                                  builder->generateManyToManyColumnName(entity, r.getPropertyName()),
+                                  builder->generateManyToManyColumnName(ptr, r.getMappedBy()));
     q.bindValue(0, entity->getProperty(entity->getPrimaryKey()));
     auto prop = EntityHelper::mappedProperty(r, ptr);
     QSharedPointer<Entity> item;
@@ -733,7 +733,7 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
             QString tblName = builder->generateManyToManyTableName(e, ptr, r);
             if (this->schema->getTables().contains(tblName)) {
                 QSqlQuery q = builder->manyToManyDelete(
-                                  tblName, builder->generateManyToManyColumnName(e,r.getPropertyName()),
+                                  tblName, builder->generateManyToManyColumnName(e, r.getPropertyName()),
                                   e->getProperty(e->getPrimaryKey()).toLongLong());
                 if (this->db->exec(q)) {
                     bool refresh = r.getCascadeType().contains(CascadeType::REFRESH)
@@ -786,7 +786,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
               * @todo diff and remove entity from relational object when association is deleted
               */
             q = builder->manyToManyDelete(
-                    tblName, builder->generateManyToManyColumnName(entity,r.getPropertyName()),
+                    tblName, builder->generateManyToManyColumnName(entity, r.getPropertyName()),
                     entity->getProperty(entity->getPrimaryKey()).toLongLong());
             ok = this->db->exec(q);
         } else {
@@ -825,13 +825,14 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
                           relation);
         if (this->schema->getTables().contains(tblName)) {
             QSqlQuery q = builder->manyToMany(tblName,
-                                              builder->generateManyToManyColumnName(entity,relation.getPropertyName()),
+                                              builder->generateManyToManyColumnName(entity, relation.getPropertyName()),
                                               entity->getProperty(entity->getPrimaryKey()).toLongLong());
             auto listMap = this->convertQueryResult(q);
             auto secClassName = EntityHelper::getClassName(secEntityPtr.data());
             QSharedPointer<Entity> e;
             for (int var = 0; var < listMap.size(); ++var) {
-                auto id = listMap.at(var).value(builder->generateManyToManyColumnName(secEntityPtr,relation.getMappedBy()));
+                auto id = listMap.at(var).value(builder->generateManyToManyColumnName(secEntityPtr,
+                                                relation.getMappedBy()));
                 if (refresh || !(this->cache.contains(id.toLongLong(), secClassName) &&
                                  (e = this->cache.get(id.toLongLong(), secClassName)))) {
                     e = this->findById(id.toLongLong(), secClassName);
