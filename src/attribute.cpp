@@ -18,6 +18,12 @@ Attribute::Attribute(QString name, QString columnName, QString tableName,
     this->baseTableName = baseTableName;
 }
 
+QString Attribute::toString() const {
+    return this->name + " " + this->columnName + " " + this->tableName + " " +
+           this->relatedTable + " " + this->relatedColumnName + " " + this->conjunctedTable;
+}
+
+
 QString Attribute::getName() const {
     return name;
 }
@@ -73,11 +79,13 @@ void Attribute::setInheritance(const QString &baseTableName,
 }
 
 void Attribute::setRelation(const QString &tableName, const QMetaObject *relatedMetaObj,
+                            const Relation &relation,
                             const QString &conjunctedTable, const QString &relatedColumnName) {
     this->relatedTable = tableName;
     this->relatedClass = relatedMetaObj;
     this->conjunctedTable = conjunctedTable;
     this->relatedColumnName = relatedColumnName;
+    this->relation = relation;
 }
 
 const QMetaProperty Attribute::getMetaProperty() {
@@ -116,3 +124,6 @@ void Attribute::setRelatedColumnName(const QString &value) {
     relatedColumnName = value;
 }
 
+Relation Attribute::getRelation() const {
+    return relation;
+}

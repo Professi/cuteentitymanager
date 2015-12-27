@@ -2,6 +2,7 @@
 #define ATTRIBUTE_H
 #include <QString>
 #include <QMetaObject>
+#include "relation.h"
 namespace CuteEntityManager {
 class Attribute {
   public:
@@ -27,7 +28,7 @@ class Attribute {
     QString getBaseTableName() const;
     void setBaseTableName(const QString &value);
     void setInheritance(const QString &baseTableName, const QMetaObject *baseMetaObj);
-    void setRelation(const QString &tableName, const QMetaObject *relatedMetaObj,
+    void setRelation(const QString &tableName, const QMetaObject *relatedMetaObj, const Relation &relation = Relation(),
                      const QString &conjunctedTable = "", const QString &relatedColumnName = "");
     const QMetaProperty getMetaProperty();
     const QMetaObject *getMetaObj() const;
@@ -42,7 +43,11 @@ class Attribute {
     QString getRelatedColumnName() const;
     void setRelatedColumnName(const QString &value);
 
-  private:
+    Relation getRelation() const;
+
+    QString toString() const;
+
+private:
     QString name;
     QString columnName;
     QString tableName;
@@ -51,6 +56,7 @@ class Attribute {
     const QMetaObject *baseMetaObj;
     QString relatedTable;
     const QMetaObject *relatedClass;
+    Relation relation;
     QString relatedColumnName;
     QString conjunctedTable;
 };

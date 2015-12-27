@@ -301,8 +301,7 @@ protected:
                    const QMetaProperty &property, const bool refresh = false);
     void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                    const QMetaProperty &property, const bool refresh = false);
-    void manyToMany(const QSharedPointer<Entity> &entity,
-                    const QMetaProperty &property, const Relation &relation,
+    void manyToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
                     const bool refresh = false);
     void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
                   const QMetaProperty &property, const bool refresh = false,

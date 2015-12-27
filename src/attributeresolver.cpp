@@ -43,13 +43,16 @@ Attribute *AttributeResolver::resolveManyToManyAttribute(const QSharedPointer<En
         ptr = target;
         attributeName = r.getMappedBy();
     }
-    auto obj = EntityHelper::getBaseClassObject(ptr, attributeName);
+    auto obj = EntityHelper::getBaseClassObject(e, attributeName);
+    /**
+     * @todo check inheritance and mappedBy
+     */
     Attribute *attrObj = new Attribute(attr,
                                        this->qb->generateColumnNameID(obj->getTablename()),
                                        e->getTablename(), e->metaObject());
     this->resolveInheritance(e, attrObj);
-    attrObj->setRelation(target->getTablename(), target->metaObject(),
-                         this->qb->generateManyToManyTableName(obj->getTablename(), attributeName),
+    attrObj->setRelation(target->getTablename(), target->metaObject(), r,
+                         this->qb->generateManyToManyTableName(target->getTablename(), attributeName),
                          this->qb->generateColumnNameID(target->getTablename()));
     delete obj;
     return attrObj;
@@ -63,7 +66,7 @@ Attribute *AttributeResolver::resolveManyToOneAttribute(const QSharedPointer<Ent
                                        this->qb->generateColumnNameID(attr),
                                        e->getTablename(), e->metaObject());
     this->resolveInheritance(e, attrObj);
-    attrObj->setRelation(target->getTablename(), target->metaObject(), "", "id");
+    attrObj->setRelation(target->getTablename(), target->metaObject(), r, "", "id");
     delete obj;
     return attrObj;
 }
@@ -74,7 +77,7 @@ Attribute *AttributeResolver::resolveOneToManyAttribute(const QSharedPointer<Ent
     Attribute *attrObj = new Attribute(attr, "id",
                                        e->getTablename(), e->metaObject());
     this->resolveInheritance(e, attrObj);
-    attrObj->setRelation(target->getTablename(), target->metaObject(), "",
+    attrObj->setRelation(target->getTablename(), target->metaObject(), r, "",
                          this->qb->generateColumnNameID(r.getMappedBy()));
     delete obj;
     return attrObj;
@@ -141,6 +144,24 @@ Attribute *AttributeResolver::resolveAttribute(const QSharedPointer<Entity> &cla
     } else {
         attr = this->resolveExplicitAttribute(classObj, attribute, related);
         this->addAttribute(classObj->getClassname(), attr);
+    }
+    return attr;
+}
+
+Attribute *AttributeResolver::resolveAttribute(const QString &className,
+        const QString &attribute, const QString related) {
+    Attribute *attr = nullptr;
+    if(!className.isEmpty()) {
+        if(this->containsAttribute(className, attribute)) {
+            attr = this->attributes.value(className).value(attribute);
+        } else {
+            QSharedPointer<Entity> e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
+                                           className));
+            QSharedPointer<Entity> rel = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
+                                             related));
+            attr = this->resolveExplicitAttribute(e, attribute, rel);
+            this->addAttribute(className, attr);
+        }
     }
     return attr;
 }

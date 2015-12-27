@@ -818,36 +818,32 @@ void EntityManager::missingManyToManyTable(const QString &tblName,
 }
 
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
-                               const QMetaProperty &property, const Relation &relation, const bool refresh) {
+                               Attribute *&attr, const bool refresh) {
     QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>
-                                          (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
-                                                  QString(property.typeName()))));
+                                          (EntityInstanceFactory::createInstance(attr->getRelatedClass()->className()));
     auto builder = this->schema->getQueryBuilder();
-    EntityHelper::clearEntityListProperty(entity, property);
+    EntityHelper::clearEntityListProperty(entity, attr->getMetaProperty());
     if (secEntityPtr) {
-        QString tblName = builder->generateManyToManyTableName(entity, secEntityPtr,
-                          relation);
-        if (this->schema->getTables().contains(tblName)) {
-            QSqlQuery q = builder->manyToMany(tblName,
-                                              builder->generateManyToManyColumnName(entity, relation.getPropertyName()),
+        if (this->schema->getTables().contains(attr->getTableName())) {
+            QSqlQuery q = builder->manyToMany(attr->getConjunctedTable(),
+                                              attr->getColumnName(),
                                               entity->getProperty(entity->getPrimaryKey()).toLongLong());
             auto listMap = this->convertQueryResult(q);
-            auto secClassName = EntityHelper::getClassName(secEntityPtr.data());
+            auto secClassName = attr->getRelatedClass()->className();
             QSharedPointer<Entity> e;
             for (int var = 0; var < listMap.size(); ++var) {
-                auto id = listMap.at(var).value(builder->generateManyToManyColumnName(secEntityPtr,
-                                                relation.getMappedBy()));
+                auto id = listMap.at(var).value(attr->getRelatedColumnName());
                 if (refresh || !(this->cache.contains(id.toLongLong(), secClassName) &&
                                  (e = this->cache.get(id.toLongLong(), secClassName)))) {
                     e = this->findById(id.toLongLong(), secClassName);
                 }
                 if (e) {
-                    EntityHelper::addEntityToListProperty(entity, e, property);
+                    EntityHelper::addEntityToListProperty(entity, e, attr->getMetaProperty());
                     e = QSharedPointer<Entity>();
                 }
             }
         } else {
-            this->missingManyToManyTable(tblName, entity, relation);
+            this->missingManyToManyTable(attr->getTableName(), entity, attr->getRelation());
         }
     }
 }
@@ -921,8 +917,9 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
     for (auto iterator = props.constBegin(); iterator != props.constEnd(); ++iterator) {
         const Relation r = iterator.key();
         const QMetaProperty property = iterator.value();
-        QString colName = this->schema->getQueryBuilder()->generateColumnNameID(
-                              r.getPropertyName());
+        auto attr = this->ar->resolveAttribute(entity->getClassname(), r.getPropertyName(),
+                                               EntityInstanceFactory::extractEntityType(property.typeName()));
+        QString colName = attr->getColumnName();
         switch (r.getType()) {
         case RelationType::MANY_TO_ONE:
             if (map.contains(colName)) {
@@ -930,7 +927,7 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
             }
             break;
         case RelationType::MANY_TO_MANY:
-            this->manyToMany(entity, property, r, refresh);
+            this->manyToMany(entity, attr, refresh);
             break;
         case RelationType::ONE_TO_MANY:
             this->oneToMany(entity, r, property, refresh);
