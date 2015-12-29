@@ -54,7 +54,8 @@ Attribute *AttributeResolver::resolveManyToManyAttribute(const QSharedPointer<En
                                        baseObj->getTablename(), e->metaObject());
     this->resolveInheritance(e, attrObj);
     attrObj->setRelation(foreignBaseObj->getTablename(), target->metaObject(), r,
-                         this->qb->generateManyToManyTableName(foreignBaseObj->getTablename(), attributeName),
+                         this->qb->generateManyToManyTableName((r.getMappedBy().isEmpty() ? baseObj->getTablename()
+                                 : foreignBaseObj->getTablename()), attributeName),
                          this->qb->generateColumnNameID(foreignColumnName));
     delete baseObj;
     if(foreignBaseObj != target.data()) {
