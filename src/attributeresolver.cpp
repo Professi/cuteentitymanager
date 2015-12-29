@@ -60,8 +60,6 @@ Attribute *AttributeResolver::resolveManyToManyAttribute(const QSharedPointer<En
     if(foreignBaseObj != target.data()) {
         delete foreignBaseObj;
     }
-
-    qDebug() << "RESOLVE";
     return attrObj;
 }
 

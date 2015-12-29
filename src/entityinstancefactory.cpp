@@ -154,3 +154,9 @@ QStringList EntityInstanceFactory::getRegisteredClasses() {
     }
     return registered;
 }
+
+Entity *EntityInstanceFactory::createInstance(Attribute *&attr) {
+    return EntityInstanceFactory::createInstance(
+               EntityInstanceFactory::extractEntityType(
+                   attr->getMetaProperty().typeName()));
+}

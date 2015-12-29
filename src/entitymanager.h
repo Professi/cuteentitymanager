@@ -298,13 +298,11 @@ protected:
                           const QHash<QString, QVariant> &map, const bool refresh = false);
     QHash<QString, QVariant> findByPk(qint64 id, const QSharedPointer<Entity> &e);
     void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
-                   const QMetaProperty &property, const bool refresh = false);
-    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                   const QMetaProperty &property, const bool refresh = false);
+                   Attribute *&attr, const bool refresh = false);
+    void oneToMany(const QSharedPointer<Entity> &entity, Attribute *&attr, const bool refresh = false);
     void manyToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
                     const bool refresh = false);
-    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
-                  const QMetaProperty &property, const bool refresh = false,
+    void oneToOne(const QSharedPointer<Entity> &entity, Attribute *&attr, const bool refresh = false,
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                            QVariant &property, QList<Entity *> &mergedObjects,
