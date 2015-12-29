@@ -1,6 +1,7 @@
 #include "attributeresolver.h"
 #include "entityhelper.h"
 #include "querybuilder.h"
+#include <QDebug>
 using namespace CuteEntityManager;
 
 AttributeResolver::AttributeResolver(QSharedPointer<QueryBuilder> queryBuilder) {
@@ -39,22 +40,28 @@ Attribute *AttributeResolver::resolveManyToManyAttribute(const QSharedPointer<En
         const QString &attr, const Relation &r, const QSharedPointer<Entity> &target) {
     auto ptr = e;
     QString attributeName = r.getPropertyName();
+    QString foreignColumnName = target->getTablename();
+    auto baseObj = EntityHelper::getBaseClassObject(e, attributeName);
+    Entity* foreignBaseObj = target.data();
     if (!r.getMappedBy().isEmpty()) {
         ptr = target;
         attributeName = r.getMappedBy();
+        foreignBaseObj = EntityHelper::getBaseClassObject(ptr, attributeName);
+        foreignColumnName = foreignBaseObj->getTablename();
     }
-    auto obj = EntityHelper::getBaseClassObject(e, attributeName);
-    /**
-     * @todo check inheritance and mappedBy
-     */
     Attribute *attrObj = new Attribute(attr,
-                                       this->qb->generateColumnNameID(obj->getTablename()),
-                                       e->getTablename(), e->metaObject());
+                                       this->qb->generateColumnNameID(baseObj->getTablename()),
+                                       baseObj->getTablename(), e->metaObject());
     this->resolveInheritance(e, attrObj);
-    attrObj->setRelation(target->getTablename(), target->metaObject(), r,
-                         this->qb->generateManyToManyTableName(target->getTablename(), attributeName),
-                         this->qb->generateColumnNameID(target->getTablename()));
-    delete obj;
+    attrObj->setRelation(foreignBaseObj->getTablename(), target->metaObject(), r,
+                         this->qb->generateManyToManyTableName(foreignBaseObj->getTablename(), attributeName),
+                         this->qb->generateColumnNameID(foreignColumnName));
+    delete baseObj;
+    if(foreignBaseObj != target.data()) {
+        delete foreignBaseObj;
+    }
+
+    qDebug() << "RESOLVE";
     return attrObj;
 }
 

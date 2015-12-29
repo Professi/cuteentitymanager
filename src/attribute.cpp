@@ -19,8 +19,8 @@ Attribute::Attribute(QString name, QString columnName, QString tableName,
 }
 
 QString Attribute::toString() const {
-    return this->name + " " + this->columnName + " " + this->tableName + " " +
-           this->relatedTable + " " + this->relatedColumnName + " " + this->conjunctedTable;
+    return ("Attribute: " + this->name + " " + this->columnName + " " + this->tableName + " " +
+           this->relatedTable + " " + this->relatedColumnName + " " + this->conjunctedTable);
 }
 
 
