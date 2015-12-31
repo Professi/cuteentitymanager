@@ -6,9 +6,15 @@ isEmpty(EM_LIBRARY_TYPE) {
         EM_LIBRARY_TYPE = shared
     }
 }
-EM_PATH = $$OUT_PWD
-EM_INCLUDEPATH = $$PWD/src
+MAKESPEC = $$replace($$QMAKESPEC,/," ")
+for(var,$$list($$MAKESPEC)) {
+MAKESPEC = $$var
+}
+EM_INCLUDE_PATH = $$PWD/src
+EM_DEBUG_PATH = $$PWD/build/$$MAKESPEC/$$QT_ARCH/debug
+EM_RELEASE_PATH = $$PWD/build/$$MAKESPEC/$$QT_ARCH/release
 EM_LIB = -lCuteEntityManager
+
 contains(EM_LIBRARY_TYPE,staticlib) {
     DEFINES += CUTE_ENTITY_MANAGER_LIBRARY_STATIC
 } else {
@@ -30,9 +36,4 @@ isEmpty(PREFIX) {
 }
 isEmpty(LIBDIR) {
     LIBDIR=lib
-}
-CONFIG(debug, debug|release) {
-    DESTDIR = $$PWD/build/debug
-} else {
-    DESTDIR = $$PWD/build/release
 }

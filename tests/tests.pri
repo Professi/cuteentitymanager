@@ -6,8 +6,9 @@ QMAKE_CXXFLAGS += -Wall -Wextra
 QT += testlib
 CONFIG -= app_bundle
 CONFIG += testcase
-INCLUDEPATH += $$PWD/../src
-DEPENDPATH += $$PWD/../src
+INCLUDEPATH += $$EM_INCLUDE_PATH
 
-CONFIG(release, debug|release): LIBS+= -L$$PWD/../build/release $$EM_LIB
-CONFIG(debug, debug|release): LIBS+= -L$$PWD/../build/debug $$EM_LIB
+CONFIG(release, debug|release): LIBS+= -L$$EM_RELEASE_PATH $$EM_LIB
+CONFIG(debug, debug|release): LIBS+= -L$$EM_DEBUG_PATH $$EM_LIB
+
+CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
