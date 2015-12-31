@@ -6,7 +6,7 @@ isEmpty(EM_LIBRARY_TYPE) {
         EM_LIBRARY_TYPE = shared
     }
 }
-
+EM_PATH = $$OUT_PWD
 EM_INCLUDEPATH = $$PWD/src
 EM_LIB = -lCuteEntityManager
 contains(EM_LIBRARY_TYPE,staticlib) {
@@ -30,4 +30,9 @@ isEmpty(PREFIX) {
 }
 isEmpty(LIBDIR) {
     LIBDIR=lib
+}
+CONFIG(debug, debug|release) {
+    DESTDIR = $$PWD/build/debug
+} else {
+    DESTDIR = $$PWD/build/release
 }

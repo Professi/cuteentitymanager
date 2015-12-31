@@ -108,7 +108,7 @@ win32:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
 } else {
     LIBS += -lsqlite3
 }
-    
+
 CONFIG += c++14
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code
 headers.path = $$PREFIX/include/cuteEntityManager
