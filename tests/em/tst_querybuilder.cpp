@@ -25,7 +25,10 @@ void QuerybuilderTest::initTestCase() {
                                 Person::Gender::FEMALE, "kristina.jpeg", "", "", QDate(1996, 5, 17)));
     QSharedPointer<Group> g = QSharedPointer<Group>(new Group("Group Psy"));
     QSharedPointer<Group> g2 = QSharedPointer<Group>(new Group("Group Health"));
+    QSharedPointer<Group> g3 = QSharedPointer<Group>(new Group("Group ABC"));
     g->setLeader(p1);
+    g3->setLeader(p3);
+    g3->setPersons({p3});
     g->setPersons({p1, p2, p4});
     g2->setLeader(p3);
     g2->setPersons({p3});
@@ -35,6 +38,7 @@ void QuerybuilderTest::initTestCase() {
     wg->addWorker(p3);
     auto gEnt = g.objectCast<Entity>();
     auto g2Ent = g2.objectCast<Entity>();
+    auto g3Ent = g3.objectCast<Entity>();
     auto wgEnt = wg.objectCast<Entity>();
     auto p5Ent = p5.objectCast<Entity>();
     auto p6Ent = p6.objectCast<Entity>();
@@ -44,6 +48,7 @@ void QuerybuilderTest::initTestCase() {
         QVERIFY(this->e->save(wgEnt));
         QVERIFY(this->e->save(g2Ent));
         QVERIFY(this->e->save(p6Ent));
+        QVERIFY(this->e->save(g3Ent));
     } catch(QString s) {
         qWarning() << s;
     }
@@ -70,6 +75,14 @@ void QuerybuilderTest::testFindByAttributes() {
     QSharedPointer<Employee> p = e->findEntityByAttributes<Employee>(attributes, true);
     QVERIFY(p);
     QCOMPARE(p->getNickName(), QString("Lotta"));
+    QCOMPARE(p->getGroups().size(), 2);
+    attributes.clear();
+    attributes["name"] = "Group ABC";
+    QCOMPARE(p->getMaintainedGroups().size(), 2);
+    QSharedPointer<Group> g = e->findEntityByAttributes<Group>(attributes, true);
+    QVERIFY(g->getLeader());
+    QCOMPARE(g->getLeader()->getFirstName(), QString("Fenja"));
+    QCOMPARE(g->getLeader()->getFamilyName(), QString("Sey."));
 }
 
 void QuerybuilderTest::testFindByAttributesManyToOneRelation() {

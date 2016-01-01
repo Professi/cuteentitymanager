@@ -465,8 +465,8 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
     if (entity.data() && entity->getId() > -1) {
         auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(attr));
         if (e) {
-            QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(attr->getTableName(),
-                          attr->getColumnName(), entity->getId());
+            QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(attr->getRelatedTable(),
+                          attr->getRelatedColumnName(), entity->getId());
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()),
                                           refresh);

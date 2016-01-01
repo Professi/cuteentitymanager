@@ -283,13 +283,20 @@ void EmTest::testRelations() {
     QSharedPointer<Person> p3 = QSharedPointer<Person>(new Person("Fenja", "Sey.",
                                 Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 11, 11)));
     QSharedPointer<Group> g = QSharedPointer<Group>(new Group("TestGroup"));
+    QSharedPointer<Group> g2 = QSharedPointer<Group>(new Group("TestGroup2"));
     g->setLeader(p1);
+    g2->setLeader(p2);
     g->setPersons({p1});
     auto gEnt = g.objectCast<Entity>();
     auto pEnt = p3.objectCast<Entity>();
+    auto pEnt1 = p1.objectCast<Entity>();
     QVERIFY(this->e->save(gEnt));
+    auto maintainedGroups = p1->getMaintainedGroups();
+    maintainedGroups.append(g2);
+    p1->setMaintainedGroups(maintainedGroups);
+    this->e->merge(pEnt1, true, false, true);
     QVERIFY(p1->getId() > -1);
-    QVERIFY(p1->getMaintainedGroups().size() > 0);
+    QCOMPARE(p1->getMaintainedGroups().size(), 2);
     QVERIFY(p1->getGroups().size() > 0);
     g->addPerson(p2);
     g->setName("TestGroupExtended");
