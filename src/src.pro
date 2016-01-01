@@ -103,7 +103,7 @@ entity.cpp \
     attribute.cpp \
     attributeresolver.cpp
 
-win32:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
+!system-sqlite:!contains(LIBS, .*sqlite3.*) {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
 } else {
     LIBS += -lsqlite3
