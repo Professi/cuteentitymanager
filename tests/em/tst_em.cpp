@@ -6,11 +6,10 @@ void EmTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
-//    this->e = new
-//    CuteEntityManager::EntityManager("QSQLITE",
-//                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
     this->e = new CuteEntityManager::EntityManager("QSQLITE",
-            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
+                                     "db.sqlite","","","","",true,"foreign_keys = ON",false);
+//    this->e = new CuteEntityManager::EntityManager("QSQLITE",
+//            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
 }
 
 void EmTest::cleanupTestCase() {
@@ -147,9 +146,9 @@ void EmTest::cleanup() {
     QVERIFY(this->e->executeQuery(qb->dropTable("group")));
     QVERIFY(this->e->executeQuery(qb->dropTable("person")));
     QVERIFY(this->e->executeQuery(qb->dropTable("article")));
-//    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup_workers")));
-//    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup")));
-//    QVERIFY(this->e->executeQuery(qb->dropTable("employee")));
+    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup_workers")));
+    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup")));
+    QVERIFY(this->e->executeQuery(qb->dropTable("employee")));
     auto tableNames = this->e->getSchema()->getTableNames();
     QVERIFY(!tableNames.contains("person"));
     QVERIFY(!tableNames.contains("group"));

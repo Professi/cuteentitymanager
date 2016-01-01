@@ -6,8 +6,8 @@ isEmpty(EM_LIBRARY_TYPE) {
         EM_LIBRARY_TYPE = shared
     }
 }
-MAKESPEC = $$replace($$QMAKESPEC,/," ")
-MAKESPEC = $$replace($$QMAKESPEC,"\\"," ")
+MAKESPEC = $$replace(QMAKESPEC,/," ")
+MAKESPEC = $$replace(MAKESPEC,"\\"," ")
 for(var,$$list($$MAKESPEC)) {
 MAKESPEC = $$var
 }
