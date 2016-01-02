@@ -979,7 +979,7 @@ bool EntityManager::removeTable(QString className) {
     return this->executeQuery(this->schema->getQueryBuilder()->dropTable(className));
 }
 
-quint8 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
+quint32 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
                             bool followInheritance) {
     Query q = Query();
     auto qb = this->schema->getQueryBuilder();
@@ -1000,7 +1000,7 @@ quint8 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
     return this->count(q);
 }
 
-quint8 EntityManager::count(const QString &tableName) {
+quint32 EntityManager::count(const QString &tableName) {
     qint8 rc = -1;
     QSqlQuery q = this->schema->getQueryBuilder()->count(tableName);
     this->db->select(q);
@@ -1010,7 +1010,7 @@ quint8 EntityManager::count(const QString &tableName) {
     return rc;
 }
 
-qint8 EntityManager::count(Query &query) {
+quint32 EntityManager::count(Query &query) {
     qint8 rc = 0;
     query.appendSelect("COUNT(*)");
     QSqlQuery q = this->queryInterpreter->build(query);

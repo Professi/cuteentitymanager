@@ -22,6 +22,8 @@ class QuerybuilderTest : public QObject {
     void testFindByAttributesOneToManyResolve();
     void testFindByAttributesOneToOneResolve();
     void testFindByAttributesManyToOneResolve();
+    void testFindByAttributesSuperClassAttribute();
+    void testQueryBuilderCount();
     void testQueryBuilder();
     void testQueryBuilderEntityInheritance();
     void testQueryBuilderEntityInheritanceWithoutJoin();

@@ -110,9 +110,9 @@ class EntityManager : public QObject {
                      bool createRelationTables = true);
     bool createTable(QString className, bool createRelationTables = true);
     bool removeTable(QString className);
-    quint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
+    quint32 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
                  bool followInheritance = false);
-    quint8 count(const QString &tableName);
+    quint32 count(const QString &tableName);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
@@ -124,7 +124,7 @@ class EntityManager : public QObject {
     void refresh(QSharedPointer<Entity> &entity);
     QList<QHash<QString, QVariant>> selectByQuery(Query &query);
     QList<QHash<QString, QVariant>> selectBySql(const QString &sql);
-    qint8 count(Query &query);
+    quint32 count(Query &query);
     /**
      * @brief EntityManager::validate
      * This validates an entity. Its uses the validationRules() method of the specified entity.

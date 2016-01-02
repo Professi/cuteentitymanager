@@ -107,6 +107,25 @@ void QuerybuilderTest::testFindByAttributesManyToOneResolve() {
     QCOMPARE(g->getLeader()->getFamilyName(), QString("Sey."));
 }
 
+void QuerybuilderTest::testFindByAttributesSuperClassAttribute() {
+    auto qb = e->getQueryBuilder();
+    Query q = Query();
+    q.appendWhere(q.equal(qb, "nickName", QString("Lotta")));
+    QList<QSharedPointer<Employee>> list = e->find<Employee>(q, true);
+    QCOMPARE(list.size(), 1);
+    QCOMPARE(list.at(0)->getPersNumber(), (unsigned long long)42);
+}
+
+void QuerybuilderTest::testQueryBuilderCount() {
+    QVariant var;
+    var.setValue(Person::Gender::FEMALE);
+    auto qb = e->getQueryBuilder();
+    Query q = Query();
+    q.appendWhere(q.equal(qb, "gender", var.toInt()));
+    q.appendFrom("person");
+    QCOMPARE(this->e->count(q), (quint32)4);
+}
+
 
 void QuerybuilderTest::testFindByAttributesManyToOneRelation() {
     QHash<QString, QVariant> attributes;

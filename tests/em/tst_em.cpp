@@ -41,7 +41,7 @@ void EmTest::testBasics() {
     QVERIFY(article2);
     entity = article2.objectCast<Entity>();
     QVERIFY(this->e->remove(entity));
-    QCOMPARE(this->e->count("article"), (quint8)0);
+    QCOMPARE(this->e->count("article"), (quint32)0);
 }
 
 void EmTest::init() {

@@ -174,7 +174,7 @@ Entity *EntityHelper::getBaseClassObject(const QSharedPointer<Entity> &entity,
         if(!props.contains(attributeName) ||
                 superObject->getInheritanceStrategy() == InheritanceStrategy::PER_CLASS_TABLE) {
             break;
-        } else if(!first){
+        } else if(!first) {
             delete objectBefore;
             objectBefore = nullptr;
         } else {
@@ -291,7 +291,11 @@ QHash<QString, QVariant> EntityHelper::getEntityAttributes(
     auto i = props.constBegin();
     while (i != props.constEnd()) {
         if (!transientAttrs.contains(i.key()) && !relations.contains(i.key())) {
-            map.insert(i.key(), i.value().read(entity.data()));
+            if(i.value().isEnumType()) {
+                map.insert(i.key(), i.value().read(entity.data()).toInt());
+            } else {
+                map.insert(i.key(), i.value().read(entity.data()));
+            }
         }
         ++i;
     }
