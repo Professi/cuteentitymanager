@@ -16,10 +16,7 @@ class Person: public Entity {
     Q_OBJECT
     Q_PROPERTY(QString firstName READ getFirstName WRITE setFirstName)
     Q_PROPERTY(QString familyName READ getFamilyName WRITE setFamilyName)
-    Q_PROPERTY(QString namePrefix READ getNamePrefix WRITE setNamePrefix)
     Q_PROPERTY(QString nickName READ getNickName WRITE setNickName)
-    Q_PROPERTY(QString customPictureFileName READ getCustomPictureFileName WRITE
-               setCustomPictureFileName)
     Q_PROPERTY(QDate birthday READ getBirthday WRITE setBirthday)
     Q_PROPERTY(Gender gender READ getGender WRITE setGender)
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
@@ -33,7 +30,6 @@ class Person: public Entity {
     Q_INVOKABLE explicit Person(QObject *parent = 0);
     Person(QString firstName, QString familyName,
            Gender gender = Gender::UNKNOWNGENDER,
-           QString customPictureFileName = QString(), QString namePrefix = QString(),
            QString nickName = QString(), QDate birthday = QDate(), QObject *parent = 0);
 
     virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const
@@ -49,9 +45,6 @@ class Person: public Entity {
     QString getFamilyName() const;
     void setFamilyName(const QString &value);
 
-    QString getNamePrefix() const;
-    void setNamePrefix(const QString &value);
-
     QString getNickName() const;
     void setNickName(const QString &value);
 
@@ -60,9 +53,6 @@ class Person: public Entity {
 
     Gender getGender() const;
     void setGender(const Gender &value);
-
-    QString getCustomPictureFileName() const;
-    void setCustomPictureFileName(const QString &value);
 
     QList<QSharedPointer<Group>> getGroups() const;
     void setGroups(const QList<QSharedPointer<Group>> &value);
@@ -74,11 +64,9 @@ class Person: public Entity {
   protected:
     QString firstName;
     QString familyName;
-    QString namePrefix;
     QString nickName;
     QDate birthday;
     Gender gender;
-    QString customPictureFileName;
     QList <QSharedPointer<Group>> groups;
     QList <QSharedPointer<Group>> maintainedGroups;
 };
@@ -92,10 +80,9 @@ class Employee : public Person {
     Employee() : Person() { }
     Employee(quint64 persNumber, QString firstName, QString familyName,
              Gender gender = Gender::UNKNOWNGENDER,
-             QString customPictureFileName = QString(), QString namePrefix = QString(),
              QString nickName = QString(), QDate birthday = QDate(), QString department = QString(),
              bool manager = false, QObject *parent = 0) : Person(firstName, familyName, gender,
-                         customPictureFileName, namePrefix, nickName, birthday, parent) {
+                         nickName, birthday, parent) {
         this->department = department;
         this->manager = manager;
         this->persNumber = persNumber;

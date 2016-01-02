@@ -3,7 +3,6 @@
 void QuerybuilderTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
-    CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
     this->e = new CuteEntityManager::EntityManager("QSQLITE",
@@ -11,18 +10,18 @@ void QuerybuilderTest::initTestCase() {
     QStringList inits = QStringList() << "Person" << "Group" << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("queryBuilderTest", inits), "Failure");
     QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Lucien", "We",
-                                Person::Gender::MALE, "lucien.jpeg", "", "Luc", QDate(1995, 2, 4)));
+                                Person::Gender::MALE, "Luc", QDate(1995, 2, 4)));
     QSharedPointer<Employee> p2 = QSharedPointer<Employee>(new Employee(11, "Janine",
                                   "Musterfrau",
-                                  Person::Gender::FEMALE, "janine.jpeg", "", "", QDate(1992, 8, 5), "B"));
+                                  Person::Gender::FEMALE, "", QDate(1992, 8, 5), "B"));
     QSharedPointer<Employee> p3 = QSharedPointer<Employee>(new Employee(42, "Fenja", "Sey.",
-                                  Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 11, 11), "A"));
+                                  Person::Gender::FEMALE, "Lotta", QDate(1990, 11, 11), "A"));
     QSharedPointer<Person> p4 = QSharedPointer<Person>(new Person("Fenja", "Neu",
-                                Person::Gender::FEMALE, "fenja2.jpeg", "", "Fenni", QDate(1980, 5, 30)));
+                                Person::Gender::FEMALE, "Fenni", QDate(1980, 5, 30)));
     QSharedPointer<Employee> p5 = QSharedPointer<Employee>(new Employee(90, "Milan", "Mes.",
-                                  Person::Gender::MALE, "milan.jpeg", "", "", QDate(1994, 3, 27), "D"));
+                                  Person::Gender::MALE, "", QDate(1994, 3, 27), "D"));
     QSharedPointer<Person> p6 = QSharedPointer<Person>(new Person("Kristina", "Zero",
-                                Person::Gender::FEMALE, "kristina.jpeg", "", "", QDate(1996, 5, 17)));
+                                Person::Gender::FEMALE, "", QDate(1996, 5, 17)));
     QSharedPointer<Group> g = QSharedPointer<Group>(new Group("Group Psy"));
     QSharedPointer<Group> g2 = QSharedPointer<Group>(new Group("Group Health"));
     QSharedPointer<Group> g3 = QSharedPointer<Group>(new Group("Group ABC"));

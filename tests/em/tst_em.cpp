@@ -87,12 +87,10 @@ void EmTest::testTableCreation() {
     if(containsPerson) {
         auto schema = tables.value("person");
         auto columns = schema->getColumns();
-        QCOMPARE(columns.size(), 8);
+        QCOMPARE(columns.size(), 6);
         this->containsColumn(columns, "id", QVariant::Int, "person", true);
-        this->containsColumn(columns, "namePrefix", QVariant::String);
         this->containsColumn(columns, "firstName", QVariant::String);
         this->containsColumn(columns, "familyName", QVariant::String);
-        this->containsColumn(columns, "customPictureFileName", QVariant::String);
         this->containsColumn(columns, "birthday", QVariant::String);
         this->containsColumn(columns, "nickName", QVariant::String);
         this->containsColumn(columns, "gender", QVariant::Int);
@@ -140,16 +138,12 @@ void EmTest::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns,
     }
 }
 
-
 void EmTest::cleanup() {
     auto qb = this->e->getQueryBuilder();
     QVERIFY(this->e->executeQuery(qb->dropTable("person_groups")));
     QVERIFY(this->e->executeQuery(qb->dropTable("group")));
     QVERIFY(this->e->executeQuery(qb->dropTable("person")));
     QVERIFY(this->e->executeQuery(qb->dropTable("article")));
-//    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup_workers")));
-//    QVERIFY(this->e->executeQuery(qb->dropTable("workergroup")));
-//    QVERIFY(this->e->executeQuery(qb->dropTable("employee")));
     auto tableNames = this->e->getSchema()->getTableNames();
     QVERIFY(!tableNames.contains("person"));
     QVERIFY(!tableNames.contains("group"));
@@ -168,7 +162,7 @@ void EmTest::testRelationTableCreation() {
         auto schema = tables.value("employee");
         auto columns = schema->getColumns();
         QCOMPARE(columns.size(), 4);
-        this->containsColumn(columns, "id", QVariant::Int, "employee", true);
+        this->containsColumn(columns, "id", QVariant::Int, "employee", false);
         this->containsColumn(columns, "persNumber", QVariant::String);
         this->containsColumn(columns, "manager", QVariant::Int);
         this->containsColumn(columns, "department", QVariant::String);
@@ -186,10 +180,10 @@ void EmTest::testRelationTableCreation() {
 
 void EmTest::testInheritedRelations() {
     QSharedPointer<Employee> e1 = QSharedPointer<Employee>(new Employee(42, "Fenja", "S.",
-                                  Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 10, 10), "Psychology"));
+                                  Person::Gender::FEMALE, "Lotta", QDate(1990, 10, 10), "Psychology"));
     QSharedPointer<Employee> e2 = QSharedPointer<Employee>(new Employee(11, "Janine",
                                   "Musterfrau",
-                                  Person::Gender::FEMALE, "janine.jpeg", "", "", QDate(2000, 1, 1), "Health", true));
+                                  Person::Gender::FEMALE, "", QDate(2000, 1, 1), "Health", true));
     QSharedPointer<WorkerGroup> wg = QSharedPointer<WorkerGroup>(new
                                      WorkerGroup("Taskforce P&H", 42));
     wg->addWorker(e1);
@@ -235,7 +229,7 @@ void EmTest::deleteRelationTables() {
 
 void EmTest::testFindById() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "De",
-                               Person::Gender::MALE, "patrick.jpeg", "", "Pat", QDate(2000, 1, 1)));
+                               Person::Gender::MALE, "Pat", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->create(ent));
     auto id = p->getId();
@@ -245,7 +239,7 @@ void EmTest::testFindById() {
 
 void EmTest::testFindId() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Essi", "Sa",
-                               Person::Gender::MALE, "essi.jpeg", "", "Essi", QDate(2000, 1, 1)));
+                               Person::Gender::MALE, "Essi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->create(ent));
     auto entity = QSharedPointer<Entity>(p->copy());
@@ -255,7 +249,7 @@ void EmTest::testFindId() {
 
 void EmTest::testHasChanged() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Jelena", "Fl",
-                               Person::Gender::MALE, "max.jpeg", "", "Maxi", QDate(2000, 1, 1)));
+                               Person::Gender::MALE, "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->create(ent));
     p->setFirstName("Laura");
@@ -266,7 +260,7 @@ void EmTest::testHasChanged() {
 
 void EmTest::testValidate() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "Pe",
-                               Person::Gender::MALE, "patrick2.jpeg", "", "Maxi", QDate(2000, 1, 1)));
+                               Person::Gender::MALE, "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
     QVERIFY(this->e->validate(ent));
     p->setFirstName("M");
@@ -277,11 +271,11 @@ void EmTest::testValidate() {
 
 void EmTest::testRelations() {
     QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Lucien", "We",
-                                Person::Gender::MALE, "lucien.jpeg", "", "Luc", QDate(2000, 1, 1)));
+                                Person::Gender::MALE, "Luc", QDate(2000, 1, 1)));
     QSharedPointer<Person> p2 = QSharedPointer<Person>(new Person("Janine", "Musterfrau",
-                                Person::Gender::FEMALE, "janine.jpeg", "", "", QDate(2000, 1, 1)));
+                                Person::Gender::FEMALE, "", QDate(2000, 1, 1)));
     QSharedPointer<Person> p3 = QSharedPointer<Person>(new Person("Fenja", "Sey.",
-                                Person::Gender::FEMALE, "fenja.jpeg", "", "Lotta", QDate(1990, 11, 11)));
+                                Person::Gender::FEMALE, "Lotta", QDate(1990, 11, 11)));
     QSharedPointer<Group> g = QSharedPointer<Group>(new Group("TestGroup"));
     QSharedPointer<Group> g2 = QSharedPointer<Group>(new Group("TestGroup2"));
     g->setLeader(p1);
