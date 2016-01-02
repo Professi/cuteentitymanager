@@ -117,11 +117,9 @@ void QuerybuilderTest::testFindByAttributesSuperClassAttribute() {
 }
 
 void QuerybuilderTest::testQueryBuilderCount() {
-    QVariant var;
-    var.setValue(Person::Gender::FEMALE);
     auto qb = e->getQueryBuilder();
     Query q = Query();
-    q.appendWhere(q.equal(qb, "gender", var.toInt()));
+    q.appendWhere(q.equal(qb, "gender", (int) Person::Gender::FEMALE));
     q.appendFrom("person");
     QCOMPARE(this->e->count(q), (quint32)4);
 }
