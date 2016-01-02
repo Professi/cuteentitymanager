@@ -6,9 +6,6 @@ void EmTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
-//    this->e = new
-//    CuteEntityManager::EntityManager("QSQLITE",
-//                                     QDir::currentPath() + "/db.sqlite", "", "", "", 0, true);
     this->e = new CuteEntityManager::EntityManager("QSQLITE",
             ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
 }

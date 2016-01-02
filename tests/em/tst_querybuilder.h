@@ -18,6 +18,10 @@ class QuerybuilderTest : public QObject {
     void testFindByAttributesManyToManyRelation();
     void testFindByAttributesManyToManyRelationWithList();
     void testFindByAttributesManyToManyRelationAttribute();
+    void testFindByAttributesManyToManyResolve();
+    void testFindByAttributesOneToManyResolve();
+    void testFindByAttributesOneToOneResolve();
+    void testFindByAttributesManyToOneResolve();
     void testQueryBuilder();
     void testQueryBuilderEntityInheritance();
     void testQueryBuilderEntityInheritanceWithoutJoin();
