@@ -9,25 +9,15 @@ env:
   - CONFIG=Debug
 
 install:
-  - if [ "${TRAVIS_OS_NAME}" = "linux" ]; then
-      sudo apt-add-repository -y ppa:ubuntu-toolchain-r/test
-      && sudo apt-add-repository -y ppa:beineri/opt-qt541
-      && sudo apt-get -qq update
-      && sudo apt-get -qq install gcc-5 libc6-i386 qt54tools qt54svg qt54webkit
-      && export CXX="g++-5"
-      && export CC="gcc-5"
-      && export QMAKE=/usr/lib/x86_64-linux-gnu/qt5/bin/qmake
-      ;
-    else
-         brew update
-      && brew unlink cmake
-      && brew install cmake
-      && brew install qt5
-      && chmod -R 755 /usr/local/opt/qt5/*
-      ;
-    fi
+    sudo add-apt-repository -y ppa:ubuntu-sdk-team/ppa
+    sudo apt-get update
+    sudo apt-get install qtbase5-dev libqt5sql5-mysql libqt5sql5-sqlite
+    sudo apt-get install lcov odbcinst libmyodbc odbc-postgresql
 
 script:
-  -  QMAKE
-    && make -j 3
+  -  qmake
+    && make
     && make check
+
+notifications:
+  email: false
