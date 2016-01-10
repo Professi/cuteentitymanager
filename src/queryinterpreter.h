@@ -21,14 +21,14 @@
 #include <QRegularExpressionMatchIterator>
 namespace CuteEntityManager {
 class Query;
-class QueryBuilder;
 class Join;
 class OrderBy;
 class Expression;
+class AttributeResolver;
 class QueryInterpreter {
   public:
-    QueryInterpreter(QueryBuilder *builder);
-    QSqlQuery build(Query &q);
+    QueryInterpreter(QSharedPointer<AttributeResolver> ar);
+    QSqlQuery build(Query &q, const QMetaObject *obj=nullptr);
 
   protected:
     QString buildSelect(Query &q, const QList<Expression> &columns,
@@ -45,7 +45,7 @@ class QueryInterpreter {
     QString buildCondition(Query &q, const QList<Expression> &conditions) const;
 
   private:
-    QueryBuilder *builder;
+    QSharedPointer<AttributeResolver> ar;
 
 };
 

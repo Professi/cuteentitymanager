@@ -43,7 +43,7 @@ enum class Direction;
 class Query {
   public:
     Query();
-    ~Query();
+    virtual ~Query();
     explicit Query(QStringList from, QList<Expression> where = QList<Expression>(),
                    QList<Join> joins = QList<Join>(),
                    QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
@@ -165,6 +165,8 @@ class Query {
                     QHash<QString, QVariant> conditions,
                     QString conjunction = QStringLiteral("AND"),
                     JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
+protected:
+    QVariant convertParam(QVariant &val);
 
   private:
     QList<Expression> select;

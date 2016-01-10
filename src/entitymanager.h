@@ -170,7 +170,7 @@ class EntityManager : public QObject {
             if (joinBaseClasses) {
                 q.appendJoins(this->schema->getQueryBuilder()->joinBaseClasses(ptr));
             }
-            QSqlQuery query = this->queryInterpreter->build(q);
+            QSqlQuery query = this->queryInterpreter->build(q,ptr->metaObject());
             auto maps = this->convertQueryResult(query);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
                                            false,

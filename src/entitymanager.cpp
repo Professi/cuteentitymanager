@@ -48,8 +48,15 @@ void EntityManager::init(bool inspect, const MsgType msgType) {
     this->schema = QSharedPointer<Schema>(Database::getSchema(Database::getDatabaseType(
             this->db->getDatabase().driverName()), this->db));
     this->schema->setTables(this->schema->getTableSchemas());
+<<<<<<< Updated upstream
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
                                  this->schema->getQueryBuilder().data()));
+=======
+    this->ar = QSharedPointer<AttributeResolver>(new AttributeResolver(
+                   this->schema->getQueryBuilder()));
+    this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
+                                 this->ar));
+>>>>>>> Stashed changes
     this->appendToInstanceList();
     if (inspect) {
         EntityInspector inspector = EntityInspector(msgType);

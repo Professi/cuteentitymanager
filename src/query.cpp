@@ -17,6 +17,7 @@
 #include "query.h"
 #include "entity.h"
 #include "querybuilder.h"
+#include "entityinstancefactory.h"
 using namespace CuteEntityManager;
 Query::Query() {
 }
@@ -211,6 +212,16 @@ Expression Query::like(const QSharedPointer<QueryBuilder> &qb,
                        QHash<QString, QVariant> conditions, QString conjunction, JokerPosition jp,
                        QChar wildcard) {
     return qb->like(conditions, conjunction, jp, wildcard);
+}
+
+QVariant Query::convertParam(QVariant &val) {
+    if(QString(val.typeName()).contains("QSharedPointer")) {
+        auto entity = EntityInstanceFactory::castQVariant(val);
+        if(entity && entity->getId() != -1) {
+            return entity->getProperty(entity->getPrimaryKey());
+        }
+    }
+    return val;
 }
 
 QString Query::getSelectOption() const {
