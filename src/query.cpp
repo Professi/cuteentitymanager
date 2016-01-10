@@ -214,14 +214,27 @@ Expression Query::like(const QSharedPointer<QueryBuilder> &qb,
     return qb->like(conditions, conjunction, jp, wildcard);
 }
 
-QVariant Query::convertParam(QVariant &val) {
-    if(QString(val.typeName()).contains("QSharedPointer")) {
-        auto entity = EntityInstanceFactory::castQVariant(val);
-        if(entity && entity->getId() != -1) {
-            return entity->getProperty(entity->getPrimaryKey());
+QVariant Query::convertParam(const QVariant val) {
+    auto typeName = QString(val.typeName());
+    QVariant r = val;
+    if(typeName.contains("QSharedPointer")) {
+        if(typeName.contains("QList")) {
+            auto entities = EntityInstanceFactory::castQVariantList(r);
+            QList<QVariant> ids;
+            for (int i = 0; i < entities.size(); ++i) {
+                if(entities.at(i)) {
+                    ids.append(entities.at(i)->getProperty(entities.at(i)->getPrimaryKey()));
+                }
+            }
+            r.setValue<QList<QVariant>>(ids);
+        } else {
+            auto entity = EntityInstanceFactory::castQVariant(r);
+            if(entity && entity->getId() != -1) {
+                r = entity->getProperty(entity->getPrimaryKey());
+            }
         }
     }
-    return val;
+    return r;
 }
 
 QString Query::getSelectOption() const {
@@ -293,12 +306,12 @@ void Query::setJoins(const QList<Join> &value) {
 }
 
 void Query::appendParam(const QString &column, QVariant value) {
-    this->params.insert(column, value);
+    this->params.insert(column, this->convertParam(value));
 }
 
 void Query::appendParams(const QHash<QString, QVariant> &params) {
     for (auto i = params.constBegin(); i != params.constEnd(); ++i) {
-        this->params.insert(i.key(), i.value());
+        this->params.insert(i.key(), this->convertParam(i.value()));
     }
 }
 

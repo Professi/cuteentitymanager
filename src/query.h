@@ -166,7 +166,7 @@ class Query {
                     QString conjunction = QStringLiteral("AND"),
                     JokerPosition jp = JokerPosition::BOTH, QChar wildcard = '%');
 protected:
-    QVariant convertParam(QVariant &val);
+    QVariant convertParam(const QVariant val);
 
   private:
     QList<Expression> select;

@@ -132,7 +132,9 @@ void QuerybuilderTest::testFindByAttributesManyToOneRelation() {
     QSharedPointer<Person> p = this->e->findEntityByAttributes<Person>(attributes, true);
     QVERIFY(p);
     attributes.clear();
-    attributes["leader"] = QVariant(p);
+    QVariant var;
+    var.setValue<QSharedPointer<Entity>>(p);
+    attributes["leader"] = var;
     QSharedPointer<Group> group = e->findEntityByAttributes<Group>
                                   (attributes, true);
     QVERIFY(group);
@@ -263,7 +265,9 @@ void QuerybuilderTest::testQueryBuilderManyToOneRelation() {
     QCOMPARE(list.size(), 1);
     QCOMPARE(list.at(0)->getNickName(), QString("Lotta"));
     q = Query();
-    q.appendWhere(q.equal(qb, "leader", QVariant(list.at(0))));
+    QVariant var;
+    var.setValue<QSharedPointer<Entity>>(list.at(0));
+    q.appendWhere(q.equal(qb, "leader", QVariant(var)));
     QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false);
     QCOMPARE(groupList.size(), 1);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
@@ -287,7 +291,9 @@ void QuerybuilderTest::testQueryBuilderManyToManyRelation() {
     QCOMPARE(list.size(), 1);
     QCOMPARE(list.at(0)->getNickName(), QString("Lotta"));
     q = Query();
-    q.appendWhere(q.equal(qb, "persons", QVariant(list.at(0))));
+    QVariant var;
+    var.setValue<QSharedPointer<Entity>>(list.at(0));
+    q.appendWhere(q.equal(qb, "persons", QVariant(var)));
     QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false);
     QCOMPARE(groupList.size(), 1);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
