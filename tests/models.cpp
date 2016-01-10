@@ -4,15 +4,13 @@ Person::Person(QObject *parent): Entity(parent) {
 }
 
 Person::Person(QString firstName, QString familyName, Gender gender,
-               QString customPictureFileName, QString namePrefix, QString nickName,
+               QString nickName,
                QDate birthday, QObject *parent): Entity(parent) {
     setFirstName(firstName);
     setFamilyName(familyName);
-    setNamePrefix(namePrefix);
     setNickName(nickName);
     setBirthday(birthday);
     setGender(gender);
-    setCustomPictureFileName(customPictureFileName);
 }
 
 const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
@@ -30,19 +28,11 @@ QString Person::fullName(NameOrder nameOrder) const {
     if (nameOrder == NameOrder::FAMILY_FIRST_NAME_ORDER) {
         name += this->getFamilyName();
         name += ", ";
-        if (!this->getNamePrefix().isEmpty()) {
-            name += this->getNamePrefix();
-            name += " ";
-        }
         name += this->getFirstName();
     } else {
         name += this->getFirstName();
         name += " ";
         name += this->getFamilyName();
-        if (!this->getNamePrefix().isEmpty()) {
-            name += ", ";
-            name += this->getNamePrefix();
-        }
     }
     return name;
 }
@@ -59,13 +49,6 @@ QString Person::getFamilyName() const {
 
 void Person::setFamilyName(const QString &value) {
     familyName = value;
-}
-QString Person::getNamePrefix() const {
-    return namePrefix;
-}
-
-void Person::setNamePrefix(const QString &value) {
-    namePrefix = value;
 }
 
 QString Person::getNickName() const {
@@ -90,14 +73,6 @@ Person::Gender Person::getGender() const {
 
 void Person::setGender(const Gender &value) {
     gender = value;
-}
-
-QString Person::getCustomPictureFileName() const {
-    return customPictureFileName;
-}
-
-void Person::setCustomPictureFileName(const QString &value) {
-    customPictureFileName = value;
 }
 
 QList<QSharedPointer<Group>> Person::getGroups() const {
@@ -266,7 +241,6 @@ void WorkerGroup::setWorkers(const QList<QSharedPointer<Employee>> &value) {
     workers = value;
 }
 
-void WorkerGroup::addWorker(const QSharedPointer<Employee> &value)
-{
+void WorkerGroup::addWorker(const QSharedPointer<Employee> &value) {
     this->workers.append(value);
 }

@@ -435,9 +435,14 @@ QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
         attributeName = r.getMappedBy();
     }
     auto obj = EntityHelper::getBaseClassObject(ptr, attributeName);
-    QString tblName = obj->getTablename() + "_" + attributeName;
+    QString tblName = this->generateManyToManyTableName(obj->getTablename(), attributeName);
     delete obj;
     return tblName;
+}
+
+QString QueryBuilder::generateManyToManyTableName(const QString &tableName,
+        const QString &attribute) const {
+    return tableName + "_" + attribute;
 }
 
 QHash<QString, QHash<QString, QString>> QueryBuilder::generateRelationTables(

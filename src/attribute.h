@@ -1,14 +1,15 @@
 #ifndef ATTRIBUTE_H
 #define ATTRIBUTE_H
 #include <QString>
+#include <QMetaObject>
+#include "relation.h"
 namespace CuteEntityManager {
-
-
 class Attribute {
   public:
-    Attribute(QString name, QString columnName, QString tableName, QMetaObject *metaObj,
-              QString relatedTable = "", QMetaObject *relatedClass = nullptr,
-              QString conjunctedTable = "");
+    Attribute(QString name, QString columnName, QString tableName, const QMetaObject *metaObj,
+              QString relatedTable = "", const QMetaObject *relatedClass = nullptr,
+              QString conjunctedTable = "", QString relatedColumnName = "", QString baseTableName = "",
+              const QMetaObject *baseMetaObj = nullptr);
     QString getName() const;
     void setName(const QString &value);
 
@@ -21,22 +22,42 @@ class Attribute {
     QString getRelatedTable() const;
     void setRelatedTable(const QString &value);
 
-    QMetaObject *getRelatedClass() const;
-    void setRelatedClass(QMetaObject *value);
-
     QString getConjunctedTable() const;
     void setConjunctedTable(const QString &value);
 
-    QMetaObject *getMetaObj() const;
-    void setMetaObj(QMetaObject *value);
+    QString getBaseTableName() const;
+    void setBaseTableName(const QString &value);
+    void setInheritance(const QString &baseTableName, const QMetaObject *baseMetaObj);
+    void setRelation(const QString &tableName, const QMetaObject *relatedMetaObj, const Relation &relation = Relation(),
+                     const QString &conjunctedTable = "", const QString &relatedColumnName = "");
+    const QMetaProperty getMetaProperty();
+    const QMetaObject *getMetaObj() const;
+    void setMetaObj(const QMetaObject *value);
 
-  private:
+    const QMetaObject *getBaseMetaObj() const;
+    void setBaseMetaObj(const QMetaObject *value);
+
+    const QMetaObject *getRelatedClass() const;
+    void setRelatedClass(const QMetaObject *value);
+
+    QString getRelatedColumnName() const;
+    void setRelatedColumnName(const QString &value);
+
+    Relation getRelation() const;
+
+    QString toString() const;
+
+private:
     QString name;
     QString columnName;
     QString tableName;
-    QMetaObject *metaObj;
+    const QMetaObject *metaObj;
+    QString baseTableName;
+    const QMetaObject *baseMetaObj;
     QString relatedTable;
-    QMetaObject *relatedClass;
+    const QMetaObject *relatedClass;
+    Relation relation;
+    QString relatedColumnName;
     QString conjunctedTable;
 };
 }

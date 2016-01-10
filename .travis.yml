@@ -15,6 +15,9 @@ install:
     sudo apt-get install lcov odbcinst libmyodbc odbc-postgresql
 
 script:
-  -  QMAKE
-    && make -j 3
+  -  qmake
+    && make
     && make check
+
+notifications:
+  email: false

@@ -34,6 +34,7 @@
 #include "cache.h"
 #include "querybuilder.h"
 #include "validators/errormsg.h"
+#include "attribute.h"
 namespace CuteEntityManager {
 #ifdef QT_DEBUG
 #define DEFAULTMSGTYPE MsgType::DEBUG
@@ -43,7 +44,7 @@ namespace CuteEntityManager {
 #define INSPECTENTITIES false
 #endif
 
-
+class AttributeResolver;
 class Logger;
 class QueryInterpreter;
 class EntityManager : public QObject {
@@ -109,9 +110,9 @@ class EntityManager : public QObject {
                      bool createRelationTables = true);
     bool createTable(QString className, bool createRelationTables = true);
     bool removeTable(QString className);
-    quint8 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
+    quint32 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
                  bool followInheritance = false);
-    quint8 count(const QString &tableName);
+    quint32 count(const QString &tableName);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
@@ -123,7 +124,7 @@ class EntityManager : public QObject {
     void refresh(QSharedPointer<Entity> &entity);
     QList<QHash<QString, QVariant>> selectByQuery(Query &query);
     QList<QHash<QString, QVariant>> selectBySql(const QString &sql);
-    qint8 count(Query &query);
+    quint32 count(Query &query);
     /**
      * @brief EntityManager::validate
      * This validates an entity. Its uses the validationRules() method of the specified entity.
@@ -279,7 +280,7 @@ class EntityManager : public QObject {
         return newList;
     }
 
-  protected:
+protected:
     bool saveObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
                     const bool persistRelations = true,
                     const bool ignoreHasChanged = false, const bool validate = true,
@@ -297,14 +298,11 @@ class EntityManager : public QObject {
                           const QHash<QString, QVariant> &map, const bool refresh = false);
     QHash<QString, QVariant> findByPk(qint64 id, const QSharedPointer<Entity> &e);
     void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
-                   const QMetaProperty &property, const bool refresh = false);
-    void oneToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                   const QMetaProperty &property, const bool refresh = false);
-    void manyToMany(const QSharedPointer<Entity> &entity,
-                    const QMetaProperty &property, const Relation &relation,
+                   Attribute *&attr, const bool refresh = false);
+    void oneToMany(const QSharedPointer<Entity> &entity, Attribute *&attr, const bool refresh = false);
+    void manyToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
                     const bool refresh = false);
-    void oneToOne(const QSharedPointer<Entity> &entity, const Relation &r,
-                  const QMetaProperty &property, const bool refresh = false,
+    void oneToOne(const QSharedPointer<Entity> &entity, Attribute *&attr, const bool refresh = false,
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                            QVariant &property, QList<Entity *> &mergedObjects,
@@ -381,6 +379,7 @@ class EntityManager : public QObject {
     static QStringList connectionNames;
     static QHash<QString, EntityManager *> instances;
     QSharedPointer<Logger> logger;
+    QSharedPointer<AttributeResolver> ar;
     QString id;
     QSharedPointer<Schema> schema;
     static void setConnectionNames(QStringList list);

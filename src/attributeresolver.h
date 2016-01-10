@@ -11,8 +11,6 @@ class AttributeResolver {
     AttributeResolver(QSharedPointer<QueryBuilder> queryBuilder);
     virtual ~AttributeResolver();
     bool containsAttribute(const QString &className, const QString &attribute) const;
-    Attribute* resolveAttribute(const QSharedPointer<Entity> &classObj,
-                                const QString &attribute, QSharedPointer<Entity> related = QSharedPointer<Entity>());
     Attribute* resolveAttribute(const QString &className, const QString &attribute,
                                 const QString related = "");
     QHash<QString, QHash<QString, Attribute *>> getAttributes() const;

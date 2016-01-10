@@ -18,6 +18,7 @@
 #include <QString>
 #include <QVariant>
 #include <QHash>
+#include "attribute.h"
 namespace CuteEntityManager {
 class Entity;
 class EntityInstanceFactory {
@@ -43,6 +44,8 @@ class EntityInstanceFactory {
     static Entity *createInstance() {
         return EntityInstanceFactory::createInstance(qMetaTypeId<T>());
     }
+    static Entity *createInstance(Attribute *&attr);
+
 
     //http://www.mimec.org/node/350
     template<typename T>

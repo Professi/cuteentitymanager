@@ -20,6 +20,7 @@
 #include "entitymanager.h"
 #include "enums/databasetype.h"
 #include "databasemigration.h"
+#include "attributeresolver.h"
 #include "validators/validatorfactory.h"
 #include "validators/validator.h"
 #include "validators/validatorrule.h"
@@ -48,15 +49,10 @@ void EntityManager::init(bool inspect, const MsgType msgType) {
     this->schema = QSharedPointer<Schema>(Database::getSchema(Database::getDatabaseType(
             this->db->getDatabase().driverName()), this->db));
     this->schema->setTables(this->schema->getTableSchemas());
-<<<<<<< Updated upstream
-    this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
-                                 this->schema->getQueryBuilder().data()));
-=======
     this->ar = QSharedPointer<AttributeResolver>(new AttributeResolver(
                    this->schema->getQueryBuilder()));
     this->queryInterpreter = QSharedPointer<QueryInterpreter>(new QueryInterpreter(
                                  this->ar));
->>>>>>> Stashed changes
     this->appendToInstanceList();
     if (inspect) {
         EntityInspector inspector = EntityInspector(msgType);
@@ -84,6 +80,7 @@ EntityManager::EntityManager(const QString &databaseType, QString databasename,
 EntityManager::~EntityManager() {
     EntityManager::removeConnectionName(this->db->getConnectionName());
     EntityManager::instances.remove(this->objectName());
+    this->ar = QSharedPointer<AttributeResolver>(nullptr);
 }
 
 
@@ -449,61 +446,55 @@ QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
 
 void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
                               const QVariant &id,
-                              const QMetaProperty &property, const bool refresh) {
+                              Attribute *&attr, const bool refresh) {
     qint64 convertedId = -1;
     bool ok = false;
     if ((convertedId = id.toLongLong(&ok)) && ok && convertedId > -1) {
-        QString className = EntityInstanceFactory::extractEntityType(
-                                property.typeName());
+        QString className = attr->getRelatedClass()->className();
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>();
         if (refresh || !(this->cache.contains(convertedId, className)
                          && (ptr = this->cache.get(convertedId, className)))) {
             ptr = this->findById(convertedId, className);
         }
-        EntityHelper::setProperty(entity, ptr, property);
+        EntityHelper::setProperty(entity, ptr, attr->getMetaProperty());
     }
 }
 
 void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
-                              const Relation &r,
-                              const QMetaProperty &property, const bool refresh) {
+                              Attribute *&attr, const bool refresh) {
     if (entity.data() && entity->getId() > -1) {
-        auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
-                                            EntityInstanceFactory::extractEntityType(
-                                                property.typeName())));
+        auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(attr));
         if (e) {
-            QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(e->getTablename(),
-                          this->schema->getQueryBuilder()->generateColumnNameID(r.getMappedBy()),
-                          entity->getId());
+            QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(attr->getRelatedTable(),
+                          attr->getRelatedColumnName(), entity->getId());
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()),
                                           refresh);
-            EntityHelper::setListProperty(entity, entities, property);
+            EntityHelper::setListProperty(entity, entities, attr->getMetaProperty());
         }
     }
 }
 
 
 void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
-                             const Relation &r, const QMetaProperty &property, const bool refresh,
+                             Attribute *&attr, const bool refresh,
                              const QVariant &id) {
-    if (r.getMappedBy().isEmpty()) {
-        this->manyToOne(entity, id, property);
+    if (attr->getRelation().getMappedBy().isEmpty()) {
+        this->manyToOne(entity, id, attr);
     } else {
-        auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
-                                            EntityInstanceFactory::extractEntityType(property.typeName())));
+        auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(attr));
         if (e) {
             QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(
                               e->getTablename(),
                               this->schema->getQueryBuilder()->generateColumnNameID(
-                                  r.getMappedBy()),
+                                  attr->getRelation().getMappedBy()),
                               entity->getProperty(entity->getPrimaryKey()).toLongLong(), 1);
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()),
                                           refresh);
             if (!entities.isEmpty()) {
                 QSharedPointer<Entity> ptr = entities.at(0);
-                EntityHelper::setProperty(entity, ptr, property);
+                EntityHelper::setProperty(entity, ptr, attr->getMetaProperty());
             }
         }
     }
@@ -587,8 +578,8 @@ void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity>>
     this->db->startTransaction();
     auto builder = this->schema->getQueryBuilder();
     q = builder->manyToManyInsert(tblName,
-                                  builder->generateManyToManyColumnName(entity,r.getPropertyName()),
-                                  builder->generateManyToManyColumnName(ptr,r.getMappedBy()));
+                                  builder->generateManyToManyColumnName(entity, r.getPropertyName()),
+                                  builder->generateManyToManyColumnName(ptr, r.getMappedBy()));
     q.bindValue(0, entity->getProperty(entity->getPrimaryKey()));
     auto prop = EntityHelper::mappedProperty(r, ptr);
     QSharedPointer<Entity> item;
@@ -740,7 +731,7 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
             QString tblName = builder->generateManyToManyTableName(e, ptr, r);
             if (this->schema->getTables().contains(tblName)) {
                 QSqlQuery q = builder->manyToManyDelete(
-                                  tblName, builder->generateManyToManyColumnName(e,r.getPropertyName()),
+                                  tblName, builder->generateManyToManyColumnName(e, r.getPropertyName()),
                                   e->getProperty(e->getPrimaryKey()).toLongLong());
                 if (this->db->exec(q)) {
                     bool refresh = r.getCascadeType().contains(CascadeType::REFRESH)
@@ -793,7 +784,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
               * @todo diff and remove entity from relational object when association is deleted
               */
             q = builder->manyToManyDelete(
-                    tblName, builder->generateManyToManyColumnName(entity,r.getPropertyName()),
+                    tblName, builder->generateManyToManyColumnName(entity, r.getPropertyName()),
                     entity->getProperty(entity->getPrimaryKey()).toLongLong());
             ok = this->db->exec(q);
         } else {
@@ -821,35 +812,32 @@ void EntityManager::missingManyToManyTable(const QString &tblName,
 }
 
 void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
-                               const QMetaProperty &property, const Relation &relation, const bool refresh) {
+                               Attribute *&attr, const bool refresh) {
     QSharedPointer<Entity> secEntityPtr = QSharedPointer<Entity>
-                                          (EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(
-                                                  QString(property.typeName()))));
+                                          (EntityInstanceFactory::createInstance(attr->getRelatedClass()->className()));
     auto builder = this->schema->getQueryBuilder();
-    EntityHelper::clearEntityListProperty(entity, property);
+    EntityHelper::clearEntityListProperty(entity, attr->getMetaProperty());
     if (secEntityPtr) {
-        QString tblName = builder->generateManyToManyTableName(entity, secEntityPtr,
-                          relation);
-        if (this->schema->getTables().contains(tblName)) {
-            QSqlQuery q = builder->manyToMany(tblName,
-                                              builder->generateManyToManyColumnName(entity,relation.getPropertyName()),
+        if (this->schema->getTables().contains(attr->getTableName())) {
+            QSqlQuery q = builder->manyToMany(attr->getConjunctedTable(),
+                                              attr->getColumnName(),
                                               entity->getProperty(entity->getPrimaryKey()).toLongLong());
             auto listMap = this->convertQueryResult(q);
-            auto secClassName = EntityHelper::getClassName(secEntityPtr.data());
+            auto secClassName = attr->getRelatedClass()->className();
             QSharedPointer<Entity> e;
             for (int var = 0; var < listMap.size(); ++var) {
-                auto id = listMap.at(var).value(builder->generateManyToManyColumnName(secEntityPtr,relation.getMappedBy()));
+                auto id = listMap.at(var).value(attr->getRelatedColumnName());
                 if (refresh || !(this->cache.contains(id.toLongLong(), secClassName) &&
                                  (e = this->cache.get(id.toLongLong(), secClassName)))) {
                     e = this->findById(id.toLongLong(), secClassName);
                 }
                 if (e) {
-                    EntityHelper::addEntityToListProperty(entity, e, property);
+                    EntityHelper::addEntityToListProperty(entity, e, attr->getMetaProperty());
                     e = QSharedPointer<Entity>();
                 }
             }
         } else {
-            this->missingManyToManyTable(tblName, entity, relation);
+            this->missingManyToManyTable(attr->getConjunctedTable(), entity, attr->getRelation());
         }
     }
 }
@@ -923,22 +911,23 @@ void EntityManager::resolveRelations(const QSharedPointer<Entity> &entity,
     for (auto iterator = props.constBegin(); iterator != props.constEnd(); ++iterator) {
         const Relation r = iterator.key();
         const QMetaProperty property = iterator.value();
-        QString colName = this->schema->getQueryBuilder()->generateColumnNameID(
-                              r.getPropertyName());
+        auto attr = this->ar->resolveAttribute(entity->getClassname(), r.getPropertyName(),
+                                               EntityInstanceFactory::extractEntityType(property.typeName()));
+        QString colName = attr->getColumnName();
         switch (r.getType()) {
         case RelationType::MANY_TO_ONE:
             if (map.contains(colName)) {
-                this->manyToOne(entity, map.value(colName), property, refresh);
+                this->manyToOne(entity, map.value(colName), attr, refresh);
             }
             break;
         case RelationType::MANY_TO_MANY:
-            this->manyToMany(entity, property, r, refresh);
+            this->manyToMany(entity, attr, refresh);
             break;
         case RelationType::ONE_TO_MANY:
-            this->oneToMany(entity, r, property, refresh);
+            this->oneToMany(entity, attr, refresh);
             break;
         case RelationType::ONE_TO_ONE:
-            this->oneToOne(entity, r, property, refresh, map.value(colName));
+            this->oneToOne(entity, attr, refresh, map.value(colName));
             break;
         }
     }
@@ -990,7 +979,7 @@ bool EntityManager::removeTable(QString className) {
     return this->executeQuery(this->schema->getQueryBuilder()->dropTable(className));
 }
 
-quint8 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
+quint32 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
                             bool followInheritance) {
     Query q = Query();
     auto qb = this->schema->getQueryBuilder();
@@ -1011,7 +1000,7 @@ quint8 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
     return this->count(q);
 }
 
-quint8 EntityManager::count(const QString &tableName) {
+quint32 EntityManager::count(const QString &tableName) {
     qint8 rc = -1;
     QSqlQuery q = this->schema->getQueryBuilder()->count(tableName);
     this->db->select(q);
@@ -1021,7 +1010,7 @@ quint8 EntityManager::count(const QString &tableName) {
     return rc;
 }
 
-qint8 EntityManager::count(Query &query) {
+quint32 EntityManager::count(Query &query) {
     qint8 rc = 0;
     query.appendSelect("COUNT(*)");
     QSqlQuery q = this->queryInterpreter->build(query);

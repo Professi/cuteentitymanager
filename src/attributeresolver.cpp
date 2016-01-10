@@ -130,10 +130,13 @@ Attribute *AttributeResolver::resolveExplicitAttribute(const QSharedPointer<Enti
     return a;
 }
 
+<<<<<<< HEAD
 QSharedPointer<QueryBuilder> AttributeResolver::getQb() const {
     return qb;
 }
 
+=======
+>>>>>>> master
 bool AttributeResolver::containsAttribute(const QString &className,
         const QString &attribute) const {
     bool r = false;

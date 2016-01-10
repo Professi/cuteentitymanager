@@ -54,7 +54,8 @@ entity.h \
     schema/mysqlquerybuilder.h \
     entityinspector.h \
     sqlitebackupprocessor.h \
-    attribute.h
+    attribute.h \
+    attributeresolver.h
 
 SOURCES += \
 entity.cpp \
@@ -99,19 +100,27 @@ entity.cpp \
     schema/mysqlquerybuilder.cpp \
     entityinspector.cpp \
     sqlitebackupprocessor.cpp \
-    attribute.cpp
+    attribute.cpp \
+    attributeresolver.cpp
 
-win32:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
+!unix:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
 } else {
     LIBS += -lsqlite3
 }
-    
+
 CONFIG += c++14
+CONFIG += create_prl
 QMAKE_CXXFLAGS += -Wall -Wextra -pedantic -Wfloat-equal -Wundef -Wpointer-arith -Wcast-align -Wunreachable-code
 headers.path = $$PREFIX/include/cuteEntityManager
 headers.files = $$HEADERS
 target.path = $$PREFIX/$$LIBDIR
 INSTALLS += target headers
+
+CONFIG(debug, debug|release) {
+    DESTDIR = $$EM_DEBUG_PATH
+} else {
+    DESTDIR = $$EM_RELEASE_PATH
+}
 
 CONFIG(release, debug|release):DEFINES += QT_NO_DEBUG_OUTPUT
