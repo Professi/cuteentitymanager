@@ -70,6 +70,7 @@ QString QueryInterpreter::buildSelect(Query &q,
         return sqlSelect + "*";
     }
     bool first = true;
+    int paramCount = 0;
     for (int i = 0; i < columns.size(); ++i) {
         if (first) {
             first = false;
@@ -77,8 +78,10 @@ QString QueryInterpreter::buildSelect(Query &q,
             sqlSelect += ", ";
         }
         Expression e = columns.at(i);
-        q.appendParams(e.getParams());
         QString nExp = e.getExpression();
+        auto params = e.getParams();
+        this->convertParams("s", params, nExp, paramCount);
+        q.appendParams(params);
         if (e.getOnlyColumn()) {
             sqlSelect += this->ar->getQb()->getSchema()->quoteColumnName(e.getExpression());
         } else if (!nExp.contains("(")) {
@@ -216,6 +219,9 @@ QString QueryInterpreter::buildOrderBy(const QList<OrderBy> &columns) const {
     return sqlOrder;
 }
 
+
+
+
 QString QueryInterpreter::buildCondition(Query &q,
         const QList<Expression> &conditions) const {
     if (conditions.isEmpty()) {
@@ -223,6 +229,7 @@ QString QueryInterpreter::buildCondition(Query &q,
     }
     QString sqlCondition = "";
     bool first = true;
+    int paramCount = 0;
     for (int i = 0; i < conditions.size(); ++i) {
         Expression exp = conditions.at(i);
         QString expression = exp.getExpression();
@@ -233,8 +240,23 @@ QString QueryInterpreter::buildCondition(Query &q,
                 sqlCondition += this->ar->getQb()->getSeparator();
             }
         }
+        auto params = exp.getParams();
+        this->convertParams("p", params, expression, paramCount);
         sqlCondition += expression;
-        q.appendParams(exp.getParams());
+        q.appendParams(params);
     }
     return sqlCondition;
+}
+
+void QueryInterpreter::convertParams(const QString &prefix,
+                                     QHash<QString, QVariant> &params, QString &condition, int &start) const {
+    auto keys = params.keys();
+    for (int i = 0; i < keys.size(); ++i) {
+        QString val = prefix + QString::number(start);
+        condition.replace(this->ar->getQb()->placeHolder(keys.at(i)),
+                          this->ar->getQb()->placeHolder(val));
+        params.insert(val, params.value(keys.at(i)));
+        params.remove(keys.at(i));
+        ++start;
+    }
 }
