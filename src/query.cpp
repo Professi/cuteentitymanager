@@ -17,7 +17,6 @@
 #include "query.h"
 #include "entity.h"
 #include "querybuilder.h"
-#include "entityinstancefactory.h"
 using namespace CuteEntityManager;
 Query::Query() {
 }

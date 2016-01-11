@@ -21,6 +21,7 @@
 #include "orderby.h"
 #include "expression.h"
 #include "schema.h"
+#include "entityinstancefactory.h"
 using namespace CuteEntityManager;
 
 
@@ -29,6 +30,9 @@ QueryInterpreter::QueryInterpreter(QSharedPointer<AttributeResolver> ar) {
 }
 
 QSqlQuery QueryInterpreter::build(Query &q, const QMetaObject *obj) {
+    if(obj) {
+        this->resolveRelations(q, obj);
+    }
     QList<QString> clauses = QList<QString>();
     clauses.append(this->buildSelect(q, q.getSelect(), q.getDistinct(),
                                      q.getSelectOption()));
@@ -219,9 +223,6 @@ QString QueryInterpreter::buildOrderBy(const QList<OrderBy> &columns) const {
     return sqlOrder;
 }
 
-
-
-
 QString QueryInterpreter::buildCondition(Query &q,
         const QList<Expression> &conditions) const {
     if (conditions.isEmpty()) {
@@ -248,6 +249,40 @@ QString QueryInterpreter::buildCondition(Query &q,
     return sqlCondition;
 }
 
+QVariant QueryInterpreter::convertParamValue(const QVariant val) const {
+    auto typeName = QString(val.typeName());
+    QVariant r = val;
+    if(typeName.contains("QSharedPointer")) {
+        if(typeName.contains("QList")) {
+            auto entities = EntityInstanceFactory::castQVariantList(r);
+            QList<QVariant> ids;
+            for (int i = 0; i < entities.size(); ++i) {
+                if(entities.at(i)) {
+                    ids.append(entities.at(i)->getProperty(entities.at(i)->getPrimaryKey()));
+                }
+            }
+            r.setValue<QList<QVariant>>(ids);
+        } else {
+            auto entity = EntityInstanceFactory::castQVariant(r);
+            if(entity && entity->getId() != -1) {
+                r = entity->getProperty(entity->getPrimaryKey());
+            }
+        }
+    }
+    return r;
+}
+
+void QueryInterpreter::resolveRelations(Query &q, const QMetaObject *obj) {
+    q.getSelect();
+    q.getWhere();
+    q.getGroupBy();
+    q.getHaving();
+}
+
+QList<Expression> QueryInterpreter::resolve(Query &q, const QMetaObject *obj,
+        QList<Expression> exp) {
+}
+
 void QueryInterpreter::convertParams(const QString &prefix,
                                      QHash<QString, QVariant> &params, QString &condition, int &start) const {
     auto keys = params.keys();
@@ -255,7 +290,7 @@ void QueryInterpreter::convertParams(const QString &prefix,
         QString val = prefix + QString::number(start);
         condition.replace(this->ar->getQb()->placeHolder(keys.at(i)),
                           this->ar->getQb()->placeHolder(val));
-        params.insert(val, params.value(keys.at(i)));
+        params.insert(val, this->convertParamValue(params.value(keys.at(i))));
         params.remove(keys.at(i));
         ++start;
     }

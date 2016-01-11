@@ -28,7 +28,7 @@ class AttributeResolver;
 class QueryInterpreter {
   public:
     QueryInterpreter(QSharedPointer<AttributeResolver> ar);
-    QSqlQuery build(Query &q, const QMetaObject *obj=nullptr);
+    QSqlQuery build(Query &q, const QMetaObject *obj = nullptr);
 
   protected:
     QString buildSelect(Query &q, const QList<Expression> &columns,
@@ -45,6 +45,9 @@ class QueryInterpreter {
     QString buildCondition(Query &q, const QList<Expression> &conditions) const;
     void convertParams(const QString &prefix,
                        QHash<QString, QVariant> &params, QString &condition, int &start) const;
+    QVariant convertParamValue(const QVariant val) const;
+    void resolveRelations(Query &q, const QMetaObject *obj);
+    QList<Expression> resolve(Query &q, const QMetaObject *obj, QList<Expression> exp);
 
   private:
     QSharedPointer<AttributeResolver> ar;

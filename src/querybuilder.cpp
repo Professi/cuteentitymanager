@@ -121,30 +121,6 @@ bool QueryBuilder::supportsForeignKeys() const {
     return true;
 }
 
-
-//QVariant Query::convertParam(const QVariant val) {
-//    auto typeName = QString(val.typeName());
-//    QVariant r = val;
-//    if(typeName.contains("QSharedPointer")) {
-//        if(typeName.contains("QList")) {
-//            auto entities = EntityInstanceFactory::castQVariantList(r);
-//            QList<QVariant> ids;
-//            for (int i = 0; i < entities.size(); ++i) {
-//                if(entities.at(i)) {
-//                    ids.append(entities.at(i)->getProperty(entities.at(i)->getPrimaryKey()));
-//                }
-//            }
-//            r.setValue<QList<QVariant>>(ids);
-//        } else {
-//            auto entity = EntityInstanceFactory::castQVariant(r);
-//            if(entity && entity->getId() != -1) {
-//                r = entity->getProperty(entity->getPrimaryKey());
-//            }
-//        }
-//    }
-//    return r;
-//}
-
 void QueryBuilder::createRelationFK(QStringList &queries,
                                     const QSharedPointer<Entity> &entity, const Relation &relation,
                                     const QMetaProperty &metaProperty, const QString &update,
