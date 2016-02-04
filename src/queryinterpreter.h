@@ -47,7 +47,7 @@ class QueryInterpreter {
                        QHash<QString, QVariant> &params, QString &condition, int &start) const;
     QVariant convertParamValue(const QVariant val) const;
     void resolveRelations(Query &q, const QMetaObject *obj);
-    QList<Expression> resolve(Query &q, const QMetaObject *obj, QList<Expression> exp);
+    void resolve(Query &q, const QMetaObject *obj, QList<Expression> exp);
 
   private:
     QSharedPointer<AttributeResolver> ar;

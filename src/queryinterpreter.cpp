@@ -273,13 +273,15 @@ QVariant QueryInterpreter::convertParamValue(const QVariant val) const {
 }
 
 void QueryInterpreter::resolveRelations(Query &q, const QMetaObject *obj) {
-    q.getSelect();
-    q.getWhere();
-    q.getGroupBy();
-    q.getHaving();
+    QList<Expression> expressions;
+    expressions.append(q.getSelect());
+    expressions.append(q.getWhere());
+    expressions.append(q.getGroupBy());
+    expressions.append(q.getHaving());
+    this->resolve(q,obj,expressions);
 }
 
-QList<Expression> QueryInterpreter::resolve(Query &q, const QMetaObject *obj,
+void QueryInterpreter::resolve(Query &q, const QMetaObject *obj,
         QList<Expression> exp) {
 }
 
