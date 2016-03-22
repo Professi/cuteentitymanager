@@ -103,6 +103,9 @@ entity.cpp \
     attribute.cpp \
     attributeresolver.cpp
 
+android {
+    include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
+}
 !unix:!system-sqlite:!contains(LIBS, .*sqlite3.*) {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
 } else {

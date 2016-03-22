@@ -240,7 +240,7 @@ class EntityManager : public QObject {
 
     template<class T> QList<QSharedPointer<T>> findEntitiesBySql(
     const QString &sql) {
-        QSharedPointer<T> e = EntityInstanceFactory::createInstance<T *>();
+        auto e = EntityInstanceFactory::createInstance<T *>();
         if (e) {
             QSqlQuery q = this->schema->getDatabase()->getQuery(sql);
             auto result = this->convertQueryResult(q);
