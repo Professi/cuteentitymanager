@@ -51,8 +51,8 @@ void Expression::setOnlyColumn(bool value) {
     onlyColumn = value;
 }
 
-void Expression::appendParam(const QString &key, const QVariant &value) {
-    this->params.insert(key, value);
+void Expression::appendParam(QString key, const QVariant &value) {
+    this->params.insert(key.replace('.','_'), value);
 }
 
 QHash<QString, QVariant> Expression::getParams() const {

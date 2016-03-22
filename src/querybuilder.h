@@ -100,7 +100,7 @@ class QueryBuilder {
     QString transformTypeToAbstractDbType(QString typeName) const;
     QString transformAbstractTypeToRealDbType(QString typeName) const;
     QString getColumnType(const QString &type) const;
-    virtual QString placeHolder(const QString &key) const;
+    virtual QString placeHolder(QString key) const;
     void bindValues(const QHash<QString, QVariant> &h, QSqlQuery &q,
                     bool ignoreID = false, const QString &primaryKey = QStringLiteral("id")) const;
     void bindValue(const QString &key, const QVariant &value, QSqlQuery &q) const;
