@@ -207,7 +207,7 @@ class EntityManager : public QObject {
     QSharedPointer<T> findEntityByAttributes(
         const QHash<QString, QVariant>
         &attributes, const bool joinBaseClasses = false,
-        const bool resolveRelations = true, const bool refresh) {
+        const bool resolveRelations = true, const bool refresh=false) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0,
                     joinBaseClasses, resolveRelations, refresh);
         if (list.isEmpty()) {
