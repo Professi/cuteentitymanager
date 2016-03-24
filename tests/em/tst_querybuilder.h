@@ -34,6 +34,7 @@ class QuerybuilderTest : public QObject {
     void testQueryBuilderManyToOneRelationAttribute();
     void testQueryBuilderManyToManyRelation();
     void testQueryBuilderManyToManyRelationAttribute();
+    void testRefresh();
 
   private:
     CuteEntityManager::EntityManager *e;

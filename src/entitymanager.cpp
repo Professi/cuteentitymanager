@@ -321,10 +321,10 @@ QSharedPointer<Schema> EntityManager::getSchema() const {
     return schema;
 }
 
-void EntityManager::refresh(QSharedPointer<Entity> &entity) {
+void EntityManager::refresh(QSharedPointer<Entity> &entity, const bool resolveRelations) {
     if(entity) {
         auto map  = this->findByPk(entity->getId(), entity);
-        this->convert(map, entity, true);
+        this->convert(map, entity, true, resolveRelations);
     }
 }
 
@@ -438,10 +438,10 @@ QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
 }
 
 QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
-        const QString &classname) {
+        const QString &classname, const bool refresh) {
     QSharedPointer<Entity> e = QSharedPointer<Entity>
                                (EntityInstanceFactory::createInstance(classname));
-    return this->findById(id, e);
+    return this->findById(id, e, refresh);
 }
 
 void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
@@ -454,7 +454,7 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>();
         if (refresh || !(this->cache.contains(convertedId, className)
                          && (ptr = this->cache.get(convertedId, className)))) {
-            ptr = this->findById(convertedId, className);
+            ptr = this->findById(convertedId, className, refresh);
         }
         EntityHelper::setProperty(entity, ptr, attr->getMetaProperty());
     }
@@ -465,8 +465,10 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
     if (entity.data() && entity->getId() > -1) {
         auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(attr));
         if (e) {
-            QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(attr->getRelatedTable(),
-                          attr->getRelatedColumnName(), entity->getId());
+            Query query = this->schema->getQueryBuilder()->oneToMany(
+                        attr->getRelatedTable(),
+                        attr->getRelatedColumnName(), entity->getId());
+            QSqlQuery q = this->queryInterpreter->build(query);
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()),
                                           refresh);
@@ -484,11 +486,12 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
     } else {
         auto e = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(attr));
         if (e) {
-            QSqlQuery q = this->schema->getQueryBuilder()->oneToMany(
+            Query query = this->schema->getQueryBuilder()->oneToMany(
                               e->getTablename(),
                               this->schema->getQueryBuilder()->generateColumnNameID(
                                   attr->getRelation().getMappedBy()),
                               entity->getProperty(entity->getPrimaryKey()).toLongLong(), 1);
+            QSqlQuery q = this->queryInterpreter->build(query);
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()),
                                           refresh);
@@ -868,15 +871,17 @@ QList<QHash<QString, QVariant>> EntityManager::findAllByAttributes(
                                  const QSharedPointer<Entity>
                                  &entity,
 bool ignoreID) {
-    QSqlQuery q = this->schema->getQueryBuilder()->findByAttributes(
+    Query query = this->schema->getQueryBuilder()->findByAttributes(
                       entity, ignoreID);
+    QSqlQuery q = this->queryInterpreter->build(query);
     return this->convertQueryResult(q);
 }
 
 QList<QHash <QString, QVariant>> EntityManager::findAllByAttributes(
 const QHash<QString, QVariant> &m, const QString &tblname, bool ignoreID) {
-    QSqlQuery q = this->schema->getQueryBuilder()->findByAttributes(m,
+    Query query = this->schema->getQueryBuilder()->findByAttributes(m,
                   tblname, ignoreID);
+    QSqlQuery q = this->queryInterpreter->build(query);
     return this->convertQueryResult(q);
 }
 

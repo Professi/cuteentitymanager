@@ -201,11 +201,11 @@ class QueryBuilder {
     QSqlQuery find(const qint64 &id, const QString &tableName) const;
     QSqlQuery find(const qint64 &id, const QSharedPointer<Entity> &entity,
                    qint64 offset = 0, QString pk = "id") const;
-    QSqlQuery findByAttributes(const QHash<QString, QVariant> &m,
+    Query findByAttributes(const QHash<QString, QVariant> &m,
                                const QString &tableName,
                                const bool &ignoreID = true, const qint64 limit = 0,
                                const qint64 offset = 0) const;
-    QSqlQuery findByAttributes(const QSharedPointer<Entity> &e,
+    Query findByAttributes(const QSharedPointer<Entity> &e,
                                bool ignoreID = true,
                                const qint64 limit = 0, const qint64 offset = 0);
     QSqlQuery findAll(const QString &tableName) const;
@@ -217,7 +217,7 @@ class QueryBuilder {
     QList<QSqlQuery> merge(const QSharedPointer<Entity> &entity) const;
     QList<QSqlQuery> create(const QSharedPointer<Entity> &entity) const;
     QSqlQuery removeAll(const QString &tableName) const;
-    QSqlQuery oneToMany(const QString &tableName, const QString &attribute,
+    Query oneToMany(const QString &tableName, const QString &attribute,
                         const qint64 &id,
                         const qint64 &limit = 0);
     QSqlQuery manyToMany(const QString &tableName, const QString &attribute,
@@ -297,7 +297,7 @@ class QueryBuilder {
 
     QString joinSuperClasses(const QSharedPointer<Entity> &entity) const;
     virtual QString selectBase(const QStringList &tables,
-                               const QStringList &columns = QStringList()) const;
+                               const QStringList &columns = QStringList(), bool withKeyword=true) const;
     virtual QString countFunction(const QString &distinctColumn = "") const;
     virtual QString distinct() const;
     virtual QString notKeyword() const;

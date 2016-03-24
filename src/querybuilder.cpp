@@ -527,8 +527,11 @@ QSqlQuery QueryBuilder::find(const qint64 &id, const QString &tableName) const {
 }
 
 QString QueryBuilder::selectBase(const QStringList &tables,
-                                 const QStringList &columns) const {
-    QString r = "SELECT ";
+                                 const QStringList &columns, bool withKeyword) const {
+    QString r = "";
+    if(withKeyword) {
+        r = "SELECT ";
+    }
     if (columns.isEmpty()) {
         r += "*";
     } else {
@@ -564,20 +567,26 @@ QSqlQuery QueryBuilder::findAll(const QSharedPointer<Entity> &entity,
                                         entity) + this->limit(limit, offset) + ";");
 }
 
-QSqlQuery QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
-        const QString &tableName,
-        const bool &ignoreID, const qint64 limit, const qint64 offset) const {
-    QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
-            tableName)) + this->where(m, this->andKeyword(), ignoreID) + this->limit(limit,
-                                           offset));
-    this->bindValues(m, q, ignoreID);
+Query QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
+                                     const QString &tableName,
+                                     const bool &ignoreID, const qint64 limit, const qint64 offset) const {
+    Query q = Query();
+    q.setSelect(QStringList(this->selectBase(QStringList(
+                                tableName),QStringList(),false)));
+    q.appendWhere(Expression(this->where(m, this->andKeyword(), ignoreID, "id", false), m));
+    q.setLimit(limit);
+    q.setOffset(offset);
+//    QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
+//            tableName)) + this->where(m, this->andKeyword(), ignoreID) + this->limit(limit,
+//                                           offset));
+//    this->bindValues(m, q, ignoreID);
     return q;
 }
 
-QSqlQuery QueryBuilder::findByAttributes(const QSharedPointer<Entity> &e,
-        bool ignoreID,
-        const qint64 limit,
-        const qint64 offset) {
+Query QueryBuilder::findByAttributes(const QSharedPointer<Entity> &e,
+                                     bool ignoreID,
+                                     const qint64 limit,
+                                     const qint64 offset) {
     QHash<QString, QVariant> values = EntityHelper::getEntityAttributes(
                                           EntityHelper::getMetaProperties(e.data()), e);
     return this->findByAttributes(values, e->getTablename(), ignoreID, limit,
@@ -706,10 +715,10 @@ QSqlQuery QueryBuilder::update(const QString &tableName,
 }
 
 
-QSqlQuery QueryBuilder::oneToMany(const QString &tableName,
-                                  const QString &attribute,
-                                  const qint64 &id,
-                                  const qint64 &limit) {
+Query QueryBuilder::oneToMany(const QString &tableName,
+                              const QString &attribute,
+                              const qint64 &id,
+                              const qint64 &limit) {
     QHash<QString, QVariant> values = QHash<QString, QVariant>();
     values.insert(attribute, id);
     return this->findByAttributes(values, tableName, false, limit);
@@ -1098,8 +1107,7 @@ void QueryBuilder::bindValue(const QString &key, const QVariant &value,
 }
 
 QString QueryBuilder::placeHolder(QString key) const {
-    //return QString(":" + key.replace('.', '_'));
-    return QString(":" + key);
+    return QString(":" + key.replace('.', '_'));
 }
 
 QString QueryBuilder::where(const QHash<QString, QVariant> &m,
@@ -1330,7 +1338,7 @@ Expression QueryBuilder::where(QString c, QVariant value) {
 }
 
 Expression QueryBuilder::equal(QString &key, QVariant &value) {
-    Expression exp = Expression(this->where(key, value, false, true, false),key,value);
+    Expression exp = Expression(this->where(key, value, false, true, false), key, value);
     return exp;
 }
 

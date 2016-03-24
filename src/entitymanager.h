@@ -59,7 +59,7 @@ class EntityManager : public QObject {
     bool startup(QString version, QStringList toInitialize,
                  bool createIndices = false);
     bool executeQuery(const QString &query);
-    QSharedPointer<Entity> findById(const qint64 &id, const QString &classname);
+    QSharedPointer<Entity> findById(const qint64 &id, const QString &classname, const bool refresh=false);
     QList<QSharedPointer<Entity>> findEntityByAttributes(const
                                QSharedPointer<Entity> &entity,
                                bool ignoreID = false, const bool refresh = false, const bool resolveRelations = true);
@@ -121,7 +121,7 @@ class EntityManager : public QObject {
      * fetches an entity again from the database
      * @param entity
      */
-    void refresh(QSharedPointer<Entity> &entity);
+    void refresh(QSharedPointer<Entity> &entity, const bool resolveRelations=true);
     QList<QHash<QString, QVariant>> selectByQuery(Query &query);
     QList<QHash<QString, QVariant>> selectBySql(const QString &sql);
     quint32 count(Query &query);
@@ -209,7 +209,7 @@ class EntityManager : public QObject {
         &attributes, const bool joinBaseClasses = false,
         const bool resolveRelations = true, const bool refresh=false) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0,
-                    joinBaseClasses, resolveRelations, refresh);
+                    joinBaseClasses, resolveRelations,refresh);
         if (list.isEmpty()) {
             return QSharedPointer<T>();
         }
@@ -234,8 +234,7 @@ class EntityManager : public QObject {
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
             auto results = this->convertQueryResult(q);
-            auto list = this->convert(results, EntityHelper::getClassname(e.data()), refresh,
-                                      resolveRelations);
+            auto list = this->convert(results, EntityHelper::getClassname(e.data()),refresh,resolveRelations);
             return EntityManager::convertList<T>(list);
         }
         return QList<QSharedPointer<T>>();

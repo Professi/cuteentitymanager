@@ -277,7 +277,9 @@ void QuerybuilderTest::testQueryBuilderManyToOneRelation() {
     QCOMPARE(list.size(), 1);
     QCOMPARE(list.at(0)->getNickName(), QString("Lotta"));
     q = Query();
-    q.appendWhere(q.equal(qb, "leader", QVariant(list.at(0))));
+    QVariant var;
+    var.setValue<QSharedPointer<Employee>>(list.at(0));
+    q.appendWhere(q.equal(qb, "leader", var));
     QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false);
     QCOMPARE(groupList.size(), 1);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
@@ -315,4 +317,17 @@ void QuerybuilderTest::testQueryBuilderManyToManyRelationAttribute() {
     QCOMPARE(groupList.size(), 1);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Psy"));
     QCOMPARE(groupList.at(0)->getPersons().size(), 3);
+}
+
+void QuerybuilderTest::testRefresh() {
+    auto persons = e->findAll<Person>(false);
+    QCOMPARE(persons.first()->getGroups().size(), 0);
+    QHash<QString, QVariant> attributes;
+    attributes["name"] = QString("Group Health");
+    QSharedPointer<Group> g = this->e->findEntityByAttributes<Group>(attributes, false, false,
+                              false);
+    QCOMPARE(g->getPersons().count(), 0);
+    auto entity = g.objectCast<Entity>();
+    e->refresh(entity, true);
+    QCOMPARE(g->getPersons().count(), 1);
 }
