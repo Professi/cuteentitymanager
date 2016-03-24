@@ -29,10 +29,12 @@ class QuerybuilderTest : public QObject {
     void testQueryBuilderEntityInheritanceWithoutJoin();
     void testQueryBuilderArbitraryOperator();
     void testQueryBuilderJoins();
+    void testQueryBuilderSingleAttributeOr();
     void testQueryBuilderManyToOneRelation();
     void testQueryBuilderManyToOneRelationAttribute();
     void testQueryBuilderManyToManyRelation();
     void testQueryBuilderManyToManyRelationAttribute();
+    void testRefresh();
 
   private:
     CuteEntityManager::EntityManager *e;

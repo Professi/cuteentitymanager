@@ -26,6 +26,8 @@ class Expression {
     explicit Expression(QString expression,
                         QHash<QString, QVariant> params = QHash<QString, QVariant>(),
                         bool onlyColumn = false);
+    explicit Expression(QString expression,QString key,QVariant value,
+                        bool onlyColumn = false);
     explicit Expression(QString expression, bool onlyColumn);
     QString getExpression() const;
     void setExpression(const QString &value);
@@ -35,7 +37,8 @@ class Expression {
     bool getOnlyColumn() const;
     void setOnlyColumn(bool value);
 
-    void appendParam(const QString &key, const QVariant &value);
+    QString generateParam();
+    void appendParam(QString key, const QVariant &value);
     QHash<QString, QVariant> getParams() const;
     void setParams(const QHash<QString, QVariant> &value);
 

@@ -21,8 +21,18 @@ Expression::Expression() {
 
 Expression::Expression(QString expression, QHash<QString, QVariant> params,
                        bool onlyColumn) {
+    for(auto i = params.begin(); i != params.end(); ++i) {
+        QString ikey = i.key();
+        expression.replace(":" + ikey.replace('.','_'),":" + this->generateParam());
+        this->appendParam(i.key(),i.value());
+    }
     this->expression = expression;
-    this->params = params;
+    this->onlyColumn = onlyColumn;
+}
+
+Expression::Expression(QString expression, QString key, QVariant value, bool onlyColumn) {
+    this->expression = expression.replace(":" + key.replace('.','_'), ":" + this->generateParam());
+    this->appendParam(key, value);
     this->onlyColumn = onlyColumn;
 }
 
@@ -51,8 +61,16 @@ void Expression::setOnlyColumn(bool value) {
     onlyColumn = value;
 }
 
-void Expression::appendParam(const QString &key, const QVariant &value) {
-    this->params.insert(key, value);
+QString Expression::generateParam() {
+    return (QString("emP") + QString::number(this->params.size() + 1));
+}
+
+void Expression::appendParam(QString key, const QVariant &value) {
+    this->params.insert(this->generateParam(), value);
+    /**
+      @todo remove
+      */
+    this->params.insert(key.replace('.','_'), value);
 }
 
 QHash<QString, QVariant> Expression::getParams() const {

@@ -13,12 +13,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
-#include <QMetaObject>
-#include <QRegularExpression>
-#include <QStringList>
 #include "querybuilder.h"
 #include "database.h"
+#include <QMetaObject>
 #include "entity.h"
+#include <QRegularExpression>
 #include "entityinstancefactory.h"
 #include "entityhelper.h"
 #include "logger.h"

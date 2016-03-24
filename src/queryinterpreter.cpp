@@ -74,7 +74,6 @@ QString QueryInterpreter::buildSelect(Query &q,
         return sqlSelect + "*";
     }
     bool first = true;
-    int paramCount = 0;
     for (int i = 0; i < columns.size(); ++i) {
         if (first) {
             first = false;
@@ -84,8 +83,7 @@ QString QueryInterpreter::buildSelect(Query &q,
         Expression e = columns.at(i);
         QString nExp = e.getExpression();
         auto params = e.getParams();
-        this->convertParams("s", params, nExp, paramCount);
-        q.appendParams(params);
+        this->convertParams(q, params, nExp);
         if (e.getOnlyColumn()) {
             sqlSelect += this->ar->getQb()->getSchema()->quoteColumnName(e.getExpression());
         } else if (!nExp.contains("(")) {
@@ -230,7 +228,6 @@ QString QueryInterpreter::buildCondition(Query &q,
     }
     QString sqlCondition = "";
     bool first = true;
-    int paramCount = 0;
     for (int i = 0; i < conditions.size(); ++i) {
         Expression exp = conditions.at(i);
         QString expression = exp.getExpression();
@@ -242,9 +239,8 @@ QString QueryInterpreter::buildCondition(Query &q,
             }
         }
         auto params = exp.getParams();
-        this->convertParams("p", params, expression, paramCount);
+        this->convertParams(q, params, expression);
         sqlCondition += expression;
-        q.appendParams(params);
     }
     return sqlCondition;
 }
@@ -276,24 +272,28 @@ void QueryInterpreter::resolveRelations(Query &q, const QMetaObject *obj) {
     QList<Expression> expressions;
     expressions.append(q.getSelect());
     expressions.append(q.getWhere());
-    expressions.append(q.getGroupBy());
+    foreach (QString groupBy, q.getGroupBy()) {
+        expressions.append(Expression(groupBy));
+    }
     expressions.append(q.getHaving());
-    this->resolve(q,obj,expressions);
+    this->resolve(q, obj, expressions);
 }
 
 void QueryInterpreter::resolve(Query &q, const QMetaObject *obj,
-        QList<Expression> exp) {
+                               QList<Expression> exp) {
 }
 
-void QueryInterpreter::convertParams(const QString &prefix,
-                                     QHash<QString, QVariant> &params, QString &condition, int &start) const {
-    auto keys = params.keys();
-    for (int i = 0; i < keys.size(); ++i) {
-        QString val = prefix + QString::number(start);
-        condition.replace(this->ar->getQb()->placeHolder(keys.at(i)),
-                          this->ar->getQb()->placeHolder(val));
-        params.insert(val, this->convertParamValue(params.value(keys.at(i))));
-        params.remove(keys.at(i));
-        ++start;
+void QueryInterpreter::convertParams(Query &q, const QHash<QString, QVariant> &params,
+                                     QString &condition) const {
+    for (auto i = params.begin(); i != params.end(); ++i) {
+        QString key = this->generateParam(q);
+        condition.replace(this->ar->getQb()->placeHolder(i.key()),
+                          this->ar->getQb()->placeHolder(key));
+        q.appendParam(key, this->convertParamValue(i.value()));
     }
+}
+
+
+QString QueryInterpreter::generateParam(Query &q) const {
+    return "eP" + QString::number(q.getParams().size() + 1);
 }

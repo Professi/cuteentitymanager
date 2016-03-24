@@ -43,11 +43,11 @@ class QueryInterpreter {
                                  const quint64 &limit, const quint64 &offset) const;
     QString buildOrderBy(const QList<OrderBy> &columns) const;
     QString buildCondition(Query &q, const QList<Expression> &conditions) const;
-    void convertParams(const QString &prefix,
-                       QHash<QString, QVariant> &params, QString &condition, int &start) const;
+    void convertParams(Query &q, const QHash<QString, QVariant> &params, QString &condition) const;
     QVariant convertParamValue(const QVariant val) const;
     void resolveRelations(Query &q, const QMetaObject *obj);
     void resolve(Query &q, const QMetaObject *obj, QList<Expression> exp);
+    QString generateParam(Query &q) const;
 
   private:
     QSharedPointer<AttributeResolver> ar;

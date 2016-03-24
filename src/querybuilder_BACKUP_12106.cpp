@@ -1107,8 +1107,15 @@ void QueryBuilder::bindValue(const QString &key, const QVariant &value,
     q.bindValue(this->placeHolder(key), value);
 }
 
+<<<<<<< HEAD
+QString QueryBuilder::placeHolder(const QString &key) const {
+    QString nKey = key;
+    nKey.replace(".","_");
+    return QString(":" + nKey);
+=======
 QString QueryBuilder::placeHolder(QString key) const {
     return QString(":" + key.replace('.', '_'));
+>>>>>>> master
 }
 
 QString QueryBuilder::where(const QHash<QString, QVariant> &m,
