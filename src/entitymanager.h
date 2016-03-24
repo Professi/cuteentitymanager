@@ -159,7 +159,11 @@ class EntityManager : public QObject {
     static EntityManager *getDefaultInstance();
     static EntityManager *getInstance(QString name);
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
-
+    /**
+     * @brief clearCache
+     * don't use this function. It's only for test purposes.
+     */
+    void clearCache();
     template<class T> QList<QSharedPointer<T>> find(Query &q,
                                             const bool joinBaseClasses = false, const bool resolveRelations = true) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>

@@ -577,10 +577,6 @@ Query QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
     q.appendWhere(Expression(this->where(m, this->andKeyword(), ignoreID, "id", false), m));
     q.setLimit(limit);
     q.setOffset(offset);
-//    QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
-//            tableName)) + this->where(m, this->andKeyword(), ignoreID) + this->limit(limit,
-//                                           offset));
-//    this->bindValues(m, q, ignoreID);
     return q;
 }
 

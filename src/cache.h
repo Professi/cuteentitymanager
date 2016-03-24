@@ -39,6 +39,7 @@ class Cache {
         }
         return ok;
     }
+    void clear();
     void insert(QSharedPointer<Entity> &entity);
     void remove(const QSharedPointer<Entity> &entity);
     void remove(const qint64 &id, const QString &classname);

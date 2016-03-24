@@ -17,9 +17,8 @@
 #include "entityhelper.h"
 using namespace CuteEntityManager;
 Cache::Cache() {
-
 }
-QHash<QString, QWeakPointer<Entity> > Cache::getCache() const {
+QHash<QString, QWeakPointer<Entity>> Cache::getCache() const {
     return cache;
 }
 
@@ -33,6 +32,10 @@ bool Cache::contains(const QString &key) {
         return this->cache.contains(key);
     }
     return false;
+}
+
+void Cache::clear() {
+    this->cache.clear();
 }
 
 void Cache::insert(QSharedPointer<Entity> &entity) {

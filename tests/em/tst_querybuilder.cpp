@@ -322,11 +322,13 @@ void QuerybuilderTest::testQueryBuilderManyToManyRelationAttribute() {
 }
 
 void QuerybuilderTest::testRefresh() {
+    e->clearCache();
     auto persons = e->findAll<Person>(false);
     QCOMPARE(persons.first()->getGroups().size(), 0);
     QHash<QString, QVariant> attributes;
     attributes["name"] = QString("Group Health");
-    QSharedPointer<Group> g = this->e->findEntityByAttributes<Group>(attributes, false, false);
+    QSharedPointer<Group> g = this->e->findEntityByAttributes<Group>(attributes, false,
+                              false);
     QCOMPARE(g->getPersons().count(), 0);
     auto entity = g.objectCast<Entity>();
     e->refresh(entity, true);
