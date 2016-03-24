@@ -845,9 +845,10 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
 QList<QSharedPointer<Entity>> EntityManager::findEntityByAttributes(
                                const QSharedPointer<Entity>
                                &entity,
-bool ignoreID) {
+bool ignoreID, const bool refresh, const bool resolveRelations) {
     auto maps = this->findAllByAttributes(entity, ignoreID);
-    return this->convert(maps, EntityHelper::getClassname(entity.data()));
+    return this->convert(maps, EntityHelper::getClassname(entity.data()), refresh,
+                         resolveRelations);
 }
 
 QHash<QString, QVariant> EntityManager::findByPk(qint64 id,
@@ -980,7 +981,7 @@ bool EntityManager::removeTable(QString className) {
 }
 
 quint32 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
-                            bool followInheritance) {
+                             bool followInheritance) {
     Query q = Query();
     auto qb = this->schema->getQueryBuilder();
     QHash<QString, QVariant> values;

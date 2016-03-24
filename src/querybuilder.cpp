@@ -1098,7 +1098,8 @@ void QueryBuilder::bindValue(const QString &key, const QVariant &value,
 }
 
 QString QueryBuilder::placeHolder(QString key) const {
-    return QString(":" + key.replace('.', '_'));
+    //return QString(":" + key.replace('.', '_'));
+    return QString(":" + key);
 }
 
 QString QueryBuilder::where(const QHash<QString, QVariant> &m,
@@ -1329,8 +1330,7 @@ Expression QueryBuilder::where(QString c, QVariant value) {
 }
 
 Expression QueryBuilder::equal(QString &key, QVariant &value) {
-    Expression exp = Expression(this->where(key, value, false, true, false));
-    exp.appendParam(key, value);
+    Expression exp = Expression(this->where(key, value, false, true, false),key,value);
     return exp;
 }
 

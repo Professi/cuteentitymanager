@@ -62,7 +62,7 @@ class EntityManager : public QObject {
     QSharedPointer<Entity> findById(const qint64 &id, const QString &classname);
     QList<QSharedPointer<Entity>> findEntityByAttributes(const
                                QSharedPointer<Entity> &entity,
-                               bool ignoreID = false);
+                               bool ignoreID = false, const bool refresh = false, const bool resolveRelations = true);
     qint64 findId(QSharedPointer<Entity> &entity);
     /**
      * @todo should be an insert statement with many values
@@ -111,7 +111,7 @@ class EntityManager : public QObject {
     bool createTable(QString className, bool createRelationTables = true);
     bool removeTable(QString className);
     quint32 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
-                 bool followInheritance = false);
+                  bool followInheritance = false);
     quint32 count(const QString &tableName);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
@@ -161,7 +161,8 @@ class EntityManager : public QObject {
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
 
     template<class T> QList<QSharedPointer<T>> find(Query &q,
-    const bool joinBaseClasses = false, const bool resolveRelations = true) {
+                                            const bool joinBaseClasses = false, const bool resolveRelations = true,
+    const bool refresh = false) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());
         if (ptr) {
@@ -174,7 +175,7 @@ class EntityManager : public QObject {
             QSqlQuery query = this->queryInterpreter->build(q);
             auto maps = this->convertQueryResult(query);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
-                                           false,
+                                           refresh,
                                            resolveRelations);
             return EntityManager::convertList<T>(converted);
         }
@@ -182,32 +183,33 @@ class EntityManager : public QObject {
     }
 
     template<class T> QList<QSharedPointer<T>> findAll(const bool resolveRelations =
-    true) {
+    true, const bool refresh = false) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());
         if (ptr) {
             auto maps = this->findAll(ptr);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
-                                           false,
+                                           refresh,
                                            resolveRelations);
             return EntityManager::convertList<T>(converted);
         }
         return QList<QSharedPointer<T>>();
     }
 
-    template<class T> QSharedPointer<T> findById(const qint64 &id) {
+    template<class T> QSharedPointer<T> findById(const qint64 &id,
+            const bool refresh = false) {
         auto e = EntityInstanceFactory::createInstance<T *>();
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>(e);
-        return this->findById(id, ptr).objectCast<T>();
+        return this->findById(id, ptr, refresh).objectCast<T>();
     }
 
     template<class T>
     QSharedPointer<T> findEntityByAttributes(
         const QHash<QString, QVariant>
         &attributes, const bool joinBaseClasses = false,
-        const bool resolveRelations = true) {
+        const bool resolveRelations = true, const bool refresh) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0,
-                    joinBaseClasses, resolveRelations);
+                    joinBaseClasses, resolveRelations, refresh);
         if (list.isEmpty()) {
             return QSharedPointer<T>();
         }
@@ -218,7 +220,8 @@ class EntityManager : public QObject {
     template<class T> QList<QSharedPointer<T>> findAllEntitiesByAttributes(
             const QHash<QString, QVariant> &attributes =
                 QHash<QString, QVariant>(), quint64 limit = 0, quint64 offset = 0,
-    bool joinBaseClasses = false, const bool resolveRelations = true) {
+            bool joinBaseClasses = false, const bool resolveRelations = true,
+    const bool refresh = false) {
         QSharedPointer<Entity> e = QSharedPointer<Entity>
                                    (EntityInstanceFactory::createInstance<T*>());
         if (e) {
@@ -231,7 +234,7 @@ class EntityManager : public QObject {
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
             auto results = this->convertQueryResult(q);
-            auto list = this->convert(results, EntityHelper::getClassname(e.data()), false,
+            auto list = this->convert(results, EntityHelper::getClassname(e.data()), refresh,
                                       resolveRelations);
             return EntityManager::convertList<T>(list);
         }
@@ -280,7 +283,7 @@ class EntityManager : public QObject {
         return newList;
     }
 
-protected:
+  protected:
     bool saveObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
                     const bool persistRelations = true,
                     const bool ignoreHasChanged = false, const bool validate = true,
@@ -299,10 +302,12 @@ protected:
     QHash<QString, QVariant> findByPk(qint64 id, const QSharedPointer<Entity> &e);
     void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
                    Attribute *&attr, const bool refresh = false);
-    void oneToMany(const QSharedPointer<Entity> &entity, Attribute *&attr, const bool refresh = false);
+    void oneToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
+                   const bool refresh = false);
     void manyToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
                     const bool refresh = false);
-    void oneToOne(const QSharedPointer<Entity> &entity, Attribute *&attr, const bool refresh = false,
+    void oneToOne(const QSharedPointer<Entity> &entity, Attribute *&attr,
+                  const bool refresh = false,
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                            QVariant &property, QList<Entity *> &mergedObjects,

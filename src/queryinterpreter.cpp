@@ -233,8 +233,17 @@ QString QueryInterpreter::buildCondition(Query &q,
                 sqlCondition += this->builder->getSeparator();
             }
         }
+        auto params = exp.getParams();
+        for (auto i = params.begin(); i != params.end(); ++i) {
+            QString key = this->generateParam(q);
+            expression.replace(":" + i.key(), ":" + key);
+            q.appendParam(key, i.value());
+        }
         sqlCondition += expression;
-        q.appendParams(exp.getParams());
     }
     return sqlCondition;
+}
+
+QString QueryInterpreter::generateParam(Query &q) const {
+    return "eP" + QString::number(q.getParams().size() + 1);
 }

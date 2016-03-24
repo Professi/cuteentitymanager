@@ -106,7 +106,7 @@ entity.cpp \
 android: {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
 }
-unix!android: {
+unix:!android: {
     system-sqlite:!contains(LIBS, .*sqlite3.*) {
         include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
     } else {

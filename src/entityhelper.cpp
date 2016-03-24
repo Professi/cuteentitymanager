@@ -140,11 +140,13 @@ const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(
 const QHash<Relation, QMetaProperty> EntityHelper::getRelationProperties(
     const Entity *entity) {
     auto h = QHash<Relation, QMetaProperty>();
-    auto relations = entity->getRelations();
-    for (int var = 0; var < entity->metaObject()->propertyCount(); ++var) {
-        QMetaProperty m = entity->metaObject()->property(var);
-        if (m.isValid() && relations.contains(QString(m.name()))) {
-            h.insert(relations.value(m.name()), m);
+    if(entity) {
+        auto relations = entity->getRelations();
+        for (int var = 0; var < entity->metaObject()->propertyCount(); ++var) {
+            QMetaProperty m = entity->metaObject()->property(var);
+            if (m.isValid() && relations.contains(QString(m.name()))) {
+                h.insert(relations.value(m.name()), m);
+            }
         }
     }
     return h;
