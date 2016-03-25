@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QAbstractListModel>
 #include <QDebug>
-#include "../../entitymanager/src/entity.h"
+#include "entity.h"
 
 using namespace CuteEntityManager;
 class Group;
