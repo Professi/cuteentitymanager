@@ -103,7 +103,7 @@ entity.cpp \
     attribute.cpp \
     attributeresolver.cpp
 
-android: {
+windows|android: {
     include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
 }
 unix:!android: {
