@@ -43,7 +43,7 @@ enum class Direction;
 class Query {
   public:
     Query();
-    ~Query();
+    virtual ~Query();
     explicit Query(QStringList from, QList<Expression> where = QList<Expression>(),
                    QList<Join> joins = QList<Join>(),
                    QHash<QString, QVariant> params = QHash<QString, QVariant>(), quint64 limit = 0,
@@ -70,6 +70,7 @@ class Query {
     QStringList getFrom() const;
     void setFrom(const QStringList &value);
 
+    void appendJoinWith(const QString value);
     void appendJoin(const Join &value);
     void appendJoins(const QList<Join> &value);
     QList<Join> getJoins() const;

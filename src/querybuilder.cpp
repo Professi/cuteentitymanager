@@ -13,11 +13,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, see <http://www.gnu.org/licenses/>.
  */
+#include <QMetaObject>
+#include <QRegularExpression>
+#include <QStringList>
 #include "querybuilder.h"
 #include "database.h"
-#include <QMetaObject>
 #include "entity.h"
-#include <QRegularExpression>
 #include "entityinstancefactory.h"
 #include "entityhelper.h"
 #include "logger.h"
@@ -496,7 +497,9 @@ QString QueryBuilder::getColumnType(const QString &type) const {
     }
     QRegularExpression reg = QRegularExpression(
                                  QRegularExpression::escape("/^(\\w+)\\((.+?)\\)(.*)$/"));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
     reg.optimize();
+#endif
     QRegularExpressionMatchIterator i = reg.globalMatch(type, 0,
                                         QRegularExpression::PartialPreferFirstMatch);
     short s = 0;
@@ -576,10 +579,6 @@ Query QueryBuilder::findByAttributes(const QHash<QString, QVariant> &m,
     q.appendWhere(Expression(this->where(m, this->andKeyword(), ignoreID, "id", false), m));
     q.setLimit(limit);
     q.setOffset(offset);
-//    QSqlQuery q = this->database->getQuery(this->selectBase(QStringList(
-//            tableName)) + this->where(m, this->andKeyword(), ignoreID) + this->limit(limit,
-//                                           offset));
-//    this->bindValues(m, q, ignoreID);
     return q;
 }
 

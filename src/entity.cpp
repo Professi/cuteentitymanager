@@ -104,6 +104,10 @@ const QHash<QString, Relation> Entity::getRelations() const {
     return QHash<QString, Relation>();
 }
 
+const Relation Entity::getRelation(const QString &name) const {
+    return this->getRelations().isEmpty() ? Relation() : this->getRelations().value(name);
+}
+
 const QStringList Entity::getTransientAttributes() const {
     return QStringList();
 }

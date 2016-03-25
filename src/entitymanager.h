@@ -48,6 +48,7 @@ class AttributeResolver;
 class Logger;
 class QueryInterpreter;
 class EntityManager : public QObject {
+
     Q_OBJECT
   public slots:
     /**
@@ -59,10 +60,11 @@ class EntityManager : public QObject {
     bool startup(QString version, QStringList toInitialize,
                  bool createIndices = false);
     bool executeQuery(const QString &query);
-    QSharedPointer<Entity> findById(const qint64 &id, const QString &classname, const bool refresh=false);
+    QSharedPointer<Entity> findById(const qint64 &id, const QString &classname,
+                                    const bool refresh = false);
     QList<QSharedPointer<Entity>> findEntityByAttributes(const
                                QSharedPointer<Entity> &entity,
-                               bool ignoreID = false, const bool refresh = false, const bool resolveRelations = true);
+                               bool ignoreID = false, const bool resolveRelations = true);
     qint64 findId(QSharedPointer<Entity> &entity);
     /**
      * @todo should be an insert statement with many values
@@ -74,37 +76,10 @@ class EntityManager : public QObject {
     bool create(QList<QSharedPointer<Entity>> &entities, const bool persistRelations = true,
                 const bool checkDuplicate = false, const bool validate = true,
                 const bool relationsIgnoreHasChanged = false);
-    /**
-     * @brief EntityManager::create
-     * Will persist an entity in the database. Before its persisted it has the id -1(invalid id). If database persisting was succesfull it has a valid id.
-     * @param entity
-     * @param persistRelations
-     * @param checkDuplicate
-     * @param validate
-     * @return
-     */
-    bool create(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-                const bool checkDuplicate = false, const bool validate = true,
-                const bool relationsIgnoreHasChanged = false) ;
-    /**
-     * @brief EntityManager::save
-     * If the entity has no valid ID, this method will call the create() method. Else it would call the merge method.
-     * @param entity
-     * @param persistRelations
-     * @param ignoreHasChanged
-     * @param validate
-     * @return bool
-     */
-    bool save(QSharedPointer<Entity> &entity, const bool persistRelations = true,
-              const bool ignoreHasChanged = false, const bool validate = true,
-              const bool relationsIgnoreHasChanged = false);
     bool save(QList<QSharedPointer<Entity>> &entities,
               const bool persistRelations = true,
               const bool ignoreHasChanged = false, const bool validate = true,
               const bool relationsIgnoreHasChanged = false);
-    bool merge(QSharedPointer<Entity> &entity, bool withRelations = true,
-               const bool validate = true, const bool relationsIgnoreHasChanged = false);
-    bool remove(QSharedPointer<Entity> &entity);
     bool removeAll(QString tblname);
     bool createTable(const QSharedPointer<Entity> &entity,
                      bool createRelationTables = true);
@@ -116,12 +91,6 @@ class EntityManager : public QObject {
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);
     QSharedPointer<Schema> getSchema() const;
-    /**
-     * @brief EntityManager::refresh
-     * fetches an entity again from the database
-     * @param entity
-     */
-    void refresh(QSharedPointer<Entity> &entity, const bool resolveRelations=true);
     QList<QHash<QString, QVariant>> selectByQuery(Query &query);
     QList<QHash<QString, QVariant>> selectBySql(const QString &sql);
     quint32 count(Query &query);
@@ -159,10 +128,13 @@ class EntityManager : public QObject {
     static EntityManager *getDefaultInstance();
     static EntityManager *getInstance(QString name);
     QSharedPointer<QueryBuilder> getQueryBuilder() const;
-
+    /**
+     * @brief clearCache
+     * don't use this function. It's only for test purposes.
+     */
+    void clearCache();
     template<class T> QList<QSharedPointer<T>> find(Query &q,
-                                            const bool joinBaseClasses = false, const bool resolveRelations = true,
-    const bool refresh = false) {
+    const bool joinBaseClasses = false, const bool resolveRelations = true) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());
         if (ptr) {
@@ -172,24 +144,104 @@ class EntityManager : public QObject {
             if (joinBaseClasses) {
                 q.appendJoins(this->schema->getQueryBuilder()->joinBaseClasses(ptr));
             }
-            QSqlQuery query = this->queryInterpreter->build(q);
+            QSqlQuery query = this->queryInterpreter->build(q, ptr->metaObject());
             auto maps = this->convertQueryResult(query);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
-                                           refresh,
                                            resolveRelations);
             return EntityManager::convertList<T>(converted);
         }
         return QList<QSharedPointer<T>>();
     }
 
-    template<class T> QList<QSharedPointer<T>> findAll(const bool resolveRelations =
-    true, const bool refresh = false) {
+    template<class T>
+    bool remove(QSharedPointer<T> &entity) {
+        static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
+        bool rc = false;
+        this->db->startTransaction();
+        this->removeRelations(entity);
+        auto queries = this->schema->getQueryBuilder()->remove(entity);
+        bool ok = this->db->exec(queries);
+        if (ok && this->db->commitTransaction()) {
+            this->cache.remove(entity);
+            entity.clear();
+            rc = true;
+        } else {
+            this->db->rollbackTransaction();
+        }
+        return rc;
+    }
+
+    template<class T>
+    bool merge(QSharedPointer<T> &entity, bool withRelations = true,
+               const bool validate = true, const bool relationsIgnoreHasChanged = false) {
+        static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
+        auto merged = QList<Entity *>();
+        QSharedPointer<Entity> e = entity;
+        return this->mergeObject(e, merged, withRelations, validate,
+                                 relationsIgnoreHasChanged);
+    }
+
+    /**
+     * @brief EntityManager::save
+     * If the entity has no valid ID, this method will call the create() method. Else it would call the merge method.
+     * @param entity
+     * @param persistRelations
+     * @param ignoreHasChanged
+     * @param validate
+     * @return bool
+     */
+    template<class T>
+    bool save(QSharedPointer<T> &entity, const bool persistRelations = true,
+              const bool ignoreHasChanged = false, const bool validate = true,
+              const bool relationsIgnoreHasChanged = false) {
+        static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
+        auto merged = QList<Entity *>();
+        QSharedPointer<Entity> e = entity;
+        return this->saveObject(e, merged, persistRelations,
+                                ignoreHasChanged, validate, relationsIgnoreHasChanged);
+    }
+
+    /**
+     * @brief EntityManager::refresh
+     * fetches an entity again from the database
+     * @param entity
+     */
+    template<typename T>
+    void refresh(QSharedPointer<T> entity, const bool resolveRelations = true) {
+        static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
+        if(entity) {
+            auto map  = this->findByPk(entity->getId(), entity);
+            QSharedPointer<Entity> e = entity;
+            this->convert(map, e, resolveRelations);
+        }
+    }
+    /**
+     * @brief EntityManager::create
+     * Will persist an entity in the database. Before its persisted it has the id -1(invalid id). If database persisting was succesfull it has a valid id.
+     * @param entity
+     * @param persistRelations
+     * @param checkDuplicate
+     * @param validate
+     * @return
+     */
+    template<typename T>
+    bool create(QSharedPointer<T> &entity, const bool persistRelations = true,
+                const bool checkDuplicate = false, const bool validate = true,
+                const bool relationsIgnoreHasChanged = false) {
+        static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
+        auto merged = QList<Entity *>();
+        QSharedPointer<Entity> e = entity;
+        return this->createObject(e, merged, persistRelations,
+                                  checkDuplicate, validate, relationsIgnoreHasChanged);
+    }
+
+
+    template<class T> QList<QSharedPointer<T>> findAll(const bool resolveRelations = true) {
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>
                                      (EntityInstanceFactory::createInstance<T *>());
         if (ptr) {
             auto maps = this->findAll(ptr);
             auto converted = this->convert(maps, EntityHelper::getClassname(ptr.data()),
-                                           refresh,
                                            resolveRelations);
             return EntityManager::convertList<T>(converted);
         }
@@ -207,9 +259,9 @@ class EntityManager : public QObject {
     QSharedPointer<T> findEntityByAttributes(
         const QHash<QString, QVariant>
         &attributes, const bool joinBaseClasses = false,
-        const bool resolveRelations = true, const bool refresh=false) {
+        const bool resolveRelations = true) {
         auto list = this->findAllEntitiesByAttributes<T>(attributes, 1, 0,
-                    joinBaseClasses, resolveRelations,refresh);
+                    joinBaseClasses, resolveRelations);
         if (list.isEmpty()) {
             return QSharedPointer<T>();
         }
@@ -220,8 +272,7 @@ class EntityManager : public QObject {
     template<class T> QList<QSharedPointer<T>> findAllEntitiesByAttributes(
             const QHash<QString, QVariant> &attributes =
                 QHash<QString, QVariant>(), quint64 limit = 0, quint64 offset = 0,
-            bool joinBaseClasses = false, const bool resolveRelations = true,
-    const bool refresh = false) {
+    bool joinBaseClasses = false, const bool resolveRelations = true) {
         QSharedPointer<Entity> e = QSharedPointer<Entity>
                                    (EntityInstanceFactory::createInstance<T*>());
         if (e) {
@@ -234,7 +285,8 @@ class EntityManager : public QObject {
             query.setOffset(offset);
             QSqlQuery q = this->queryInterpreter->build(query);
             auto results = this->convertQueryResult(q);
-            auto list = this->convert(results, EntityHelper::getClassname(e.data()),refresh,resolveRelations);
+            auto list = this->convert(results, EntityHelper::getClassname(e.data()),
+                                      resolveRelations);
             return EntityManager::convertList<T>(list);
         }
         return QList<QSharedPointer<T>>();
@@ -297,16 +349,13 @@ class EntityManager : public QObject {
     void init(bool inspect, const MsgType msgType);
     QList<QHash<QString, QVariant>> findAll(const QSharedPointer<Entity> &e);
     void resolveRelations(const QSharedPointer<Entity> &entity,
-                          const QHash<QString, QVariant> &map, const bool refresh = false);
+                          const QHash<QString, QVariant> &map);
     QHash<QString, QVariant> findByPk(qint64 id, const QSharedPointer<Entity> &e);
     void manyToOne(const QSharedPointer<Entity> &entity, const QVariant &id,
-                   Attribute *&attr, const bool refresh = false);
-    void oneToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
-                   const bool refresh = false);
-    void manyToMany(const QSharedPointer<Entity> &entity, Attribute *&attr,
-                    const bool refresh = false);
+                   Attribute *&attr);
+    void oneToMany(const QSharedPointer<Entity> &entity, Attribute *&attr);
+    void manyToMany(const QSharedPointer<Entity> &entity, Attribute *&attr);
     void oneToOne(const QSharedPointer<Entity> &entity, Attribute *&attr,
-                  const bool refresh = false,
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
                            QVariant &property, QList<Entity *> &mergedObjects,
@@ -362,13 +411,12 @@ class EntityManager : public QObject {
     void setNullOneToManyRelation(QVariant &var, const Relation &r);
     void setNullEntityPropertyRelation(QVariant &var, const Relation &r);
     QSharedPointer<Entity> convert(const QHash<QString, QVariant> &map,
-                                   const char *classname, const bool refresh = false,
+                                   const char *classname,
                                    const bool resolveRelations = true);
     void convert(const QHash<QString, QVariant> &map, QSharedPointer<Entity> &entity,
-                 const bool refresh = false,
                  const bool resolveRelations = true);
     QList<QSharedPointer<Entity>> convert(QList<QHash<QString, QVariant>> maps,
-                                          const char *classname, const bool refresh = false, const bool resolveRelations = true);
+                                          const char *classname, const bool resolveRelations = true);
     void missingManyToManyTable(const QString &tblName,
                                 const QSharedPointer<Entity> &e, const Relation &r);
     /**

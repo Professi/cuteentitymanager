@@ -13,11 +13,6 @@ class QuerybuilderTest : public QObject {
     void initTestCase();
     void cleanupTestCase();
     void testFindByAttributes();
-    void testFindByAttributesManyToOneRelation();
-    void testFindByAttributesManyToOneRelationAttribute();
-    void testFindByAttributesManyToManyRelation();
-    void testFindByAttributesManyToManyRelationWithList();
-    void testFindByAttributesManyToManyRelationAttribute();
     void testFindByAttributesManyToManyResolve();
     void testFindByAttributesOneToManyResolve();
     void testFindByAttributesOneToOneResolve();
@@ -30,9 +25,7 @@ class QuerybuilderTest : public QObject {
     void testQueryBuilderArbitraryOperator();
     void testQueryBuilderJoins();
     void testQueryBuilderSingleAttributeOr();
-    void testQueryBuilderManyToOneRelation();
     void testQueryBuilderManyToOneRelationAttribute();
-    void testQueryBuilderManyToManyRelation();
     void testQueryBuilderManyToManyRelationAttribute();
     void testRefresh();
 

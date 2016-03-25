@@ -21,14 +21,14 @@
 #include <QRegularExpressionMatchIterator>
 namespace CuteEntityManager {
 class Query;
-class QueryBuilder;
 class Join;
 class OrderBy;
 class Expression;
+class AttributeResolver;
 class QueryInterpreter {
   public:
-    QueryInterpreter(QueryBuilder *builder);
-    QSqlQuery build(Query &q);
+    QueryInterpreter(QSharedPointer<AttributeResolver> ar);
+    QSqlQuery build(Query &q, const QMetaObject *obj = nullptr);
 
   protected:
     QString buildSelect(Query &q, const QList<Expression> &columns,
@@ -36,6 +36,7 @@ class QueryInterpreter {
                         const QString &selectOption = "") const;
     QString buildFrom(const QStringList &from) const;
     QString buildJoin(const QList<Join> &joins) const;
+    QString buildSQLJoin(const QString &table1, const QString &col1, const QString &table2, const QString &col2) const;
     QString buildWhere(Query &q, const QList<Expression> &conditions) const;
     QString buildGroupBy(const QStringList &groupBy) const;
     QString buildHaving(Query &q, const QList<Expression> &conditions) const;
@@ -43,10 +44,13 @@ class QueryInterpreter {
                                  const quint64 &limit, const quint64 &offset) const;
     QString buildOrderBy(const QList<OrderBy> &columns) const;
     QString buildCondition(Query &q, const QList<Expression> &conditions) const;
+    void convertParams(Query &q, const QHash<QString, QVariant> &params, QString &condition) const;
+    QVariant convertParamValue(const QVariant val) const;
+    void resolveRelations(Query &q, const QMetaObject *obj);
     QString generateParam(Query &q) const;
 
   private:
-    QueryBuilder *builder;
+    QSharedPointer<AttributeResolver> ar;
 
 };
 

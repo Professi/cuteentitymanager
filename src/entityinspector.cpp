@@ -15,7 +15,6 @@
  */
 #include "entityinspector.h"
 #include <QDir>
-#include <QDebug>
 #include <QDateTime>
 using namespace CuteEntityManager;
 
@@ -105,7 +104,6 @@ void EntityInspector::checkMetaProperties(QHash<QString, QMetaProperty>
         if (typeName.contains("QSharedPointer") && !relations.contains(i.key())) {
             ok = false;
             msg += "No relation defined for attribute " + i.key() + "!\n";
-
         } else if (typeName.contains("QPointer")) {
             ok = false;
             msg += i.key() + " must use QSharedPointer.\n";
@@ -231,7 +229,6 @@ void EntityInspector::checkRelationTypes(const Relation &r,
             && foreign.getType() != RelationType::ONE_TO_ONE) {
         ok = false;
         this->logRelationTypeErrorMsg("ONE_TO_ONE", r, foreign);
-
     } else if (r.getType() == RelationType::MANY_TO_MANY
                && foreign.getType() != RelationType::MANY_TO_MANY) {
         this->logRelationTypeErrorMsg("MANY_TO_MANY", r, foreign);
@@ -330,6 +327,11 @@ bool EntityInspector::checkPrimaryKey(Entity *&entity) {
         ok = false;
         this->logger->logMsg("Property " + pk +
                              " for primary key not exists. Please check your getPrimaryKey() method!\n",
+                             MsgType::CRITICAL);
+    }
+    if(metaprops.size() <= 1) {
+        ok = false;
+        this->logger->logMsg("Entity has only one attribute. Please add attributes. Otherwise you can run into problems.",
                              MsgType::CRITICAL);
     }
     return ok;

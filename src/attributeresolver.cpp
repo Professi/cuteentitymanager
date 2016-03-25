@@ -130,6 +130,10 @@ Attribute *AttributeResolver::resolveExplicitAttribute(const QSharedPointer<Enti
     return a;
 }
 
+QSharedPointer<QueryBuilder> AttributeResolver::getQb() const {
+    return qb;
+}
+
 bool AttributeResolver::containsAttribute(const QString &className,
         const QString &attribute) const {
     bool r = false;
@@ -140,18 +144,6 @@ bool AttributeResolver::containsAttribute(const QString &className,
         r = true;
     }
     return r;
-}
-
-Attribute *AttributeResolver::resolveAttribute(const QSharedPointer<Entity> &classObj,
-        const QString &attribute, QSharedPointer<Entity> related) {
-    Attribute *attr = nullptr;
-    if(this->containsAttribute(classObj->getClassname(), attribute)) {
-        attr = this->attributes.value(classObj->getClassname()).value(attribute);
-    } else {
-        attr = this->resolveExplicitAttribute(classObj, attribute, related);
-        this->addAttribute(classObj->getClassname(), attr);
-    }
-    return attr;
 }
 
 Attribute *AttributeResolver::resolveAttribute(const QString &className,

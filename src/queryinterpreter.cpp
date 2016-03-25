@@ -17,18 +17,22 @@
 #include "queryinterpreter.h"
 #include "join.h"
 #include "query.h"
-#include "querybuilder.h"
+#include "attributeresolver.h"
 #include "orderby.h"
 #include "expression.h"
 #include "schema.h"
+#include "entityinstancefactory.h"
 using namespace CuteEntityManager;
 
 
-QueryInterpreter::QueryInterpreter(QueryBuilder *builder) {
-    this->builder = builder;
+QueryInterpreter::QueryInterpreter(QSharedPointer<AttributeResolver> ar) {
+    this->ar = ar;
 }
 
-QSqlQuery QueryInterpreter::build(Query &q) {
+QSqlQuery QueryInterpreter::build(Query &q, const QMetaObject *obj) {
+    if(obj) {
+        this->resolveRelations(q, obj);
+    }
     QList<QString> clauses = QList<QString>();
     clauses.append(this->buildSelect(q, q.getSelect(), q.getDistinct(),
                                      q.getSelectOption()));
@@ -45,23 +49,23 @@ QSqlQuery QueryInterpreter::build(Query &q) {
             if (first) {
                 first = false;
             } else {
-                sql += this->builder->getSeparator();
+                sql += this->ar->getQb()->getSeparator();
             }
             sql += clause;
         }
     }
     sql = this->buildOrderByAndLimit(sql, q.getOrderBy(), q.getLimit(),
                                      q.getOffset());
-    QSqlQuery sqlQuery = this->builder->getQuery();
+    QSqlQuery sqlQuery = this->ar->getQb()->getQuery();
     sqlQuery.prepare(sql);
-    this->builder->bindValues(q.getParams(), sqlQuery, false);
+    this->ar->getQb()->bindValues(q.getParams(), sqlQuery, false);
     return sqlQuery;
 }
 
 QString QueryInterpreter::buildSelect(Query &q,
                                       const QList<Expression> &columns,
                                       const bool &distinct, const QString &selectOption) const {
-    QString sqlSelect = distinct ? ("SELECT " + this->builder->distinct() + " ") :
+    QString sqlSelect = distinct ? ("SELECT " + this->ar->getQb()->distinct() + " ") :
                         "SELECT ";
     if (!selectOption.isEmpty()) {
         sqlSelect += selectOption + " ";
@@ -77,31 +81,34 @@ QString QueryInterpreter::buildSelect(Query &q,
             sqlSelect += ", ";
         }
         Expression e = columns.at(i);
-        q.appendParams(e.getParams());
         QString nExp = e.getExpression();
+        auto params = e.getParams();
+        this->convertParams(q, params, nExp);
         if (e.getOnlyColumn()) {
-            sqlSelect += this->builder->getSchema()->quoteColumnName(e.getExpression());
+            sqlSelect += this->ar->getQb()->getSchema()->quoteColumnName(e.getExpression());
         } else if (!nExp.contains("(")) {
             QRegularExpression re =
                 QRegularExpression(
                     QRegularExpression::escape("/^(.*?)(?i:\\s+as\\s+|\\s+)([\\w\\-_\\.]+)$/"));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
             re.optimize();
+#endif
             QRegularExpressionMatchIterator iterator = re.globalMatch(nExp, 0,
                     QRegularExpression::PartialPreferFirstMatch);
             if (iterator.hasNext()) {
                 for (int var = 0; var < 2; ++var) {
                     QRegularExpressionMatch match = iterator.next();
                     if (var == 1) {
-                        sqlSelect += this->builder->getSchema()->quoteColumnName(
-                                         match.captured()) + " AS " + this->builder->getSchema()->quoteColumnName("a" +
+                        sqlSelect += this->ar->getQb()->getSchema()->quoteColumnName(
+                                         match.captured()) + " AS " + this->ar->getQb()->getSchema()->quoteColumnName("a" +
                                                  QString::number(i));
                     }
                 }
             } else {
-                nExp = this->builder->getSchema()->quoteColumnName(nExp);
+                nExp = this->ar->getQb()->getSchema()->quoteColumnName(nExp);
             }
         } else {
-            sqlSelect += nExp + " AS " + this->builder->getSchema()->quoteColumnName("a" +
+            sqlSelect += nExp + " AS " + this->ar->getQb()->getSchema()->quoteColumnName("a" +
                          QString::number(i));
         }
     }
@@ -112,7 +119,7 @@ QString QueryInterpreter::buildFrom(const QStringList &from) const {
     if (from.isEmpty()) {
         return "";
     }
-    auto tables = this->builder->quoteTableNames(from);
+    auto tables = this->ar->getQb()->quoteTableNames(from);
     QString clause = "FROM ";
     bool first = true;
     for (int var = 0; var < tables.size(); ++var) {
@@ -133,23 +140,30 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
     QString sqlJoin = "";
     for (int i = 0; i < joins.size(); ++i) {
         Join j = joins.at(i);
-        sqlJoin += j.getType() + this->builder->getSeparator() +
-                   this->builder->getSchema()->quoteTableName(j.getForeignTable());
+        sqlJoin += j.getType() + this->ar->getQb()->getSeparator() +
+                   this->ar->getQb()->getSchema()->quoteTableName(j.getForeignTable());
+        sqlJoin += (j.getAlias().isEmpty() ? "" : " AS " +
+                    this->ar->getQb()->getSchema()->quoteTableName(j.getAlias()));
         if (!j.getExpression().getExpression().isEmpty()) {
             QString expression = j.getExpression().getExpression();
             int count = expression.count("=");
             if (count < 1) {
-                expression = this->builder->getSchema()->quoteTableName(expression);
+                expression = this->ar->getQb()->getSchema()->quoteTableName(expression);
             } else if (count == 1) {
                 QStringList list = expression.split("=");
-                expression = this->builder->getSchema()->quoteColumnName(list.at(
+                expression = this->ar->getQb()->getSchema()->quoteColumnName(list.at(
                                  0).trimmed()) + " = ";
-                expression += this->builder->getSchema()->quoteColumnName(list.at(1).trimmed());
+                expression += this->ar->getQb()->getSchema()->quoteColumnName(list.at(1).trimmed());
             }
             sqlJoin += " ON " + expression;
         }
     }
     return sqlJoin;
+}
+
+QString QueryInterpreter::buildSQLJoin(const QString &table1, const QString &col1,
+                                       const QString &table2, const QString &col2) const {
+    return table1 + "." + col1 + " = " + table2 + "." + col2;
 }
 
 QString QueryInterpreter::buildWhere(Query &q,
@@ -160,7 +174,7 @@ const {
 }
 
 QString QueryInterpreter::buildGroupBy(const QStringList &groupBy) const {
-    return groupBy.isEmpty() ? "" : "GROUP BY " + this->builder->buildColumns(
+    return groupBy.isEmpty() ? "" : "GROUP BY " + this->ar->getQb()->buildColumns(
                groupBy);
 }
 
@@ -175,11 +189,11 @@ QString QueryInterpreter::buildOrderByAndLimit(QString sql,
         const quint64 &offset) const {
     QString sqlOrderBy = this->buildOrderBy(orderBy);
     if (!sqlOrderBy.isEmpty()) {
-        sql += this->builder->getSeparator() + sqlOrderBy;
+        sql += this->ar->getQb()->getSeparator() + sqlOrderBy;
     }
-    QString sqlLimit = this->builder->limit(limit, offset, false);
+    QString sqlLimit = this->ar->getQb()->limit(limit, offset, false);
     if (!sqlLimit.isEmpty()) {
-        sql += this->builder->getSeparator() + sqlLimit;
+        sql += this->ar->getQb()->getSeparator() + sqlLimit;
     }
     return sql;
 }
@@ -200,7 +214,7 @@ QString QueryInterpreter::buildOrderBy(const QList<OrderBy> &columns) const {
         if (order.getColumn().isEmpty()) {
             sqlOrder += order.getExpressedDirection().getExpression();
         } else {
-            sqlOrder += this->builder->getSchema()->quoteColumnName(order.getColumn());
+            sqlOrder += this->ar->getQb()->getSchema()->quoteColumnName(order.getColumn());
             switch (order.getDirection()) {
             case Direction::SORT_ASC:
                 sqlOrder += " ASC";
@@ -230,19 +244,89 @@ QString QueryInterpreter::buildCondition(Query &q,
             if (first) {
                 first = false;
             } else if (expression.at(0) != ' ') {
-                sqlCondition += this->builder->getSeparator();
+                sqlCondition += this->ar->getQb()->getSeparator();
             }
         }
         auto params = exp.getParams();
-        for (auto i = params.begin(); i != params.end(); ++i) {
-            QString key = this->generateParam(q);
-            expression.replace(":" + i.key(), ":" + key);
-            q.appendParam(key, i.value());
-        }
+        this->convertParams(q, params, expression);
         sqlCondition += expression;
     }
     return sqlCondition;
 }
+
+QVariant QueryInterpreter::convertParamValue(const QVariant val) const {
+    auto typeName = QString(val.typeName());
+    QVariant r = val;
+    if(typeName.contains("QSharedPointer")) {
+        if(typeName.contains("QList")) {
+            auto entities = EntityInstanceFactory::castQVariantList(r);
+            QList<QVariant> ids;
+            for (int i = 0; i < entities.size(); ++i) {
+                if(entities.at(i)) {
+                    ids.append(entities.at(i)->getProperty(entities.at(i)->getPrimaryKey()));
+                }
+            }
+            r.setValue<QList<QVariant>>(ids);
+        } else {
+            auto entity = EntityInstanceFactory::castQVariant(r);
+            if(entity && entity->getId() != -1) {
+                r = entity->getProperty(entity->getPrimaryKey());
+            }
+        }
+    }
+    return r;
+}
+
+void QueryInterpreter::resolveRelations(Query &q, const QMetaObject *obj) {
+    auto joins = q.getJoins();
+    auto instance = EntityInstanceFactory::createInstance(obj->className());
+    auto newJoins = QList<Join>();
+    for (int i = 0; i < joins.size(); ++i) {
+        auto join = joins.at(i);
+        if(!join.getAttribute().isEmpty()) {
+            auto attr = this->ar->resolveAttribute(obj->className(), join.getAttribute());
+            if(attr) {
+                auto foreignInstance = EntityInstanceFactory::createInstance(
+                                           attr->getRelatedClass()->className());
+                join.setForeignTable(attr->getRelatedTable());
+                if(!attr->getConjunctedTable().isEmpty()) {
+                    Join j = Join();
+                    j.setForeignTable(attr->getConjunctedTable());
+                    j.setExpression(Expression(this->buildSQLJoin(attr->getConjunctedTable(),
+                                               attr->getColumnName(), attr->getTableName(),
+                                               instance->getPrimaryKey())));
+                    join.setForeignTable(attr->getRelatedTable());
+                    join.setAlias(attr->getName());
+                    join.setExpression(Expression(this->buildSQLJoin(attr->getConjunctedTable(),
+                                                  attr->getRelatedColumnName(), attr->getName(),
+                                                  foreignInstance->getPrimaryKey())));
+                    newJoins.prepend(j);
+                } else {
+                    join.setAlias(attr->getName());
+                    join.setForeignTable(attr->getRelatedTable());
+                    join.setExpression(Expression(this->buildSQLJoin(attr->getTableName(),
+                                                  attr->getColumnName(), attr->getName(), foreignInstance->getPrimaryKey())));
+                }
+                joins.replace(i, join);
+            }
+        }
+    }
+    foreach (Join j, newJoins) {
+        joins.prepend(j);
+    }
+    q.setJoins(joins);
+}
+
+void QueryInterpreter::convertParams(Query &q, const QHash<QString, QVariant> &params,
+                                     QString &condition) const {
+    for (auto i = params.begin(); i != params.end(); ++i) {
+        QString key = this->generateParam(q);
+        condition.replace(this->ar->getQb()->placeHolder(i.key()),
+                          this->ar->getQb()->placeHolder(key));
+        q.appendParam(key, this->convertParamValue(i.value()));
+    }
+}
+
 
 QString QueryInterpreter::generateParam(Query &q) const {
     return "eP" + QString::number(q.getParams().size() + 1);

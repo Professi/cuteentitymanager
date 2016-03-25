@@ -51,6 +51,7 @@ class Entity : public QObject {
     virtual QString getTablename() const;
     virtual QString getClassname() const;
     virtual const QHash<QString, Relation> getRelations() const;
+    virtual const Relation getRelation(const QString &name) const;
     virtual const QStringList getTransientAttributes() const;
     virtual const QStringList getBLOBColumns() const;
     virtual InheritanceStrategy getInheritanceStrategy() const;
