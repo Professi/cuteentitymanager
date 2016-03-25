@@ -7,7 +7,7 @@ void QuerybuilderTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
     this->e = new CuteEntityManager::EntityManager("QSQLITE",
-            QDir::currentPath() + "/db.sqlite", "", "", "", "",
+            ":memory:", "", "", "", "",
             true, "foreign_keys = ON", false);
     QStringList inits = QStringList() << "Person" << "Group" << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("queryBuilderTest", inits), "Failure");
