@@ -191,22 +191,6 @@ bool EntityManager::createObject(QSharedPointer<Entity> &entity,
     return rc;
 }
 
-
-bool EntityManager::merge(QSharedPointer<Entity> &entity, bool withRelations,
-                          const bool validate, const bool relationsIgnoreHasChanged) {
-    auto merged = QList<Entity *>();
-    return this->mergeObject(entity, merged, withRelations, validate,
-                             relationsIgnoreHasChanged);
-}
-
-bool EntityManager::create(QSharedPointer<Entity> &entity,
-                           const bool persistRelations, const bool checkDuplicate, const bool validate,
-                           const bool relationsIgnoreHasChanged) {
-    auto merged = QList<Entity *>();
-    return this->createObject(entity, merged, persistRelations,
-                              checkDuplicate, validate, relationsIgnoreHasChanged);
-}
-
 bool EntityManager::create(QList<QSharedPointer<Entity>> &entities,
                            const bool persistRelations, const bool checkDuplicate, const bool validate,
                            const bool relationsIgnoreHasChanged) {
@@ -217,14 +201,6 @@ bool EntityManager::create(QList<QSharedPointer<Entity>> &entities,
                            checkDuplicate, validate, relationsIgnoreHasChanged);
     }
     return ok;
-}
-
-bool EntityManager::save(QSharedPointer<Entity> &entity,
-                         const bool persistRelations, const bool ignoreHasChanged, const bool validate,
-                         const bool relationsIgnoreHasChanged) {
-    auto merged = QList<Entity *>();
-    return this->saveObject(entity, merged, persistRelations,
-                            ignoreHasChanged, validate, relationsIgnoreHasChanged);
 }
 
 bool EntityManager::save(QList<QSharedPointer<Entity>> &entities,
@@ -323,13 +299,6 @@ void EntityManager::setDb(const QSharedPointer<Database> &value) {
 
 QSharedPointer<Schema> EntityManager::getSchema() const {
     return schema;
-}
-
-void EntityManager::refresh(QSharedPointer<Entity> &entity, const bool resolveRelations) {
-    if(entity) {
-        auto map  = this->findByPk(entity->getId(), entity);
-        this->convert(map, entity, resolveRelations);
-    }
 }
 
 QList<QHash<QString, QVariant>> EntityManager::selectByQuery(Query &query) {
@@ -946,22 +915,6 @@ qint64 EntityManager::findId(QSharedPointer<Entity> &entity) {
         r = q.value(0).toLongLong();
     }
     return r;
-}
-
-bool EntityManager::remove(QSharedPointer<Entity> &entity) {
-    bool rc = false;
-    this->db->startTransaction();
-    this->removeRelations(entity);
-    auto queries = this->schema->getQueryBuilder()->remove(entity);
-    bool ok = this->db->exec(queries);
-    if (ok && this->db->commitTransaction()) {
-        this->cache.remove(entity);
-        entity.clear();
-        rc = true;
-    } else {
-        this->db->rollbackTransaction();
-    }
-    return rc;
 }
 
 bool EntityManager::removeAll(QString tblname) {

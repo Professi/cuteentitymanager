@@ -36,6 +36,7 @@ class QueryInterpreter {
                         const QString &selectOption = "") const;
     QString buildFrom(const QStringList &from) const;
     QString buildJoin(const QList<Join> &joins) const;
+    QString buildSQLJoin(const QString &table1, const QString &col1, const QString &table2, const QString &col2) const;
     QString buildWhere(Query &q, const QList<Expression> &conditions) const;
     QString buildGroupBy(const QStringList &groupBy) const;
     QString buildHaving(Query &q, const QList<Expression> &conditions) const;
@@ -46,7 +47,6 @@ class QueryInterpreter {
     void convertParams(Query &q, const QHash<QString, QVariant> &params, QString &condition) const;
     QVariant convertParamValue(const QVariant val) const;
     void resolveRelations(Query &q, const QMetaObject *obj);
-    void resolve(Query &q, const QMetaObject *obj, QList<Expression> exp);
     QString generateParam(Query &q) const;
 
   private:

@@ -142,6 +142,8 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
         Join j = joins.at(i);
         sqlJoin += j.getType() + this->ar->getQb()->getSeparator() +
                    this->ar->getQb()->getSchema()->quoteTableName(j.getForeignTable());
+        sqlJoin += (j.getAlias().isEmpty() ? "" : " AS " +
+                    this->ar->getQb()->getSchema()->quoteTableName(j.getAlias()));
         if (!j.getExpression().getExpression().isEmpty()) {
             QString expression = j.getExpression().getExpression();
             int count = expression.count("=");
@@ -157,6 +159,11 @@ QString QueryInterpreter::buildJoin(const QList<Join> &joins) const {
         }
     }
     return sqlJoin;
+}
+
+QString QueryInterpreter::buildSQLJoin(const QString &table1, const QString &col1,
+                                       const QString &table2, const QString &col2) const {
+    return table1 + "." + col1 + " = " + table2 + "." + col2;
 }
 
 QString QueryInterpreter::buildWhere(Query &q,
@@ -271,18 +278,43 @@ QVariant QueryInterpreter::convertParamValue(const QVariant val) const {
 }
 
 void QueryInterpreter::resolveRelations(Query &q, const QMetaObject *obj) {
-    QList<Expression> expressions;
-    expressions.append(q.getSelect());
-    expressions.append(q.getWhere());
-    foreach (QString groupBy, q.getGroupBy()) {
-        expressions.append(Expression(groupBy));
+    auto joins = q.getJoins();
+    auto instance = EntityInstanceFactory::createInstance(obj->className());
+    auto newJoins = QList<Join>();
+    for (int i = 0; i < joins.size(); ++i) {
+        auto join = joins.at(i);
+        if(!join.getAttribute().isEmpty()) {
+            auto attr = this->ar->resolveAttribute(obj->className(), join.getAttribute());
+            if(attr) {
+                auto foreignInstance = EntityInstanceFactory::createInstance(
+                                           attr->getRelatedClass()->className());
+                join.setForeignTable(attr->getRelatedTable());
+                if(!attr->getConjunctedTable().isEmpty()) {
+                    Join j = Join();
+                    j.setForeignTable(attr->getConjunctedTable());
+                    j.setExpression(Expression(this->buildSQLJoin(attr->getConjunctedTable(),
+                                               attr->getColumnName(), attr->getTableName(),
+                                               instance->getPrimaryKey())));
+                    join.setForeignTable(attr->getRelatedTable());
+                    join.setAlias(attr->getName());
+                    join.setExpression(Expression(this->buildSQLJoin(attr->getConjunctedTable(),
+                                                  attr->getRelatedColumnName(), attr->getName(),
+                                                  foreignInstance->getPrimaryKey())));
+                    newJoins.prepend(j);
+                } else {
+                    join.setAlias(attr->getName());
+                    join.setForeignTable(attr->getRelatedTable());
+                    join.setExpression(Expression(this->buildSQLJoin(attr->getTableName(),
+                                                  attr->getColumnName(), attr->getName(), foreignInstance->getPrimaryKey())));
+                }
+                joins.replace(i, join);
+            }
+        }
     }
-    expressions.append(q.getHaving());
-    this->resolve(q, obj, expressions);
-}
-
-void QueryInterpreter::resolve(Query &q, const QMetaObject *obj,
-                               QList<Expression> exp) {
+    foreach (Join j, newJoins) {
+        joins.prepend(j);
+    }
+    q.setJoins(joins);
 }
 
 void QueryInterpreter::convertParams(Query &q, const QHash<QString, QVariant> &params,

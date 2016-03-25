@@ -20,8 +20,7 @@ void EmTest::cleanupTestCase() {
 void EmTest::testCheckDuplicates() {
     QSharedPointer<Article> article = QSharedPointer<Article>(new Article(10,
                                       QString("TestItem")));
-    QSharedPointer<Entity> entity = article.objectCast<Entity>();
-    QVERIFY(this->e->create(entity));
+    QVERIFY(this->e->create(article));
     QSharedPointer<Entity> copy = QSharedPointer<Entity>(article->copy());
     QVERIFY(!this->e->create(copy, true, true));
 }
@@ -39,8 +38,7 @@ void EmTest::testBasics() {
     attrs.insert("name", "NewTestItem");
     QSharedPointer<Article> article2 = this->e->findEntityByAttributes<Article>(attrs);
     QVERIFY(article2);
-    entity = article2.objectCast<Entity>();
-    QVERIFY(this->e->remove(entity));
+    QVERIFY(this->e->remove(article2));
     QCOMPARE(this->e->count("article"), (quint32)0);
 }
 
@@ -185,16 +183,14 @@ void EmTest::testInheritedRelations() {
                                      WorkerGroup("Taskforce P&H", 42));
     wg->addWorker(e1);
     wg->addWorker(e2);
-    auto entityWorkerGroup = wg.objectCast<Entity>();
     try {
-        QVERIFY(this->e->create(entityWorkerGroup));
+        QVERIFY(this->e->create(wg));
         QSharedPointer<Group> g = QSharedPointer<Group>(new Group("EmployeeGroup"));
         g->setPersons({e1, e2});
-        auto entityGroup = g.objectCast<Entity>();
-        QVERIFY(this->e->create(entityGroup));
+        QVERIFY(this->e->create(g));
         g->setName("Taskforce 0008");
-        QVERIFY(this->e->merge(entityGroup));
-        QVERIFY(this->e->remove(entityGroup));
+        QVERIFY(this->e->merge(g));
+        QVERIFY(this->e->remove(g));
     } catch(QString e) {
         QFAIL(e.toUtf8().constData());
     }
@@ -248,7 +244,7 @@ void EmTest::testHasChanged() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Jelena", "Fl",
                                Person::Gender::MALE, "Maxi", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
-    QVERIFY(this->e->create(ent));
+    QVERIFY(this->e->create(p));
     p->setFirstName("Laura");
     p->setFamilyName("Musterfrau");
     p->setBirthday(QDate(200, 1, 2));
@@ -278,10 +274,9 @@ void EmTest::testRelations() {
     g->setLeader(p1);
     g2->setLeader(p2);
     g->setPersons({p1});
-    auto gEnt = g.objectCast<Entity>();
     auto pEnt = p3.objectCast<Entity>();
     auto pEnt1 = p1.objectCast<Entity>();
-    QVERIFY(this->e->save(gEnt));
+    QVERIFY(this->e->save(g));
     auto maintainedGroups = p1->getMaintainedGroups();
     maintainedGroups.append(g2);
     p1->setMaintainedGroups(maintainedGroups);
@@ -291,20 +286,19 @@ void EmTest::testRelations() {
     QVERIFY(p1->getGroups().size() > 0);
     g->addPerson(p2);
     g->setName("TestGroupExtended");
-    QVERIFY(this->e->save(gEnt));
+    QVERIFY(this->e->save(g));
     p3->setGroups({g});
     QVERIFY(this->e->save(pEnt, true, true));
     QVERIFY(g->getPersons().size() == 3);
     QList<QSharedPointer<Group>> groups;
     p3->setGroups(groups);
     QVERIFY(this->e->save(pEnt, true, true));
-    this->e->refresh(gEnt);
+    this->e->refresh(g);
     qDebug() << g->getPersons().size();
     QVERIFY(g->getPersons().size() == 2);
     auto firstPerson = g->getPersons().first();
     g->removePerson(firstPerson);
-    QVERIFY(this->e->save(gEnt, true, true));
-    auto entityFp = firstPerson.objectCast<Entity>();
-    this->e->refresh(entityFp);
+    QVERIFY(this->e->save(g, true, true));
+    this->e->refresh(firstPerson);
     QVERIFY(firstPerson->getGroups().size() == 0 && g->getPersons().size() == 1);
 }

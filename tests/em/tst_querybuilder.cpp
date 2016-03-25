@@ -6,8 +6,8 @@ void QuerybuilderTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
-    this->e = new CuteEntityManager::EntityManager("QSQLITE",
-            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
+    this->e = new CuteEntityManager::EntityManager("QSQLITE", ":memory:", "", "", "", "",
+            true, "foreign_keys = ON", false);
     QStringList inits = QStringList() << "Person" << "Group" << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("queryBuilderTest", inits), "Failure");
     QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Lucien", "We",
@@ -36,19 +36,13 @@ void QuerybuilderTest::initTestCase() {
                                      WorkerGroup("Taskforce P&H", 50));
     wg->addWorker(p2);
     wg->addWorker(p3);
-    auto gEnt = g.objectCast<Entity>();
-    auto g2Ent = g2.objectCast<Entity>();
-    auto g3Ent = g3.objectCast<Entity>();
-    auto wgEnt = wg.objectCast<Entity>();
-    auto p5Ent = p5.objectCast<Entity>();
-    auto p6Ent = p6.objectCast<Entity>();
     try {
-        QVERIFY(this->e->save(p5Ent));
-        QVERIFY(this->e->save(gEnt));
-        QVERIFY(this->e->save(wgEnt));
-        QVERIFY(this->e->save(g2Ent));
-        QVERIFY(this->e->save(p6Ent));
-        QVERIFY(this->e->save(g3Ent));
+        QVERIFY(this->e->save(p5));
+        QVERIFY(this->e->save(g));
+        QVERIFY(this->e->save(wg));
+        QVERIFY(this->e->save(g2));
+        QVERIFY(this->e->save(p6));
+        QVERIFY(this->e->save(g3));
     } catch(QString s) {
         qWarning() << s;
     }
@@ -124,79 +118,6 @@ void QuerybuilderTest::testQueryBuilderCount() {
     QCOMPARE(this->e->count(q), (quint32)4);
 }
 
-
-void QuerybuilderTest::testFindByAttributesManyToOneRelation() {
-    QHash<QString, QVariant> attributes;
-    attributes["firstName"] = QString("Lucien");
-    attributes["familyName"] = QString("We");
-    QSharedPointer<Person> p = this->e->findEntityByAttributes<Person>(attributes, true);
-    QVERIFY(p);
-    attributes.clear();
-    QVariant var;
-    var.setValue<QSharedPointer<Entity>>(p);
-    attributes["leader"] = var;
-    QSharedPointer<Group> group = e->findEntityByAttributes<Group>
-                                  (attributes, true);
-    QVERIFY(group);
-    QCOMPARE(group->getName(), QString("Group Psy"));
-}
-
-void QuerybuilderTest::testFindByAttributesManyToOneRelationAttribute() {
-    QHash<QString, QVariant> attributes;
-    attributes["leader.firstName"] = QString("Fenja");
-    QSharedPointer<Group> group = this->e->findEntityByAttributes<Group>
-                                  (attributes, true);
-    QVERIFY(group);
-}
-
-void QuerybuilderTest::testFindByAttributesManyToManyRelation() {
-    QHash<QString, QVariant> attributes;
-    attributes["firstName"] = "Kristina";
-    QSharedPointer<Person> p = this->e->findEntityByAttributes<Person>(attributes, true);
-    QVERIFY(p);
-    QCOMPARE(p->getFamilyName(), QString("Zero"));
-    attributes.clear();
-    QVariant var;
-    var.setValue<QSharedPointer<Person>>(p);
-    attributes["persons"] = var;
-    QSharedPointer<Group> group = e->findEntityByAttributes<Group>
-                                  (attributes, true);
-    QVERIFY(group);
-    QCOMPARE(group->getName(), QString("Group Health"));
-}
-
-void QuerybuilderTest::testFindByAttributesManyToManyRelationWithList() {
-    QHash<QString, QVariant> attributes;
-    QList<QSharedPointer<Person>> persons = QList<QSharedPointer<Person>>();
-    attributes["firstName"] = QString("Lucien");
-    QSharedPointer<Person> p1 = this->e->findEntityByAttributes<Person>(attributes, true);
-    QVERIFY(p1);
-    QCOMPARE(p1->getFamilyName(), QString("We"));
-    persons.append(p1);
-    attributes["firstName"] = QString("Janine");
-    QSharedPointer<Person> p2 = this->e->findEntityByAttributes<Person>(attributes, true);
-    QVERIFY(p2);
-    QCOMPARE(p2->getFamilyName(), QString("Musterfrau"));
-    persons.append(p2);
-    attributes.clear();
-    QVariant var;
-    var.setValue<QList<QSharedPointer<Person>>>(persons);
-    attributes["persons"] = var;
-    QSharedPointer<Group> group = this->e->findEntityByAttributes<Group>
-                                  (attributes, true);
-    QVERIFY(group);
-    QCOMPARE(group->getName(), QString("Group Psy"));
-}
-
-void QuerybuilderTest::testFindByAttributesManyToManyRelationAttribute() {
-    QHash<QString, QVariant> attributes;
-    attributes["persons.firstName"] = QString("Janine");
-    QSharedPointer<Group> group = this->e->findEntityByAttributes<Group>
-                                  (attributes, true);
-    QVERIFY(group);
-    QCOMPARE(group->getName(), QString("Group Psy"));
-}
-
 void QuerybuilderTest::testQueryBuilder() {
     auto qb = this->e->getQueryBuilder();
     Query q = Query();
@@ -269,51 +190,22 @@ void QuerybuilderTest::testQueryBuilderSingleAttributeOr() {
     QCOMPARE(list.size(), 2);
 }
 
-void QuerybuilderTest::testQueryBuilderManyToOneRelation() {
-    auto qb = e->getQueryBuilder();
-    Query q = Query();
-    q.appendWhere(q.equal(qb, "persNumber", 42));
-    QList<QSharedPointer<Employee>> list = e->find<Employee>(q, true);
-    QCOMPARE(list.size(), 1);
-    QCOMPARE(list.at(0)->getNickName(), QString("Lotta"));
-    q = Query();
-    QVariant var;
-    var.setValue<QSharedPointer<Entity>>(list.at(0));
-    q.appendWhere(q.equal(qb, "leader", QVariant(var)));
-    QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false);
-    QCOMPARE(groupList.size(), 1);
-    QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
-}
-
 void QuerybuilderTest::testQueryBuilderManyToOneRelationAttribute() {
     auto qb = e->getQueryBuilder();
     Query q = Query();
+    q.appendJoinWith("leader");
+    q.appendOrderBy("name", Direction::SORT_DESC);
     q.appendWhere(q.equal(qb, "leader.firstName", QString("Fenja")));
     QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false, false);
-    QCOMPARE(groupList.size(), 1);
+    QCOMPARE(groupList.size(), 2);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
-    QCOMPARE(groupList.at(0)->getPersons().size(), 0);
-}
-
-void QuerybuilderTest::testQueryBuilderManyToManyRelation() {
-    auto qb = e->getQueryBuilder();
-    Query q = Query();
-    q.appendWhere(q.equal(qb, "persNumber", 42));
-    QList<QSharedPointer<Employee>> list = e->find<Employee>(q, true);
-    QCOMPARE(list.size(), 1);
-    QCOMPARE(list.at(0)->getNickName(), QString("Lotta"));
-    q = Query();
-    QVariant var;
-    var.setValue<QSharedPointer<Entity>>(list.at(0));
-    q.appendWhere(q.equal(qb, "persons", QVariant(var)));
-    QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false);
-    QCOMPARE(groupList.size(), 1);
-    QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
+    QCOMPARE(groupList.at(0)->getPersons().size(), 1);
 }
 
 void QuerybuilderTest::testQueryBuilderManyToManyRelationAttribute() {
     auto qb = e->getQueryBuilder();
     Query q = Query();
+    q.appendJoinWith("persons");
     q.appendWhere(q.equal(qb, "persons.firstName", QString("Janine")));
     QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false);
     QCOMPARE(groupList.size(), 1);
@@ -330,7 +222,6 @@ void QuerybuilderTest::testRefresh() {
     QSharedPointer<Group> g = this->e->findEntityByAttributes<Group>(attributes, false,
                               false);
     QCOMPARE(g->getPersons().count(), 0);
-    auto entity = g.objectCast<Entity>();
-    e->refresh(entity, true);
+    e->refresh(g, true);
     QCOMPARE(g->getPersons().count(), 1);
 }

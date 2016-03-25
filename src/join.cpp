@@ -31,6 +31,11 @@ Join::Join(QString foreignTable, Expression expression, QString type) {
     this->type = type;
 }
 
+Join::Join(QString attribute) {
+    this->attribute = attribute;
+    this->type = type;
+}
+
 QString Join::getType() const {
     return type;
 }
@@ -53,4 +58,22 @@ Expression Join::getExpression() const {
 
 void Join::setExpression(const Expression &value) {
     expression = value;
+}
+
+QString Join::getAttribute() const {
+    return attribute;
+}
+
+void Join::setAttribute(const QString &value) {
+    attribute = value;
+}
+
+QString Join::getAlias() const
+{
+    return alias;
+}
+
+void Join::setAlias(const QString &value)
+{
+    alias = value;
 }

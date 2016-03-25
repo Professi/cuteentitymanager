@@ -25,6 +25,7 @@ class Join {
                   QString type = QStringLiteral("LEFT JOIN"));
     explicit Join(QString foreignTable, Expression expression,
                   QString type = QStringLiteral("LEFT JOIN"));
+    explicit Join(QString attribute);
 
     QString getType() const;
     void setType(const QString &value);
@@ -35,16 +36,25 @@ class Join {
     Expression getExpression() const;
     void setExpression(const Expression &value);
 
+    QString getAttribute() const;
+    void setAttribute(const QString &value);
+
+    QString getAlias() const;
+    void setAlias(const QString &value);
 
   private:
     QString type = QStringLiteral("LEFT JOIN");
     QString foreignTable;
+    QString attribute;
+    QString alias;
     Expression expression;
 
 };
 inline bool operator==(const Join &e1, const Join &e2) {
-    return e1.getForeignTable() == e2.getForeignTable()
-           && e1.getExpression() == e2.getExpression();
+    return (e1.getForeignTable() == e2.getForeignTable()
+            && e1.getExpression() == e2.getExpression()) || (!e1.getAttribute().isEmpty() &&
+                    e1.getAttribute() == e2.getAttribute()) || (e1.getAlias().isEmpty() &&
+                            e1.getAlias() == e2.getAlias());
 }
 
 }

@@ -70,6 +70,7 @@ class Query {
     QStringList getFrom() const;
     void setFrom(const QStringList &value);
 
+    void appendJoinWith(const QString value);
     void appendJoin(const Join &value);
     void appendJoins(const QList<Join> &value);
     QList<Join> getJoins() const;

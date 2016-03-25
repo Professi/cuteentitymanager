@@ -243,6 +243,13 @@ void Query::setFrom(const QStringList &value) {
     from = value;
 }
 
+void Query::appendJoinWith(const QString value) {
+    Join j = Join(value);
+    if (!this->joins.contains(j)) {
+        this->joins.append(j);
+    }
+}
+
 void Query::appendJoin(const Join &value) {
     if (!this->joins.contains(value)) {
         this->joins.append(value);
