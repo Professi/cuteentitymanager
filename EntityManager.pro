@@ -8,6 +8,7 @@ android {
 }
 
 CONFIG += ordered
+CONFIG += c++14
 
 tests.depends = src
 samples.depends = tests

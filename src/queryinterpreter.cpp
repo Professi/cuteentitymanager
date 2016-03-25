@@ -90,7 +90,9 @@ QString QueryInterpreter::buildSelect(Query &q,
             QRegularExpression re =
                 QRegularExpression(
                     QRegularExpression::escape("/^(.*?)(?i:\\s+as\\s+|\\s+)([\\w\\-_\\.]+)$/"));
+#if QT_VERSION >= QT_VERSION_CHECK(5, 4, 0)
             re.optimize();
+#endif
             QRegularExpressionMatchIterator iterator = re.globalMatch(nExp, 0,
                     QRegularExpression::PartialPreferFirstMatch);
             if (iterator.hasNext()) {
