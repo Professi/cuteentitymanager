@@ -24,7 +24,7 @@ class Person: public Entity {
                getMaintainedGroups WRITE setMaintainedGroups)
 
   public:
-    enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
+    enum class Gender {MALE=109, FEMALE=102, UNKNOWNGENDER=0};
 #if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     Q_ENUM(Gender)
 #else

@@ -6,7 +6,8 @@ void QuerybuilderTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
-    this->e = new CuteEntityManager::EntityManager("QSQLITE", ":memory:", "", "", "", "",
+    this->e = new CuteEntityManager::EntityManager("QSQLITE",
+            QDir::currentPath() + "/db.sqlite", "", "", "", "",
             true, "foreign_keys = ON", false);
     QStringList inits = QStringList() << "Person" << "Group" << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("queryBuilderTest", inits), "Failure");
@@ -211,6 +212,17 @@ void QuerybuilderTest::testQueryBuilderManyToManyRelationAttribute() {
     QCOMPARE(groupList.size(), 1);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Psy"));
     QCOMPARE(groupList.at(0)->getPersons().size(), 3);
+}
+
+void QuerybuilderTest::testEnum() {
+    auto qb = e->getQueryBuilder();
+    Query q = Query();
+    QVariant var;
+    var.setValue<Person::Gender>(Person::Gender::FEMALE);
+    q.appendWhere(q.equal(qb, "gender", var.toInt()));
+    QList<QSharedPointer<Person>> females = e->find<Person>(q, false);
+    QCOMPARE(females.size(), 4);
+    QCOMPARE(females.first()->getGender(), Person::Gender::FEMALE);
 }
 
 void QuerybuilderTest::testRefresh() {
