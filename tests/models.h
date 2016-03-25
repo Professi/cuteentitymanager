@@ -25,7 +25,11 @@ class Person: public Entity {
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     Q_ENUM(Gender)
+#else
+    Q_ENUMS(Gender)
+#endif
     enum class NameOrder {FIRST_FAMILY_NAME_ORDER, FAMILY_FIRST_NAME_ORDER};
     Q_INVOKABLE explicit Person(QObject *parent = 0);
     Person(QString firstName, QString familyName,
@@ -116,7 +120,7 @@ class WorkerGroup : public Entity {
                setWorkers)
   public:
     WorkerGroup() : Entity() { }
-    WorkerGroup(QString name, quint32 efficiency, bool active=true) : Entity() {
+    WorkerGroup(QString name, quint32 efficiency, bool active = true) : Entity() {
         this->name = name;
         this->efficiency = efficiency;
         this->active = active;

@@ -29,9 +29,15 @@ class Person: public Entity {
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
-    Q_ENUM(Gender)
     enum class NameOrder {FIRST_FAMILY_NAME_ORDER, FAMILY_FIRST_NAME_ORDER};
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+    Q_ENUM(Gender)
     Q_ENUM(NameOrder)
+#else
+    Q_ENUMS(Gender)
+    Q_ENUMS(NameOrder)
+#endif
     Q_INVOKABLE explicit Person(QObject *parent = 0);
     Person(QString firstName, QString familyName,
            Gender gender = Gender::UNKNOWNGENDER,
@@ -67,8 +73,8 @@ class Person: public Entity {
     QString getCustomPictureFileName() const;
     void setCustomPictureFileName(const QString &value);
 
-    QList<QSharedPointer<Address> > getAddresses() const;
-    void setAddresses(const QList<QSharedPointer<Address> > &value);
+    QList<QSharedPointer<Address>> getAddresses() const;
+    void setAddresses(const QList<QSharedPointer<Address>> &value);
 
     void addAddress(Address *address);
 
