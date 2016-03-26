@@ -11,8 +11,8 @@ install:
   - sudo apt-get -y install qt55tools
 
 script:
-  - export LD_LIBRARY_PATH="`pwd`/build/linux-g++-64/x86_64/release:.:$LD_LIBRARY_PATH"
   - source /opt/qt55/bin/qt55-env.sh
   - qmake EntityManager.pro -r "CONFIG+=release c++11" -after "DESTDIR = `pwd`/build/linux-g++-64/x86_64/release" # "OBJECTS_DIR=`pwd`/obj" "MOC_DIR=`pwd`/moc" "UI_DIR=`pwd`/ui" "RCC_DIR=`pwd`/rcc"
   - make
+  - sudo make install
   - make check
