@@ -60,6 +60,21 @@ class EntityHelper {
     static void setListProperty(const QSharedPointer<Entity> &entity,
                                 QList<QSharedPointer<Entity>> &list,
                                 const QMetaProperty &property);
+    template<class T>
+    static void writeListProperty(const QSharedPointer<Entity> &entity, QVariant data, const QMetaProperty &property,T object) {
+        Q_UNUSED(object)
+        QVariant variant;
+        T *t = new T();
+
+        QList<QSharedPointer<T>> li;
+        //variant = qVariantFromValue(li);
+
+        //auto list = *reinterpret_cast<QList<QSharedPointer<T>>*>(data.data());
+
+        //variant.setValue<QList<QSharedPointer<T>>>(list);
+//        property.write(entity.data(),variant);
+    }
+
     static void setProperty(const QSharedPointer<Entity> &entity,
                             QSharedPointer<Entity> value,
                             const QMetaProperty &property);

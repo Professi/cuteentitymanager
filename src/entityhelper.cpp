@@ -18,6 +18,7 @@
 #include "entity.h"
 #include "relation.h"
 #include "cache.h"
+#include <QDebug>
 
 using namespace CuteEntityManager;
 EntityHelper::EntityHelper() {
@@ -199,9 +200,57 @@ const QString EntityHelper::getClassName(const Entity *entity) {
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
                                    QList<QSharedPointer<Entity>> &list,
                                    const QMetaProperty &property)  {
-    QVariant var;
-    var.setValue<QList<QSharedPointer<Entity>>>(list);
-    property.write(entity.data(), var);
+//    if ( constructor == nullptr ) {
+//        return nullptr;
+//    }
+//    return (*constructor)();
+
+    if(!list.isEmpty()) {
+        auto ab = property.read(entity.data());
+        auto i = EntityInstanceFactory::getInstance();
+        auto constructor = i.value(EntityInstanceFactory::extractEntityType(QString(ab.typeName())).toUtf8());
+        if(constructor) {
+        auto obj = (*constructor)();
+        auto var = qVariantFromValue(list);
+        EntityHelper::writeListProperty(entity,var,property,obj);
+        }
+    }
+
+
+
+//    QVariant var = qVariantFromValue(list);
+//    auto data = var.data();
+
+    //auto tes = ab.data_ptr().type;
+//    auto bl = QMetaType::typeName(tes);
+//    auto b = QMetaType::metaObjectForType(tes);
+    //auto ab12 = QVariant::
+    //auto typeName = ab.typeName();
+
+
+    //auto t = QVariant::nameToType(var.typeName());
+    //auto data = entity.data();
+    //EntityHelper::writeProperty(entity,var,ab,property);
+    //var.setValue<QList<QSharedPointer<Entity>>>(list);
+    //auto ok = property.write(data,var);
+//    qDebug() << property.typeName();
+//
+
+
+//    qDebug() << var.convert(property.type());
+//    auto var123 = property.read(data);
+//    auto li = var123.toList();
+//    for (int i = 0; i < list.size(); ++i) {
+//        QVariant v;
+//        v.setValue<QSharedPointer<Entity>>(list.at(i));
+//        li.append(v);
+//    }
+////qDebug() << qMetaTypeId(EntityInstanceFactory::extractEntityType(property.typeName()));
+
+//    qDebug() << property.write(data,var123) << "1";
+//    qDebug() << property.write(data,li)<< "2";
+//    qDebug() << property.write(data, QVariant::fromValue(list))<< "3";
+//    qDebug() << var<< "4";
 }
 
 void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>

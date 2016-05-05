@@ -160,3 +160,8 @@ Entity *EntityInstanceFactory::createInstance(Attribute *&attr) {
                EntityInstanceFactory::extractEntityType(
                    attr->getMetaProperty().typeName()));
 }
+
+typedef Entity *(*Constructor)();
+QHash<QByteArray, Constructor> EntityInstanceFactory::getInstance() {
+    return instance;
+}

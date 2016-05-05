@@ -19,6 +19,7 @@
 #include <QTextStream>
 #include <QDateTime>
 #include <QtGlobal>
+#include <QSqlDriver>
 
 using namespace CuteEntityManager;
 

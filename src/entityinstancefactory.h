@@ -23,6 +23,7 @@ namespace CuteEntityManager {
 class Entity;
 class EntityInstanceFactory {
   public:
+    typedef Entity *(*Constructor)();
     static Entity *createInstance(const char *className);
     static Entity *createInstance(const QString &className);
     static Entity *createInstance(int metaTypeId);
@@ -46,7 +47,6 @@ class EntityInstanceFactory {
     }
     static Entity *createInstance(Attribute *&attr);
 
-
     //http://www.mimec.org/node/350
     template<typename T>
     static void registerClass() {
@@ -69,8 +69,9 @@ class EntityInstanceFactory {
         return (*constructor)();
     }
 
-  private:
-    typedef Entity *(*Constructor)();
+    static QHash<QByteArray, Constructor> getInstance();
+
+private:
     template<typename T>
     static Entity *constructorHelper() {
         return new T();
