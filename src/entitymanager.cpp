@@ -444,7 +444,7 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
             QSqlQuery q = this->queryInterpreter->build(query);
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()));
-            EntityHelper::setListProperty(entity, entities, attr->getMetaProperty());
+            entity->setListProperty(entities,attr->getMetaProperty());
         }
     }
 }

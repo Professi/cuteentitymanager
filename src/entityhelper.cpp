@@ -196,12 +196,15 @@ const QString EntityHelper::getClassName(const Entity *entity) {
     return QString(entity->metaObject()->className());
 }
 
+#include <QDebug>
+
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
                                    QList<QSharedPointer<Entity>> &list,
                                    const QMetaProperty &property)  {
     QVariant var;
     var.setValue<QList<QSharedPointer<Entity>>>(list);
-    property.write(entity.data(), var);
+    qDebug() << "<ab>" << entity->setProperty(property.name(),var);
+    //property.write(entity.data(), var);
 }
 
 void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
@@ -212,7 +215,7 @@ void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
                                                   var) : QList<QSharedPointer<Entity>>());
     if (!list.contains(add)) {
         list.append(add);
-        EntityHelper::setListProperty(entity, list, property);
+        entity->setListProperty(list,property);
     }
 }
 
@@ -228,7 +231,7 @@ void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
                 break;
             }
         }
-        EntityHelper::setListProperty(entity, list, property);
+        entity->setListProperty(list,property);
     }
 }
 
@@ -238,7 +241,7 @@ void EntityHelper::clearEntityListProperty(const QSharedPointer<Entity> &entity,
     if (var.canConvert<QList<QVariant>>()) {
         auto list = EntityInstanceFactory::castQVariantList(var);
         list.clear();
-        EntityHelper::setListProperty(entity, list, property);
+        entity->setListProperty(list,property);
     }
 }
 
