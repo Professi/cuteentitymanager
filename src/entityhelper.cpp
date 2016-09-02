@@ -196,15 +196,12 @@ const QString EntityHelper::getClassName(const Entity *entity) {
     return QString(entity->metaObject()->className());
 }
 
-#include <QDebug>
-
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
                                    QList<QSharedPointer<Entity>> &list,
                                    const QMetaProperty &property)  {
     QVariant var;
     var.setValue<QList<QSharedPointer<Entity>>>(list);
-    qDebug() << "<ab>" << entity->setProperty(property.name(),var);
-    //property.write(entity.data(), var);
+    entity->setProperty(property.name(),var);
 }
 
 void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
