@@ -23,6 +23,9 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
     EM_LIST_MACRO(Group)
+//    EM_LIST_PROPERTY(Group,groups,getGroups,setGroups)
+//    EM_LIST_PROPERTY(Group,maintainedGroups,getMaintainedGroups,setMaintainedGroups)
+
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};

@@ -46,6 +46,14 @@ class Entity : public QObject {
         property.write(this, var); \
     }
 
+//#define EM_PROPERTY(type,attribute,getter,setter)
+//    Q_PROPERTY(QSharedPointer<type> attribute READ getter WRITE setter)
+
+//#define EM_LIST_PROPERTY(type,attribute,getter,setter)
+//    Q_PROPERTY(QList<QSharedPointer<type>> attribute READ getter WRITE setter)
+//    EM_LIST_MACRO(type)
+
+
 
   public:
     virtual QString toString() const;
