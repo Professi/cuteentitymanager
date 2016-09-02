@@ -22,6 +22,7 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
+    EM_LIST_MACRO(Group)
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
@@ -118,6 +119,8 @@ class WorkerGroup : public Entity {
     Q_PROPERTY(bool active READ isActive WRITE setActive)
     Q_PROPERTY(QList<QSharedPointer<Employee>> workers READ getWorkers WRITE
                setWorkers)
+    EM_LIST_MACRO(Employee)
+
   public:
     WorkerGroup() : Entity() { }
     WorkerGroup(QString name, quint32 efficiency, bool active = true) : Entity() {
@@ -156,6 +159,7 @@ class Group: public CuteEntityManager::Entity {
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(QSharedPointer<Person> leader READ getLeader WRITE
                setLeader)
+    EM_LIST_MACRO(Person)
 
   public:
     Q_INVOKABLE Group();

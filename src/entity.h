@@ -19,6 +19,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QStringList>
+#include <QMetaProperty>
 #include "relation.h"
 #include "validators/validatorrule.h"
 #include "validators/errormsg.h"
@@ -36,6 +37,15 @@ class Entity : public QObject {
 
   signals:
     void idChanged();
+
+#define EM_LIST_MACRO(type) \
+    virtual void setListProperty(QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  { \
+        QList<QSharedPointer<type>> list = *reinterpret_cast<QList<QSharedPointer<type>>*>(&entList); \
+        QVariant var; \
+        var.setValue<QList<QSharedPointer<type>>>(list); \
+        property.write(this, var); \
+    }
+
 
   public:
     virtual QString toString() const;
@@ -69,6 +79,11 @@ class Entity : public QObject {
     QList<ErrorMsg> getErrors() const;
     QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
+    virtual void setListProperty(QList<QSharedPointer<Entity>> &entList,
+                                 const QMetaProperty &property) {
+        Q_UNUSED(entList);
+        Q_UNUSED(property);
+    }
 
   protected:
     explicit Entity (QObject *parent = 0);
