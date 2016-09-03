@@ -24,6 +24,7 @@
 
 class Article : public CuteEntityManager::Entity {
     Q_OBJECT
+    EM_MACRO(Article)
     Q_PROPERTY(double price READ getPrice WRITE setPrice)
     Q_PROPERTY(QString name READ getName WRITE setName)
   private:

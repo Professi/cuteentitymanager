@@ -22,7 +22,7 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
-    EM_LIST_MACRO(Group)
+    EM_MACRO(Person)
 //    EM_LIST_PROPERTY(Group,groups,getGroups,setGroups)
 //    EM_LIST_PROPERTY(Group,maintainedGroups,getMaintainedGroups,setMaintainedGroups)
 
@@ -84,6 +84,7 @@ class Employee : public Person {
     Q_PROPERTY(QString department READ getDepartment WRITE setDepartment)
     Q_PROPERTY(quint64 persNumber READ getPersNumber WRITE setPersNumber)
     Q_PROPERTY(bool manager READ isManager WRITE setManager)
+    EM_MACRO(Employee)
   public:
     Employee() : Person() { }
     Employee(quint64 persNumber, QString firstName, QString familyName,
@@ -122,7 +123,7 @@ class WorkerGroup : public Entity {
     Q_PROPERTY(bool active READ isActive WRITE setActive)
     Q_PROPERTY(QList<QSharedPointer<Employee>> workers READ getWorkers WRITE
                setWorkers)
-    EM_LIST_MACRO(Employee)
+    EM_MACRO(WorkerGroup)
 
   public:
     WorkerGroup() : Entity() { }
@@ -162,7 +163,7 @@ class Group: public CuteEntityManager::Entity {
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(QSharedPointer<Person> leader READ getLeader WRITE
                setLeader)
-    EM_LIST_MACRO(Person)
+    EM_MACRO(Group)
 
   public:
     Q_INVOKABLE Group();
@@ -189,6 +190,7 @@ class Article : public CuteEntityManager::Entity {
     Q_OBJECT
     Q_PROPERTY(double price READ getPrice WRITE setPrice)
     Q_PROPERTY(QString name READ getName WRITE setName)
+    EM_MACRO(Article)
   private:
     double price;
     QString name;

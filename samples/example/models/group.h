@@ -11,6 +11,7 @@ using namespace CuteEntityManager;
 
 class Group: public CuteEntityManager::Entity {
     Q_OBJECT
+    EM_MACRO(Group)
     Q_PROPERTY(QList<QSharedPointer<Pupil>> pupils READ getPupils WRITE setPupils)
     Q_PROPERTY(QList<QSharedPointer<Person>> persons READ getPersons WRITE
                setPersons)

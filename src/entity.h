@@ -23,6 +23,7 @@
 #include "relation.h"
 #include "validators/validatorrule.h"
 #include "validators/errormsg.h"
+#include <QDebug>
 namespace CuteEntityManager {
 
 /**
@@ -38,12 +39,12 @@ class Entity : public QObject {
   signals:
     void idChanged();
 
-#define EM_LIST_MACRO(type) \
-    virtual void setListProperty(QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  { \
+#define EM_MACRO(type) \
+    virtual void setAsListProperty(const QSharedPointer<Entity> &e,QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property) override { \
         QList<QSharedPointer<type>> list = *reinterpret_cast<QList<QSharedPointer<type>>*>(&entList); \
         QVariant var; \
         var.setValue<QList<QSharedPointer<type>>>(list); \
-        property.write(this, var); \
+        property.write(e.data(), var); \
     }
 
 //#define EM_PROPERTY(type,attribute,getter,setter)
@@ -51,7 +52,7 @@ class Entity : public QObject {
 
 //#define EM_LIST_PROPERTY(type,attribute,getter,setter)
 //    Q_PROPERTY(QList<QSharedPointer<type>> attribute READ getter WRITE setter)
-//    EM_LIST_MACRO(type)
+//    EM_MACRO(type)
 
 
 
@@ -87,11 +88,7 @@ class Entity : public QObject {
     QList<ErrorMsg> getErrors() const;
     QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
-    virtual void setListProperty(QList<QSharedPointer<Entity>> &entList,
-                                 const QMetaProperty &property) {
-        Q_UNUSED(entList);
-        Q_UNUSED(property);
-    }
+ virtual void setAsListProperty(const QSharedPointer<Entity> &e, QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property) = 0;
 
   protected:
     explicit Entity (QObject *parent = 0);

@@ -4,6 +4,7 @@
 
 class Pupil : public Person {
     Q_OBJECT
+    EM_MACRO(Pupil)
     Q_PROPERTY(QString legalGuardianNote READ getLegalGuardianNote WRITE
                setLegalGuardianNote)
   public:
