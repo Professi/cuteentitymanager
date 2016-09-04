@@ -41,7 +41,7 @@ void Cache::clear() {
 void Cache::insert(QSharedPointer<Entity> &entity) {
     if (entity && entity->getId() > -1) {
         QString key = this->generateKey(entity->getId(),
-                                        EntityHelper::getClassName(entity.data()));
+                                        EntityHelper::getBaseClassName(entity.data(),true));
         if (this->cache.contains(key)) {
             QSharedPointer<Entity> ptr = this->cache.value(key).toStrongRef();
             if (ptr) {
@@ -55,7 +55,7 @@ void Cache::insert(QSharedPointer<Entity> &entity) {
 
 void Cache::remove(const QSharedPointer<Entity> &entity) {
     if (entity.data() && entity->getId() > -1) {
-        this->remove(entity->getId(), EntityHelper::getClassName(entity.data()));
+        this->remove(entity->getId(), EntityHelper::getBaseClassName(entity.data(),true));
     }
 }
 

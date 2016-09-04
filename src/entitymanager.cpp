@@ -403,7 +403,8 @@ QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
         QSharedPointer<Entity> &e,
         const bool refresh) {
     QSharedPointer<Entity> r;
-    if (e && (refresh || !(r = this->cache.get(id, EntityHelper::getClassname(e.data()))))) {
+    if (e && (refresh ||
+              !(r = this->cache.get(id, EntityHelper::getBaseClassName(e.data(), true))))) {
         auto map  = this->findByPk(id, e);
         r = this->convert(map, EntityHelper::getClassname(e.data()), refresh);
     }
@@ -426,6 +427,7 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
         QString className = attr->getRelatedClass()->className();
         QSharedPointer<Entity> ptr = QSharedPointer<Entity>();
         if (!(this->cache.contains(convertedId, className)
+                /** @todo use Baseclass */
                 && (ptr = this->cache.get(convertedId, className)))) {
             ptr = this->findById(convertedId, className);
         }
@@ -444,7 +446,7 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
             QSqlQuery q = this->queryInterpreter->build(query);
             auto listMap = this->convertQueryResult(q);
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()));
-            EntityHelper::setListProperty(entity,entities,attr->getMetaProperty());
+            EntityHelper::setListProperty(entity, entities, attr->getMetaProperty());
         }
     }
 }
@@ -801,6 +803,7 @@ void EntityManager::manyToMany(const QSharedPointer<Entity> &entity,
             for (int var = 0; var < listMap.size(); ++var) {
                 auto id = listMap.at(var).value(attr->getRelatedColumnName());
                 if (!(this->cache.contains(id.toLongLong(), secClassName) &&
+                        /** @todo use Baseclass */
                         (e = this->cache.get(id.toLongLong(), secClassName)))) {
                     e = this->findById(id.toLongLong(), secClassName);
                 }

@@ -49,6 +49,13 @@ class EntityHelper {
     static Entity* copyObject(const Entity *entity);
     static Entity* getBaseClassObject(const QSharedPointer<Entity> &entity,
                                       QString attributeName);
+    static const QMetaObject * getBaseClass(const Entity *entity,
+                                            bool stopAtSingleTableInheritance
+                                            = false);
+    static const QString getBaseClassName(const Entity *entity,
+                                          bool stopAtSingleTableInheritance
+                                          = false);
+
     static const char *getClassname(const Entity *entity);
     static const QString getClassName(const Entity *entity);
     static void addEntityToListProperty(const QSharedPointer<Entity> &entity,

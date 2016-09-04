@@ -188,6 +188,20 @@ Entity *EntityHelper::getBaseClassObject(const QSharedPointer<Entity> &entity,
     return objectBefore;
 }
 
+const QMetaObject *EntityHelper::getBaseClass(const Entity *entity,
+        bool stopAtSingleTableInheritance) {
+    auto list = EntityHelper::superClasses(entity, stopAtSingleTableInheritance);
+    if(list.isEmpty()) {
+        return entity->metaObject();
+    }
+    return list.last();
+}
+
+const QString EntityHelper::getBaseClassName(const Entity *entity,
+        bool stopAtSingleTableInheritance) {
+    return EntityHelper::getBaseClass(entity, stopAtSingleTableInheritance)->className();
+}
+
 const char *EntityHelper::getClassname(const Entity *entity) {
     return entity->metaObject()->className();
 }
