@@ -39,7 +39,7 @@ class Entity : public QObject {
     void idChanged();
 
 #define EM_MACRO(type) \
-    virtual void setListProperty(QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  { \
+    virtual void setListProperty(QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  override { \
         QList<QSharedPointer<type>> list = *reinterpret_cast<QList<QSharedPointer<type>>*>(&entList); \
         QVariant var; \
         var.setValue<QList<QSharedPointer<type>>>(list); \
