@@ -300,5 +300,6 @@ void EmTest::testRelations() {
     g->removePerson(firstPerson);
     QVERIFY(this->e->save(g, true, true));
     this->e->refresh(firstPerson);
-    QVERIFY(firstPerson->getGroups().size() == 0 && g->getPersons().size() == 1);
+    QVERIFY(firstPerson->getGroups().size() == 0);
+    QVERIFY(g->getPersons().size() == 1);
 }

@@ -27,6 +27,7 @@ class QuerybuilderTest : public QObject {
     void testQueryBuilderSingleAttributeOr();
     void testQueryBuilderManyToOneRelationAttribute();
     void testQueryBuilderManyToManyRelationAttribute();
+    void testEnum();
     void testRefresh();
 
   private:

@@ -213,6 +213,18 @@ void QuerybuilderTest::testQueryBuilderManyToManyRelationAttribute() {
     QCOMPARE(groupList.at(0)->getPersons().size(), 3);
 }
 
+void QuerybuilderTest::testEnum()
+{
+      auto qb = e->getQueryBuilder();
+       Query q = Query();
+        QVariant var;
+        var.setValue<Person::Gender>(Person::Gender::FEMALE);
+        q.appendWhere(q.equal(qb, "gender", var.toInt()));
+        QList<QSharedPointer<Person>> females = e->find<Person>(q, false);
+        QCOMPARE(females.size(), 4);
+        QCOMPARE(females.first()->getGender(), Person::Gender::FEMALE);
+}
+
 void QuerybuilderTest::testRefresh() {
     e->clearCache();
     auto persons = e->findAll<Person>(false);

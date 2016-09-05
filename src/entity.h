@@ -38,7 +38,7 @@ class Entity : public QObject {
   signals:
     void idChanged();
 
-#define EM_LIST_MACRO(type) \
+#define EM_MACRO(type) \
     virtual void setListProperty(QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  { \
         QList<QSharedPointer<type>> list = *reinterpret_cast<QList<QSharedPointer<type>>*>(&entList); \
         QVariant var; \
@@ -51,7 +51,7 @@ class Entity : public QObject {
 
 //#define EM_LIST_PROPERTY(type,attribute,getter,setter)
 //    Q_PROPERTY(QList<QSharedPointer<type>> attribute READ getter WRITE setter)
-//    EM_LIST_MACRO(type)
+//    EM_MACRO(type)
 
 
 

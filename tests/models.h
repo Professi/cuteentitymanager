@@ -22,7 +22,7 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
-    EM_LIST_MACRO(Group)
+    EM_MACRO(Group)
 //    EM_LIST_PROPERTY(Group,groups,getGroups,setGroups)
 //    EM_LIST_PROPERTY(Group,maintainedGroups,getMaintainedGroups,setMaintainedGroups)
 
@@ -122,7 +122,7 @@ class WorkerGroup : public Entity {
     Q_PROPERTY(bool active READ isActive WRITE setActive)
     Q_PROPERTY(QList<QSharedPointer<Employee>> workers READ getWorkers WRITE
                setWorkers)
-    EM_LIST_MACRO(Employee)
+    EM_MACRO(Employee)
 
   public:
     WorkerGroup() : Entity() { }
@@ -162,7 +162,7 @@ class Group: public CuteEntityManager::Entity {
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(QSharedPointer<Person> leader READ getLeader WRITE
                setLeader)
-    EM_LIST_MACRO(Person)
+    EM_MACRO(Person)
 
   public:
     Q_INVOKABLE Group();
