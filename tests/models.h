@@ -22,10 +22,7 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
-    EM_MACRO(Group)
-//    EM_LIST_PROPERTY(Group,groups,getGroups,setGroups)
-//    EM_LIST_PROPERTY(Group,maintainedGroups,getMaintainedGroups,setMaintainedGroups)
-
+    EM_MACRO(Person)
 
   public:
     enum class Gender {MALE, FEMALE, UNKNOWNGENDER};
@@ -81,6 +78,7 @@ class Person: public Entity {
 
 class Employee : public Person {
     Q_OBJECT
+    EM_MACRO(Employee)
     Q_PROPERTY(QString department READ getDepartment WRITE setDepartment)
     Q_PROPERTY(quint64 persNumber READ getPersNumber WRITE setPersNumber)
     Q_PROPERTY(bool manager READ isManager WRITE setManager)
@@ -117,12 +115,12 @@ class Employee : public Person {
 
 class WorkerGroup : public Entity {
     Q_OBJECT
+    EM_MACRO(WorkerGroup)
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(quint32 efficiency READ getEfficiency WRITE setEfficiency)
     Q_PROPERTY(bool active READ isActive WRITE setActive)
     Q_PROPERTY(QList<QSharedPointer<Employee>> workers READ getWorkers WRITE
                setWorkers)
-    EM_MACRO(Employee)
 
   public:
     WorkerGroup() : Entity() { }
@@ -157,12 +155,12 @@ class WorkerGroup : public Entity {
 
 class Group: public CuteEntityManager::Entity {
     Q_OBJECT
+    EM_MACRO(Group)
     Q_PROPERTY(QList<QSharedPointer<Person>> persons READ getPersons WRITE
                setPersons)
     Q_PROPERTY(QString name READ getName WRITE setName)
     Q_PROPERTY(QSharedPointer<Person> leader READ getLeader WRITE
                setLeader)
-    EM_MACRO(Person)
 
   public:
     Q_INVOKABLE Group();
@@ -187,6 +185,7 @@ class Group: public CuteEntityManager::Entity {
 
 class Article : public CuteEntityManager::Entity {
     Q_OBJECT
+    EM_MACRO(Article)
     Q_PROPERTY(double price READ getPrice WRITE setPrice)
     Q_PROPERTY(QString name READ getName WRITE setName)
   private:

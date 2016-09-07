@@ -196,6 +196,31 @@ void EmTest::testInheritedRelations() {
     }
 }
 
+void EmTest::testNonCachedInheritedRelations()
+{
+    QSharedPointer<Employee> e1 = QSharedPointer<Employee>(new Employee(42, "Fenja", "S.",
+                                  Person::Gender::FEMALE, "Lotta", QDate(1990, 10, 10), "Psychology"));
+    QSharedPointer<Employee> e2 = QSharedPointer<Employee>(new Employee(11, "Janine",
+                                  "Musterfrau",
+                                  Person::Gender::FEMALE, "", QDate(2000, 1, 1), "Health", true));
+    QSharedPointer<WorkerGroup> wg = QSharedPointer<WorkerGroup>(new
+                                     WorkerGroup("Taskforce P&H", 42));
+    wg->addWorker(e1);
+    wg->addWorker(e2);
+    try {
+        QVERIFY(e->create(wg));
+        QSharedPointer<Group> g = QSharedPointer<Group>(new Group("EmployeeGroup"));
+        g->setPersons({e1, e2});
+        QVERIFY(e->create(g));
+        g->setName("Taskforce 0008");
+        QVERIFY(e->merge(g));
+        QVERIFY(e->remove(g));
+    } catch(QString e) {
+        QFAIL(e.toUtf8().constData());
+    }
+
+}
+
 void EmTest::createRelationTables() {
     QStringList relationTables = QStringList() << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("emTestB", relationTables), "Failure");

@@ -21,6 +21,7 @@
 namespace CuteEntityManager {
 class DatabaseMigration : public Entity {
     Q_OBJECT
+    EM_MACRO(DatabaseMigration)
     Q_PROPERTY(QString version READ getVersion WRITE setVersion)
     Q_PROPERTY(QDateTime applyTime READ getApplyTime WRITE setApplyTime)
 

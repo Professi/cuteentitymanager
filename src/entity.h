@@ -44,6 +44,12 @@ class Entity : public QObject {
         QVariant var; \
         var.setValue<QList<QSharedPointer<type>>>(list); \
         property.write(this, var); \
+    } \
+    virtual void setProperty(QSharedPointer<Entity> &entity, const QMetaProperty &property)  override { \
+        QSharedPointer<type> e = *reinterpret_cast<QSharedPointer<type>*>(&entity); \
+        QVariant var; \
+        var.setValue<QSharedPointer<type>>(e); \
+        property.write(this, var); \
     }
 
 //#define EM_PROPERTY(type,attribute,getter,setter)
@@ -88,10 +94,8 @@ class Entity : public QObject {
     QString getErrorsAsString() const;
     void setErrors(const QList<ErrorMsg> &value);
     virtual void setListProperty(QList<QSharedPointer<Entity>> &entList,
-                                 const QMetaProperty &property) {
-        Q_UNUSED(entList);
-        Q_UNUSED(property);
-    }
+                                 const QMetaProperty &property) = 0;
+    virtual void setProperty(QSharedPointer<Entity> &entity, const QMetaProperty &property) = 0;
 
   protected:
     explicit Entity (QObject *parent = 0);

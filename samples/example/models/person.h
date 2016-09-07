@@ -16,6 +16,7 @@ class Address;
 
 class Person: public Entity {
     Q_OBJECT
+    EM_MACRO(Person)
     Q_PROPERTY(QString firstName READ getFirstName WRITE setFirstName)
     Q_PROPERTY(QString familyName READ getFamilyName WRITE setFamilyName)
     Q_PROPERTY(QString namePrefix READ getNamePrefix WRITE setNamePrefix)

@@ -233,7 +233,7 @@ void EntityHelper::clearEntityListProperty(const QSharedPointer<Entity> &entity,
         entity->setListProperty(list,property);
     }
 }
-
+#include <QDebug>
 void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
                                QSharedPointer<Entity> value,
                                const QMetaProperty &property) {
@@ -241,9 +241,13 @@ void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
             > -1) {
         QVariant var;
         var.setValue<QSharedPointer<Entity>>(value);
-        property.write(entity.data(), var);
+        entity->setProperty(value,property);
+        qDebug() << "-----------------------------------------------------";
+        //Q_ASSERT(property.write(entity.data(), var));
+        qDebug() << "-----------------------------------------------------";
     }
 }
+
 
 void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
                                QSharedPointer<Entity> value, const QString property) {

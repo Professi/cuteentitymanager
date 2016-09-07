@@ -10,7 +10,7 @@ class Relation;
 class Pupil;
 class Address: public CuteEntityManager::Entity {
     Q_OBJECT
-
+    EM_MACRO(Address)
     Q_PROPERTY(QString label READ getLabel WRITE setLabel)
     Q_PROPERTY(QString street READ getStreet WRITE setStreet)
     Q_PROPERTY(QString postcode READ getPostcode WRITE setPostcode)
