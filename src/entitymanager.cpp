@@ -429,7 +429,7 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
                 && (ptr = this->cache.get(convertedId, className)))) {
             ptr = this->findById(convertedId, className);
         }
-        EntityHelper::setProperty(entity, ptr, attr->getMetaProperty());
+        EntityHelper::setProperty(entity,ptr,attr->getMetaProperty());
     }
 }
 
@@ -443,8 +443,9 @@ void EntityManager::oneToMany(const QSharedPointer<Entity> &entity,
                               attr->getRelatedColumnName(), entity->getId());
             QSqlQuery q = this->queryInterpreter->build(query);
             auto listMap = this->convertQueryResult(q);
-            auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()));
-            entity->setListProperty(entities,attr->getMetaProperty());
+            auto relationalClass = EntityHelper::getClassName(e.data());
+            auto entities = this->convert(listMap, relationalClass.toLatin1());
+            EntityHelper::setListProperty(entity,entities,attr->getMetaProperty());
         }
     }
 }

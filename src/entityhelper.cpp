@@ -204,7 +204,7 @@ void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
                                                   var) : QList<QSharedPointer<Entity>>());
     if (!list.contains(add)) {
         list.append(add);
-        entity->setListProperty(list,property);
+        EntityHelper::setListProperty(entity, list, property);
     }
 }
 
@@ -220,7 +220,7 @@ void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
                 break;
             }
         }
-        entity->setListProperty(list,property);
+        EntityHelper::setListProperty(entity, list, property);
     }
 }
 
@@ -230,34 +230,33 @@ void EntityHelper::clearEntityListProperty(const QSharedPointer<Entity> &entity,
     if (var.canConvert<QList<QVariant>>()) {
         auto list = EntityInstanceFactory::castQVariantList(var);
         list.clear();
-        entity->setListProperty(list,property);
+        EntityHelper::setListProperty(entity, list, property);
     }
 }
-#include <QDebug>
+
 void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
                                QSharedPointer<Entity> value,
                                const QMetaProperty &property) {
     if (value && value->getProperty(value->getPrimaryKey()).toLongLong()
             > -1) {
-        QVariant var;
-        var.setValue<QSharedPointer<Entity>>(value);
-        entity->setProperty(value,property);
-        qDebug() << "-----------------------------------------------------";
-        //Q_ASSERT(property.write(entity.data(), var));
-        qDebug() << "-----------------------------------------------------";
+        auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
+        if(i) {
+        i->setProperty(entity, value, property);
+        delete i;
+        }
     }
 }
 
-
-void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
-                               QSharedPointer<Entity> value, const QString property) {
-    auto props = EntityHelper::getMetaProperties(entity.data());
-    if (props.contains(property)) {
-        QVariant var;
-        var.setValue<QSharedPointer<Entity>>(value);
-        entity->setProperty(property, var);
+void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
+                                   QList<QSharedPointer<Entity>> &value, const QMetaProperty &property) {
+    auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
+    auto t = property.typeName();
+    if(i) {
+    i->setListProperty(entity, value, property);
+    delete i;
     }
 }
+
 
 QMetaProperty EntityHelper::mappedProperty(const Relation &r,
         const QSharedPointer<Entity> &foreignEntity) {

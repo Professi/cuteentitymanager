@@ -78,6 +78,8 @@ void QuerybuilderTest::testFindByAttributesManyToManyResolve() {
     QVERIFY(p);
     QCOMPARE(p->getNickName(), QString("Lotta"));
     QCOMPARE(p->getGroups().size(), 2);
+    QVERIFY(p->getGroups().first());
+    QVERIFY(p->getGroups().first()->getPersons().last());
     QCOMPARE(p->getGroups().first()->getPersons().last()->getFamilyName(), QString("Sey."));
 }
 
