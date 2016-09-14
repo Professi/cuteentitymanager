@@ -49,7 +49,7 @@ void Cache::insert(QSharedPointer<Entity> &entity) {
                 return;
             }
         }
-        //this->cache.insert(key, entity.toWeakRef());
+        this->cache.insert(key, entity.toWeakRef());
     }
 }
 
