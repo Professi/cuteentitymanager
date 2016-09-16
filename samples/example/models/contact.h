@@ -10,7 +10,6 @@ class Pupil;
 class Contact: public CuteEntityManager::Entity {
     Q_OBJECT
     EM_MACRO(Contact)
-
     Q_PROPERTY(QString content READ getContent WRITE setContent)
     Q_PROPERTY(Category category READ getCategory WRITE setCategory)
     Q_PROPERTY(QString label READ getLabel WRITE setLabel)

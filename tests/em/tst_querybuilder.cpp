@@ -79,6 +79,8 @@ void QuerybuilderTest::testFindByAttributesManyToManyResolve() {
     QVERIFY(p);
     QCOMPARE(p->getNickName(), QString("Lotta"));
     QCOMPARE(p->getGroups().size(), 2);
+    QVERIFY(p->getGroups().first());
+    QCOMPARE(p->getGroups().first()->getPersons().size(), 1);
     QCOMPARE(p->getGroups().first()->getPersons().last()->getFamilyName(), QString("Sey."));
 }
 
@@ -200,6 +202,7 @@ void QuerybuilderTest::testQueryBuilderManyToOneRelationAttribute() {
     QList<QSharedPointer<Group>> groupList = e->find<Group>(q, false, false);
     QCOMPARE(groupList.size(), 2);
     QCOMPARE(groupList.at(0)->getName(), QString("Group Health"));
+    //should be with cache 1 and without cache 0
     QCOMPARE(groupList.at(0)->getPersons().size(), 1);
 }
 

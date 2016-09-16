@@ -1,21 +1,21 @@
 #include "tst_em.h"
 
-void EmTest::initTestCase() {
-    CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
-    CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
-    CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
-    CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
-    CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
-    this->e = new CuteEntityManager::EntityManager("QSQLITE",
-            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
-}
+//void EmTest::initTestCase() {
+//    CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
+//    CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
+//    CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
+//    CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
+//    CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
+//    this->e = new CuteEntityManager::EntityManager("QSQLITE",
+//            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
+//}
 
-void EmTest::cleanupTestCase() {
-    if (this->e) {
-        delete this->e;
-        this->e = nullptr;
-    }
-}
+//void EmTest::cleanupTestCase() {
+//    if (this->e) {
+//        delete this->e;
+//        this->e = nullptr;
+//    }
+//}
 
 void EmTest::testCheckDuplicates() {
     QSharedPointer<Article> article = QSharedPointer<Article>(new Article(10,
@@ -43,6 +43,13 @@ void EmTest::testBasics() {
 }
 
 void EmTest::init() {
+    CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
+    this->e = new CuteEntityManager::EntityManager("QSQLITE",
+            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
     QStringList inits = QStringList() << "Person" << "Group" << "Article";
     QVERIFY2(this->e->startup("emTestA", inits), "Failure");
     auto migrations = this->e->findAll<CuteEntityManager::DatabaseMigration>();
@@ -145,6 +152,10 @@ void EmTest::cleanup() {
     QVERIFY(!tableNames.contains("article"));
     QVERIFY(!tableNames.contains("person_groups"));
     QVERIFY(this->e->removeAll("cuteentitymanager::databasemigration"));
+    if (this->e) {
+        delete this->e;
+        this->e = nullptr;
+    }
 }
 
 void EmTest::testRelationTableCreation() {
@@ -191,6 +202,29 @@ void EmTest::testInheritedRelations() {
         g->setName("Taskforce 0008");
         QVERIFY(this->e->merge(g));
         QVERIFY(this->e->remove(g));
+    } catch(QString e) {
+        QFAIL(e.toUtf8().constData());
+    }
+}
+
+void EmTest::testNonCachedInheritedRelations() {
+    QSharedPointer<Employee> e1 = QSharedPointer<Employee>(new Employee(42, "Fenja", "S.",
+                                  Person::Gender::FEMALE, "Lotta", QDate(1990, 10, 10), "Psychology"));
+    QSharedPointer<Employee> e2 = QSharedPointer<Employee>(new Employee(11, "Janine",
+                                  "Musterfrau",
+                                  Person::Gender::FEMALE, "", QDate(2000, 1, 1), "Health", true));
+    QSharedPointer<WorkerGroup> wg = QSharedPointer<WorkerGroup>(new
+                                     WorkerGroup("Taskforce P&H", 42));
+    wg->addWorker(e1);
+    wg->addWorker(e2);
+    try {
+        QVERIFY(e->create(wg));
+        QSharedPointer<Group> g = QSharedPointer<Group>(new Group("EmployeeGroup"));
+        g->setPersons({e1, e2});
+        QVERIFY(e->create(g));
+        g->setName("Taskforce 0008");
+        QVERIFY(e->merge(g));
+        QVERIFY(e->remove(g));
     } catch(QString e) {
         QFAIL(e.toUtf8().constData());
     }

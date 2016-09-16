@@ -36,15 +36,15 @@ class Address: public CuteEntityManager::Entity {
     QString getCity() const;
     void setCity(const QString &value);
 
-    QList<QSharedPointer<Person>> getPersons() const;
-    void setPersons(const QList<QSharedPointer<Person>> &value);
+    QList<QSharedPointer<Person> > getPersons() const;
+    void setPersons(const QList<QSharedPointer<Person> > &value);
 
     const QHash<QString, CuteEntityManager::Relation> getRelations() const override;
 
-    QList<QSharedPointer<Pupil>> getPupils() const;
-    void setPupils(const QList<QSharedPointer<Pupil>> &value);
+    QList<QSharedPointer<Pupil> > getPupils() const;
+    void setPupils(const QList<QSharedPointer<Pupil> > &value);
 
-  protected:
+protected:
     QString label;
     QString street;
     QString postcode;

@@ -23,9 +23,6 @@ class Person: public Entity {
     Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
                getMaintainedGroups WRITE setMaintainedGroups)
     EM_MACRO(Person)
-//    EM_LIST_PROPERTY(Group,groups,getGroups,setGroups)
-//    EM_LIST_PROPERTY(Group,maintainedGroups,getMaintainedGroups,setMaintainedGroups)
-
 
   public:
     enum class Gender {MALE=109, FEMALE=102, UNKNOWNGENDER=0};
@@ -85,6 +82,7 @@ class Employee : public Person {
     Q_PROPERTY(quint64 persNumber READ getPersNumber WRITE setPersNumber)
     Q_PROPERTY(bool manager READ isManager WRITE setManager)
     EM_MACRO(Employee)
+
   public:
     Employee() : Person() { }
     Employee(quint64 persNumber, QString firstName, QString familyName,
@@ -191,6 +189,7 @@ class Article : public CuteEntityManager::Entity {
     Q_PROPERTY(double price READ getPrice WRITE setPrice)
     Q_PROPERTY(QString name READ getName WRITE setName)
     EM_MACRO(Article)
+
   private:
     double price;
     QString name;
