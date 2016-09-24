@@ -86,7 +86,7 @@ class EntityManager : public QObject {
     bool createTable(QString className, bool createRelationTables = true);
     bool removeTable(QString className);
     quint32 count(const QSharedPointer<Entity> &entity, bool ignoreID = true,
-                  bool followInheritance = false);
+                  bool joinBaseClasses = false);
     quint32 count(const QString &tableName);
     QSharedPointer<Database> getDb() const;
     void setDb(const QSharedPointer<Database> &value);

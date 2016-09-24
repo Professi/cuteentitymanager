@@ -939,11 +939,11 @@ bool EntityManager::removeTable(QString className) {
 }
 
 quint32 EntityManager::count(const QSharedPointer<Entity> &entity, bool ignoreID,
-                             bool followInheritance) {
+                             bool joinBaseClasses) {
     Query q = Query();
     auto qb = this->schema->getQueryBuilder();
     QHash<QString, QVariant> values;
-    if (followInheritance) {
+    if (joinBaseClasses) {
         q.appendJoins(qb->joinBaseClasses(entity));
         values = EntityHelper::getEntityAttributes(EntityHelper::getMetaProperties(
                      entity.data()), entity);
