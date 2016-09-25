@@ -72,6 +72,12 @@ void EmTest::testDatabaseMigrationTable() {
     }
 }
 
+void EmTest::testCountEntities() {
+    Query q = Query();
+    auto count = this->e->countEntities<DatabaseMigration>(q, true);
+    QCOMPARE(count, (unsigned int)1);
+}
+
 void EmTest::testTableCreation() {
     auto tables = this->e->getSchema()->getTables();
     bool containsArticle = tables.contains("article");

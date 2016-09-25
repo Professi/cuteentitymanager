@@ -153,6 +153,26 @@ class EntityManager : public QObject {
         return QList<QSharedPointer<T>>();
     }
 
+    template<class T> quint32 countEntities(Query &q, const bool joinBaseClasses = true) {
+        auto instance = QSharedPointer<Entity>(EntityInstanceFactory::createInstance<T *>());
+        quint32 count = 0;
+        if (instance) {
+            if (q.getFrom().isEmpty()) {
+                q.setFrom(QStringList(instance->getTablename()));
+            }
+            if (joinBaseClasses) {
+                q.appendJoins(this->schema->getQueryBuilder()->joinBaseClasses(instance));
+            }
+            q.appendSelect("COUNT(*)");
+            QSqlQuery query = this->queryInterpreter->build(q);
+            this->db->select(query);
+            if (query.next()) {
+                count = query.value(0).toInt();
+            }
+        }
+        return count;
+    }
+
     template<class T>
     bool remove(QSharedPointer<T> &entity) {
         static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");

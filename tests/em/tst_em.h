@@ -26,6 +26,7 @@ class EmTest : public QObject {
     void testInheritedRelations();
     void testNonCachedInheritedRelations();
     void testDatabaseMigrationTable();
+    void testCountEntities();
     void testTableCreation();
 
   private:
