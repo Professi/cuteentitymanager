@@ -250,7 +250,6 @@ void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
                                    QList<QSharedPointer<Entity>> &value, const QMetaProperty &property) {
     auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
-    auto t = property.typeName();
     if(i) {
     i->setListProperty(entity, value, property);
     delete i;

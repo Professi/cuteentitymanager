@@ -18,6 +18,7 @@ class EmTest : public QObject {
     void init();
     void cleanup();
     void testFindById();
+    void testFindByIdOnNull();
     void testFindId();
     void testHasChanged();
     void testValidate();

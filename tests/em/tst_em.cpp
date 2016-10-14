@@ -270,6 +270,22 @@ void EmTest::testFindById() {
     QVERIFY(this->e->findById(id, p->getClassname()));
 }
 
+void EmTest::testFindByIdOnNull()
+{
+    QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "De",
+                               Person::Gender::MALE, "Pat", QDate(2000, 1, 1)));
+    auto ent = p.objectCast<Entity>();
+    QVERIFY(this->e->create(ent));
+    auto id = p->getId();
+    QVERIFY(id > -1);
+    if(this->e->findById(-1, p->getClassname())) {
+       QFAIL("FindById should not return any Person Pointer");
+    }
+    if(this->e->findById(63275, p->getClassname())) {
+       QFAIL("FindById should not return any Person Pointer");
+    }
+}
+
 void EmTest::testFindId() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Essi", "Sa",
                                Person::Gender::MALE, "Essi", QDate(2000, 1, 1)));
