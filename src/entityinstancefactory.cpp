@@ -83,7 +83,7 @@ void EntityInstanceFactory::setAttributes(Entity *&e,
                 QMetaProperty prop = metaprops.value(iterator.key());
                 if (prop.isWritable()) {
                     if (prop.isEnumType()) {
-                        prop.write(e, prop.enumerator().key(iterator.value().toInt()));
+                        prop.write(e, prop.enumerator().valueToKey(iterator.value().toInt()));
                     } else {
                         prop.write(e, iterator.value());
                     }
