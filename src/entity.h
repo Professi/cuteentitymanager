@@ -82,6 +82,8 @@ class Entity : public QObject {
     virtual bool isInheritanceCascaded() const;
     //return value must be the exact name defined in Q_PROPERTY
     virtual QString getPrimaryKey() const;
+    virtual QHash<QString, QVariant> getProperties();
+    virtual QHash<QString, QString> getPropertyLabels();
 
     QVariant getProperty(const QString &name) const;
     bool setProperty(const QString &name, const QVariant &value);

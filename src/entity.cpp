@@ -128,6 +128,22 @@ QString Entity::getPrimaryKey() const {
     return "id";
 }
 
+QHash<QString, QVariant> Entity::getProperties() {
+    auto count = this->metaObject()->propertyCount();
+    QHash<QString, QVariant> hash = QHash<QString, QVariant>();
+    for (int i = 0; i < count; ++i) {
+        auto prop = this->metaObject()->property(i);
+        hash.insert(QString(prop.name()),prop.read(this));
+    }
+    return hash;
+}
+
+QHash<QString, QString> Entity::getPropertyLabels() {
+    QHash<QString, QString> hash = QHash<QString, QString>();
+    hash.insert("id","ID");
+    return hash;
+}
+
 QVariant Entity::getProperty(const QString &name) const {
     if (!name.isEmpty()) {
         return QObject::property(name.toLatin1().constData());
