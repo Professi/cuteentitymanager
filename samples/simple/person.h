@@ -25,8 +25,6 @@ class Person: public Entity {
                setCustomPictureFileName)
     Q_PROPERTY(QDate birthday READ getBirthday WRITE setBirthday)
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
-    Q_PROPERTY(QList<QSharedPointer<Group>> maintainedGroups READ
-               getMaintainedGroups WRITE setMaintainedGroups)
     Q_PROPERTY(QList<QSharedPointer<Contact>> contacts READ getContacts WRITE
                setContacts)
     Q_PROPERTY(QList<QSharedPointer<Address>> addresses READ
@@ -75,8 +73,7 @@ class Person: public Entity {
     void addContact(Contact *contact);
     void addAddress(Address *address);
 
-    QList<QSharedPointer<Group> > getMaintainedGroups() const;
-    void setMaintainedGroups(const QList<QSharedPointer<Group> > &value);
+
 
   protected:
     QString firstName;
@@ -88,7 +85,6 @@ class Person: public Entity {
     QList <QSharedPointer<Contact>> contacts;
     QList <QSharedPointer<Address>> addresses;
     QList <QSharedPointer<Group>> groups;
-    QList <QSharedPointer<Group>> maintainedGroups;
 
 };
 
