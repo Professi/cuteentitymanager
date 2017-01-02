@@ -10,7 +10,6 @@ class Pupil : public Person {
   public:
     Q_INVOKABLE Pupil();
     Pupil(QString firstName, QString familyName,
-          Gender gender = Gender::UNKNOWNGENDER,
           QString customPictureFileName = QString(), QString namePrefix = QString(),
           QString nickName = QString(), QDate birthday = QDate(), QString legalGuardianNote = "", QObject *parent = 0);
 
