@@ -45,15 +45,10 @@ int main(int argc, char *argv[]) {
         e->save(entities);
 
         QSharedPointer<Pupil> pupil1 = QSharedPointer<Pupil>(new Pupil("Vorname1","Nachname1","","","Keks1"));
-        QSharedPointer<Pupil> pupil2 = QSharedPointer<Pupil>(new Pupil("Vorname2","Nachname2","","","Keks2"));
         QSharedPointer<Group> firstGroup = QSharedPointer<Group>(new Group());
         firstGroup->setName("05c");
         firstGroup->addPerson(pupil1);
-        firstGroup->addPerson(pupil2);
-
-
-
-        e->save(QList<QSharedPointer<Entity>>()<<pupil1<<pupil2<<firstGroup);
+        e->save(QList<QSharedPointer<Entity>>()<<pupil1<<firstGroup);
 
         QSharedPointer<Occasion> occasion = QSharedPointer<Occasion>(new Occasion(""));
         QSharedPointer<RatingMarkIncident> firstInc = QSharedPointer<RatingMarkIncident>(new RatingMarkIncident());
@@ -72,15 +67,14 @@ int main(int argc, char *argv[]) {
         firstInc->setGroup(firstGroup);
         firstInc->setSignatureNeeded(false);
         firstInc->setLocked(false);
-
         e->save(firstInc);
-
-
 // ----------------------------------------------------------------------------------------------------------------------
         auto oldInc = e->findById<RatingMarkIncident>(1);
         e->refresh(oldInc, true);
-        e->refresh(oldInc->group());
-        e->refresh(oldInc->pupil());
+        if(oldInc) {
+            e->refresh(oldInc->group());
+            e->refresh(oldInc->pupil());
+        }
         QSharedPointer<RatingMarkIncident> inc = Stuff::makeTwin(oldInc, QDateTime::currentDateTime());
         if (oldInc) {
             oldInc->setCancelledAt(QDateTime::currentDateTime());
@@ -105,10 +99,7 @@ int main(int argc, char *argv[]) {
         auto rateSys = e->findById<RatingMarkSystem>(1);
         e->refresh(rateSys);
         inc->setRatingMarkSystem(rateSys);
-
-
         // ---------------------------------------------------------------------
-
 
         bool success;
         success = oldInc.isNull() || e->save(oldInc);
