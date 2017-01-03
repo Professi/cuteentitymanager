@@ -26,7 +26,8 @@ HEADERS += \
     contact.h \
     group.h \
     person.h \
-    pupil.h
+    pupil.h \
+    stuff.h
 
 SOURCES += \
     main.cpp \

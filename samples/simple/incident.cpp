@@ -1,6 +1,5 @@
 #include "incident.h"
-//#include "src/model/appdata/appdata.h"
-//#include "src/trivia/errorhandling.h"
+#include <QDebug>
 
 Incident::Incident() :
     Entity()
@@ -18,7 +17,7 @@ void Incident::initIncident(const QSharedPointer<Pupil> pupil,
 //    this->setAppData(appData);
     this->setBookedFor(dateTime);
     this->setBookedAt(dateTime);
-    this->setCancelledAt(QDateTime());
+    m_cancelledAt = QDateTime();
     this->setLocked(false);
     this->setPredecessor(QSharedPointer<Incident>());
 }
@@ -53,11 +52,12 @@ void Incident::setCancelledAt(const QDateTime &cancelledAt, bool forceOverwrite)
     if (m_cancelledAt.isValid() && !forceOverwrite) {
         // sometimes an EntityManager metacall reaches this, too. Immediately after setting it manually. (<= 1ms?)
         // reproduce: change attendanceIncident, ok, change again
-        qint64 diff = qAbs(m_cancelledAt.secsTo(cancelledAt));
-        if (diff > 10) { // giving some delay headroom for a possible double call
-            Q_ASSERT(!m_cancelledAt.isValid());
-//            THROW_MODERATE_ERROR_CIT("Das Canceln eines Ereignisses ist fehlgeschlagen, das Ereignis war bereits vorher gecancelt!");
-        }
+        // qint64 diff = qAbs(m_cancelledAt.secsTo(cancelledAt));
+        // if (diff > 10) { // giving some delay headroom for a possible double call
+        qDebug()<< "\n\n-------------------------------\n-------------------------------\n-------------------------------\nWHY DOES THIS HAPPEN? \nEach incident's cancelledAt has been invalidated in the ctor!\n------------------------\n-------------------------------\n-------------------------------\n-------------------------------";
+        // Q_ASSERT(!m_cancelledAt.isValid());
+        // THROW_MODERATE_ERROR_CIT("Das Canceln eines Ereignisses ist fehlgeschlagen, das Ereignis war bereits vorher gecancelt!");
+        // }
     }
     m_cancelledAt = cancelledAt;
 }
@@ -71,16 +71,6 @@ void Incident::setPupil(const QSharedPointer<Pupil> &pupil)
 {
     m_pupil = pupil;
 }
-
-//QSharedPointer<AppData> Incident::appData() const
-//{
-//    return m_appData;
-//}
-
-//void Incident::setAppData(const QSharedPointer<AppData> &appData)
-//{
-//    m_appData = appData;
-//}
 
 QSharedPointer<Group> Incident::group() const
 {
@@ -110,16 +100,6 @@ void Incident::setLocked(bool locked)
     m_locked = locked;
 }
 
-//QSharedPointer<Room> Incident::room() const
-//{
-//    return m_room;
-//}
-
-//void Incident::setRoom(const QSharedPointer<Room> &room)
-//{
-//    m_room = room;
-//}
-
 QString Incident::additionalInfo() const
 {
     return m_additionalInfo;
@@ -136,27 +116,11 @@ const QHash<QString, Relation> Incident::getRelations() const
 
     hash.insert("pupil",CuteEntityManager::Relation(
                     "pupil",CuteEntityManager::RelationType::MANY_TO_ONE));
-//    hash.insert("appData",CuteEntityManager::Relation(
-//                    "appData",CuteEntityManager::RelationType::MANY_TO_ONE));
     hash.insert("group",CuteEntityManager::Relation(
                     "group",CuteEntityManager::RelationType::MANY_TO_ONE));
-//    hash.insert("room",CuteEntityManager::Relation(
-//                    "room",CuteEntityManager::RelationType::MANY_TO_ONE));
-//    hash.insert("seatingPlan", CuteEntityManager::Relation(
-//                    "seatingPlan",CuteEntityManager::RelationType::MANY_TO_ONE));
     hash.insert("predecessor", CuteEntityManager::Relation("predecessor", true, CuteEntityManager::RelationType::ONE_TO_ONE));
     return hash;
 }
-
-//QSharedPointer<SeatingPlan> Incident::seatingPlan() const
-//{
-//    return m_seatingPlan;
-//}
-
-//void Incident::setSeatingPlan(const QSharedPointer<SeatingPlan> &seatingPlan)
-//{
-//    m_seatingPlan = seatingPlan;
-//}
 
 QSharedPointer<Incident> Incident::predecessor() const
 {
