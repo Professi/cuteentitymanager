@@ -195,7 +195,7 @@ class EntityManager : public QObject {
     bool merge(QSharedPointer<T> &entity, bool withRelations = true,
                const bool validate = true, const bool relationsIgnoreHasChanged = false) {
         static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
-        auto merged = QList<Entity *>();
+        auto merged = QList<QSharedPointer<Entity >>();
         QSharedPointer<Entity> e = entity;
         return this->mergeObject(e, merged, withRelations, validate,
                                  relationsIgnoreHasChanged);
@@ -215,7 +215,7 @@ class EntityManager : public QObject {
               const bool ignoreHasChanged = false, const bool validate = true,
               const bool relationsIgnoreHasChanged = false) {
         static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
-        auto merged = QList<Entity *>();
+        auto merged = QList<QSharedPointer<Entity >>();
         QSharedPointer<Entity> e = entity;
         return this->saveObject(e, merged, persistRelations,
                                 ignoreHasChanged, validate, relationsIgnoreHasChanged);
@@ -249,7 +249,7 @@ class EntityManager : public QObject {
                 const bool checkDuplicate = false, const bool validate = true,
                 const bool relationsIgnoreHasChanged = false) {
         static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
-        auto merged = QList<Entity *>();
+        auto merged = QList<QSharedPointer<Entity >>();
         QSharedPointer<Entity> e = entity;
         return this->createObject(e, merged, persistRelations,
                                   checkDuplicate, validate, relationsIgnoreHasChanged);
@@ -355,15 +355,15 @@ class EntityManager : public QObject {
     }
 
   protected:
-    bool saveObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
+    bool saveObject(QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity >> &mergedObjects,
                     const bool persistRelations = true,
                     const bool ignoreHasChanged = false, const bool validate = true,
                     const bool relationsIgnoreHasChanged = false);
-    bool mergeObject(QSharedPointer<Entity> &entity, QList<Entity *> &mergedObjects,
+    bool mergeObject(QSharedPointer<Entity> &entity, QList<QSharedPointer<Entity >> &mergedObjects,
                      bool withRelations,
                      const bool validate, const bool relationsIgnoreHasChanged = false);
     bool createObject(QSharedPointer<Entity> &entity,
-                      QList<Entity *> &mergedObjects, const bool persistRelations,
+                      QList<QSharedPointer<Entity >> &mergedObjects, const bool persistRelations,
                       const bool checkDuplicate, const bool validate,
                       const bool relationsIgnoreHasChanged = false);
     void init(bool inspect, const MsgType msgType);
@@ -378,7 +378,7 @@ class EntityManager : public QObject {
     void oneToOne(const QSharedPointer<Entity> &entity, Attribute *&attr,
                   const QVariant &id = "");
     void persistManyToMany(const QSharedPointer<Entity> &entity, const Relation &r,
-                           QVariant &property, QList<Entity *> &mergedObjects,
+                           QVariant &property, QList<QSharedPointer<Entity >> &mergedObjects,
                            const bool ignoreHasChanged = false, const bool newItem = false);
     QList<QHash<QString, QVariant>> findAllByAttributes(const
                                  QSharedPointer<Entity> &entity,
@@ -396,7 +396,7 @@ class EntityManager : public QObject {
      * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
      */
     void savePrePersistedRelations(const QSharedPointer<Entity> &entity,
-                                   QList<Entity *> &mergedObjects, bool ignoreHasChanged = false);
+                                   QList<QSharedPointer<Entity >> &mergedObjects, bool ignoreHasChanged = false);
     /**
      * @brief EntityManager::savePostPersistedRelations
      * @param entity
@@ -404,12 +404,12 @@ class EntityManager : public QObject {
      * @throw can throw in debug mode a QString exception when the type of any Relation is wrong @see EntityManager::checkRelation
      */
     void savePostPersistedRelations(const QSharedPointer<Entity> &entity,
-                                    QList<Entity *> &mergedObjects, bool ignoreHasChanged = false,
+                                    QList<QSharedPointer<Entity >> &mergedObjects, bool ignoreHasChanged = false,
                                     bool newItem = false);
 
     QList<QSharedPointer<Entity>> saveRelationEntities(const
                                QList<QSharedPointer<Entity>> &list, const Relation &r,
-                               QList<Entity *> &mergedObjects);
+                               QList<QSharedPointer<Entity >> &mergedObjects);
     /**
      * @brief EntityManager::persistManyToMany
      * @param entity
@@ -421,7 +421,7 @@ class EntityManager : public QObject {
     void persistMappedByRelation(const QList<QSharedPointer<Entity>> &list,
                                  QSqlQuery &q, const QSharedPointer<Entity> &entity,
                                  const QSharedPointer<Entity> &ptr, const Relation &r,
-                                 const QString &tblName, QList<Entity *> &mergedObjects);
+                                 const QString &tblName, QList<QSharedPointer<Entity >> &mergedObjects);
     bool shouldBeSaved(QSharedPointer<Entity> &entity , const Relation &r);
     void removeRelations(const QSharedPointer<Entity> &entity);
     void removeEntityList(QVariant &var);
