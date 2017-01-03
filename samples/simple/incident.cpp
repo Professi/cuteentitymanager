@@ -54,7 +54,10 @@ void Incident::setCancelledAt(const QDateTime &cancelledAt, bool forceOverwrite)
         // reproduce: change attendanceIncident, ok, change again
         // qint64 diff = qAbs(m_cancelledAt.secsTo(cancelledAt));
         // if (diff > 10) { // giving some delay headroom for a possible double call
-        qDebug()<< "\n\n-------------------------------\n-------------------------------\n-------------------------------\nWHY DOES THIS HAPPEN? \nEach incident's cancelledAt has been invalidated in the ctor!\n------------------------\n-------------------------------\n-------------------------------\n-------------------------------";
+        qDebug()<< "\n\n-------------------------------\n-------------------------------\n----------" \
+           "---------------------\nWHY DOES THIS HAPPEN? \nEach incident's cancelledAt has been invalidated in the ctor! " \
+           "\n------------------------\n-------------------------------\n-------------------------------\n----------------";
+
         // Q_ASSERT(!m_cancelledAt.isValid());
         // THROW_MODERATE_ERROR_CIT("Das Canceln eines Ereignisses ist fehlgeschlagen, das Ereignis war bereits vorher gecancelt!");
         // }

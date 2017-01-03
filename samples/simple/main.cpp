@@ -117,8 +117,7 @@ int main(int argc, char *argv[]) {
             success &= e->save(inc);
             success &= inc->getId() >= 0; // check
         }
-
-
+        qDebug()<<(success ? "JAAA es hat geklappt!" : "Immerhin kann man das hier sehen...");
     } catch(QString s) {
         qDebug()<<s;
     }
