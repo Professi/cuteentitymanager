@@ -93,10 +93,10 @@ void EntityManager::clearCache() {
 }
 
 bool EntityManager::saveObject(QSharedPointer<Entity> &entity,
-                               QList<QSharedPointer<Entity >> &mergedObjects, const bool persistRelations,
+                               QList<Entity *> &mergedObjects, const bool persistRelations,
                                const bool ignoreHasChanged, const bool validate,
                                const bool relationsIgnoreHasChanged) {
-    bool merged =  mergedObjects.contains(entity);
+    bool merged =  mergedObjects.contains(entity.data());
     if (entity && !merged && (ignoreHasChanged || this->hasChanged(entity))) {
         if (entity->getProperty(entity->getPrimaryKey()).toLongLong() > -1) {
             return this->mergeObject(entity, mergedObjects, persistRelations, validate,
@@ -110,11 +110,11 @@ bool EntityManager::saveObject(QSharedPointer<Entity> &entity,
 }
 
 bool EntityManager::mergeObject(QSharedPointer<Entity> &entity,
-                                QList<QSharedPointer<Entity >> &mergedObjects, bool withRelations, const bool validate,
+                                QList<Entity *> &mergedObjects, bool withRelations, const bool validate,
                                 const bool relationsIgnoreHasChanged) {
     bool ok = true;
-    if (entity && !mergedObjects.contains(entity)) {
-        mergedObjects.append(entity);
+    if (entity && !mergedObjects.contains(entity.data())) {
+        mergedObjects.append(entity.data());
         ok = false;
         if (entity->getId() > -1 && (!validate || this->validate(entity))) {
             if (withRelations) {
@@ -138,12 +138,12 @@ bool EntityManager::mergeObject(QSharedPointer<Entity> &entity,
 }
 
 bool EntityManager::createObject(QSharedPointer<Entity> &entity,
-                                 QList<QSharedPointer<Entity >> &mergedObjects, const bool persistRelations,
+                                 QList<Entity *> &mergedObjects, const bool persistRelations,
                                  const bool checkDuplicate, const bool validate,
                                  const bool relationsIgnoreHasChanged) {
     bool rc = true;
-    if (entity && !mergedObjects.contains(entity)) {
-        mergedObjects.append(entity);
+    if (entity && !mergedObjects.contains(entity.data())) {
+        mergedObjects.append(entity.data());
         rc = false;
         if (this->checkTable(entity) && (!validate || this->validate(entity))
                 && (!checkDuplicate || this->count(entity) <= 0)) {
@@ -195,7 +195,7 @@ bool EntityManager::create(QList<QSharedPointer<Entity>> &entities,
                            const bool persistRelations, const bool checkDuplicate, const bool validate,
                            const bool relationsIgnoreHasChanged) {
     bool ok = true;
-    auto merged = QList<QSharedPointer<Entity >>();
+    auto merged = QList<Entity *>();
     foreach (QSharedPointer<Entity> ent, entities) {
         this->createObject(ent, merged, persistRelations,
                            checkDuplicate, validate, relationsIgnoreHasChanged);
@@ -207,7 +207,7 @@ bool EntityManager::save(QList<QSharedPointer<Entity>> &entities,
                          const bool persistRelations, const bool ignoreHasChanged, const bool validate,
                          const bool relationsIgnoreHasChanged) {
     bool ok = true;
-    auto merged = QList<QSharedPointer<Entity >>();
+    auto merged = QList<Entity *>();
     foreach (QSharedPointer<Entity> entity, entities) {
         ok = this->saveObject(entity, merged, persistRelations,
                               ignoreHasChanged, validate, relationsIgnoreHasChanged);
@@ -475,7 +475,7 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
 }
 
 void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
-                                              &entity, QList<QSharedPointer<Entity >> &mergedObjects, bool ignoreHasChanged) {
+                                              &entity, QList<Entity *> &mergedObjects, bool ignoreHasChanged) {
     auto relations = EntityHelper::getRelationProperties(entity.data());
     auto iterator = relations.constBegin();
     while (iterator != relations.constEnd()) {
@@ -506,7 +506,7 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
 }
 
 void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
-                                               &entity, QList<QSharedPointer<Entity >> &mergedObjects, bool ignoreHasChanged, bool newItem) {
+                                               &entity, QList<Entity *> &mergedObjects, bool ignoreHasChanged, bool newItem) {
     auto relations = EntityHelper::getRelationProperties(entity.data());
     for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
         const Relation r = i.key();
@@ -542,7 +542,7 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
 void EntityManager::persistMappedByRelation(const QList<QSharedPointer<Entity>>
                                             &list, QSqlQuery &q, const QSharedPointer<Entity> &entity,
                                             const QSharedPointer<Entity> &ptr, const Relation &r,
-                                            const QString &tblName, QList<QSharedPointer<Entity >> &mergedObjects) {
+                                            const QString &tblName, QList<Entity *> &mergedObjects) {
     q.clear();
     QList<QSharedPointer<Entity>> saved =
             r.getCascadeType().contains(CascadeType::ALL) ||
@@ -729,7 +729,7 @@ void EntityManager::removeManyToManyEntityList(const QSharedPointer<Entity> &e,
 
 QList<QSharedPointer<Entity>> EntityManager::saveRelationEntities(
         const QList<QSharedPointer<Entity>> &list, const Relation &r,
-        QList<QSharedPointer<Entity >> &mergedObjects) {
+        QList<Entity *> &mergedObjects) {
     QList<QSharedPointer<Entity>> saved = QList<QSharedPointer<Entity>>();
     QSharedPointer<Entity> ptr;
     for (int var = 0; var < list.size(); ++var) {
@@ -743,7 +743,7 @@ QList<QSharedPointer<Entity>> EntityManager::saveRelationEntities(
 }
 
 void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
-                                      const Relation &r, QVariant &property, QList<QSharedPointer<Entity >> &mergedObjects,
+                                      const Relation &r, QVariant &property, QList<Entity *> &mergedObjects,
                                       const bool ignoreHasChanged, const bool newItem) {
     auto list = property.value<QList<QVariant>>();
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
