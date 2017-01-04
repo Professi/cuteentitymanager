@@ -55,20 +55,9 @@ void RatingMarkIncident::setRateable(bool rateable)
     m_rateable = rateable;
 }
 
-QSharedPointer<Occasion> RatingMarkIncident::occasion() const
-{
-    return m_occasion;
-}
-
-void RatingMarkIncident::setOccasion(const QSharedPointer<Occasion> &occasion)
-{
-    m_occasion = occasion;
-}
-
 const QHash<QString, Relation> RatingMarkIncident::getRelations() const
 {
     auto hash = Incident::getRelations();
-    hash.insert("occasion",Relation("occasion",CuteEntityManager::RelationType::MANY_TO_ONE));
     hash.insert("ratingMarkSystem", Relation("ratingMarkSystem",RelationType::MANY_TO_ONE));
     return hash;
 }

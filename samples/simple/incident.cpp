@@ -116,7 +116,6 @@ void Incident::setAdditionalInfo(const QString &additionalInfo)
 const QHash<QString, Relation> Incident::getRelations() const
 {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
-
     hash.insert("pupil",CuteEntityManager::Relation(
                     "pupil",CuteEntityManager::RelationType::MANY_TO_ONE));
     hash.insert("group",CuteEntityManager::Relation(

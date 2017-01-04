@@ -25,10 +25,6 @@ class Person: public Entity {
                setCustomPictureFileName)
     Q_PROPERTY(QDate birthday READ getBirthday WRITE setBirthday)
     Q_PROPERTY(QList<QSharedPointer<Group>> groups READ getGroups WRITE setGroups)
-    Q_PROPERTY(QList<QSharedPointer<Contact>> contacts READ getContacts WRITE
-               setContacts)
-    Q_PROPERTY(QList<QSharedPointer<Address>> addresses READ
-               getAddresses WRITE setAddresses)
 
   public:
     enum class NameOrder {FIRST_FAMILY_NAME_ORDER, FAMILY_FIRST_NAME_ORDER};
@@ -61,19 +57,8 @@ class Person: public Entity {
     QString getCustomPictureFileName() const;
     void setCustomPictureFileName(const QString &value);
 
-    QList<QSharedPointer<Contact> > getContacts() const;
-    void setContacts(const QList<QSharedPointer<Contact> > &value);
-
-    QList<QSharedPointer<Address> > getAddresses() const;
-    void setAddresses(const QList<QSharedPointer<Address> > &value);
-
     QList<QSharedPointer<Group> > getGroups() const;
     void setGroups(const QList<QSharedPointer<Group> > &value);
-
-    void addContact(Contact *contact);
-    void addAddress(Address *address);
-
-
 
   protected:
     QString firstName;
@@ -82,8 +67,6 @@ class Person: public Entity {
     QString nickName;
     QDate birthday;
     QString customPictureFileName;
-    QList <QSharedPointer<Contact>> contacts;
-    QList <QSharedPointer<Address>> addresses;
     QList <QSharedPointer<Group>> groups;
 
 };

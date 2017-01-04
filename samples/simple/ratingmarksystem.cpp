@@ -1,6 +1,5 @@
 #include "ratingmarksystem.h"
 #include "ratingmarkincident.h"
-#include "occasion.h"
 
 #include <QDebug>
 #include <QtMath>
@@ -64,7 +63,6 @@ const QHash<QString, Relation> RatingMarkSystem::getRelations() const
 {
         auto hash = Incident::getRelations();
         hash.insert("ratingMarkDefinitions",Relation("ratingMarkDefinitions",CuteEntityManager::RelationType::ONE_TO_MANY,QString("ratingMarkSystem")));
-
         return hash;
 }
 
@@ -137,75 +135,6 @@ QList<QSharedPointer<RatingMarkIncident> > RatingMarkSystem::sortValue(QList<QSh
     return list;
 }
 
-bool RatingMarkSystem::shallBeCalculated(QSharedPointer<RatingMarkIncident> inc, QSharedPointer<Occasion> occasion, bool respectRateabilityProperty) {
-    if (!occasion.isNull() && (occasion != inc->occasion())) {
-        return false;
-    }
-    if (respectRateabilityProperty && !inc->rateable()) {
-        return false;
-    }
-    return true;
-
-}
-
-qreal RatingMarkSystem::averageSomeFloatProperty(QList<QSharedPointer<RatingMarkIncident> > list,
-                                                 QString propertyName,
-                                                 QSharedPointer<Occasion> occasion,
-                                                 int digits,
-                                                 Enums::RoundingOption rounding,
-                                                 bool respectWeight,
-                                                 bool respectRateabilityProperty)
-{
-    qreal sum = 0;
-    qreal weightSum = 0;
-    QListIterator<QSharedPointer<RatingMarkIncident> > iter(list);
-    bool ok = true;
-
-    while (ok && iter.hasNext()) {
-        QSharedPointer<RatingMarkIncident> inc = iter.next();
-        qreal addValue;
-        QVariant var = inc->getProperty(propertyName);
-        if (var.isValid() && !var.isNull()) {
-            addValue = var.toFloat(&ok);
-            if (!ok) {
-                qDebug()<<"RatingMarkSystem::averageSomeFloatProperty:  Float conversion of "<<propertyName<<" was not successful. ";
-            }
-        } else {
-            ok = false;
-            qDebug()<<"RatingMarkSystem::averageSomeFloatProperty:  "<<propertyName<<" was not found - typo?";
-        }
-        if (ok && this->shallBeCalculated(inc, occasion, respectRateabilityProperty)) {
-            qreal weight = respectWeight ? inc->weight() : 1;
-            if (weight < -Enums::EPSILON_CALCULATION) {
-                ok = true;
-            }
-            sum += weight * addValue;
-            weightSum += weight;
-        }
-    }
-    Q_ASSERT(ok);
-    return !ok? -1 : ((qAbs(weightSum) < Enums::EPSILON_CALCULATION)? -1 : this->shortenNumber(sum / weightSum, digits, rounding));
-}
-
-qreal RatingMarkSystem::averagePercent(const QList<QSharedPointer<RatingMarkIncident> > list,
-                                       QSharedPointer<Occasion> occasion,
-                                       int digits,
-                                       Enums::RoundingOption rounding,
-                                       bool respectWeight,
-                                       bool respectRateabilityProperty)
-{
-    return this->averageSomeFloatProperty(list,"percentValue", occasion, digits, rounding, respectWeight, respectRateabilityProperty);
-}
-
-qreal RatingMarkSystem::averageValueSimple(QList<QSharedPointer<RatingMarkIncident> > list,
-                                           QSharedPointer<Occasion> occasion,
-                                           int digits,
-                                           Enums::RoundingOption rounding,
-                                           bool respectWeight,
-                                           bool respectRateabilityProperty)
-{
-    return this->averageSomeFloatProperty(list,"value", occasion, digits, rounding, respectWeight, respectRateabilityProperty);
-}
 
 qreal RatingMarkSystem::symbolToPercent(QString symbol)
 {

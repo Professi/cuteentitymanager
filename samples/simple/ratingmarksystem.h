@@ -4,7 +4,6 @@
 #include "ratingmarkdefinition.h"
 
 class RatingMarkIncident;
-class Occasion;
 ////////////////////////////////////////////////
 /// \brief The RatingMarkSystem class
 ///
@@ -74,37 +73,10 @@ public:
     static bool moreThanValue(const QSharedPointer<RatingMarkIncident> &a, const QSharedPointer<RatingMarkIncident> &b);
     virtual QList<QSharedPointer<RatingMarkIncident>> sortPercent(QList<QSharedPointer<RatingMarkIncident>> list, Qt::SortOrder sortOrder);
     virtual QList<QSharedPointer<RatingMarkIncident>> sortValue(QList<QSharedPointer<RatingMarkIncident>> list, Qt::SortOrder sortOrder);
-
-
-    virtual qreal averagePercent(QList<QSharedPointer<RatingMarkIncident>> list,
-                                 QSharedPointer<Occasion> occasion,
-                                 int digits = -1,
-                                 Enums::RoundingOption rounding = Enums::RoundingOption::ROUND,
-                                 bool respectWeight = true,
-                                 bool respectRateabilityProperty = true);
-    virtual qreal averageValueSimple(QList<QSharedPointer<RatingMarkIncident>> list,
-                                 QSharedPointer<Occasion> occasion,
-                                 int digits = -1,
-                                 Enums::RoundingOption rounding = Enums::RoundingOption::ROUND,
-                                 bool respectWeight = true,
-                                 bool respectRateabilityProperty = true);
-    virtual bool shallBeCalculated(QSharedPointer<RatingMarkIncident> inc,
-                           QSharedPointer<Occasion> occasion,
-                           bool respectRateabilityProperty = true);
-
-
     qreal symbolToPercent(QString symbol);
     QString percentToSymbol(qreal percent);
     qreal shortenNumber(qreal nr, int digits, Enums::RoundingOption rounding);
 protected:
-    qreal averageSomeFloatProperty(QList<QSharedPointer<RatingMarkIncident>> list,
-                                       QString propertyName,
-                                       QSharedPointer<Occasion> occasion,
-                                       int digits = -1,
-                                       Enums::RoundingOption rounding = Enums::RoundingOption::ROUND,
-                                       bool respectWeight = true,
-                                       bool respectRateabilityProperty = true);
-
     QString m_name;
     QList<QSharedPointer<RatingMarkDefinition>> m_ratingMarkDefinitions;
     bool m_valuesComputable = false;

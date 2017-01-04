@@ -399,7 +399,7 @@ void EntityManager::removeConnectionName(const QString &name) {
     EntityManager::connectionNames.removeOne(name);
 }
 
-QSharedPointer<Entity> EntityManager::findById(const qint64 &id,
+QSharedPointer<Entity> EntityManager:: findById(const qint64 &id,
                                                QSharedPointer<Entity> &e,
                                                const bool refresh) {
     QSharedPointer<Entity> r;

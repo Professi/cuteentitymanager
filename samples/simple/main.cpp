@@ -6,10 +6,6 @@
 #include "person.h"
 #include "pupil.h"
 #include "group.h"
-#include "address.h"
-#include "contact.h"
-
-#include "occasion.h"
 #include "ratingmarkdefinition.h"
 #include "ratingmarksystem.h"
 #include "ratingmarkincident.h"
@@ -21,12 +17,9 @@
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
     Q_UNUSED(argc) Q_UNUSED(argv);
-    EntityInstanceFactory::registerClass<Address>();
-    EntityInstanceFactory::registerClass<Contact>();
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Pupil>();
     EntityInstanceFactory::registerClass<Group>();
-    EntityInstanceFactory::registerClass<Occasion>();
     EntityInstanceFactory::registerClass<Incident>();
     EntityInstanceFactory::registerClass<RatingMarkDefinition>();
     EntityInstanceFactory::registerClass<RatingMarkIncident>();
@@ -35,9 +28,9 @@ int main(int argc, char *argv[]) {
     QSharedPointer<CuteEntityManager::EntityManager> e =
             QSharedPointer<CuteEntityManager::EntityManager>(new
                                                              CuteEntityManager::EntityManager("QSQLITE",
-                                                                                              QDir::currentPath() + "/db.sqlite"));
+                                                                                              QDir::currentPath() + "/db.sqlite","","","","",true));
     qDebug()<<QDir::currentPath();
-    QStringList inits = QStringList() << "Address" << "Contact" << "Person" << "Pupil" << "Group" << "Incident" << "Occasion" << "RatingMarkDefinition" << "RatingMarkIncident" << "RatingMarkSystem";
+    QStringList inits = QStringList() << "Person" << "Pupil" << "Group" << "Incident" << "RatingMarkDefinition" << "RatingMarkIncident" << "RatingMarkSystem";
     e->startup("0.1", inits);
 
     try {
@@ -50,12 +43,10 @@ int main(int argc, char *argv[]) {
         firstGroup->addPerson(pupil1);
         e->save(QList<QSharedPointer<Entity>>()<<pupil1<<firstGroup);
 
-        QSharedPointer<Occasion> occasion = QSharedPointer<Occasion>(new Occasion(""));
         QSharedPointer<RatingMarkIncident> firstInc = QSharedPointer<RatingMarkIncident>(new RatingMarkIncident());
         firstInc->setAdditionalInfo("addInf");
         firstInc->setBookedAt(QDateTime::currentDateTime());
         firstInc->setBookedFor(QDateTime::currentDateTime());
-        firstInc->setOccasion(occasion);
         firstInc->setPupil(pupil1);
         firstInc->setRateable(true);
         auto system = e->findAll<RatingMarkSystem>().first();
@@ -95,14 +86,14 @@ int main(int argc, char *argv[]) {
         inc->setWeight(1.0);
         inc->setRateable(true);
         inc->setSignatureNeeded(false);
-        inc->setOccasion(e->findById<Occasion>(1));
         auto rateSys = e->findById<RatingMarkSystem>(1);
         e->refresh(rateSys);
         inc->setRatingMarkSystem(rateSys);
         // ---------------------------------------------------------------------
 
         bool success;
-        success = oldInc.isNull() || e->save(oldInc);
+        success &= e->save(inc);
+        success = !oldInc.isNull() && e->save(oldInc);
         // only save new version if old version could is successfully cancelled
         if (success) {
             success &= e->save(inc);

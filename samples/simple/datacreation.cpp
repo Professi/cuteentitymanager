@@ -30,10 +30,5 @@ QList<QSharedPointer<Entity>> DataCreation::createRatingEntities() {
     def2_1p->setPanelRow(1);
     resultList.append(def2_1p);
     rateSystem2Definitions.append(resultList.last().objectCast<RatingMarkDefinition>());
-    ratingSystem2->setRatingMarkDefinitions(rateSystem2Definitions);
-    ratingSystem2->setAdditionalInfo("sys2");
-    auto now = QDateTime::currentDateTime();
-    ratingSystem2->setBookedAt(now);
-    ratingSystem2->setBookedFor(now);
     return resultList;
 }

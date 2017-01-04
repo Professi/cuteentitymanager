@@ -4,7 +4,6 @@
 #include <QObject>
 
 #include "incident.h"
-#include "occasion.h"
 #include "ratingmarksystem.h"
 
 class AppData;
@@ -18,7 +17,6 @@ class RatingMarkIncident : public Incident
     Q_PROPERTY(qreal weight READ weight WRITE setWeight)
     Q_PROPERTY(bool rateable READ rateable WRITE setRateable)
     Q_PROPERTY(bool signatureNeeded READ signatureNeeded WRITE setSignatureNeeded)
-    Q_PROPERTY(QSharedPointer<Occasion> occasion READ occasion WRITE setOccasion)
     // ratingMarkSystem scheint auf den ersten Blick ein Duplikat zu sein, da man es aus AppData
     // (zu AppRatingData gecastet) ermitteln könnte. In der TimeMachine ist es jedoch wichtig, dass
     // bei einem für die App geänderten RatingMarkSystem ein alter RatingMarkIncident noch sein
@@ -42,12 +40,8 @@ public:
     bool rateable() const;
     void setRateable(bool rateable);
 
-    QSharedPointer<Occasion> occasion() const;
-    void setOccasion(const QSharedPointer<Occasion> &occasion);
-
     virtual const QHash<QString, CuteEntityManager::Relation> getRelations() const override;
     virtual InheritanceStrategy getInheritanceStrategy() const override { return InheritanceStrategy::PER_CLASS_TABLE; }
-
 
     QSharedPointer<RatingMarkSystem> ratingMarkSystem() const;
     void setRatingMarkSystem(const QSharedPointer<RatingMarkSystem> &ratingMarkSystem);
@@ -62,7 +56,6 @@ protected:
     qreal m_weight = 1;
     bool m_rateable = true;
     bool m_signatureNeeded = false;
-    QSharedPointer<Occasion> m_occasion = QSharedPointer<Occasion>();
     QSharedPointer<RatingMarkSystem> m_ratingMarkSystem = QSharedPointer<RatingMarkSystem>();
 };
 

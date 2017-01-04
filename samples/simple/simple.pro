@@ -20,10 +20,7 @@ HEADERS += \
     ratingmarksystem.h \
     ratingmarkdefinition.h \
     enums.h \
-    occasion.h \
     datacreation.h \
-    address.h \
-    contact.h \
     group.h \
     person.h \
     pupil.h \
@@ -35,10 +32,7 @@ SOURCES += \
     incident.cpp \
     ratingmarksystem.cpp \
     ratingmarkdefinition.cpp \
-    occasion.cpp \
     datacreation.cpp \
-    address.cpp \
-    contact.cpp \
     group.cpp \
     person.cpp \
     pupil.cpp

@@ -26,10 +26,7 @@ class Incident : public Entity
     Q_PROPERTY(QDateTime cancelledAt READ cancelledAt WRITE setCancelledAt)
 
     Q_PROPERTY(QSharedPointer<Pupil> pupil READ pupil WRITE setPupil)
-//    Q_PROPERTY(QSharedPointer<AppData> appData READ appData WRITE setAppData)
     Q_PROPERTY(QSharedPointer<Group> group READ group WRITE setGroup)
-//    Q_PROPERTY(QSharedPointer<Room> room READ room WRITE setRoom)
-//    Q_PROPERTY(QSharedPointer<SeatingPlan> seatingPlan READ seatingPlan WRITE setSeatingPlan)
 
     Q_PROPERTY(QString additionalInfo READ additionalInfo WRITE setAdditionalInfo)
     Q_PROPERTY(QSharedPointer<Incident> predecessor READ predecessor WRITE setPredecessor)
@@ -92,10 +89,7 @@ protected:
     QDateTime m_bookedAt;
     QDateTime m_cancelledAt;
     QSharedPointer<Pupil> m_pupil;
-//    QSharedPointer<AppData> m_appData;
     QSharedPointer<Group> m_group;
-//    QSharedPointer<Room> m_room;
-//    QSharedPointer<SeatingPlan> m_seatingPlan;
     bool m_cancelled = false;
     bool m_locked = false;
     QString m_additionalInfo;

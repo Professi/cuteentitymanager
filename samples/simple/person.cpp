@@ -1,6 +1,4 @@
 #include "person.h"
-#include "contact.h"
-#include "address.h"
 
 Person::Person(QObject *parent): Entity(parent) {
 }
@@ -18,10 +16,6 @@ Person::Person(QString firstName, QString familyName,
 const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
     hash.insert("groups", CuteEntityManager::Relation("groups",
-                RelationType::MANY_TO_MANY));
-    hash.insert("contacts", CuteEntityManager::Relation("contacts",
-                RelationType::MANY_TO_MANY));
-    hash.insert("addresses", CuteEntityManager::Relation("addresses",
                 RelationType::MANY_TO_MANY));
     return hash;
 }
@@ -89,32 +83,11 @@ QString Person::getCustomPictureFileName() const {
 void Person::setCustomPictureFileName(const QString &value) {
     customPictureFileName = value;
 }
-QList<QSharedPointer<Contact> > Person::getContacts() const {
-    return contacts;
-}
 
-void Person::setContacts(const QList<QSharedPointer<Contact> > &value) {
-    contacts = value;
-}
-QList<QSharedPointer<Address> > Person::getAddresses() const {
-    return addresses;
-}
-
-void Person::setAddresses(const QList<QSharedPointer<Address> > &value) {
-    addresses = value;
-}
 QList<QSharedPointer<Group> > Person::getGroups() const {
     return groups;
 }
 
 void Person::setGroups(const QList<QSharedPointer<Group> > &value) {
     groups = value;
-}
-
-void Person::addContact(Contact *contact) {
-    this->contacts.append(QSharedPointer<Contact>(contact));
-}
-
-void Person::addAddress(Address *address) {
-    this->addresses.append(QSharedPointer<Address>(address));
 }
