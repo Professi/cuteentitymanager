@@ -143,7 +143,16 @@ QVariant &list) {
 
 QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
     QVariant &entity) {
-    return *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
+    auto e = entity.value<QSharedPointer<Entity>>();
+    if(!e) {
+        auto ne = *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
+        if(ne && ne->getClassname() != "Entity") {
+            e = ne;
+        } else {
+            e = QSharedPointer<Entity>();
+        }
+    }
+    return e;
 }
 
 QStringList EntityInstanceFactory::getRegisteredClasses() {
