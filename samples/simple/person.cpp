@@ -18,7 +18,8 @@ Person::Person(QString firstName, QString familyName,
 const QHash<QString, CuteEntityManager::Relation> Person::getRelations() const {
     auto hash = QHash<QString, CuteEntityManager::Relation>();
     hash.insert("groups", CuteEntityManager::Relation("groups",
-                RelationType::MANY_TO_MANY));
+                RelationType::MANY_TO_MANY,
+                QString("persons")));
     hash.insert("contacts", CuteEntityManager::Relation("contacts",
                 RelationType::MANY_TO_MANY));
     hash.insert("addresses", CuteEntityManager::Relation("addresses",
