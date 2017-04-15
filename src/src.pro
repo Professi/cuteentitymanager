@@ -104,7 +104,10 @@ entity.cpp \
     attributeresolver.cpp
 
 windows|android: {
-    include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
+    DEFINES += SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_COMPLETE SQLITE_ENABLE_FTS3 SQLITE_ENABLE_FTS3_PARENTHESIS SQLITE_ENABLE_RTREE
+    !contains(CONFIG, largefile):DEFINES += SQLITE_DISABLE_LFS
+    INCLUDEPATH +=  $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite
+    SOURCES +=      $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.c
 }
 unix:!android: {
     system-sqlite:!contains(LIBS, .*sqlite3.*) {
