@@ -25,11 +25,11 @@ int main(int argc, char *argv[]) {
     EntityInstanceFactory::registerClass<Person>();
     EntityInstanceFactory::registerClass<Pupil>();
     EntityInstanceFactory::registerClass<Group>();
-//    EntityInstanceFactory::registerClass<Occasion>();
-//    EntityInstanceFactory::registerClass<Incident>();
-//    EntityInstanceFactory::registerClass<RatingMarkDefinition>();
-//    EntityInstanceFactory::registerClass<RatingMarkIncident>();
-//    EntityInstanceFactory::registerClass<RatingMarkSystem>();
+    EntityInstanceFactory::registerClass<Occasion>();
+    EntityInstanceFactory::registerClass<Incident>();
+    EntityInstanceFactory::registerClass<RatingMarkDefinition>();
+    EntityInstanceFactory::registerClass<RatingMarkIncident>();
+    EntityInstanceFactory::registerClass<RatingMarkSystem>();
 
 
 
@@ -38,29 +38,24 @@ int main(int argc, char *argv[]) {
                 CuteEntityManager::EntityManager("QSQLITE",
                         QDir::currentPath() + "/db.sqlite"));
     qDebug()<<QDir::currentPath();
-    QStringList inits = QStringList() << "Address" << "Contact" << "Person" << "Pupil" << "Group";
-
-    // << "Incident" << "Occasion" << "RatingMarkDefinition" << "RatingMarkIncident" << "RatingMarkSystem";
+    QStringList inits = QStringList() << "Address" << "Contact" << "Person" << "Pupil" << "Group" << "Incident" << "Occasion" << "RatingMarkDefinition" << "RatingMarkIncident" << "RatingMarkSystem";
     e->startup("0.1", inits);
 
 
-//    auto entities = DataCreation::createRatingEntities();
-//    e->save(entities);
+    auto entities = DataCreation::createRatingEntities();
+    e->save(entities);
 
 //    QSharedPointer<Pupil> pupil = QSharedPointer<Pupil>(new Pupil("Vorname","Nachname","","","Keks"));
 //    e->save(pupil);
 
     QSharedPointer<Pupil> pupil = QSharedPointer<Pupil>(new Pupil());
     pupil->setLegalGuardianNote("note");
-    try {
-    e->save(QList<QSharedPointer<Entity>>()<<pupil);
-    } catch(QString s) {
-    qDebug()<<s;
-    }
+    e->save(pupil);
+
 //    QSharedPointer<Person> person = QSharedPointer<Person>(new Person("Vorname","Nachname","","","Keks"));
 //    e->save(person);
 
-/*
+
 
     QSharedPointer<Occasion> occasion = QSharedPointer<Occasion>(new Occasion("IrgendeinAnlass"));
     QSharedPointer<RatingMarkIncident> inc = QSharedPointer<RatingMarkIncident>(new RatingMarkIncident());
@@ -77,6 +72,6 @@ int main(int argc, char *argv[]) {
     e->save(inc);
 
 
-*/
+
     return 0;
 }
