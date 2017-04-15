@@ -29,7 +29,7 @@ class Group: public CuteEntityManager::Entity {
     void setMainTeacher(const QSharedPointer<Person> &value);
 
     QList<QSharedPointer<Person> > getPersons() const;
-    void addPerson(QSharedPointer<Person> person);
+    void addPerson(Person *person);
     void setPersons(const QList<QSharedPointer<Person> > &value);
 
   protected:

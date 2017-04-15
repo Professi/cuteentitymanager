@@ -16,7 +16,6 @@
 #include "datacreation.h"
 #include "incident.h"
 
-#include "stuff.h"
 
 using namespace CuteEntityManager;
 int main(int argc, char *argv[]) {
@@ -44,80 +43,25 @@ int main(int argc, char *argv[]) {
         auto entities = DataCreation::createRatingEntities();
         e->save(entities);
 
-        QSharedPointer<Pupil> pupil1 = QSharedPointer<Pupil>(new Pupil("Vorname1","Nachname1","","","Keks1"));
-        QSharedPointer<Pupil> pupil2 = QSharedPointer<Pupil>(new Pupil("Vorname2","Nachname2","","","Keks2"));
-        QSharedPointer<Group> firstGroup = QSharedPointer<Group>(new Group());
-        firstGroup->setName("05c");
-        firstGroup->addPerson(pupil1);
-        firstGroup->addPerson(pupil2);
+        QSharedPointer<Pupil> pupil = QSharedPointer<Pupil>(new Pupil("Vorname","Nachname","","","Keks"));
+        pupil->setLegalGuardianNote("note");
 
+        e->save(QList<QSharedPointer<Entity>>()<<pupil);
 
-
-        e->save(QList<QSharedPointer<Entity>>()<<pupil1<<pupil2<<firstGroup);
-
-        QSharedPointer<Occasion> occasion = QSharedPointer<Occasion>(new Occasion(""));
-        QSharedPointer<RatingMarkIncident> firstInc = QSharedPointer<RatingMarkIncident>(new RatingMarkIncident());
-        firstInc->setAdditionalInfo("addInf");
-        firstInc->setBookedAt(QDateTime::currentDateTime());
-        firstInc->setBookedFor(QDateTime::currentDateTime());
-        firstInc->setOccasion(occasion);
-        firstInc->setPupil(pupil1);
-        firstInc->setRateable(true);
-        auto system = e->findAll<RatingMarkSystem>().first();
-        firstInc->setRatingMarkSystem(system);
-        firstInc->setSymbol("NB");
-        firstInc->setValue(0.0);
-        firstInc->setPercentValue(0.0);
-        firstInc->setWeight(1.0);
-        firstInc->setGroup(firstGroup);
-        firstInc->setSignatureNeeded(false);
-        firstInc->setLocked(false);
-
-        e->save(firstInc);
-
-
-// ----------------------------------------------------------------------------------------------------------------------
-        auto oldInc = e->findById<RatingMarkIncident>(1);
-        e->refresh(oldInc, true);
-        e->refresh(oldInc->group());
-        e->refresh(oldInc->pupil());
-        QSharedPointer<RatingMarkIncident> inc = Stuff::makeTwin(oldInc, QDateTime::currentDateTime());
-        if (oldInc) {
-            oldInc->setCancelledAt(QDateTime::currentDateTime());
-        }
-        inc->setCancelledAt(QDateTime());
-        QSharedPointer<Pupil> pupil = e->findById<Pupil>(1);
-        inc->setLocked(false);
+        QSharedPointer<Occasion> occasion = QSharedPointer<Occasion>(new Occasion("IrgendeinAnlass"));
+        QSharedPointer<RatingMarkIncident> inc = QSharedPointer<RatingMarkIncident>(new RatingMarkIncident());
+        inc->setAdditionalInfo("addInf");
         inc->setBookedAt(QDateTime::currentDateTime());
         inc->setBookedFor(QDateTime::currentDateTime());
+        inc->setOccasion(occasion);
         inc->setPupil(pupil);
-
-        auto group = e->findById<Group>(1);
-        e->refresh(group,false);
-        inc->setGroup(group);
-        inc->setSymbol("NB");
-        inc->setPercentValue(0.0);
-        inc->setValue(0.0);
-        inc->setWeight(1.0);
         inc->setRateable(true);
-        inc->setSignatureNeeded(false);
-        inc->setOccasion(e->findById<Occasion>(1));
-        auto rateSys = e->findById<RatingMarkSystem>(1);
-        e->refresh(rateSys);
-        inc->setRatingMarkSystem(rateSys);
+        auto system = e->findAll<RatingMarkSystem>().first();
+        inc->setRatingMarkSystem(system);
+        inc->setSymbol("z");
+        inc->setValue(23);
 
-
-        // ---------------------------------------------------------------------
-
-
-        bool success;
-        success = oldInc.isNull() || e->save(oldInc);
-        // only save new version if old version could is successfully cancelled
-        if (success) {
-            success &= e->save(inc);
-            success &= inc->getId() >= 0; // check
-        }
-
+        e->save(inc);
 
     } catch(QString s) {
         qDebug()<<s;

@@ -34,8 +34,8 @@ QList<QSharedPointer<Person> > Group::getPersons() const {
     return persons;
 }
 
-void Group::addPerson(QSharedPointer<Person> person) {
-    this->persons.append(person);
+void Group::addPerson(Person *person) {
+    this->persons.append(QSharedPointer<Person>(person));
 }
 
 void Group::setPersons(const QList<QSharedPointer<Person> > &value) {
