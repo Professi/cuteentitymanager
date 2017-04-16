@@ -8,6 +8,9 @@ void QuerybuilderTest::initTestCase() {
     CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
     this->e = new CuteEntityManager::EntityManager("QSQLITE", ":memory:", "", "", "", "",
             true, "foreign_keys = ON", false);
+//    this->e = new
+//            CuteEntityManager::EntityManager("QSQLITE",
+//                    QDir::currentPath() + "/db.sqlite");
     QStringList inits = QStringList() << "Person" << "Group" << "Employee" << "WorkerGroup";
     QVERIFY2(this->e->startup("queryBuilderTest", inits), "Failure");
     QSharedPointer<Person> p1 = QSharedPointer<Person>(new Person("Lucien", "We",

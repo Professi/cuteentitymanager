@@ -91,6 +91,8 @@ void EntityInstanceFactory::setAttributes(Entity *&e,
                     qWarning() << prop.name() << "on Entity" << EntityHelper::getClassname(
                                    e) << "not writeable!";
                 }
+            } else {
+                e->setProperty(iterator.key().toLatin1().data(), iterator.value());
             }
             ++iterator;
         }
@@ -145,11 +147,10 @@ QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
     QVariant &entity) {
     auto e = entity.value<QSharedPointer<Entity>>();
     if(!e) {
-        auto ne = *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
-        if(ne && ne->getClassname() != "Entity") {
-            e = ne;
-        } else {
-            e = QSharedPointer<Entity>();
+        auto ne = *static_cast<QSharedPointer<QObject>*>(entity.data());
+        auto entityPtr = ne.objectCast<Entity>();
+        if(entityPtr) {
+            e = entityPtr;
         }
     }
     return e;
