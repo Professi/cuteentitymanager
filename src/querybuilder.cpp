@@ -1060,6 +1060,7 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
                 if (e) {
                     this->insertRelationId(e.data(), map, i.key());
                 }
+            }
         }
         ++i;
     }
