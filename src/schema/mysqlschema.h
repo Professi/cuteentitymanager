@@ -5,7 +5,7 @@ namespace CuteEntityManager {
 class TableSchema;
 class MysqlSchema : public Schema {
   public:
-    MysqlSchema(QSharedPointer<Database> database);
+    explicit MysqlSchema(QSharedPointer<Database> database);
     QSharedPointer<QHash<QString, QString> > getTypeMap() override;
 
 protected:

@@ -35,7 +35,9 @@ bool Cache::contains(const QString &key) {
 }
 
 void Cache::clear() {
+    this->mutex.lock();
     this->cache.clear();
+    this->mutex.unlock();
 }
 
 void Cache::insert(QSharedPointer<Entity> &entity) {
@@ -45,17 +47,24 @@ void Cache::insert(QSharedPointer<Entity> &entity) {
         if (this->cache.contains(key)) {
             QSharedPointer<Entity> ptr = this->cache.value(key).toStrongRef();
             if (ptr) {
+                this->mutex.lock();
                 ptr.swap(entity);
+                this->mutex.unlock();
+                ptr = this->cache.value(key).toStrongRef();
                 return;
             }
         }
+        this->mutex.lock();
         this->cache.insert(key, entity.toWeakRef());
+        this->mutex.unlock();
     }
 }
 
 void Cache::remove(const QSharedPointer<Entity> &entity) {
     if (entity.data() && entity->getId() > -1) {
+        this->mutex.lock();
         this->remove(entity->getId(), EntityHelper::getClassName(entity.data()));
+        this->mutex.unlock();
     }
 }
 
@@ -66,10 +75,12 @@ void Cache::remove(const qint64 &id, const QString &classname) {
 QSharedPointer<Entity> Cache::get(qint64 id, const QString &classname) {
     QString key = this->generateKey(id, classname);
     if (this->contains(key)) {
+        this->mutex.lock();
         QSharedPointer<Entity> ptr = this->cache.value(key).toStrongRef();
         if (!ptr) {
             this->remove(id, classname);
         }
+        this->mutex.unlock();
         return ptr;
     }
     return QSharedPointer<Entity>();

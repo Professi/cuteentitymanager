@@ -70,6 +70,6 @@ int main(int argc, char *argv[]) {
     qDebug() << a1->getErrorsAsString();
     qDebug() << "a2 valid:" << e->validate(a2);
     qDebug() << a2->getErrorsAsString();
-
+    delete e;
     return 0;
 }

@@ -20,7 +20,7 @@ namespace CuteEntityManager {
 class TableSchema;
 class SqliteSchema : public Schema {
   public:
-    SqliteSchema(QSharedPointer<Database> database);
+    explicit SqliteSchema(QSharedPointer<Database> database);
     ~SqliteSchema();
     QSharedPointer<QHash<QString, QString> > getTypeMap() override;
   protected:

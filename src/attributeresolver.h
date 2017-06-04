@@ -8,7 +8,7 @@ namespace CuteEntityManager {
 class QueryBuilder;
 class AttributeResolver {
   public:
-    AttributeResolver(QSharedPointer<QueryBuilder> queryBuilder);
+    explicit AttributeResolver(QSharedPointer<QueryBuilder> queryBuilder);
     virtual ~AttributeResolver();
     bool containsAttribute(const QString &className, const QString &attribute) const;
     Attribute* resolveAttribute(const QString &className, const QString &attribute,

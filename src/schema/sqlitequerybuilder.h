@@ -19,7 +19,7 @@
 namespace CuteEntityManager {
 class SqliteQueryBuilder : public QueryBuilder {
   public:
-    SqliteQueryBuilder(Schema *schema,
+    explicit SqliteQueryBuilder(Schema *schema,
                        QSharedPointer<Database> database);
     ~SqliteQueryBuilder();
 

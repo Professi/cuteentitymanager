@@ -133,5 +133,6 @@ int main(int argc, char *argv[]) {
     //sqliteproc->sqliteDBMemFile(true, "db.sqlite");
     qWarning() << "Duration:" << t.elapsed();
 //    delete sqliteproc;
+    delete e;
     return 0;
 }

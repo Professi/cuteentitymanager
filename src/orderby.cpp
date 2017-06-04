@@ -27,6 +27,7 @@ OrderBy::OrderBy(QString column, Direction direction) {
 
 OrderBy::OrderBy(Expression direction) {
     this->column = "";
+    this->direction = Direction::DEFAULT;
     this->expressedDirection = direction;
 }
 

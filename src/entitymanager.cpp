@@ -634,7 +634,7 @@ void EntityManager::removeRelations(const QSharedPointer<Entity> &entity) {
                 this->setNullOneToManyRelation(var, r);
             }
         }  else if (r.getType() == RelationType::MANY_TO_ONE
-                    || r.getType() == RelationType::MANY_TO_ONE) {
+                    || r.getType() == RelationType::ONE_TO_ONE) {
             this->setNullEntityPropertyRelation(var, r);
         }
     }

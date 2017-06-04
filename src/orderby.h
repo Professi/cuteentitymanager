@@ -30,7 +30,7 @@ class OrderBy {
   public:
     OrderBy();
     explicit OrderBy(QString column, Direction direction = Direction::DEFAULT);
-    OrderBy(Expression direction);
+    explicit OrderBy(Expression direction);
     QString getColumn() const;
     void setColumn(const QString &value);
 

@@ -88,13 +88,13 @@ bool SqliteBackupProcessor::sqliteDBMemFile(bool save, QString fileName) {
             const char *zFilename = array.data();
             int rc;                   /* Function return code */
             sqlite3 *pFile;           /* Database connection opened on zFilename */
-            sqlite3_backup *pBackup;  /* Backup object used to copy data */
-            sqlite3 *pTo;             /* Database to copy to (pFile or pInMemory) */
-            sqlite3 *pFrom;           /* Database to copy from (pFile or pInMemory) */
             /* Open the database file identified by zFilename. Exit early if this fails
             ** for any reason. */
             rc = sqlite3_open( zFilename, &pFile );
             if ( rc == SQLITE_OK ) {
+                sqlite3_backup *pBackup;  /* Backup object used to copy data */
+                sqlite3 *pTo;             /* Database to copy to (pFile or pInMemory) */
+                sqlite3 *pFrom;           /* Database to copy from (pFile or pInMemory) */
                 /* If this is a 'load' operation (isSave==0), then data is copied
                 ** from the database file just opened to database pInMemory.
                 ** Otherwise, if this is a 'save' operation (isSave==1), then data

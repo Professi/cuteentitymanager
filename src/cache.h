@@ -17,6 +17,7 @@
 #define CACHE_H
 #include <QHash>
 #include <QWeakPointer>
+#include <QMutex>
 #include <QSharedPointer>
 #include "entityinstancefactory.h"
 #include "entity.h"
@@ -55,8 +56,9 @@ class Cache {
     template<class T> QSharedPointer<Entity> get(qint64 id) {
         Entity *e = EntityInstanceFactory::createInstance<T>();
         if (e) {
-            return this->get(id, QString(EntityHelper::getClassname(e)));
+            auto r = this->get(id, QString(EntityHelper::getClassname(e)));
             delete e;
+            return r;
         }
         return QSharedPointer<Entity>();
     }
@@ -65,6 +67,7 @@ class Cache {
     QString generateKey(qint64 id, const QString &classname) const;
   private:
     QHash<QString, QWeakPointer<Entity>> cache;
+    QMutex mutex;
 };
 }
 

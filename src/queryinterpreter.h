@@ -27,7 +27,7 @@ class Expression;
 class AttributeResolver;
 class QueryInterpreter {
   public:
-    QueryInterpreter(QSharedPointer<AttributeResolver> ar);
+    explicit QueryInterpreter(QSharedPointer<AttributeResolver> ar);
     QSqlQuery build(Query &q, const QMetaObject *obj = nullptr);
 
   protected:
