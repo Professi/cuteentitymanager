@@ -1055,9 +1055,11 @@ QHash<QString, QVariant> QueryBuilder::getManyToOneAttributes(
         if ((r.getType() == RelationType::MANY_TO_ONE && props.contains(i.key()))
                 || (r.getType() == RelationType::ONE_TO_ONE && r.getMappedBy().isEmpty())) {
             auto v = props.value(i.key()).read(entity.data());
-            QSharedPointer<Entity> e = EntityInstanceFactory::castQVariant(v);
-            if (e) {
-                this->insertRelationId(e.data(), map, i.key());
+            if (v.isValid()) {
+                QSharedPointer<Entity> e = EntityInstanceFactory::castQVariant(v);
+                if (e) {
+                    this->insertRelationId(e.data(), map, i.key());
+                }
             }
         }
         ++i;
