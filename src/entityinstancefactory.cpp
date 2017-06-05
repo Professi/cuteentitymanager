@@ -146,6 +146,19 @@ QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
     return *reinterpret_cast<QSharedPointer<Entity>*>(entity.data());
 }
 
+//QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
+//    QVariant &entity) {
+//    auto e = entity.value<QSharedPointer<Entity>>();
+//    if(!e) {
+//        auto ne = *static_cast<QSharedPointer<QObject>*>(entity.data());
+//        auto entityPtr = ne.objectCast<Entity>();
+//        if(entityPtr) {
+//            e = entityPtr;
+//        }
+//    }
+//    return e;
+//}
+
 QStringList EntityInstanceFactory::getRegisteredClasses() {
     QStringList registered = QStringList();
     for (auto i = EntityInstanceFactory::instance.constBegin();

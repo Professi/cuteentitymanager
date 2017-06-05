@@ -31,6 +31,7 @@ EntityInspector::~EntityInspector() {
 
 bool EntityInspector::checkRegisteredEntities() {
     QStringList classes = EntityInstanceFactory::getRegisteredClasses();
+    classes.sort();
     QString msg = QDateTime::currentDateTime().toString(Qt::ISODate) +
                   " - Start checking entities\n";
     this->logger->logMsg(msg, MsgType::INFO);
