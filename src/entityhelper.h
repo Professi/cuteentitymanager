@@ -68,6 +68,10 @@ class EntityHelper {
     static QHash<QString, QVariant> getEntityAttributes(const
             QHash<QString, QMetaProperty> &props,
             const QSharedPointer<Entity> &entity);
+    static const QString internalString();
+    static const QList<qint64> getIds(QList<QSharedPointer<Entity>> entities);
+    static const QVariant getIdsAsVariant(QList<QSharedPointer<Entity>> entities);
+
 };
 }
 

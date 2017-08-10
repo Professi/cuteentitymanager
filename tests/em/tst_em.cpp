@@ -134,7 +134,6 @@ void EmTest::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns,
     QVERIFY(containsColumn);
     if(containsColumn) {
         auto column = columns.value(name);
-        qDebug() << name << column->type() << type;
         if(type != QVariant::UserType) {
             QCOMPARE(column->type(), type);
         }
@@ -350,7 +349,6 @@ void EmTest::testRelations() {
     p3->setGroups(groups);
     QVERIFY(this->e->save(pEnt, true, true));
     this->e->refresh(g);
-    qDebug() << g->getPersons().size();
     QVERIFY(g->getPersons().size() == 2);
     auto firstPerson = g->getPersons().first();
     g->removePerson(firstPerson);
