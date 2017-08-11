@@ -41,7 +41,15 @@ class Entity : public QObject {
 #define EM_MACRO(type) \
     virtual void setListProperty(const QSharedPointer<Entity> &e,QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  override { \
         QList<QSharedPointer<type>> list = *reinterpret_cast<QList<QSharedPointer<type>>*>(&entList); \
-        property.write(e.data(), QVariant::fromValue(list)); \
+        QVariant var; \
+        var.setValue<QList<QSharedPointer<type>>>(list); \
+        property.write(e.data(), var); \
+    } \
+    virtual void setProperty(const QSharedPointer<Entity> &e,QSharedPointer<Entity> &value, const QMetaProperty &property)  override { \
+        QSharedPointer<type> en = *reinterpret_cast<QSharedPointer<type>*>(&value); \
+        QVariant var; \
+        var.setValue<QSharedPointer<type>>(en); \
+        property.write(e.data(), var); \
     }
 
   public:
@@ -80,9 +88,7 @@ class Entity : public QObject {
     void setErrors(const QList<ErrorMsg> &value);
     virtual void setListProperty(const QSharedPointer<Entity> &e, QList<QSharedPointer<Entity>> &entList,
                                  const QMetaProperty &property) = 0;
-    virtual void setProperty(const QSharedPointer<Entity> &e, QSharedPointer<Entity> value, const QMetaProperty &property);
-    QString internalRelationName(const QString &name);
-
+    virtual void setProperty(const QSharedPointer<Entity> &e, QSharedPointer<Entity> &value, const QMetaProperty &property) = 0;
 
   protected:
     explicit Entity (QObject *parent = 0);

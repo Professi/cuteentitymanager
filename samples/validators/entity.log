@@ -1,0 +1,42 @@
+2017-06-05T15:14:21 - Start checking entities
+--------------------
+Checking Address now.
+Address is instantiable.
+Entity class Address seems ok.
+--------------------
+Checking Person now.
+Person is instantiable.
+Entity class Person seems ok.
+--------------------
+Checking CuteEntityManager::DatabaseMigration now.
+CuteEntityManager::DatabaseMigration is instantiable.
+Entity class CuteEntityManager::DatabaseMigration seems ok.
+2017-06-05T15:14:21 - End checking entities
+2017-06-05T15:18:56 - Start checking entities
+--------------------
+Checking Address now.
+Address is instantiable.
+Entity class Address seems ok.
+--------------------
+Checking Person now.
+Person is instantiable.
+Entity class Person seems ok.
+--------------------
+Checking CuteEntityManager::DatabaseMigration now.
+CuteEntityManager::DatabaseMigration is instantiable.
+Entity class CuteEntityManager::DatabaseMigration seems ok.
+2017-06-05T15:18:56 - End checking entities
+2017-08-10T22:09:53 - Start checking entities
+--------------------
+Checking CuteEntityManager::DatabaseMigration now.
+CuteEntityManager::DatabaseMigration is instantiable.
+Entity class CuteEntityManager::DatabaseMigration seems ok.
+--------------------
+Checking Person now.
+Person is instantiable.
+Entity class Person seems ok.
+--------------------
+Checking Address now.
+Address is instantiable.
+Entity class Address seems ok.
+2017-08-10T22:09:53 - End checking entities

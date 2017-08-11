@@ -1,0 +1,14 @@
+INPUT(
+./debug/main.o
+./debug/person.o
+./debug/group.o
+./debug/pupil.o
+./debug/address.o
+./debug/contact.o
+./debug/createfakemodeldata.o
+./debug/moc_person.o
+./debug/moc_group.o
+./debug/moc_pupil.o
+./debug/moc_address.o
+./debug/moc_contact.o
+);

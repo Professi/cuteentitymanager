@@ -24,7 +24,7 @@ EntityHelper::EntityHelper() {
 }
 
 const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(
-        const Entity *entity) {
+    const Entity *entity) {
     auto relations = entity->getRelations();
     auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
     if (superObject) {
@@ -41,14 +41,14 @@ const QHash<QString, Relation> EntityHelper::getNonInheritedRelations(
 }
 
 const QList<const QMetaObject *> EntityHelper::superClasses(
-        const Entity *entity, bool
-        stopAtSingleTableInheritance) {
+    const Entity *entity, bool
+    stopAtSingleTableInheritance) {
     QList<const QMetaObject *> classes = QList<const QMetaObject *>();
     auto superMetaObject = entity->metaObject()->superClass();
     if (entity->getInheritanceStrategy() == InheritanceStrategy::JOINED_TABLE) {
         Entity *e = nullptr;
         while (superMetaObject && QString(superMetaObject->className()) !=
-               QString("CuteEntityManager::Entity")) {
+                QString("CuteEntityManager::Entity")) {
             e = EntityInstanceFactory::createInstance(superMetaObject->className());
             if (e) {
                 classes.append(superMetaObject);
@@ -68,12 +68,12 @@ const QList<const QMetaObject *> EntityHelper::superClasses(
 }
 
 const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
-        const Entity *entity) {
+    const Entity *entity) {
     return EntityHelper::getMetaProperties(entity->metaObject());
 }
 
 const QHash<QString, QMetaProperty> EntityHelper::getSuperMetaProperties(
-        const Entity *entity) {
+    const Entity *entity) {
     auto superMetaObjectPropertyMap = QHash<QString, QMetaProperty>();
     auto superMeta = entity->metaObject()->superClass();
     if (QString(superMeta->className()) != QString("CuteEntityManager::Entity")
@@ -89,7 +89,7 @@ const QHash<QString, QMetaProperty> EntityHelper::getSuperMetaProperties(
 }
 
 const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
-        const QMetaObject *object) {
+    const QMetaObject *object) {
     auto h = QHash<QString, QMetaProperty>();
     for (int var = 0; var < object->propertyCount(); ++var) {
         QMetaProperty m = object->property(var);
@@ -101,13 +101,13 @@ const QHash<QString, QMetaProperty> EntityHelper::getMetaProperties(
 }
 
 const QHash<QString, QMetaProperty> EntityHelper::getNonInheritedMetaProperties(
-        const Entity *entity) {
+    const Entity *entity) {
     auto props = EntityHelper::getMetaProperties(entity);
     auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
     if (superObject) {
         auto superProps = EntityHelper::getMetaProperties(superObject);
         for (auto iterator = superProps.constBegin(); iterator != superProps.constEnd();
-             ++iterator) {
+                ++iterator) {
             if (props.contains(iterator.key())) {
                 props.remove(iterator.key());
             }
@@ -119,7 +119,7 @@ const QHash<QString, QMetaProperty> EntityHelper::getNonInheritedMetaProperties(
 }
 
 const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(
-        const Entity *entity) {
+    const Entity *entity) {
     auto props = EntityHelper::getMetaProperties(entity);
     auto superObject = EntityInstanceFactory::newSuperClassInstance(entity);
     auto wholeProperties = QHash<QString, QMetaProperty>();
@@ -138,7 +138,7 @@ const QHash<QString, QMetaProperty> EntityHelper::getInheritedMetaProperties(
 }
 
 const QHash<Relation, QMetaProperty> EntityHelper::getRelationProperties(
-        const Entity *entity) {
+    const Entity *entity) {
     auto h = QHash<Relation, QMetaProperty>();
     if(entity) {
         auto relations = entity->getRelations();
@@ -167,7 +167,7 @@ Entity* EntityHelper::copyObject(const Entity *entity) {
 }
 
 Entity *EntityHelper::getBaseClassObject(const QSharedPointer<Entity> &entity,
-                                         QString attributeName) {
+        QString attributeName) {
     auto superObject = EntityInstanceFactory::createInstance(entity->metaObject());
     auto objectBefore = superObject;
     bool first = true;
@@ -197,11 +197,11 @@ const QString EntityHelper::getClassName(const Entity *entity) {
 }
 
 void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
-                                           &entity, QSharedPointer<Entity> add, const QMetaProperty &property) {
+        &entity, QSharedPointer<Entity> add, const QMetaProperty &property) {
     QVariant var = property.read(entity.data());
     QList<QSharedPointer<Entity>> list = (!var.isNull() && var.data() &&
                                           var.canConvert<QList<QVariant>>() ? EntityInstanceFactory::castQVariantList(
-                                                                                  var) : QList<QSharedPointer<Entity>>());
+                                                  var) : QList<QSharedPointer<Entity>>());
     if (!list.contains(add)) {
         list.append(add);
         EntityHelper::setListProperty(entity, list, property);
@@ -209,7 +209,7 @@ void EntityHelper::addEntityToListProperty(const QSharedPointer<Entity>
 }
 
 void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
-                                                &entity, QSharedPointer<Entity> remove, const QMetaProperty &property) {
+        &entity, QSharedPointer<Entity> remove, const QMetaProperty &property) {
     QVariant var = property.read(entity.data());
     if (!var.isNull() && var.canConvert<QList<QVariant>>()) {
         auto list = EntityInstanceFactory::castQVariantList(var);
@@ -225,7 +225,7 @@ void EntityHelper::removeEntityFromListProperty(const QSharedPointer<Entity>
 }
 
 void EntityHelper::clearEntityListProperty(const QSharedPointer<Entity> &entity,
-                                           const QMetaProperty &property) {
+        const QMetaProperty &property) {
     QVariant var = property.read(entity.data());
     if (var.canConvert<QList<QVariant>>()) {
         auto list = EntityInstanceFactory::castQVariantList(var);
@@ -241,9 +241,8 @@ void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
             > -1) {
         auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
         if(i) {
-            entity->setProperty(property.name() + EntityHelper::internalString(), value->getId());
-            i->setProperty(entity, value, property);
-            delete i;
+        i->setProperty(entity, value, property);
+        delete i;
         }
     }
 }
@@ -252,15 +251,14 @@ void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
                                    QList<QSharedPointer<Entity>> &value, const QMetaProperty &property) {
     auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
     if(i) {
-        entity->setProperty(property.name()+EntityHelper::internalString(),EntityHelper::getIdsAsVariant(value));
-        i->setListProperty(entity, value, property);
-        delete i;
+    i->setListProperty(entity, value, property);
+    delete i;
     }
 }
 
 
 QMetaProperty EntityHelper::mappedProperty(const Relation &r,
-                                           const QSharedPointer<Entity> &foreignEntity) {
+        const QSharedPointer<Entity> &foreignEntity) {
     QMetaProperty prop;
     auto props = EntityHelper::getMetaProperties(foreignEntity.data());
     if (!r.getMappedBy().isEmpty() && props.contains(r.getMappedBy())) {
@@ -268,7 +266,7 @@ QMetaProperty EntityHelper::mappedProperty(const Relation &r,
     } else {
         auto relations = foreignEntity->getRelations();
         for (auto iterator = relations.constBegin(); iterator != relations.constEnd();
-             ++iterator) {
+                ++iterator) {
             auto rel = iterator.value();
             if (rel.getMappedBy() == r.getPropertyName()) {
                 prop = props.value(rel.getPropertyName());
@@ -280,9 +278,9 @@ QMetaProperty EntityHelper::mappedProperty(const Relation &r,
 }
 
 QHash<QString, QVariant> EntityHelper::getEntityAttributes(
-        const QHash<QString, QMetaProperty>
-        &props,
-        const QSharedPointer<Entity> &entity) {
+    const QHash<QString, QMetaProperty>
+    &props,
+    const QSharedPointer<Entity> &entity) {
     auto map = QHash<QString, QVariant>();
     auto transientAttrs = entity->getTransientAttributes();
     auto relations = entity->getRelations();
@@ -298,23 +296,4 @@ QHash<QString, QVariant> EntityHelper::getEntityAttributes(
         ++i;
     }
     return map;
-}
-
-const QString EntityHelper::internalString() {
-    return QString("_em_internal");
-}
-
-const QList<qint64> EntityHelper::getIds(QList<QSharedPointer<Entity> > entities) {
-    QList<qint64> l = QList<qint64>();
-    for(int i=0; i<entities.size(); ++i) {
-        auto e = entities.at(i);
-        l.append(e->getId());
-    }
-    return l;
-}
-
-const QVariant EntityHelper::getIdsAsVariant(QList<QSharedPointer<Entity> > entities) {
-    QVariant var;
-    var.setValue<QList<qint64>>(EntityHelper::getIds(entities));
-    return var;
 }
