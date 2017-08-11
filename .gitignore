@@ -2,11 +2,3 @@
 *build
 build*
 *.swp
-Makefile
-moc_*
-*Makefile
-*Makefile*
-*moc_*
-*.o
-*.exe
-*object_script*
