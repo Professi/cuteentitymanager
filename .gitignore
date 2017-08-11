@@ -2,3 +2,5 @@
 *build
 build*
 *.swp
+Makefile
+moc_*
