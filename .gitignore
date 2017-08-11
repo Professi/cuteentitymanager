@@ -4,3 +4,7 @@ build*
 *.swp
 Makefile
 moc_*
+*Makefile
+*Makefile*
+*moc_*
+
