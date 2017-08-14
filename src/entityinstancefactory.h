@@ -36,11 +36,7 @@ class EntityInstanceFactory {
     static const QString extractEntityType(const QString &s);
     static Entity *newSuperClassInstance(const Entity *e);
     static Entity *createInstance(const QMetaObject *object);
-<<<<<<< HEAD
     static const QList<QSharedPointer<Entity>> castQVariantList(QVariant &list);
-=======
-    static QList<QSharedPointer<Entity>> castQVariantList(QVariant &list);
->>>>>>> parent of 2c89eb9... Merge branch 'seb' of ssh://synlos.net/entitymanager into dev
     static const QSharedPointer<Entity> castQVariant(QVariant &entity);
     static QStringList getRegisteredClasses();
 
