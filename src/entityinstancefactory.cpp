@@ -138,7 +138,7 @@ Entity *EntityInstanceFactory::createInstance(const QMetaObject *object) {
     return EntityInstanceFactory::createInstance(object->className());
 }
 
-QList<QSharedPointer<Entity>> EntityInstanceFactory::castQVariantList(
+const QList<QSharedPointer<Entity>> EntityInstanceFactory::castQVariantList(
         QVariant &list) {
     if(!list.isNull() && list.isValid()) {
         return *reinterpret_cast<QList<QSharedPointer<Entity>>*>(list.data());
