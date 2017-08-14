@@ -85,10 +85,6 @@ void Entity::setErrors(const QList<ErrorMsg> &value) {
     this->errors = value;
 }
 
-void Entity::setProperty(const QSharedPointer<Entity> &e, QSharedPointer<Entity> value, const QMetaProperty &property) {
-    property.write(e.data(), QVariant::fromValue(value));
-}
-
 Entity::~Entity() {
 }
 

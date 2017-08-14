@@ -37,7 +37,7 @@ class EntityInstanceFactory {
     static Entity *newSuperClassInstance(const Entity *e);
     static Entity *createInstance(const QMetaObject *object);
     static QList<QSharedPointer<Entity>> castQVariantList(QVariant &list);
-    static const QSharedPointer<Entity> castQVariant(QVariant &entity);
+    static QSharedPointer<Entity> castQVariant(QVariant &entity);
     static QStringList getRegisteredClasses();
 
     template<typename T>
