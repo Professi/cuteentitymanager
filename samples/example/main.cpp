@@ -62,8 +62,8 @@ int main(int argc, char *argv[]) {
     CreateFakeModelData::fillGroup(gPtr.data());
     gPtr->setName("9b");
     QSharedPointer<Entity> groupPtr = gPtr.objectCast<Entity>();
-    QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Max",
-                                         "Mustermann", Person::Gender::MALE));
+    QSharedPointer<Person> mainTeacher = QSharedPointer<Person>(new Person("Julia",
+                                         "Musterfrau", Person::Gender::MALE));
     gPtr->setMainTeacher(mainTeacher);
     //Persons will also persisted
     if (e->count(groupPtr->getTablename()) <= 0) {

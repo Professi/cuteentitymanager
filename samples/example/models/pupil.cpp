@@ -26,10 +26,3 @@ QString Pupil::getLegalGuardianNote() const {
 void Pupil::setLegalGuardianNote(const QString &value) {
     legalGuardianNote = value;
 }
-
-const QHash<QString, Relation> Pupil::getRelations() const {
-    auto hash = Person::getRelations();
-    hash.insert("groups", CuteEntityManager::Relation("groups",
-                RelationType::MANY_TO_MANY));
-    return hash;
-}

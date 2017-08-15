@@ -426,7 +426,7 @@ void EntityManager::manyToOne(const QSharedPointer<Entity> &entity,
               && (ptr = this->cache.get(convertedId, className)))) {
             ptr = this->findById(convertedId, className);
         }
-        EntityHelper::setProperty(entity,ptr,attr->getMetaProperty());
+        EntityHelper::setFoundProperty(entity,ptr,attr->getMetaProperty());
     }
 }
 
@@ -465,7 +465,7 @@ void EntityManager::oneToOne(const QSharedPointer<Entity> &entity,
             auto entities = this->convert(listMap, EntityHelper::getClassname(e.data()));
             if (!entities.isEmpty()) {
                 QSharedPointer<Entity> ptr = entities.at(0);
-                EntityHelper::setProperty(entity, ptr, attr->getMetaProperty());
+                EntityHelper::setFoundProperty(entity, ptr, attr->getMetaProperty());
             }
         }
     }
@@ -746,7 +746,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
                                           EntityInstanceFactory::extractEntityType(QString(property.typeName()))));
     auto builder = this->schema->getQueryBuilder();
-    QString tblName = builder->generateManyToManyTableName(entity, ptr, r);
+    QString tblName = builder->generateManyToManyTableName(ptr, entity, r);
     if (this->schema->containsTable(tblName)) {
         bool ok = newItem;
         QSqlQuery q;

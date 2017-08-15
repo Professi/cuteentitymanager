@@ -60,6 +60,9 @@ public:
     static void setProperty(const QSharedPointer<Entity> &entity,
                             QSharedPointer<Entity> value,
                             const QMetaProperty &property);
+    static void setFoundProperty(const QSharedPointer<Entity> &entity,
+                            QSharedPointer<Entity> value,
+                            const QMetaProperty &property);
     static void setListProperty(const QSharedPointer<Entity> &entity,
                                 QList<QSharedPointer<Entity>> &value,
                                 const QMetaProperty &property);

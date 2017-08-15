@@ -247,6 +247,19 @@ void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
     }
 }
 
+void EntityHelper::setFoundProperty(const QSharedPointer<Entity> &entity,
+                               QSharedPointer<Entity> value,
+                               const QMetaProperty &property) {
+    if (value && value->getProperty(value->getPrimaryKey()).toLongLong()
+            > -1) {
+        auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
+        if(i) {
+            i->setFoundProperty(entity, value, property);
+            delete i;
+        }
+    }
+}
+
 void EntityHelper::setListProperty(const QSharedPointer<Entity> &entity,
                                    QList<QSharedPointer<Entity>> &value, const QMetaProperty &property) {
     auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));

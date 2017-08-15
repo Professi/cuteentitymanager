@@ -425,6 +425,14 @@ const {
     return map;
 }
 
+/**
+ * @todo Fix TableName Generation with Inheritence
+ * @brief QueryBuilder::generateManyToManyTableName
+ * @param firstEntity
+ * @param secondEntity
+ * @param r
+ * @return
+ */
 QString QueryBuilder::generateManyToManyTableName(const QSharedPointer<Entity>
         &firstEntity,
         const QSharedPointer<Entity> &secondEntity, const Relation &r) const {
