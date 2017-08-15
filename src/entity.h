@@ -35,15 +35,16 @@ class Entity : public QObject {
     Q_OBJECT
     Q_PROPERTY(qint64 id READ getId WRITE setId NOTIFY idChanged)
 
-  signals:
+signals:
     void idChanged();
 
 #define EM_MACRO(type) \
     virtual void setListProperty(const QSharedPointer<Entity> &e,QList<QSharedPointer<Entity>> &entList, const QMetaProperty &property)  override { \
-        property.write(e.data(), QVariant::fromValue(list)); \
-    }
+    QList<QSharedPointer<type>> list = *reinterpret_cast<QList<QSharedPointer<type>>*>(&entList); \
+    property.write(e.data(), QVariant::fromValue(list)); \
+}
 
-  public:
+public:
     virtual QString toString() const;
     /**
      * @brief copy
@@ -79,9 +80,9 @@ class Entity : public QObject {
     void setErrors(const QList<ErrorMsg> &value);
     virtual void setListProperty(const QSharedPointer<Entity> &e, QList<QSharedPointer<Entity>> &entList,
                                  const QMetaProperty &property) = 0;
-    virtual void setProperty(const QSharedPointer<Entity> &e, QSharedPointer<Entity> &value, const QMetaProperty &property);
+    virtual void setProperty(const QSharedPointer<Entity> &e, const QSharedPointer<Entity> &value, const QMetaProperty &property);
 
-  protected:
+protected:
     explicit Entity (QObject *parent = 0);
     virtual QString slimToString() const;
     QList<ErrorMsg> errors;

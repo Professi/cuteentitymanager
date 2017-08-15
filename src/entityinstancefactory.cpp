@@ -22,7 +22,7 @@ using namespace CuteEntityManager;
 
 QHash<QByteArray, EntityInstanceFactory::Constructor>
 EntityInstanceFactory::instance =
-    QHash<QByteArray, EntityInstanceFactory::Constructor>();
+        QHash<QByteArray, EntityInstanceFactory::Constructor>();
 
 EntityInstanceFactory::EntityInstanceFactory() {
 }
@@ -33,7 +33,7 @@ Entity *EntityInstanceFactory::createInstance(const char *className) {
         s.append("*");
     }
     auto ptr = EntityInstanceFactory::createInstance(QMetaType::type(
-                   s.toUtf8().constData()));
+                                                         s.toUtf8().constData()));
     if (!ptr) {
         s.remove("*");
         ptr = EntityInstanceFactory::createObject(s.toUtf8());
@@ -54,7 +54,7 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
             if(!e) {
                 e = qobject_cast<Entity *>(metaObject->newInstance());
                 qDebug() << "Backup method for dynamic object creation was called. Maybe the class " +
-                         QString(metaObject->className()) + " isn't registered?";
+                            QString(metaObject->className()) + " isn't registered?";
             }
         } else {
             void *newObj = QMetaType::create(metaTypeId);
@@ -67,15 +67,15 @@ Entity *EntityInstanceFactory::createInstance(int metaTypeId) {
 }
 
 Entity *EntityInstanceFactory::createInstance(const char *className,
-        const QHash<QString, QVariant> &attributes) {
+                                              const QHash<QString, QVariant> &attributes) {
     Entity *e = EntityInstanceFactory::createInstance(className);
     EntityInstanceFactory::setAttributes(e, attributes);
     return e;
 }
 
 void EntityInstanceFactory::setAttributes(Entity *&e,
-        const QHash<QString, QVariant> &attributes,
-        QHash<QString, QMetaProperty> metaprops) {
+                                          const QHash<QString, QVariant> &attributes,
+                                          QHash<QString, QMetaProperty> metaprops) {
     if (e) {
         auto iterator = attributes.constBegin();
         while (iterator != attributes.constEnd()) {
@@ -89,7 +89,7 @@ void EntityInstanceFactory::setAttributes(Entity *&e,
                     }
                 } else {
                     qWarning() << prop.name() << "on Entity" << EntityHelper::getClassname(
-                                   e) << "not writeable!";
+                                      e) << "not writeable!";
                 }
             } else {
                 e->setProperty(iterator.key().toLatin1().data(), iterator.value());
@@ -100,7 +100,7 @@ void EntityInstanceFactory::setAttributes(Entity *&e,
 }
 
 void EntityInstanceFactory::setAttributes(Entity *&e,
-        const QHash<QString, QVariant> &attributes) {
+                                          const QHash<QString, QVariant> &attributes) {
     if (!attributes.isEmpty()) {
         auto metaprops = EntityHelper::getMetaProperties(e);
         EntityInstanceFactory::setAttributes(e, attributes, metaprops);
@@ -157,7 +157,7 @@ const QSharedPointer<Entity> EntityInstanceFactory::castQVariant(
 QStringList EntityInstanceFactory::getRegisteredClasses() {
     QStringList registered = QStringList();
     for (auto i = EntityInstanceFactory::instance.constBegin();
-            i != EntityInstanceFactory::instance.constEnd(); ++i) {
+         i != EntityInstanceFactory::instance.constEnd(); ++i) {
         registered.append(i.key());
     }
     return registered;
@@ -165,6 +165,6 @@ QStringList EntityInstanceFactory::getRegisteredClasses() {
 
 Entity *EntityInstanceFactory::createInstance(Attribute *&attr) {
     return EntityInstanceFactory::createInstance(
-               EntityInstanceFactory::extractEntityType(
-                   attr->getMetaProperty().typeName()));
+                EntityInstanceFactory::extractEntityType(
+                    attr->getMetaProperty().typeName()));
 }

@@ -70,6 +70,7 @@ public:
                                                         const QSharedPointer<Entity> &entity);
     static const QList<qint64> getIds(QList<QSharedPointer<Entity>> entities);
     static const QVariant getIdsAsVariant(QList<QSharedPointer<Entity>> entities);
+
 };
 }
 

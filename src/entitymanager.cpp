@@ -478,7 +478,7 @@ void EntityManager::savePrePersistedRelations(const QSharedPointer<Entity>
     while (iterator != relations.constEnd()) {
         const Relation r = iterator.key();
         QVariant var = iterator.value().read(entity.data());
-        if(!var.isNull() && var.data()) {
+        if(!var.isNull() && var.isValid() && var.data() ) {
             if (r.getType() == RelationType::MANY_TO_ONE) {
                 auto e = EntityInstanceFactory::castQVariant(var);
                 if (e && this->shouldBeSaved(e, r)) {
@@ -517,7 +517,7 @@ void EntityManager::savePostPersistedRelations(const QSharedPointer<Entity>
             if (!list.isEmpty()) {
                 auto fkProp = EntityHelper::mappedProperty(r, list.at(0));
                 for (int x = 0; x < list.size(); ++x) {
-                    auto e = list.at(var);
+                    auto e = list.at(x);
                     if (e && this->shouldBeSaved(e, r)) {
                         EntityHelper::setProperty(e, entity, fkProp);
                         this->saveObject(e, mergedObjects, true, ignoreHasChanged);

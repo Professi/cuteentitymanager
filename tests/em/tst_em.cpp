@@ -134,7 +134,6 @@ void EmTest::containsColumn(QHash<QString, QSharedPointer<QSqlField>> &columns,
     QVERIFY(containsColumn);
     if(containsColumn) {
         auto column = columns.value(name);
-        qDebug() << name << column->type() << type;
         if(type != QVariant::UserType) {
             QCOMPARE(column->type(), type);
         }
