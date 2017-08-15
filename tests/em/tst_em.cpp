@@ -350,7 +350,6 @@ void EmTest::testRelations() {
     p3->setGroups(groups);
     QVERIFY(this->e->save(pEnt, true, true));
     this->e->refresh(g);
-    qDebug() << g->getPersons().size();
     QVERIFY(g->getPersons().size() == 2);
     auto firstPerson = g->getPersons().first();
     g->removePerson(firstPerson);

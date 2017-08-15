@@ -23,7 +23,6 @@
 #include <QStringList>
 #include <QObject>
 #include <QSharedPointer>
-#include <QDebug>
 #include <QtSql/QSqlError>
 #include <QMetaType>
 #include "schema.h"
@@ -37,6 +36,7 @@
 #include "attribute.h"
 namespace CuteEntityManager {
 #ifdef QT_DEBUG
+#include <QDebug>
 #define DEFAULTMSGTYPE MsgType::DEBUG
 #define INSPECTENTITIES true
 #else
