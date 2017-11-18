@@ -577,6 +577,7 @@ QString EntityManager::generateObjectName() {
             name += QString::number(i) + "]";
             break;
         }
+        ++i;
     }
     return name;
 }
@@ -746,7 +747,7 @@ void EntityManager::persistManyToMany(const QSharedPointer<Entity> &entity,
     auto ptr = QSharedPointer<Entity>(EntityInstanceFactory::createInstance(
                                           EntityInstanceFactory::extractEntityType(QString(property.typeName()))));
     auto builder = this->schema->getQueryBuilder();
-    QString tblName = builder->generateManyToManyTableName(ptr, entity, r);
+    QString tblName = builder->generateManyToManyTableName(entity, ptr, r);
     if (this->schema->containsTable(tblName)) {
         bool ok = newItem;
         QSqlQuery q;

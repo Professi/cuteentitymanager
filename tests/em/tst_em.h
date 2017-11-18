@@ -11,8 +11,8 @@ class EmTest : public QObject {
     Q_OBJECT
 
   private Q_SLOTS:
-//    void initTestCase();
-//    void cleanupTestCase();
+    void initTestCase();
+    void cleanupTestCase();
     void testCheckDuplicates();
     void testBasics();
     void init();

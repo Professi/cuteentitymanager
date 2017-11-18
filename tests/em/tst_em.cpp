@@ -1,21 +1,23 @@
 #include "tst_em.h"
 
-//void EmTest::initTestCase() {
-//    CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
-//    CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
-//    CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
-//    CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
-//    CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
-//    this->e = new CuteEntityManager::EntityManager("QSQLITE",
-//            ":memory:", "", "", "", "", true, "foreign_keys = ON", false);
-//}
+void EmTest::initTestCase() {
+    CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<Employee>();
+    CuteEntityManager::EntityInstanceFactory::registerClass<WorkerGroup>();
+    this->e = new CuteEntityManager::EntityManager("QSQLITE",
+            ":memory:", "", "", "", "", true, "foreign_keys = ON", false,MsgType::DEBUG);
+    QStringList inits = QStringList() << "Article" << "Group" << "Person" << "Employee" << "WorkerGroup";
+    e->startup("0.1", inits);
+}
 
-//void EmTest::cleanupTestCase() {
-//    if (this->e) {
-//        delete this->e;
-//        this->e = nullptr;
-//    }
-//}
+void EmTest::cleanupTestCase() {
+    if (this->e) {
+        delete this->e;
+        this->e = nullptr;
+    }
+}
 
 void EmTest::testCheckDuplicates() {
     QSharedPointer<Article> article = QSharedPointer<Article>(new Article(10,
@@ -263,10 +265,16 @@ void EmTest::testFindById() {
     QSharedPointer<Person> p = QSharedPointer<Person>(new Person("Patrick", "De",
                                Person::Gender::MALE, "Pat", QDate(2000, 1, 1)));
     auto ent = p.objectCast<Entity>();
+    try {
     QVERIFY(this->e->create(ent));
     auto id = p->getId();
     QVERIFY(id > -1);
     QVERIFY(this->e->findById(id, p->getClassname()));
+    } catch(QString ex) {
+        qDebug() << "------------------------------";
+        qDebug() << ex;
+qDebug() << "------------------------------";
+    }
 }
 
 void EmTest::testFindByIdOnNull()
