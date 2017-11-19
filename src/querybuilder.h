@@ -45,6 +45,9 @@ class QueryBuilder {
     friend class EntityManager;
     friend class QueryInterpreter;
     friend class AttributeResolver;
+    friend class HasMany;
+    friend class HasOne;
+    friend class BelongsTo;
   public:
     QueryBuilder(Schema *schema, QSharedPointer<Database> &database);
     virtual ~QueryBuilder();

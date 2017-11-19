@@ -55,7 +55,12 @@ entity.h \
     entityinspector.h \
     sqlitebackupprocessor.h \
     attribute.h \
-    attributeresolver.h
+    attributeresolver.h \
+    relations/hasmany.h \
+    relations/hasone.h \
+    relations/belongsto.h \
+    converter.h \
+    resolver.h
 
 SOURCES += \
 entity.cpp \
@@ -101,7 +106,12 @@ entity.cpp \
     entityinspector.cpp \
     sqlitebackupprocessor.cpp \
     attribute.cpp \
-    attributeresolver.cpp
+    attributeresolver.cpp \
+    relations/hasmany.cpp \
+    relations/hasone.cpp \
+    relations/belongsto.cpp \
+    converter.cpp \
+    resolver.cpp
 
 windows|android: {
     DEFINES += SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_COMPLETE SQLITE_ENABLE_FTS3 SQLITE_ENABLE_FTS3_PARENTHESIS SQLITE_ENABLE_RTREE
