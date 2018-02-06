@@ -241,8 +241,8 @@ void EntityHelper::setProperty(const QSharedPointer<Entity> &entity,
             > -1) {
         auto i = EntityInstanceFactory::createInstance(EntityInstanceFactory::extractEntityType(property.typeName()));
         if(i) {
-        i->setProperty(entity, value, property);
-        delete i;
+            i->setProperty(entity, value, property);
+            delete i;
         }
     }
 }

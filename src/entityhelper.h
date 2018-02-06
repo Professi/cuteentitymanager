@@ -21,6 +21,7 @@
 #include "entity.h"
 #include "entityinstancefactory.h"
 #include "entity.h"
+
 namespace CuteEntityManager {
 
 class Relation;
