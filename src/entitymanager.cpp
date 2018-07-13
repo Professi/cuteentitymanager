@@ -146,8 +146,10 @@ bool EntityManager::createObject(QSharedPointer<Entity> &entity,
     bool rc = true;
     if (entity && !mergedObjects.contains(entity.data())) {
         mergedObjects.append(entity.data());
-        if (this->checkTable(entity) && (!validate || this->validate(entity))
-                && (!checkDuplicate || this->count(entity) <= 0)) {
+        if (this->checkTable(entity) && (!validate || this->validate(entity))) {
+            if(checkDuplicate && this->count(entity) > 0) {
+                return false;
+            }
             if (persistRelations) {
                 this->savePrePersistedRelations(entity, mergedObjects,
                                                 relationsIgnoreHasChanged);
