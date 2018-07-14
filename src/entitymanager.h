@@ -238,7 +238,7 @@ class EntityManager : public QObject {
     template<typename T>
     void refresh(QSharedPointer<T> entity, const bool resolveRelations = true) {
         static_assert(std::is_base_of<Entity, T>::value, "T must inherit from Entity");
-        if(entity) {
+        if(entity && entity->getId() > -1) {
             auto map  = this->findByPk(entity->getId(), entity);
             QSharedPointer<Entity> e = entity;
             Converter c = Converter();
