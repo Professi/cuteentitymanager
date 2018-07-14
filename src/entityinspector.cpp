@@ -33,7 +33,7 @@ bool EntityInspector::checkRegisteredEntities() {
     QStringList classes = EntityInstanceFactory::getRegisteredClasses();
     classes.sort();
     QString msg = QDateTime::currentDateTime().toString(Qt::ISODate) +
-                  " - Start checking entities\n";
+            " - Start checking entities\n";
     this->logger->logMsg(msg, MsgType::INFO);
     bool ok = true;
     for (int i = 0; i < classes.size(); ++i) {
@@ -52,7 +52,7 @@ bool EntityInspector::checkRegisteredEntities() {
         }
     }
     msg = QDateTime::currentDateTime().toString(Qt::ISODate) +
-          " - End checking entities\n";
+            " - End checking entities\n";
     this->logger->logMsg(msg, MsgType::INFO);
     return ok;
 }
@@ -89,10 +89,14 @@ Entity *EntityInspector::instantiateEntity(const QString name) {
 }
 
 void EntityInspector::checkMetaProperties(QHash<QString, QMetaProperty>
-        &metaProperties, bool &ok, QHash<QString, Relation> &relations) {
+                                          &metaProperties, bool &ok, QHash<QString, Relation> &relations) {
     QString msg = "";
+    QMap<QString, QMetaProperty> metaPropertiesMap;
     for (auto i = metaProperties.constBegin(); i != metaProperties.constEnd();
-            ++i) {
+         ++i) {
+        metaPropertiesMap[i.key()] = i.value();
+    }
+    for (auto i = metaPropertiesMap.constBegin(); i != metaPropertiesMap.constEnd(); i++) {
         QString typeName = QString(i.value().typeName());
         if (!i.value().isWritable()) {
             ok = false;
@@ -119,16 +123,20 @@ bool EntityInspector::verifyRelations(Entity *&entity) {
     auto relations = entity->getRelations();
     QString msg = "";
     this->checkMetaProperties(metaProperties, ok, relations);
-    for (auto i = relations.constBegin(); i != relations.constEnd(); ++i) {
+    QMap<QString, Relation> relationsMap;
+    for (auto i = relations.constBegin(); i != relations.constEnd(); i++) {
+        relationsMap[i.key()] = i.value();
+    }
+    for (auto i = relationsMap.constBegin(); i != relationsMap.constEnd(); ++i) {
         this->checkRelationTypos(i.key(), i.value(), ok);
         if (!metaProperties.contains(i.key())) {
-            msg += "For relation " + i.key() + " no property exists!";
+            msg += i.key();
             ok = false;
         } else {
             auto metaProperty = metaProperties.value(i.key());
             if (!QString(metaProperty.typeName()).contains("QSharedPointer")) {
                 msg += "Property " + QString(metaProperty.name()) +
-                       " must be a type like QList<QSharedPointer<T>> or simply QSharedPointer<T>.";
+                        " must be a type like QList<QSharedPointer<T>> or simply QSharedPointer<T>.";
             } else {
                 auto var = metaProperty.read(entity);
                 bool rel = this->checkRelation(var, i.value(), metaProperty);
@@ -159,11 +167,11 @@ void EntityInspector::verifyTransientAttributes(Entity *&entity) {
         }
         if (relations.contains(transientAttributes.at(i))) {
             msg += "A transient attribute should not be declared as relation: " +
-                   attr + ".\n";
+                    attr + ".\n";
         }
         if (blobs.contains(attr)) {
             msg += "A transient attribute should not be declared as blob column: " + attr +
-                   ".\n";
+                    ".\n";
         }
     }
     if (!msg.isEmpty()) {
@@ -175,21 +183,21 @@ bool EntityInspector::checkRelation(const QVariant &entity,
                                     const Relation &r, const QMetaProperty &property) const {
     QString msg = "";
     bool many = r.getType() == RelationType::MANY_TO_MANY
-                || r.getType() == RelationType::ONE_TO_MANY;
+            || r.getType() == RelationType::ONE_TO_MANY;
     QString propType = QString(property.type());
     bool canConvertList = entity.canConvert<QVariantList>() || (many
-                          && propType.contains("QList"));
+                                                                && propType.contains("QList"));
     if ((many && !canConvertList)) {
         msg = "Relation type of " + r.getPropertyName() +
-              " must be MANY_TO_MANY or ONE_TO_MANY.\n Or you can change the attribute type to QSharedPointer<T>.\n";
+                " must be MANY_TO_MANY or ONE_TO_MANY.\n Or you can change the attribute type to QSharedPointer<T>.\n";
     } else if ((!many && canConvertList)) {
         msg = "Relation type of " + r.getPropertyName() +
-              " must be MANY_TO_ONE or ONE_TO_ONE.\n Or you can change the attribute type to QList<QSharedPointer<T>>.\n";
+                " must be MANY_TO_ONE or ONE_TO_ONE.\n Or you can change the attribute type to QList<QSharedPointer<T>>.\n";
     }
     if (many && r.getType() == RelationType::ONE_TO_MANY
             && r.getMappedBy().isEmpty()) {
         msg += "Relation " + r.getPropertyName() +
-               " needs a mappedBy attribute of the foreign class.\n";
+                " needs a mappedBy attribute of the foreign class.\n";
     }
     if (!msg.isEmpty()) {
         this->logger->logMsg(msg, MsgType::CRITICAL);
@@ -199,7 +207,7 @@ bool EntityInspector::checkRelation(const QVariant &entity,
 }
 
 void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
-        bool &ok) {
+                                         bool &ok) {
     if (name != r.getPropertyName()) {
         ok = false;
         this->logger->logMsg("Relation " + name + " has a typo.\n" + "Name " + name +
@@ -209,7 +217,7 @@ void EntityInspector::checkRelationTypos(const QString &name, const Relation &r,
 }
 
 void EntityInspector::checkNotMappedByAttributes(int foundMappedBy, bool &ok,
-        const QString &propertyName, const QString &foreignEntity) {
+                                                 const QString &propertyName, const QString &foreignEntity) {
     if (foundMappedBy == 0) {
         this->logger->logMsg("Optional: The relation " + propertyName +
                              " is not mapped in foreign class " + foreignEntity +
@@ -225,7 +233,7 @@ void EntityInspector::checkNotMappedByAttributes(int foundMappedBy, bool &ok,
 }
 
 void EntityInspector::checkRelationTypes(const Relation &r,
-        const Relation &foreign, bool &ok) {
+                                         const Relation &foreign, bool &ok) {
     if (r.getType() == RelationType::ONE_TO_ONE
             && foreign.getType() != RelationType::ONE_TO_ONE) {
         ok = false;
@@ -242,7 +250,7 @@ void EntityInspector::checkRelationTypes(const Relation &r,
 }
 
 void EntityInspector::logRelationTypeErrorMsg(const QString &type,
-        const Relation &r, const Relation &foreign) {
+                                              const Relation &r, const Relation &foreign) {
     this->logger->logMsg("Relation type of foreign relation " +
                          foreign.getPropertyName() +
                          " must be of type " + type + "! Foreign property name is called " +
@@ -251,8 +259,8 @@ void EntityInspector::logRelationTypeErrorMsg(const QString &type,
 }
 
 void EntityInspector::analyzeForeignRelations(const Relation &r,
-        const Entity *const entity, const Entity *const foreignInstance, bool &ok,
-        int &foundMappedBy, bool &foundForeignMappedRelation, bool &bothSidedMappedBy) {
+                                              const Entity *const entity, const Entity *const foreignInstance, bool &ok,
+                                              int &foundMappedBy, bool &foundForeignMappedRelation, bool &bothSidedMappedBy) {
     auto foreignRelations = EntityHelper::getRelationProperties(foreignInstance);
     auto superClasses = EntityHelper::superClasses(entity, true);
     QStringList classNames = QStringList {EntityHelper::getClassName(entity)};
@@ -260,7 +268,7 @@ void EntityInspector::analyzeForeignRelations(const Relation &r,
         classNames.append(superClasses.at(s)->className());
     }
     for (auto i = foreignRelations.constBegin(); i != foreignRelations.constEnd();
-            ++i) {
+         ++i) {
         if (r.getMappedBy().isEmpty()
                 && i.key().getMappedBy() == r.getPropertyName()) {
             for (int x = 0; x < classNames.size(); ++x) {
@@ -284,9 +292,9 @@ void EntityInspector::analyzeForeignRelations(const Relation &r,
 
 
 void EntityInspector::checkRelationMappings(QMetaProperty &property,
-        const Relation &r, bool &ok, Entity *&entity) {
+                                            const Relation &r, bool &ok, Entity *&entity) {
     QString foreignEntityName = EntityInstanceFactory::extractEntityType(
-                                    property.typeName());
+                property.typeName());
     auto foreignInstance = EntityInstanceFactory::createInstance(foreignEntityName);
     if (foreignInstance) {
         int foundMappedBy = 0;
