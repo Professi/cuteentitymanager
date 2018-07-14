@@ -160,7 +160,7 @@ void Logger::setPath(const QString &value) {
 QString Logger::generateLogMsg(const QSqlError &e) const {
     QString r = "";
     if (e.isValid()) {
-        r = ",\"error\":\"" + e.text() + "\",\"code\":\"" + e.number() + "\"";
+        r = ",\"error\":\"" + e.text() + "\",\"code\":\"" + e.nativeErrorCode() + "\"";
     }
     return r;
 }
