@@ -113,19 +113,19 @@ entity.cpp \
     converter.cpp \
     resolver.cpp
 
-windows|android: {
-    DEFINES += SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_COMPLETE SQLITE_ENABLE_FTS3 SQLITE_ENABLE_FTS3_PARENTHESIS SQLITE_ENABLE_RTREE
-    !contains(CONFIG, largefile):DEFINES += SQLITE_DISABLE_LFS
-    INCLUDEPATH +=  $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite
-    SOURCES +=      $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.c
-}
-unix:!android: {
-    system-sqlite:!contains(LIBS, .*sqlite3.*) {
-        include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
-    } else {
-        LIBS += -lsqlite3
-    }
-}
+#windows|android: {
+#    DEFINES += SQLITE_OMIT_LOAD_EXTENSION SQLITE_OMIT_COMPLETE SQLITE_ENABLE_FTS3 SQLITE_ENABLE_FTS3_PARENTHESIS SQLITE_ENABLE_RTREE
+#    !contains(CONFIG, largefile):DEFINES += SQLITE_DISABLE_LFS
+#    INCLUDEPATH +=  $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite
+#    SOURCES +=      $$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite/sqlite3.c
+#}
+#unix:!android: {
+#    system-sqlite:!contains(LIBS, .*sqlite3.*) {
+#        include($$[QT_INSTALL_PREFIX]/../Src/qtbase/src/3rdparty/sqlite.pri)
+#    } else {
+#        LIBS += -lsqlite3
+#    }
+#}
 
 CONFIG += c++14
 CONFIG += create_prl
@@ -134,6 +134,7 @@ headers.path = $$PREFIX/include/cuteEntityManager
 headers.files = $$HEADERS
 target.path = $$PREFIX/$$LIBDIR
 INSTALLS += target headers
+DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG(debug, debug|release) {
     DESTDIR = $$EM_DEBUG_PATH
