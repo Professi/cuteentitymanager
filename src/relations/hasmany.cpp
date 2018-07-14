@@ -52,11 +52,7 @@ void HasMany::missingTable(const QString &tblName) {
     QString text = "MANY_TO_MANY Table " + tblName + " is missing.\n" +
             "Entity " + EntityHelper::getClassName(this->entity.data()) +
             " is affected.\n" + "Relation of property: " + this->relation.getPropertyName();
-#ifdef QT_DEBUG
     throw QString(text);
-#else
-    this->logger->logMsg(text, MsgType::CRITICAL);
-#endif
 }
 
 void HasMany::persistMappedByRelation(const QList<QSharedPointer<Entity>>
