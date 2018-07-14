@@ -225,6 +225,9 @@ bool EntityManager::save(QList<QSharedPointer<Entity>> &entities,
 
 bool EntityManager::startup(QString version, QStringList toInitialize,
                             bool createIndices) {
+#ifdef QT_DEBUG
+    qSetGlobalQHashSeed(0);
+#endif
     QSharedPointer<Entity> dbm = QSharedPointer<DatabaseMigration>
             (new DatabaseMigration());
     QHash<QString, QVariant> map = QHash<QString, QVariant>();
