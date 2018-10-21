@@ -1,6 +1,13 @@
 #include "tst_em.h"
+#include "../tests/model/testperson.h"
+#include "../tests/model/testpupil.h"
+#include "../tests/model/testpupilchild.h"
+#include "../tests/model/testpupilgrandchild.h"
+#include "../tests/model/testpupilgreatgrandchild.h"
+#include "../tests/model/testgroup.h"
 
 void EmTest::initTestCase() {
+    qSetGlobalQHashSeed(0);
     CuteEntityManager::EntityInstanceFactory::registerClass<Group>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Person>();
     CuteEntityManager::EntityInstanceFactory::registerClass<Article>();
@@ -19,6 +26,119 @@ void EmTest::cleanupTestCase() {
     }
 }
 
+void EmTest::testChainedHeritageCreate() {
+//    QList<QSharedPointer<TestGroup>> groups;
+//    QList<QSharedPointer<TestPerson>> childListAAA;
+//    QList<QSharedPointer<TestPerson>> grandChildListBBB;
+//    QList<QSharedPointer<TestPerson>> greatGrandChildListCCC;
+
+    auto testPerson = QSharedPointer<TestPerson>(new TestPerson());
+    auto testPupil = QSharedPointer<TestPupil>(new TestPupil());
+    auto testPupilChild = QSharedPointer<TestPupilChild>(new TestPupilChild());
+    auto testPupilGrandChild = QSharedPointer<TestPupilGrandChild>(new TestPupilGrandChild());
+    auto testPupilGreatGrandChild = QSharedPointer<TestPupilGreatGrandChild>(new TestPupilGreatGrandChild());
+
+    QVERIFY(this->e->save(testPerson));
+    QVERIFY(this->e->save(testPupil));
+    QVERIFY(this->e->save(testPupilChild));
+    QVERIFY(this->e->save(testPupilGrandChild));
+    QVERIFY(this->e->save(testPupilGreatGrandChild));
+
+    auto tim =  QSharedPointer<TestPupilGreatGrandChild>(new TestPupilGreatGrandChild());
+//    //set TestPerson's properties
+//    tim->setFirstName("Tim");
+//    tim->setFamilyName("Thaler");
+//    tim->setNickName("Timmy");
+//    tim->setBirthday(QDate(1973,3,8));
+//    tim->setGender(TestPerson::Gender::MALE);
+//    tim->setCustomPictureFileName("someFile.jpg");
+
+//    //set TestPupil's properties
+//    tim->setLegalGuardianNote("lost his parens, lives with stepmother");
+//    tim->setGroups(groups);
+
+//    //setTestPupilChild's properties
+//    tim->setChildPropertyString("childPropertyStringAAA");
+//    tim->setChildPropertyPersons(childListAAA);
+
+//    //setTestPupilGrandChild's properties
+//    tim->setGrandChildPropertyString("grandChildPropertyStringBBB");
+//    tim->setGrandChildPropertyPersons(grandChildListBBB);
+
+//    //setTestPupilGreatGrandChild's properties
+//    tim->setGreatGrandChildPropertyString("greatGrandChildPropertyStringCCC");
+//    tim->setGrandChildPropertyPersons(greatGrandChildListCCC);
+
+    QVERIFY(this->e->save(tim));
+}
+
+void EmTest::testChainedHeritageUpdate()
+{
+//    auto albert = QSharedPointer<TestPupil> (new TestPupil());
+//    albert->setFirstName("Albert");
+//    albert->setFamilyName("Einstein");
+//    auto bette = QSharedPointer<TestPupil> (new TestPupil());
+//    bette->setFirstName("Bette");
+//    bette->setFamilyName("Middler");
+//    auto cassandra  = QSharedPointer<TestPupil> (new TestPupil());
+//    cassandra ->setFirstName("Cassandra ");
+//    cassandra ->setFamilyName("Wilson");
+//    auto dean  = QSharedPointer<TestPupil> (new TestPupil());
+//    dean ->setFirstName("Dean ");
+//    dean ->setFamilyName("Martin");
+
+//    auto group1 = QSharedPointer<TestGroup>(new TestGroup());
+//    group1->setName("group one");
+//    auto group2 = QSharedPointer<TestGroup>(new TestGroup());
+//    group1->setName("group two");
+
+//    QList<QSharedPointer<TestGroup>> groups;
+//    groups << group1;
+//    groups << group2;
+
+//    QList<QSharedPointer<TestPerson>> childListAAA;
+//    childListAAA << albert;
+//    childListAAA << bette;
+//    childListAAA << cassandra;
+//    childListAAA << dean;
+
+//    QList<QSharedPointer<TestPerson>> grandChildListBBB;
+//    grandChildListBBB << bette;
+//    grandChildListBBB << cassandra;
+//    grandChildListBBB << dean;
+
+//    QList<QSharedPointer<TestPerson>> greatGrandChildListCCC;
+//    greatGrandChildListCCC << cassandra;
+//    greatGrandChildListCCC << dean;
+
+    auto tim =  QSharedPointer<TestPupilGreatGrandChild>(new TestPupilGreatGrandChild());
+//    //set TestPerson's properties
+//    tim->setFirstName("Tim");
+//    tim->setFamilyName("Thaler");
+//    tim->setNickName("Timmy");
+//    tim->setBirthday(QDate(1973,3,8));
+//    tim->setGender(TestPerson::Gender::MALE);
+//    tim->setCustomPictureFileName("someFile.jpg");
+
+//    //set TestPupil's properties
+//    tim->setLegalGuardianNote("lost his parens, lives with stepmother");
+//    tim->setGroups(groups);
+
+//    //setTestPupilChild's properties
+//    tim->setChildPropertyString("childPropertyStringAAA");
+//    tim->setChildPropertyPersons(childListAAA);
+
+//    //setTestPupilGrandChild's properties
+//    tim->setGrandChildPropertyString("grandChildPropertyStringBBB");
+//    tim->setGrandChildPropertyPersons(grandChildListBBB);
+
+//    //setTestPupilGreatGrandChild's properties
+//    tim->setGreatGrandChildPropertyString("greatGrandChildPropertyStringCCC");
+//    tim->setGrandChildPropertyPersons(greatGrandChildListCCC);
+
+    QVERIFY(this->e->save(tim));
+    qDebug()<<"<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<";
+}
 void EmTest::testCheckDuplicates() {
     QSharedPointer<Article> article = QSharedPointer<Article>(new Article(10,
                                       QString("TestItem")));

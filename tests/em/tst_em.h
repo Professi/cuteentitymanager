@@ -13,6 +13,8 @@ class EmTest : public QObject {
   private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
+    void testChainedHeritageCreate();
+    void testChainedHeritageUpdate();
     void testCheckDuplicates();
     void testBasics();
     void init();
