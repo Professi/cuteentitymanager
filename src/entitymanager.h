@@ -344,7 +344,7 @@ class EntityManager : public QObject {
             Resolver r = Resolver(this->db);
             auto result = r.convertQueryResult(q);
             Converter c = Converter();
-            auto converted = c.convert(result, EntityHelper::getClassname(e));
+            auto converted = c.convert(result, EntityHelper::getClassname(e),this->cache);
             return Converter::convertList<T>(converted);
         }
         return QList<QSharedPointer<T>>();
